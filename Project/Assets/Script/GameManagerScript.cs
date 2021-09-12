@@ -237,8 +237,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//メインカメラ取得
 		MainCamera = DeepFind(gameObject, "CameraRoot");
 
-		//AssetBudleの依存関係データ読み込み
-		DependencyManifest = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/StreamingAssets").LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+		//開発スイッチ
+		if(!DevSwicth)
+		{
+			//AssetBudleの依存関係データ読み込み
+			DependencyManifest = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/StreamingAssets").LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+		}
 
 		//読み込み済みデータList更新
 		LoadedDataListUpdate();
