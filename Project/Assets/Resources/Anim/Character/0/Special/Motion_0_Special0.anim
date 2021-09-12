@@ -76258,7 +76258,7 @@ AnimationClip:
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 7
+    intParameter: 18
     messageOptions: 0
   - time: 0.033333335
     functionName: FootSmoke

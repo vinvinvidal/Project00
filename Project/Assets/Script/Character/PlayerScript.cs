@@ -1109,7 +1109,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempEffect.transform.localPosition = Vector3.zero;
 
 		//時間をゆっくりにして入力待ち
-		GameManagerScript.Instance.TimeScaleChange(0, 0.1f);
+		GameManagerScript.Instance.TimeScaleChange(0, 0.05f);
 		
 		//待機時間が経過するか入力があるまで待機
 		while (SpecialSuccessFlag)
