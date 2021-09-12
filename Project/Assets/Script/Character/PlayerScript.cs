@@ -1,0 +1,3254 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+using UnityEngine.Animations;
+using System;
+
+/*
++	//角度がきつい坂で滑り落ちる処理
+	if (Vector3.Angle(RayHit.normal, Vector3.up) > 45.0f && OnGround)
+	{
+		MoveVector += Vector3.ProjectOnPlane(transform.forward, RayHit.normal) * PlayerMoveSpeed * Time.deltaTime;
+	}
+
+	//地面に沿わせて体を傾ける、ちょっと保留
+	//transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(Vector3.ProjectOnPlane(MoveVector, RayHit.normal), Vector3.up), TurnSpeed * Time.deltaTime);
+	
+*/
+
+	//他のスクリプトから関数を呼ぶ為のインターフェイス
+	public interface PlayerScriptInterface : IEventSystemHandler
+	{
+		//プレイヤーの攻撃が敵に当たった時の処理
+		void HitAttack(GameObject e, int AttackIndex);
+
+		//敵の攻撃が当たった時の処理
+		void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy);
+
+		//武器をセットする
+		void SetWeapon(GameObject w);
+
+		//戦闘フラグをセットする
+		void SetFightingFlag(bool b);
+
+		//ポーズ処理
+		void Pause(bool b);
+
+		//自身がカメラの画角に入っているか返す
+		bool GetOnCameraBool();
+
+		//ダメージモーションListをセットする
+		void SetDamageAnimList(List<AnimationClip> l);
+
+		//当たった攻撃が有効か返す
+		bool AttackEnable();
+	}
+
+public class PlayerScript : GlobalClass, PlayerScriptInterface
+{
+	//GameManagerのAllActiveCharacterListに登録されているインデックス
+	private int AllActiveCharacterListListIndex;
+
+	//OnCamera判定用スクリプトを持っているオブジェクト
+	private GameObject OnCameraObject;
+
+	//プレイヤーが操作するキャラクターコントローラ	
+	private CharacterController Controller;
+
+	//キャラクターのアニメーター
+	private Animator CurrentAnimator;
+
+	//オーバーライドアニメーターコントローラ、アニメーションクリップ差し替え時に使う
+	private AnimatorOverrideController OverRideAnimator;
+
+	//アニメーターのレイヤー0に存在する全てのステート名
+	private List<string> AllStates = new List<string>();
+
+	//アニメーターのレイヤー0に存在する全てのトランジション名
+	private List<string> AllTransitions = new List<string>();
+
+	//現在のステート
+	private string CurrentState = "";
+
+	//攻撃用コライダを持っているオブジェクト
+	private GameObject AttackColOBJ;
+
+	//強制移動コライダを持っているオブジェクト
+	private GameObject ForceMoveColOBJ;
+
+	//目オブジェクト、視線を操作するために使う
+	private GameObject EyeOBJ;
+
+	//視線を動かすための目マテリアル
+	private Material EyeMaterial;
+
+	//視線を向ける先のポジション
+	private Vector3 CharacterLookAtPos;
+
+	//視線変更許可フラグ
+	private bool LookAtPosFlag;
+
+	//カメラ基準の移動をするためベクトルを取るダミー
+	private GameObject PlayerMoveAxis;
+
+	//インプットシステムから入力されるキャラクター移動値
+	private Vector2 PlayerMoveinputValue;
+
+	//メインカメラのトランスフォーム
+	private Transform MainCameraTransform;
+
+	//水平方向加速度
+	private Vector3 HorizonAcceleration;
+
+	//キャラクターの移動スピード
+	public float PlayerMoveSpeed;
+
+	//キャラクターのダッシュスピード
+	public float PlayerDashSpeed;
+
+	//移動速度補正値
+	public float PlayerMoveParam;
+
+	//移動モーションブレンド補正
+	public float PlayerMoveBlend;
+
+	//キャラクターのローリング移動値
+	private Vector3 RollingMoveVector;
+
+	//キャラクターのローリング回転値
+	private Vector3 RollingRotateVector;
+
+	//キャラクターのローリングスピード
+	public float RollingSpeed;
+
+	//キャラクターのジャンプ力
+	public float JumpPower;
+
+	//キャラクターの旋回スピード
+	public float TurnSpeed;
+
+	//垂直方向の加速度
+	private float VerticalAcceleration;
+
+	//重力加速度
+	private float GravityAcceleration;
+
+	//全ての移動値を合算した移動ベクトル
+	Vector3 MoveVector;
+
+	//入力許可フラグを管理する連想配列
+	Dictionary<string, bool> PermitInputBoolDic = new Dictionary<string, bool>();
+
+	//遷移許可フラグを管理する連想配列
+	Dictionary<string, bool> PermitTransitionBoolDic = new Dictionary<string, bool>();
+
+	//キャラクターの接地判定をするレイが当たったオブジェクトの情報を格納
+	RaycastHit RayHit;
+
+	//キャラクターの接地判定をするレイの発射位置
+	Vector3 RayPoint;
+
+	//キャラクターの接地判定をするレイの大きさ
+	Vector3 RayRadius;
+
+	//キャラクター接地フラグ
+	bool OnGround = false;
+
+	//キャラクターと地面との距離
+	float GroundDistance;
+
+	//急斜面フラグ
+	bool OnSlope = false;
+
+	//ジャンプボタンが押された時間
+	float JumpTime;
+
+	//ジャンプ開始直後のレバー入力
+	Vector3 JumpHorizonVector;
+
+	//ジャンプ入力フラグ
+	bool JumpInput = false;
+
+	//ローリング入力フラグ
+	bool RollingInput = false;
+
+	//空中ローリング許可フラグ
+	bool AirRollingPermit;
+
+	//瞬き処理経過時間
+	float BlinkDelayTime;
+
+	//出す技を判定するコンボステート
+	int ComboState;
+
+	//出す表情を判定するコンボステート
+	int FaceState;
+
+	//遷移するステートを振り分ける文字列
+	string TransitionAttackState;
+
+	//オーバーライドするステートを振り分ける文字列
+	string OverrideAttackState;
+
+	//ターゲットしている敵との距離
+	float EnemyDistance;
+
+	//特殊攻撃入力フラグ
+	bool SpecialInput = false;
+
+	//攻撃時のボタン入力
+	int AttackButton;
+
+	//攻撃時の状態
+	int AttackLocation;
+
+	//攻撃時のスティック入力
+	int AttackStick;
+
+	//遠近攻撃を切り替えるしきい値
+	public float AttackDistance;
+
+	//現在使用している技
+	ArtsClass UseArts;
+
+	//装備している特殊技
+	public List<SpecialClass> SpecialArtsList = new List<SpecialClass>();
+
+	//キャラクターの攻撃移動ベクトル
+	private Vector3 AttackMoveVector;
+
+	//キャラクターの攻撃移動のタイプ
+	int AttackMoveType;
+
+	//地上攻撃した後に足場が無くなった時のスイッチ
+	bool DropAttack;
+
+	//攻撃時にロックした敵オブジェクト
+	GameObject LockEnemy;
+
+	//チェイン攻撃の入力受付時間
+	float ChainAttackWaitTime;
+
+	//技格納マトリクス
+	List<List<List<ArtsClass>>> ArtsMatrix = new List<List<List<ArtsClass>>>();
+
+	//攻撃制御用マトリクス
+	List<List<List<int>>> ArtsStateMatrix = new List<List<List<int>>>();
+
+	//ダメージモーションList
+	List<AnimationClip> DamageAnimList = new List<AnimationClip>();
+
+	//ダメージモーションインデックス
+	int DamageAnimIndex = 0;
+
+	//無敵状態List
+	List<string> InvincibleList = new List<string>();
+
+	//オートコンボフラグ
+	bool AutoCombo;
+
+	//先行入力フラグ
+	bool AttackInput;
+
+	//タメ攻撃フラグ
+	bool ChargeAttack;
+
+	//特殊攻撃待機フラグ
+	bool SpecialTryFlag = false;
+
+	//特殊攻撃成功フラグ
+	bool SpecialSuccessFlag = false;
+
+	//特殊攻撃中フラグ
+	public bool SpecialAttackFlag { get; set; }
+
+	//特殊攻撃入力インデックス
+	int SpecialInputIndex = 100;
+
+	//特殊攻撃入力待ち時間
+	float SpecialSelectTime = 0.1f;
+
+	//回転禁止フラグ
+	bool NoRotateFlag;
+
+	//ダッシュフラグ
+	bool DashFlag;
+
+	//ダッシュ入力受付時間
+	float DashInputTime;
+
+	//戦闘フラグ
+	bool FightingFlag;
+
+	//ホールド中フラグ
+	bool HoldFlag;
+
+	//ダメージ状態フラグ
+	bool DamageFlag = false;
+
+	//ダメージ移動ベクトル
+	Vector3 DamageMoveVector;
+
+	//イベント移動ベクトル
+	Vector3 EventMoveVector;
+
+	//イベント移動速度補正
+	float EventMoveSpeed;
+
+	//イベント回転ベクトル
+	Vector3 EventRotateVector;
+
+	//強制移動ベクトル
+	Vector3 ForceMoveVector;
+
+	//特殊攻撃移動ベクトル
+	public Vector3 SpecialMoveVector { get; set; }
+
+	//敵接触フラグ
+	bool EnemyContact;
+
+	//攻撃時のTrailエフェクト
+	GameObject AttackTrail;
+
+	//足元の衝撃エフェクト
+	GameObject FootImpactEffect;
+
+	//足元の煙エフェクト
+	GameObject FootSmokeEffect;
+
+	//タメエフェクト
+	GameObject ChargePowerEffect;
+
+	//タメ完了エフェクト
+	GameObject ChargeLevelEffect;
+
+	//特殊攻撃成功エフェクト
+	GameObject SpecialSuccessEffect;
+
+	//装備している武器のオブジェクト
+	GameObject WeaponOBJ;
+
+	//ポーズフラグ
+	bool PauseFlag = false;
+
+	//アクションイベントフラグ
+	bool ActionEventFlag;
+
+	//モーションにノイズを加えるボーンList
+	private List<GameObject> AnimNoiseBone = new List<GameObject>();
+
+	//モーションノイズのランダムシードList
+	private List<Vector3> AnimNoiseSeedList = new List<Vector3>();
+
+	void Start()
+	{
+		//自身をGameManagerのリストに追加、インデックスを受け取る
+		AllActiveCharacterListListIndex = GameManagerScript.Instance.AddAllActiveCharacterList(gameObject);
+
+		//OnCamera判定用スクリプトを持っているオブジェクトを検索して取得
+		foreach (Transform i in GetComponentsInChildren<Transform>())
+		{
+			if (i.GetComponent<OnCameraScript>() != null)
+			{
+				OnCameraObject = i.gameObject;
+			}
+		}
+
+		//キャラクターコントローラ取得
+		Controller = GetComponent<CharacterController>();
+
+		//キャラクターのアニメーターコントローラ取得
+		CurrentAnimator = GetComponentInChildren<Animator>();
+
+		//攻撃用コライダを持っているオブジェクト取得
+		AttackColOBJ = DeepFind(gameObject, "PlayerAttackColl");
+
+		//目オブジェクト取得、視線を操作するために使う
+		EyeOBJ = gameObject.GetComponentsInChildren<Renderer>().Where(i => i.name.Contains("Eye")).ToArray()[0].gameObject;
+
+		//視線を動かすための目マテリアル取得
+		EyeMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Eye")).ToArray()[0].material;
+
+		//視線を向ける先のポジション初期化
+		CharacterLookAtPos = Vector3.zero;
+
+		//視線変更許可フラグ初期化
+		LookAtPosFlag = true;
+
+		//攻撃コライダを非アクティブ化しておく
+		AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+
+		//オーバーライドアニメーターコントローラ初期化
+		OverRideAnimator = new AnimatorOverrideController();
+
+		//オーバーライドアニメーターコントローラに元アニメーターコントローラをコピー
+		OverRideAnimator.runtimeAnimatorController = CurrentAnimator.runtimeAnimatorController;
+
+		//メインカメラのトランスフォーム取得
+		MainCameraTransform = GameObject.Find("MainCamera").transform;
+
+		//移動ベクトル用ダミー取得
+		PlayerMoveAxis = DeepFind(transform.gameObject, "PlayerMoveAxis");
+
+		//インプットシステムから入力されるキャラクター移動値初期化
+		PlayerMoveinputValue = Vector2.zero;
+
+		//水平加速度初期化
+		HorizonAcceleration = Vector3.zero;
+
+		//垂直加速度初期化
+		VerticalAcceleration = 0;
+
+		//重力加速度初期化
+		GravityAcceleration = 0;
+
+		//キャラクターのローリング移動値初期化
+		RollingMoveVector = Vector3.zero;
+
+		//キャラクターのローリング回転値初期化
+		RollingRotateVector = Vector3.zero;
+
+		//ジャンプボタンが押された時間初期化
+		JumpTime = 0;
+
+		//全ての移動値を合算した移動ベクトル初期化
+		MoveVector = Vector3.zero;
+
+		//移動速度補正値初期化
+		PlayerMoveParam = 1f;
+
+		//キャラクターの接地判定をするレイの発射位置、キャラクターコントローラから算出
+		RayPoint = new Vector3(0, Controller.height, Controller.center.z);
+
+		//キャラクターの接地判定をするレイの大きさ、キャラクターコントローラから算出
+		RayRadius = new Vector3(Controller.radius, Controller.height * 0.5f, Controller.radius);
+
+		//ディレイ処理の待機時間初期化
+		BlinkDelayTime = 0;
+
+		//出す技を判定するコンボステート初期化
+		ComboState = 0;
+
+		//出す表情を判定するコンボステート初期化
+		FaceState = 0;
+
+		//現在使用している技初期化
+		UseArts = null;
+
+		//地上攻撃した後に足場が無くなった時のスイッチ初期化
+		DropAttack = false;
+
+		//攻撃時にロックした敵初期化
+		LockEnemy = null;
+
+		//ターゲットしている敵との距離初期化
+		EnemyDistance = 0;
+
+		//攻撃時の移動ベクトルのキャッシュ初期化
+		List<Color> AttackMoveVec = new List<Color>();
+
+		//攻撃移動のタイプ初期化
+		AttackMoveType = 100;
+
+		//技をマトリクスに装備
+		ArtsMatrixSetUp();
+
+		//攻撃制御用マトリクス初期化
+		ArtsStateMatrixReset();
+
+		//オートコンボフラグ初期化
+		AutoCombo = false;
+
+		//先行入力フラグ初期化
+		AttackInput = false;
+
+		//タメ攻撃フラグ初期化
+		ChargeAttack = false;
+
+		//回転禁止フラグ初期化
+		NoRotateFlag = false;
+
+		//ダッシュフラグ初期化
+		DashFlag = false;
+
+		//ダッシュ入力受付時間初期化
+		DashInputTime = 0;
+
+		//ホールド中フラグ初期化
+		HoldFlag = false;
+
+		//戦闘フラグ初期化
+		FightingFlag = false;
+
+		//特殊攻撃中フラグ初期化
+		SpecialAttackFlag = false;
+
+		//空中ローリング許可フラグ初期化
+		AirRollingPermit = true;
+
+		//イベント移動ベクトル初期化
+		EventMoveVector = Vector3.zero;
+
+		//イベント移動速度補正初期化
+		EventMoveSpeed = 1f;
+
+		//イベント回転ベクトル初期化
+		EventRotateVector = Vector3.zero;
+
+		//強制移動ベクトル初期化
+		ForceMoveVector = Vector3.zero;
+
+		//敵接触フラグ初期化
+		EnemyContact = false;
+
+		//ダメージ移動ベクトル初期化
+		DamageMoveVector = Vector3.zero;
+
+		//特殊攻撃移動ベクトル初期化
+		SpecialMoveVector = Vector3.zero;
+
+		//アクションイベントフラグ初期化
+		ActionEventFlag = false;
+
+		//攻撃時のTrailエフェクト取得
+		AttackTrail = DeepFind(gameObject, "AttackTrail");
+
+		//足元の衝撃エフェクト取得
+		FootImpactEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "FootImpact").ToArray()[0];
+
+		//足元の煙エフェクト取得
+		FootSmokeEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "FootSmoke").ToArray()[0];
+
+		//タメエフェクト取得
+		ChargePowerEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargePower").ToArray()[0];
+
+		//タメ完了エフェクト取得
+		ChargeLevelEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargeLevel").ToArray()[0];
+
+		//特殊攻撃成功エフェクト取得
+		SpecialSuccessEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "SpecialSuccessEffect").ToArray()[0];
+
+		//とりあえずなんでもいいから技を入れる、これが無いと最初の攻撃の時に一瞬Ｔスタンスが見える
+		foreach (List<List<ArtsClass>> i in ArtsMatrix)
+		{
+			foreach (List<ArtsClass> ii in i)
+			{
+				foreach (ArtsClass iii in ii)
+				{
+					if (iii != null)
+					{
+						//次に書き換えるアニメーションを設定、ステートを2で割った余りで01を切り替えて文字列として連結
+						OverrideAttackState = "Arts_void_0";
+
+						//オーバーライドコントローラにアニメーションクリップをセット
+						OverRideAnimator[OverrideAttackState] = iii.AnimClip;
+
+						//アニメーターを上書きしてアニメーションクリップを切り替える
+						CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+						//多重ループを抜ける
+						goto ArtsClassLinstLoopBreak;
+
+					}
+				}
+			}
+		}
+
+		//多重ループを抜ける先
+		ArtsClassLinstLoopBreak:;
+
+		//無敵状態になるステートListに手動でAdd
+		InvincibleList.Add("Rolling");
+		InvincibleList.Add("Damage");
+		InvincibleList.Add("-> Jump");
+		InvincibleList.Add("SpecialAttack");
+		InvincibleList.Add("SpecialSuccess");
+
+		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
+		AllStates.Add("Idling");
+		AllStates.Add("Run");
+		AllStates.Add("Fall");
+		AllStates.Add("Jump");
+		AllStates.Add("Crouch");
+		AllStates.Add("GroundRolling");
+		AllStates.Add("AirRolling");
+		AllStates.Add("Attack00");
+		AllStates.Add("Attack01");
+		AllStates.Add("ChainBreak");
+		AllStates.Add("Drop");
+		AllStates.Add("Stop");
+		AllStates.Add("EventAction");
+		AllStates.Add("Damage");
+		AllStates.Add("SpecialTry");
+		AllStates.Add("SpecialSuccess");		
+		AllStates.Add("SpecialAttack");
+
+		//全てのステートとトランジションをListにAdd
+		foreach (string i in AllStates)
+		{
+			//入力許可フラグ管理用連想配列にステート名をキーにしたboolをAdd、とりあえずfalseを入れとく
+			PermitInputBoolDic.Add(i, false);
+
+			//遷移許可フラグ管理用連想配列にステート名をキーにしたboolをAdd、とりあえずfalseを入れとく
+			PermitTransitionBoolDic.Add(i, false);
+
+			//AllStatesを2重で回す
+			foreach (string ii in AllStates)
+			{
+				//全てのステート名の組み合わせのトランジション名をAddする、存在しないトランジションもあるが気にしない
+				AllTransitions.Add(i + " -> " + ii);
+			}
+		}
+
+		//モーションにノイズを加えるボーンListに手動でAdd
+		foreach (Transform i in gameObject.GetComponentsInChildren<Transform>())
+		{
+			if (i.name.Contains("Bone"))
+			{
+
+				if (i.name.Contains("Spine") ||
+					i.name.Contains("Shoulder") ||
+					i.name.Contains("Arm") ||
+					i.name.Contains("Elbow") ||
+					i.name.Contains("Wrist") ||
+					i.name.Contains("Hand") ||
+					i.name.Contains("Neck") ||
+					i.name.Contains("Head")
+				)
+				{
+					//条件に合ったボーンをListにAdd
+					AnimNoiseBone.Add(i.gameObject);
+
+					//同じ数だけランダムシードを作成
+					AnimNoiseSeedList.Add(new Vector3(UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f)));
+				}
+			}
+
+			//指
+			if (i.name.Contains("Thumb") ||
+					i.name.Contains("First") ||
+					i.name.Contains("Middle") ||
+					i.name.Contains("Ring") ||
+					i.name.Contains("Pinky"))
+			{
+				//条件に合ったボーンをListにAdd
+				AnimNoiseBone.Add(i.gameObject);
+
+				//同じ数だけランダムシードを作成
+				AnimNoiseSeedList.Add(new Vector3(UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f)));
+			}
+		}
+	}
+
+	void LateUpdate()
+	{
+		//ループカウント
+		int count = 0;
+
+		//揺らすポーンListを回す
+		foreach (GameObject i in AnimNoiseBone)
+		{
+			//ノイズ生成
+			Vector3 NoiseVec1 = new Vector3
+			(
+				Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].x) - 0.5f,
+				Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].y) - 0.5f,
+				Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].z) - 0.5f
+			);
+
+			//ノイズ生成
+			Vector3 NoiseVec2 = new Vector3
+			(
+				Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].x) - 0.5f,
+				Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].y) - 0.5f,
+				Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].z) - 0.5f
+			);
+
+			//ボーンにパーリンノイズの回転を加えて揺らす
+			i.transform.localRotation *= Quaternion.Euler((NoiseVec1 + NoiseVec2 * 0.25f) * 5f);
+
+			//カウントアップ
+			count++;
+		}
+	}
+
+	void Update()
+	{
+		if (!PauseFlag)
+		{
+			//接地判定用のRayを飛ばす関数呼び出し
+			GroundRayCast();
+
+			//アニメーションステートを監視する関数呼び出し
+			StateMonitor();
+
+			//遷移許可フラグを管理する関数呼び出し
+			TransitionManager();
+
+			//アニメーション制御関数呼び出し
+			AnimFunc();
+
+			//周囲の敵にめり込まないようにする関数
+			EnemyAround();
+
+			//移動制御関数呼び出し
+			MoveFunc();
+
+			//キャラクター移動
+			Controller.Move(MoveVector);
+
+			//毎フレーム呼ばなくてもいい処理
+			DelayFunc();
+		}
+	}
+
+	//毎フレーム呼ばなくてもいい処理
+	private void DelayFunc()
+	{
+		//１秒毎に処理が走る
+		if (Time.time - BlinkDelayTime > 1)
+		{
+			//現在時間をキャッシュ
+			BlinkDelayTime = Time.time;
+
+			//瞬きアニメーション、タメ攻撃中は処理しない
+			if (Mathf.FloorToInt(UnityEngine.Random.Range(0f, 5f)) == 0)
+			{
+				CurrentAnimator.SetBool("Wink", true);
+			}
+			else
+			{
+				CurrentAnimator.SetBool("Wink", false);
+			}
+		}
+	}
+
+	//立ち構え切り替えコルーチン
+	IEnumerator IdlingChargeCoroutine()
+	{
+		//現在のブレンド比率をキャッシュ
+		float BlendRatio = CurrentAnimator.GetFloat("Idling_Blend");
+
+		//構えと立ち切り替え、敵がいる時は構え
+		if (FightingFlag)
+		{
+			//ブレンド比率が1になるまで繰り返し
+			while (BlendRatio < 1)
+			{
+				//ブレンド比率をチョイ上げ
+				BlendRatio += 0.05f;
+
+				//ブレンド比率を適応
+				CurrentAnimator.SetFloat("Idling_Blend", BlendRatio);
+
+				//1フレーム待機
+				yield return null;
+			}
+		}
+		//敵がいない時は立ち
+		else
+		{
+			//ブレンド比率が0になるまで繰り返し
+			while (BlendRatio > 0)
+			{
+				//ブレンド比率をチョイ下げ
+				BlendRatio -= 0.1f;
+
+				//ブレンド比率を適応
+				CurrentAnimator.SetFloat("Idling_Blend", BlendRatio);
+
+				//1フレーム待機
+				yield return null;
+			}
+		}
+	}
+
+	//キャラクター移動処理
+	private void MoveFunc()
+	{
+		//移動ベクトル用ダミーの座標をベクトル取得位置に移動
+		PlayerMoveAxis.transform.position = new Vector3(MainCameraTransform.position.x, transform.position.y, MainCameraTransform.position.z);
+
+		//ダミーをプレイヤーに向ける
+		PlayerMoveAxis.transform.LookAt(transform.position);
+
+		//ダミーのベクトルとプレイヤーからの入力で移動ベクトルを求める
+		HorizonAcceleration = (PlayerMoveAxis.transform.forward * PlayerMoveinputValue.y) + (PlayerMoveAxis.transform.right * PlayerMoveinputValue.x);
+
+		//空中にいる時は重力加速度を減らし続ける、物理的に正しい加速度だとふんわりしすぎるので2倍
+		if (!OnGround)
+		{
+			GravityAcceleration += Physics.gravity.y * 2 * Time.deltaTime;
+		}
+
+		//急斜面にいる
+		if (OnSlope)
+		{
+			//接地面の法線をベクトルにして移動させる
+			MoveVector = RayHit.normal * PlayerMoveSpeed * Time.deltaTime;
+
+			//Y軸ベクトルにマイナスを入れて落下
+			MoveVector.y = -Mathf.Abs(MoveVector.y);
+		}
+		//通常移動制御
+		else if (CurrentState.Contains("Run") || CurrentState.Contains("Jump") || CurrentState.Contains("Fall") || CurrentState.Contains("Stop"))
+		{
+			if (OnGround)
+			{
+				//一定時間走っていたらダッシュに移行
+				if (Time.time - DashInputTime > 5 && !DashFlag && CurrentState.Contains("Run"))
+				{
+					//フラグ状態をまっさらに戻す関数呼び出し
+					ClearFlag();
+
+					//ダッシュフラグを立てる
+					DashFlag = true;
+
+					//ブレンド比率初期値
+					PlayerMoveBlend = 0;
+				}
+
+				if (CurrentState.Contains("Stop"))
+				{
+					//移動補正値を減らしていく
+					PlayerMoveParam -= 2 * Time.deltaTime;
+
+					//ユーザー入力による移動ベクトルに移動スピードを加える
+					MoveVector = transform.forward * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam) * Time.deltaTime;
+				}
+				else
+				{
+					PlayerMoveParam = 1;
+
+					//ユーザー入力による移動ベクトルに移動スピードを加える
+					MoveVector = HorizonAcceleration * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam) * Time.deltaTime;
+				}
+			}
+			else
+			{
+				//空中では移動値を下げて、ジャンプ開始直後のベクトルを加える
+				MoveVector = ((HorizonAcceleration * 0.5f) + JumpHorizonVector) * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Time.deltaTime;
+			}
+		}
+		//ローリング中の移動制御
+		else if (CurrentState.Contains("Rolling"))
+		{
+			//触れている敵に向かってローリングしていない
+			if (!(EnemyContact && -0.8f > Vector3.Dot(ForceMoveVector, RollingMoveVector)))
+			{
+				//ローリングの移動値を加える
+				MoveVector = RollingMoveVector * ((RollingSpeed + PlayerDashSpeed * PlayerMoveBlend) * Time.deltaTime);
+			}
+		}
+		//ダメージ中の移動処理
+		else if (DamageFlag)
+		{
+			//ダメージモーションから受け取った移動値を入れる
+			MoveVector = DamageMoveVector * Time.deltaTime;
+		}
+		//特殊攻撃中の移動処理
+		else if(SpecialAttackFlag)
+		{
+			MoveVector = SpecialMoveVector * Time.deltaTime;
+		}
+		//攻撃中の移動制御
+		else if (CurrentState.Contains("Attack"))
+		{
+			/*
+			AttackMoveType 技の移動タイプ
+			0：地上で完結する移動、踏み外しの対象、
+			1：空中で完結する移動、
+			2：地上から空中に上がる移動
+			3：空中から地上に降りる移動
+			4：地上突進移動、相手に当たるとその場で止まる、踏み外しの対象、
+			5：空中突進移動、相手に当たるとその場で止まる
+			*/
+
+			//下り坂で地上技を出した時に踏み外さないように地面に添わせる
+			if (OnGround && Vector3.ProjectOnPlane(AttackMoveVector, RayHit.normal).y < 0)
+			{
+				VerticalAcceleration = -10;
+			}
+
+			//敵に接触している時は前方に動かさない
+			if ((AttackMoveType == 0 || AttackMoveType == 2 || AttackMoveType == 4 || AttackMoveType == 5) && EnemyContact && ((AttackMoveVector.z / transform.forward.z) > 0))
+			{
+				AttackMoveVector.x = 0;
+				AttackMoveVector.z = 0;
+			}
+
+			//空中攻撃移動制御
+			if (AttackMoveType == 1 || AttackMoveType == 2 || AttackMoveType == 3 || AttackMoveType == 5)
+			{
+				//垂直方向の加速度で重力を打ち消して攻撃加速度を入れる
+				VerticalAcceleration = AttackMoveVector.y - GravityAcceleration;
+			}
+
+			//踏み外し処理
+			if ((AttackMoveType == 0 || AttackMoveType == 4) && !OnGround)
+			{
+				//重力加速度をリセット
+				GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
+
+				//垂直加速度をリセット
+				VerticalAcceleration = 0;
+
+				//踏み外し遷移フラグを立てる
+				CurrentAnimator.SetBool("Drop", true);
+
+				//遷移可能フラグを下ろす
+				CurrentAnimator.SetBool("Transition", false);
+
+				//チェインフラグを下ろす
+				CurrentAnimator.SetBool("Chain", false);
+
+				//コンボフラグを下ろす
+				CurrentAnimator.SetBool("Combo", false);
+
+				//攻撃遷移フラグを下ろす
+				CurrentAnimator.SetBool("Attack00", false);
+				CurrentAnimator.SetBool("Attack01", false);
+
+				//ジャンプ入力フラグを下す
+				JumpInput = false;
+
+				//ローリング入力フラグを下す
+				RollingInput = false;
+			}
+
+			//水平方向の攻撃移動値を入れる
+			MoveVector = AttackMoveVector * Time.deltaTime;
+		}
+		//何もしていなければその場に止まる
+		else
+		{
+			MoveVector *= 0;
+		}
+
+		//踏み外し中の処理
+		if (CurrentState.Contains("Drop"))
+		{
+			//踏み外し遷移フラグを下ろす
+			CurrentAnimator.SetBool("Drop", false);
+
+			//攻撃移動値を徐々に減速
+			AttackMoveVector *= 0.95f;
+		}
+
+		//垂直方向の加速度を与える
+		MoveVector.y = (GravityAcceleration + VerticalAcceleration) * Time.deltaTime;
+
+		//強制移動処理、敵との接触や崖際とか動く床とか
+		if (ForceMoveVector != Vector3.zero)
+		{
+			MoveVector += ForceMoveVector * PlayerMoveSpeed * Time.deltaTime;
+		}
+
+		//イベント移動処理、入力は無視する
+		if (EventMoveVector != Vector3.zero)
+		{
+			//移動ベクトルに直接代入して移動させる
+			MoveVector = EventMoveVector * PlayerMoveSpeed * PlayerMoveParam * EventMoveSpeed * Time.deltaTime;
+
+			//アニメーターのRunステートを再生、進行方向に向ける
+			HorizonAcceleration = EventMoveVector;
+		}
+
+		//ダメージ中は処理しない
+		if (DamageFlag)
+		{
+
+		}
+		//イベント回転制御
+		else if (EventRotateVector != Vector3.zero)
+		{
+			//目標に向けて回転
+			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(EventRotateVector, Vector3.up), TurnSpeed * Time.deltaTime);
+		}
+		//ローリング中の回転制御
+		else if (CurrentState.Contains("Rolling"))
+		{
+			//ローリングの移動方向に向ける
+			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(RollingRotateVector), TurnSpeed * 0.5f * Time.deltaTime);
+		}
+		//ロックしている敵がいる時の回転処理
+		else if (LockEnemy != null && !NoRotateFlag)
+		{
+			//ロックしている敵に向ける
+			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * 2 * Time.deltaTime);
+		}
+		//移動中の回転処理
+		else if ((CurrentState.Contains("Run") || CurrentState.Contains("Jump") || CurrentState.Contains("Fall")) && HorizonAcceleration != Vector3.zero)
+		{
+			//進行方向に向けて回転
+			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizonAcceleration, Vector3.up), TurnSpeed * Time.deltaTime);
+		}
+	}
+
+	//当たった攻撃が有効かを返す関数
+	public bool AttackEnable()
+	{
+		//無敵ステートを調ベて出力
+		return !(InvincibleList.Any(t => CurrentState.Contains(t)) || (Time.time - JumpTime < 0.25f));
+	}
+
+	//敵の攻撃が当たった時の処理
+	public void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy)
+	{
+		//当身に当たった
+		if (SpecialTryFlag && SpecialArtsList[0].Trigger == 0)
+		{
+			//特殊攻撃待機フラグを下す
+			SpecialTryFlag = false;
+
+			//攻撃してきた敵の方を向く
+			transform.rotation = Quaternion.LookRotation(HorizontalVector(enemy, gameObject));
+
+			//アニメーターの遷移フラグを立てる
+			CurrentAnimator.SetBool("SpecialSuccess", true);
+
+			//特殊攻撃成功コルーチン呼び出し
+			StartCoroutine(SpecialArtsSuccess(enemy));
+		}
+		//普通に喰らった
+		else
+		{
+			//接地を判別、ongroundじゃなくアニメーターのフラグを使う
+			if (CurrentAnimator.GetBool("Fall"))
+			{
+				//空中用ダメージモーションに切り替える
+				for (int i = 0; i <= DamageAnimList.Count - 1; i++)
+				{
+					if (DamageAnimList[i].name.Contains("10"))
+					{
+						//空中ダメージインデックスを反映
+						DamageAnimIndex = i;
+
+						//ループを抜ける
+						break;
+					}
+				}
+			}
+			//接地していたら
+			else
+			{
+				//ダメージモーションインデクスに反映
+				DamageAnimIndex = arts.AttackType;
+			}
+
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["Damage_void"] = DamageAnimList[DamageAnimIndex];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+			//イベントアニメーションフラグを立てる
+			CurrentAnimator.SetBool("Damage", true);
+
+			//これ以上イベントを起こさないためにAttackステートを一時停止
+			CurrentAnimator.SetFloat("AttackSpeed00", 0.0f);
+			CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
+
+			//ダメージ状態フラグを立てる
+			DamageFlag = true;
+
+			//ホールドフラグを下す
+			HoldFlag = false;
+
+			//ホールド状態を解除
+			HoldBreak();
+
+			//特殊攻撃入力フラグを下ろす
+			SpecialInput = false;
+
+			//攻撃フラグを下ろす
+			AttackInput = false;
+
+			//ロックを解除
+			LockEnemy = null;
+
+			//攻撃してきた敵の方を向く
+			transform.rotation = Quaternion.LookRotation(HorizontalVector(enemy, gameObject));
+		}
+	}
+
+	//特殊攻撃が成功した時の処理
+	IEnumerator SpecialArtsSuccess(GameObject enemy)
+	{
+		//有効な入力bool
+		bool TempInput = false;
+
+		//対象の敵をロック
+		LockEnemy = enemy;
+
+		//特殊攻撃成功フラグを立てる
+		SpecialSuccessFlag = true;
+
+		//特殊攻撃インデックスを初期化
+		SpecialInputIndex = 100;
+
+		//現在時間をキャッシュ
+		float SuccessTime = Time.time;
+
+		//フェードエフェクト呼び出し
+		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), SpecialSelectTime, (GameObject obj) => { }));
+
+		//ズームエフェクト呼び出し
+		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.025f, SpecialSelectTime, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
+
+		//特殊攻撃成功エフェクト生成
+		GameObject TempEffect = Instantiate(SpecialSuccessEffect);
+
+		//親を設定
+		TempEffect.transform.parent = DeepFind(gameObject, SpecialArtsList[0].EffectPos).transform;
+
+		//ローカルポジションリセット
+		TempEffect.transform.localPosition = Vector3.zero;
+
+		//時間をゆっくりにして入力待ち
+		GameManagerScript.Instance.TimeScaleChange(0, 0.1f);
+		
+		//待機時間が経過するか入力があるまで待機
+		while (SpecialSuccessFlag)
+		{
+			//有効な入力があったらフラグを立ててブレーク
+			foreach (SpecialClass i in SpecialArtsList)
+			{
+				if (i.ArtsIndex == SpecialInputIndex)
+				{
+					TempInput = true;
+
+					goto SpecialLoopBreak;
+				}
+			}
+
+			if(CurrentState == "SpecialSuccess" && CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > SpecialSelectTime)
+			{
+				goto SpecialLoopBreak;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//ループを抜ける先
+		SpecialLoopBreak:;
+
+		//時間を戻す
+		GameManagerScript.Instance.TimeScaleChange(0.1f, 1);
+
+		//フラグを下す
+		SpecialSuccessFlag = false;
+
+		//有効な入力があったら処理
+		if (TempInput)
+		{
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["Special_void"] = SpecialArtsList[SpecialInputIndex].AnimClip;
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+			//アニメーターの遷移フラグを立てる
+			CurrentAnimator.SetBool("SpecialAttack", true);
+		}
+	}
+
+	//特殊攻撃待機フラグを下す、アニメーションクリップから呼ばれる
+	public void EndSpecialTry()
+	{
+		SpecialTryFlag = false;
+	}
+
+	//特殊攻撃実行、アニメーションクリップから呼ばれる
+	public void SpecialArtsAction(int n)
+	{
+		//特殊攻撃処理を実行
+		SpecialArtsList[SpecialInputIndex].SpecialAtcList[n](gameObject , LockEnemy , SpecialArtsList[SpecialInputIndex]);
+	}
+
+	//ダメージ時の移動ベクトルを設定する、アニメーションクリップから呼ばれる
+	public void StartDamageMove(float s)
+	{
+		//攻撃移動加速度をリセット
+		AttackMoveVector *= 0;
+
+		//ローリング移動加速度をリセット
+		RollingMoveVector *= 0;
+
+		//引数が0なら空中ダメージなので上に浮かす
+		if (s == 0)
+		{
+			//垂直方向の加速度をリセット
+			VerticalAcceleration = 0f;
+
+			//重力加速度をリセット
+			GravityAcceleration = 0;
+
+			//ちょい浮かす
+			VerticalAcceleration = 8f - GravityAcceleration;
+		}
+		else
+		{
+			//水平方向の加速度を反映
+			DamageMoveVector = transform.forward * s;
+		}
+	}
+
+	//ダメージ時の移動ベクトルを初期化する、アニメーションクリップから呼ばれる
+	public void EndDamageMove()
+	{
+		DamageMoveVector *= 0;
+	}
+
+	//ダメージフラグを下す、アニメーションクリップから呼ばれる
+	public void EndDamage()
+	{
+		//ダメージフラグを下す
+		DamageFlag = false;
+
+		//表情を戻す
+		ChangeFace("Common");
+	}
+
+	//立ちモーションループ
+	void StandLoop(float t)
+	{
+		CurrentAnimator.Play("Idling", 0, t);
+	}
+
+	//移動キーを押した時
+	private void OnPlayerMove(InputValue inputValue)
+	{
+		if (!ActionEventFlag)
+		{
+			//入力をキャッシュ
+			PlayerMoveinputValue = inputValue.Get<Vector2>();
+		}
+	}
+
+	//ジャンプキーを押した時
+	private void OnPlayerJump()
+	{
+		//ジャンプ入力許可条件判定
+		if (PermitInputBoolDic["Jump"] && !ActionEventFlag)
+		{
+			//フラグ切り替え
+			JumpInput = true;
+
+			//攻撃入力フラグを下ろす
+			AttackInput = false;
+
+			//フラグ切り替え
+			SpecialInput = false;
+
+			//フラグ切り替え
+			RollingInput = false;
+
+			//Attack遷移フラグを下す
+			CurrentAnimator.SetBool("Attack00", false);
+			CurrentAnimator.SetBool("Attack01", false);
+		}
+	}
+
+	//ローリングキーを押した時
+	private void OnPlayerRolling()
+	{
+		//ローリング入力許可条件判定
+		if ((PermitInputBoolDic["GroundRolling"] || PermitInputBoolDic["AirRolling"]) && !ActionEventFlag)
+		{
+			//ローリング入力フラグ切り替え
+			RollingInput = true;
+
+			//フラグ切り替え
+			AttackInput = false;
+
+			//フラグ切り替え
+			SpecialInput = false;
+
+			//フラグ切り替え
+			JumpInput = false;
+
+			//Attack遷移フラグを下す
+			CurrentAnimator.SetBool("Attack00", false);
+			CurrentAnimator.SetBool("Attack01", false);
+
+			//地上でレバー入力されていたらそちらに向ける
+			if (OnGround && PlayerMoveinputValue != Vector2.zero && HorizonAcceleration != Vector3.zero)
+			{
+				RollingRotateVector = HorizonAcceleration;
+			}
+			//空中もしくはレバー入力されていなかったら正面そのまま
+			else
+			{
+				RollingRotateVector = transform.forward;
+			}
+		}
+	}
+
+	//ローリングのスピードを変える、アニメーションクリップのイベントから呼ばれる
+	private void RollingMoveSpeed(float s)
+	{
+		RollingSpeed = s;
+	}
+
+	//特殊攻撃を押した時
+	private void OnPlayerSpecial(InputValue i)
+	{
+		//特殊攻撃入力許可条件判定
+		if (PermitInputBoolDic["SpecialTry"] && !ActionEventFlag)
+		{
+			//入力フラグを立てる
+			SpecialInput = true;
+
+			//フラグ切り替え
+			AttackInput = false;
+
+			//フラグ切り替え
+			JumpInput = false;
+
+			//フラグ切り替え
+			RollingInput = false;
+		}
+	}
+
+	//オートコンボボタンを押した時
+	private void OnPlayerAutoCombo(InputValue i)
+	{
+		AutoCombo = i.isPressed;
+	}
+
+	//攻撃ボタンが押された時
+	private void OnPlayerAttack00(InputValue i)
+	{
+		//押した時にture、離した時にfalseが入る
+		ChargeAttack = i.isPressed;
+
+		if (!PauseFlag && i.isPressed && !SpecialSuccessFlag)
+		{
+			AttackInputFunc(0);
+		}
+		//特殊攻撃成功時に派生を選ぶ
+		else if (SpecialSuccessFlag)
+		{
+			SpecialInputIndex = 0;
+		}
+	}
+	private void OnPlayerAttack01(InputValue i)
+	{
+		//押した時にture、離した時にfalseが入る
+		ChargeAttack = i.isPressed;
+
+		if (!PauseFlag && i.isPressed && !SpecialSuccessFlag)
+		{
+			AttackInputFunc(1);
+		}
+		//特殊攻撃成功時に派生を選ぶ
+		else if (SpecialSuccessFlag)
+		{
+			SpecialInputIndex = 1;
+		}
+	}
+	private void OnPlayerAttack02(InputValue i)
+	{
+		//押した時にture、離した時にfalseが入る
+		ChargeAttack = i.isPressed;
+
+		if (!PauseFlag && i.isPressed && !SpecialSuccessFlag)
+		{
+			AttackInputFunc(2);
+		}
+		//特殊攻撃成功時に派生を選ぶ
+		else if (SpecialSuccessFlag)
+		{
+			SpecialInputIndex = 2;
+		}
+	}
+
+	//攻撃入力受付関数
+	private void AttackInputFunc(int b)
+	{
+		//攻撃入力許可条件判定
+		if (PermitInputBoolDic["Attack00"] || PermitInputBoolDic["Attack01"])
+		{
+			//攻撃入力フラグを立てる
+			AttackInput = true;
+
+			//フラグ切り替え
+			JumpInput = false;
+
+			//フラグ切り替え
+			RollingInput = false;
+
+			//フラグ切り替え
+			SpecialInput = false;
+
+			//Jump遷移フラグを下す
+			CurrentAnimator.SetBool("Jump", false);
+
+			//Rolling遷移フラグを下す
+			CurrentAnimator.SetBool("Rolling", false);
+
+			//入力ボタンをキャッシュ
+			AttackButton = b;
+
+			//スティック入力をキャッシュ
+			if (PlayerMoveinputValue == Vector2.zero)
+			{
+				//スティック入力無し
+				AttackStick = 0;
+			}
+			else
+			{
+				//スティック入力有り
+				AttackStick = 1;
+			}
+
+			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
+			if (LockEnemy == null)
+			{
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(true, HorizonAcceleration));
+			}
+		}
+	}
+
+	//技選定関数
+	private ArtsClass SelectionArts()
+	{
+		//出力用変数宣言
+		ArtsClass ReserveArts = null;
+
+		//ロック対象がいる場合
+		if (LockEnemy != null)
+		{
+			//ロック対象との距離を測定、浮かした時に遠距離判定にならないよう高低差は考慮しない
+			EnemyDistance = HorizontalVector(LockEnemy, gameObject).magnitude;
+		}
+		else
+		{
+			//いなければ距離はゼロにしとく
+			EnemyDistance = 0;
+		}
+
+		//ロケーションを判定
+		if (!OnGround)
+		{
+			//空中にいる場合
+			AttackLocation = 2;
+		}
+		else if (EnemyDistance < AttackDistance)
+		{
+			//地上にいてロックした敵が近い場合
+			AttackLocation = 0;
+		}
+		else
+		{
+			//地上にいてロックした敵が遠い場合
+			AttackLocation = 1;
+		}
+
+		//オートコンボしている
+		if (AutoCombo)
+		{
+			//チェイン中はとりあえずチェイン続行
+			if (CurrentAnimator.GetBool("Chain"))
+			{
+				ReserveArts = UseArts;
+
+				//入力情報を更新
+				AttackLocation = UseArts.UseLocation["Location"];
+				AttackStick = UseArts.UseLocation["Stick"];
+				AttackButton = UseArts.UseLocation["Button"];
+			}
+			//地上で入力
+			else if (AttackLocation != 2)
+			{
+				//入力ボタンを初期化してループ
+				for (int iii = 0; iii <= 2; iii++)
+				{
+					//距離を初期化してループ
+					for (int i = 0; i <= 1; i++)
+					{
+						//レバー入れを初期化してループ
+						for (int ii = 0; ii <= 1; ii++)
+						{
+							//使用済み判定
+							if (ArtsStateMatrix[i][ii][iii] != 10000 && ArtsMatrix[i][ii][iii] != null)
+							{
+								//入力情報を更新
+								AttackLocation = i;
+								AttackStick = ii;
+								AttackButton = iii;
+
+								//技確定
+								ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+
+								//ループを抜ける
+								goto ArtsLoopBreak;
+							}
+						}
+					}
+				}
+			}
+			//空中で入力
+			else
+			{
+				//入力ボタンを初期化してループ
+				for (int iii = 0; iii <= 2; iii++)
+				{
+					//レバー入れを初期化してループ
+					for (int ii = 0; ii <= 1; ii++)
+					{
+						//使用済み判定
+						if (ArtsStateMatrix[AttackLocation][ii][iii] != 10000 && ArtsMatrix[AttackLocation][ii][iii] != null)
+						{
+							//入力情報を更新
+							AttackStick = ii;
+							AttackButton = iii;
+
+							//技確定
+							ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+
+							//ループを抜ける
+							goto ArtsLoopBreak;
+						}
+					}
+				}
+			}
+
+		//ループを抜ける先
+		ArtsLoopBreak:;
+		}
+
+		//入力された技が存在する
+		else if (ArtsMatrix[AttackLocation][AttackStick][AttackButton] != null)
+		{
+			//入力された技をそのまま使用
+			ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+		}
+		//入力された技が存在しなければコンボアシスト
+		else
+		{
+			//地上技
+			if (AttackLocation != 2)
+			{
+				//レバー入れを反転して判定
+				if (ArtsMatrix[AttackLocation][Mathf.Abs(AttackStick - 1)][AttackButton] != null)
+				{
+					//レバー入力判定を反転
+					AttackStick = Mathf.Abs(AttackStick - 1);
+
+					//使用する技確定
+					ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+				}
+				//それも無ければ距離を反転して判定
+				else if (ArtsMatrix[Mathf.Abs(AttackLocation - 1)][AttackStick][AttackButton] != null)
+				{
+					//敵との距離判定を反転
+					AttackLocation = Mathf.Abs(AttackLocation - 1);
+
+					//使用する技確定
+					ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+				}
+				//それも無ければレバー入れと距離を反転して判定
+				else if (ArtsMatrix[Mathf.Abs(AttackLocation - 1)][Mathf.Abs(AttackStick - 1)][AttackButton] != null)
+				{
+					//レバー入力判定を反転
+					AttackStick = Mathf.Abs(AttackStick - 1);
+
+					//敵との距離判定を反転
+					AttackLocation = Mathf.Abs(AttackLocation - 1);
+
+					//使用する技確定
+					ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+				}
+			}
+			//空中技はレバー入力を反転して調べる
+			else if (ArtsMatrix[AttackLocation][Mathf.Abs(AttackStick - 1)][AttackButton] != null)
+			{
+				//レバー入力判定を反転
+				AttackStick = Mathf.Abs(AttackStick - 1);
+
+				//使用する技確定
+				ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+			}
+		}
+
+		//技が見つかったら入力時のロケーションを保存
+		if (ReserveArts != null)
+		{
+			ReserveArts.UseLocation["Location"] = AttackLocation;
+			ReserveArts.UseLocation["Stick"] = AttackStick;
+			ReserveArts.UseLocation["Button"] = AttackButton;
+		}
+
+		//出力
+		return ReserveArts;
+	}
+
+	//回転制御、突進攻撃で振り向かせたくない場合など、アニメーションクリップのイベントから呼ばれる
+	private void RotateControl(int b)
+	{
+		//引数でフラグを切り替える
+		NoRotateFlag = b == 0 ? false : true;
+	}
+
+	//タメ攻撃処理、アニメーションクリップのイベントから呼ばれる
+	private void AttackCharge(int i)
+	{
+		//ボタンが長押しされていなければ処理をスルー
+		if (ChargeAttack)
+		{
+			//コルーチン呼び出し
+			StartCoroutine(AttackChargeCoroutine(i));
+		}
+	}
+	IEnumerator AttackChargeCoroutine(int i)
+	{
+		//イベント発生を止めるためモーション再生時間を止める
+		CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0f);
+
+		//タメ開始時間をキャッシュ
+		float ChargeTime = Time.time;
+
+		//モーションの再生位置をキャッシュ
+		float AnimTime = CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+
+		//タメループエフェクトのインスタンスを生成
+		GameObject TempChargePowerEffect = Instantiate(ChargePowerEffect);
+
+		//キャラクターの子にする
+		TempChargePowerEffect.transform.parent = gameObject.transform.root.transform;
+
+		//ローカル座標で位置を設定
+		TempChargePowerEffect.transform.localPosition *= 0;
+
+		//いったん非アクティブにする
+		TempChargePowerEffect.SetActive(false);
+
+		//ボタン押しっぱなし、もしくはポーズ中ループ
+		while ((ChargeAttack && !PauseFlag) || PauseFlag)
+		{
+			//ポーズ中は経過時間を相殺してタメが進まないようにする
+			if (PauseFlag)
+			{
+				ChargeTime += Time.time - ChargeTime;
+			}
+
+			//モーションの再生位置を交互に変えてプルプルさせる
+			if (CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < AnimTime)
+			{
+				CurrentAnimator.Play("Attack0" + (ComboState + 1) % 2, 0, AnimTime);
+			}
+			else
+			{
+				CurrentAnimator.Play("Attack0" + (ComboState + 1) % 2, 0, AnimTime - 0.0025f);
+			}
+
+			//ジャンプかローリングが押されたらループを抜ける
+			if (JumpInput || RollingInput)
+			{
+				break;
+			}
+
+			//チャージが1段階以上溜まったら
+			if (UseArts.ChargeLevel > 0)
+			{
+				//クロスに力を加えてなびかせる
+				foreach (Cloth c in GetComponentsInChildren<Cloth>())
+				{
+					c.randomAcceleration = new Vector3(0, 200, 0);
+
+					c.randomAcceleration *= UseArts.ChargeLevel;
+				}
+
+				//DynamicBoneに力を加えてなびかせる
+				foreach (DynamicBone ii in transform.GetComponentsInChildren<DynamicBone>())
+				{
+					//乳は揺らさない
+					if (!ii.m_Root.name.Contains("Breast"))
+					{
+						ii.m_Force.x = UnityEngine.Random.Range(-0.002f, 0.002f);
+						ii.m_Force.y = UnityEngine.Random.Range(0, 0.01f);
+						ii.m_Force.z = UnityEngine.Random.Range(-0.002f, 0.002f);
+
+						ii.m_Force *= UseArts.ChargeLevel;
+					}
+				}
+			}
+
+			//チャージ1段階完了処理
+			if ((Time.time - ChargeTime > 0.5f) && UseArts.ChargeLevel == 0)
+			{
+				//チャージレベルをあげる
+				UseArts.ChargeLevel = 1;
+
+				//タメループエフェクトをアクティブにする
+				TempChargePowerEffect.SetActive(true);
+
+				//タメ完了エフェクトのインスタンスを生成
+				GameObject TempChargeLevelEffect = Instantiate(ChargeLevelEffect);
+
+				//2段階目のエフェクトを消す
+				DeepFind(TempChargeLevelEffect, "ChargeLevel2").SetActive(false);
+
+				//3段階目のエフェクトを消す
+				DeepFind(TempChargeLevelEffect, "ChargeLevel3").SetActive(false);
+
+				//キャラクターの子にする
+				TempChargeLevelEffect.transform.parent = gameObject.transform.root.transform;
+
+				//ローカル座標で位置を設定
+				TempChargeLevelEffect.transform.localPosition *= 0;
+
+				//足元衝撃エフェクト表示
+				FootImpact(90);
+
+				//フェードエフェクト呼び出し
+				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
+
+				//ズームエフェクト呼び出し
+				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.025f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
+			}
+			//チャージ2段階完了処理
+			else if ((Time.time - ChargeTime > 2.0f) && UseArts.ChargeLevel == 1)
+			{
+				//チャージレベルをあげる
+				UseArts.ChargeLevel = 2;
+
+				//タメループエフェクトの段階をあげる
+				DeepFind(TempChargePowerEffect, "ChargePower2").GetComponent<ParticleSystem>().Play();
+
+				//タメ完了エフェクトのインスタンスを生成
+				GameObject TempChargeLevelEffect = Instantiate(ChargeLevelEffect);
+
+				//3段階目のエフェクトを消す
+				DeepFind(TempChargeLevelEffect, "ChargeLevel3").SetActive(false);
+
+				//キャラクターの子にする
+				TempChargeLevelEffect.transform.parent = gameObject.transform.root.transform;
+
+				//ローカル座標で位置を設定
+				TempChargeLevelEffect.transform.localPosition *= 0;
+
+				//足元衝撃エフェクト表示
+				FootImpact(90);
+
+				//フェードエフェクト呼び出し
+				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
+
+				//ズームエフェクト呼び出し
+				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.025f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
+			}
+			//チャージ3段階完了処理
+			else if ((Time.time - ChargeTime > 5.0f) && UseArts.ChargeLevel == 2)
+			{
+				//チャージレベルをあげる
+				UseArts.ChargeLevel = 3;
+
+				//タメループエフェクトの段階をあげる
+				DeepFind(TempChargePowerEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
+
+				//タメ完了エフェクトのインスタンスを生成
+				GameObject TempChargeLevelEffect = Instantiate(ChargeLevelEffect);
+
+				//キャラクターの子にする
+				TempChargeLevelEffect.transform.parent = gameObject.transform.root.transform;
+
+				//ローカル座標で位置を設定
+				TempChargeLevelEffect.transform.localPosition *= 0;
+
+				//足元衝撃エフェクト表示
+				FootImpact(90);
+
+				//フェードエフェクト呼び出し
+				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
+
+				//ズームエフェクト呼び出し
+				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.025f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
+
+				//画面揺らし
+				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.CameraShake(10000f));
+			}
+
+			//入力時と違うボタンが押されたらタメ解除
+			if (UseArts.UseLocation["Button"] != AttackButton)
+			{
+				ChargeAttack = false;
+			}
+
+			//ちょっと待機、毎フレームだとプルプルが早すぎるのでこんくらい
+			yield return new WaitForSeconds(0.05f);
+		}
+
+		//タメループエフェクトを止める
+		foreach (ParticleSystem ii in TempChargePowerEffect.GetComponentsInChildren<ParticleSystem>())
+		{
+			//タメループエフェクトをアクティブにする、これをしないと以下の処理が走らずオブジェクトが消えない
+			TempChargePowerEffect.SetActive(true);
+
+			//アクセサを取り出す
+			ParticleSystem.MainModule tempMain = ii.main;
+
+			//ループを止めてパーティクルの発生を停止
+			tempMain.loop = false;
+		}
+
+		//画面揺らし止める
+		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.CameraShake(0f));
+
+		//クロスに力を加えるのをやめる
+		foreach (Cloth c in GetComponentsInChildren<Cloth>())
+		{
+			c.randomAcceleration = new Vector3(0, 0, 0);
+		}
+
+		//DynamicBoneに力を加えるのをやめる
+		foreach (DynamicBone ii in transform.root.GetComponentsInChildren<DynamicBone>())
+		{
+			ii.m_Force *= 0;
+		}
+
+		//ジャンプかローリングが押されたら攻撃中断
+		if (JumpInput || RollingInput)
+		{
+			//チャージレベル初期化
+			UseArts.ChargeLevel = 0;
+
+			//タメフラグを下げる
+			ChargeAttack = false;
+
+			//イベント発生を止めるためモーション再生時間を止める
+			CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0f);
+
+			//遷移可能フラグを立てる
+			CurrentAnimator.SetBool("Transition", true);
+		}
+		else
+		{
+			//モーション再生時間を戻して発射
+			CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 1.0f);
+			/*
+			//フルチャージ演出
+			if (UseArts.ChargeLevel == 3 && LockEnemy != null)
+			{
+				//フルチャージ演出時間
+				float EffectTime = 0.5f;
+
+				//フルチャージ演出タイムスケール
+				float EffectScale = 0.1f;
+
+				//瞬きをさせないために待機時間を更新
+				BlinkDelayTime = Time.time;
+
+				//スロー演出
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(EffectTime, EffectScale));
+
+				//カメラクローズアップ演出
+				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.CloseUpCameraMode(transform.position + DeepFind(gameObject, "HeadBone").transform.forward, MainCameraTransform.position, DeepFind(gameObject, "HeadBone"), EffectTime * EffectScale, 0.05f, () =>
+			   {
+				   //一応匿名関数を渡しておく
+			   }));
+			}
+			*/
+		}
+	}
+
+	//攻撃終了処理、アニメーションクリップのイベントから呼ばれる
+	private void EndAttack()
+	{
+		//遷移可能フラグを立てる
+		CurrentAnimator.SetBool("Transition", true);
+
+		//使用技を破棄
+		UseArts = null;
+	}
+
+	//攻撃移動開始処理、アニメーションクリップのイベントから呼ばれる
+	private void StartAttackMove(int n)
+	{
+		//ごくまれにnullが入るのでエラー回避
+		if (UseArts == null)
+		{
+			print("StartAttackMoveでUseArtsがNull");
+		}
+		else
+		{
+			//使用中の技から移動値を求める、引数で使用する移動値リストのインデックスが入ってくる
+			AttackMoveVector = UseArts.MoveVec[n].a * ((UseArts.MoveVec[n].r * Controller.transform.right) + (UseArts.MoveVec[n].g * Controller.transform.up) + (UseArts.MoveVec[n].b * Controller.transform.forward));
+
+			//使用中の技から移動タイプを求める、引数で使用する移動値リストのインデックスが入ってくる
+			AttackMoveType = UseArts.MoveType[n];
+		}
+	}
+
+	//攻撃移動終了処理、アニメーションクリップのイベントから呼ばれる
+	public void EndAttackMove()
+	{
+		//移動値をゼロにする
+		AttackMoveVector *= 0;
+
+		//移動タイプを初期化する
+		AttackMoveType = 100;
+	}
+
+	//攻撃コライダ移動開始処理、アニメーションクリップのイベントから呼ばれる
+	private void StartAttackCol(int n)
+	{
+		//攻撃用コライダーのコライダ移動関数呼び出し、インデックスとコライダ移動タイプを渡す
+		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.ColStart(n, UseArts));
+	}
+
+	//攻撃コライダ終了処理、アニメーションクリップのイベントから呼ばれる
+	private void EndAttackCol()
+	{
+		//コライダ移動終了処理関数呼び出し
+		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.ColEnd());
+	}
+
+	//画面揺らし演出、アニメーションクリップのイベントから呼ばれる
+	private void ScreenShake(float t)
+	{
+		//画面揺らし
+		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.CameraShake(t));
+	}
+
+	//攻撃時のエフェクトを再生する、アニメーションクリップのイベントから呼ばれる
+	private void AttackEffect(String n)
+	{
+		//引数で受け取った名前のエフェクトのインスタンスを生成
+		GameObject TempAttackEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == n).ToArray()[0]);
+
+		//キャラクターの子にする
+		TempAttackEffect.transform.parent = gameObject.transform.root.transform;
+
+		//ローカル座標で位置を設定
+		TempAttackEffect.transform.localPosition *= 0;
+
+		//回転値をリセット
+		TempAttackEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+		//エフェクトのアクセサを取り出す
+		ParticleSystem.MainModule Accesser = TempAttackEffect.GetComponent<ParticleSystem>().main;
+
+		//チャージレベルを掛けて弾をでかくする
+		Accesser.startSize = Accesser.startSize.constant * (UseArts.ChargeLevel * 0.5f + 1);
+	}
+
+	//攻撃モーション再生速度変更処理、アニメーションクリップのイベントから呼ばれる
+	private void AttackSpeedChange(int n)
+	{
+		//非同期処理をするためのコルーチン呼び出し
+		StartCoroutine(AttackSpeedChangetCoroutine(n));
+	}
+	IEnumerator AttackSpeedChangetCoroutine(int n)
+	{
+		//経過時間を初期化
+		ChainAttackWaitTime = 0;
+
+		//nullチェック
+		if (UseArts == null)
+		{
+			print("AttackSpeedChangeでUseArtがnull");
+		}
+		else
+		{
+			//速度変更タイプ判定：チェイン攻撃
+			if (UseArts.TimeType[n] == 0)
+			{
+				//現在のステートのモーション再生時間を変更、スロー再生
+				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.2f);
+
+				//接地状況でチェインブレイクのモーションを切り替える
+				CurrentAnimator.SetFloat("ChainBreakBlend", OnGround ? 0 : 1);
+
+				//遷移可能フラグを立てる
+				CurrentAnimator.SetBool("Transition", true);
+
+				//入力待機状態ループ
+				for (; ; )
+				{
+					//攻撃が入力されていたらUseArtsのと比較
+					if (AttackInput && SelectionArts() != null)
+					{
+						//同じ技ならチェイン攻撃続行
+						if (UseArts.NameC == SelectionArts().NameC)
+						{
+							//攻撃入力フラグを下す
+							AttackInput = false;
+
+							//遷移可能フラグを下ろす
+							CurrentAnimator.SetBool("Transition", false);
+
+							//次の遷移フラグを下ろす
+							CurrentAnimator.SetBool("Attack0" + ComboState % 2, false);
+
+							//ループを抜けてチェイン続行
+							break;
+						}
+						//違う技ならチェインを切って次の技へ
+						else
+						{
+							//これ以上イベントを起こさないために現在のステートを一時停止
+							CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
+
+							//チェインフラグを下ろす
+							CurrentAnimator.SetBool("Chain", false);
+
+							//次の遷移フラグを立てる
+							CurrentAnimator.SetBool("Attack0" + ComboState % 2, true);
+
+							//攻撃終了処理関数
+							EndAttack();
+
+							//コルーチンを抜ける
+							yield break;
+						}
+					}
+					//ローリングかジャンプか特殊攻撃かダメージででチェイン中断
+					else if ((RollingInput && AirRollingPermit) || (JumpInput && OnGround) || SpecialInput || DamageFlag)
+					{
+						//これ以上イベントを起こさないために現在のステートを一時停止
+						CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
+
+						//チェインフラグを下ろす
+						CurrentAnimator.SetBool("Chain", false);
+
+						//攻撃入力フラグを下す
+						AttackInput = false;
+
+						//コルーチンを抜ける
+						yield break;
+					}
+					//入力受付時間を過ぎたらブレイク
+					else if (ChainAttackWaitTime > 0.5f)
+					{
+						//これ以上イベントを起こさないために現在のステートを一時停止
+						CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
+
+						//チェインフラグを下ろす
+						CurrentAnimator.SetBool("Chain", false);
+
+						//チェインブレイクフラグを立てる
+						CurrentAnimator.SetBool("ChainBreak", true);
+
+						//攻撃入力フラグを下す
+						AttackInput = false;
+
+						//移動値をリセット
+						EndAttackMove();
+
+						//コルーチンを抜ける
+						yield break;
+					}
+
+					//経過時間カウントアップ
+					ChainAttackWaitTime += Time.deltaTime;
+
+					//1フレーム待機
+					yield return null;
+				}
+			}
+			//速度変更タイプ判定：降下攻撃
+			else if (UseArts.TimeType[n] == 1)
+			{
+				//現在のステートのモーション再生時間を変更、完全停止
+				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
+
+				//接地するまでループ
+				while (!OnGround)
+				{
+					//1フレーム待機
+					yield return null;
+				}
+			}
+
+			//モーション再生時間を戻す
+			CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 1.0f);
+		}
+	}
+
+	//プレイヤーの攻撃が敵に当たった時の処理
+	public void HitAttack(GameObject e, int AttackIndex)
+	{
+		//巻き込み攻撃でなければ当たった敵をロックする
+		if (UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
+		{
+			LockEnemy = e;
+		}
+
+		//メインカメラにもロック対象を渡す
+		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+
+		//攻撃ステート制御リストに使用済み数値を入れる
+		ArtsStateMatrix[UseArts.UseLocation["Location"]][UseArts.UseLocation["Stick"]][UseArts.UseLocation["Button"]] = 10000;
+
+		//ヒットストップに値が入っていたら演出
+		if (UseArts.HitStop[AttackIndex] != 0)
+		{
+			//ヒットストップ処理
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.1f));
+		}
+
+		//地上突進技が当たったらその場で停止させる
+		if (AttackMoveType == 4)
+		{
+			AttackMoveVector *= 0;
+		}
+
+		//引き起こし攻撃が当たった
+		if (UseArts.AttackType[AttackIndex] == 30)
+		{
+			//強制移動ベクトル初期化
+			ForceMoveVector *= 0;
+
+			//ホールド状態フラグを立てる
+			HoldFlag = true;
+
+			//回転制御フラグを立てる
+			NoRotateFlag = true;
+
+			//当たった敵の方を向く
+			transform.rotation = Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject));
+
+			//ホールド状態維持コルーチン呼び出し
+			StartCoroutine(KeepHold());
+		}
+
+		//敵を倒したらロックを外す処理
+		if (LockEnemy != null)
+		{
+			//返り値受け取り用変数
+			bool tempbool = false;
+
+			//攻撃を当てた敵から死亡フラグを受け取る
+			ExecuteEvents.Execute<EnemyCharacterInterface>(LockEnemy, null, (reciever, eventData) => tempbool = reciever.GetDestroyFlag());
+
+			//死んでたら
+			if (tempbool)
+			{
+				//敵のロックを外す、マネージャーの関数を呼び出してカメラにもロック対象を反映する。
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(false, Vector3.zero));
+			}
+		}
+
+		//タメ攻撃がフルチャージ
+		if (UseArts.ChargeLevel == 3)
+		{
+			//ヒットストップ処理
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0.5f, 0.1f));
+
+			//フェードエフェクト呼び出し
+			ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
+
+			//ズームエフェクト呼び出し
+			ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.05f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
+		}
+
+		//ある程度の高度で空中突進技が当たった
+		if (AttackMoveType == 5 && GroundDistance > 1.25f)
+		{
+			//これ以上イベントを起こさないために現在のステートを一時停止
+			CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
+
+			//攻撃を強制終了
+			EndAttack();
+
+			//攻撃が先行入力されていなければ空中ローリング
+			if (!AttackInput)
+			{
+				//ローリングの正面を設定
+				RollingRotateVector = transform.forward;
+
+				//ローリングフラグを立てて強制的にローリング実行
+				CurrentAnimator.SetBool("Rolling", true);
+			}
+		}
+	}
+
+	//目のアニメーションブレンドを切る、クリップのイベントから呼ばれる
+	private void ForceEye()
+	{
+		//目のアニメーションレイヤーの重みをゼロにする
+		CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), 0);
+	}
+
+	//攻撃中に表情を変える、アニメーションクリップのイベントから呼ばれる
+	private void ChangeFace(string n)
+	{
+		if (n == "Common")
+		{
+			//表情ステート変数初期化
+			FaceState = 0;
+
+			//フラグを下して普通の表情に戻す
+			CurrentAnimator.SetBool("Face0", false);
+			CurrentAnimator.SetBool("Face1", false);
+
+			//目のアニメーションレイヤーの重みを戻す
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), 1);
+		}
+		else
+		{
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["Face_Void_" + FaceState % 2] = GameManagerScript.Instance.AllFaceList.Where(a => a.name == n).ToArray()[0];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+			//フラグを立てる
+			CurrentAnimator.SetBool("Face" + FaceState % 2, true);
+
+			//表情ステート変数カウントアップ
+			FaceState++;
+
+			//逆のフラグを下す
+			CurrentAnimator.SetBool("Face" + FaceState % 2, false);
+		}
+	}
+
+	//チェイン攻撃の最後の１発の発生時にチェインフラグを切る、アニメーションクリップのイベントから呼ばれる
+	private void ChainEnd()
+	{
+		//チェイン攻撃フラグを下ろす
+		CurrentAnimator.SetBool("Chain", false);
+	}
+
+	//攻撃時のTrailを表示する、アニメーションクリップのイベントから呼ばれる
+	private void StartAttackTrail(int n)
+	{
+		//引数で受け取った番号のエフェクトを再生
+		DeepFind(AttackTrail, "AttackTrail" + n).GetComponent<ParticleSystem>().Play();
+	}
+
+	//足元の衝撃エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
+	private void FootImpact(float r)
+	{
+		//エフェクトのインスタンスを生成
+		GameObject TempFootImpactEffect = Instantiate(FootImpactEffect);
+
+		//パーティクルシステムを全て格納するList宣言
+		List<ParticleSystem> TempFootImpactList = new List<ParticleSystem>();
+
+		//キャラクターの子にする
+		TempFootImpactEffect.transform.parent = gameObject.transform.root.transform;
+
+		//ローカル座標で位置を設定
+		TempFootImpactEffect.transform.localPosition *= 0;
+
+		//全てのパーティクルシステムを取得
+		TempFootImpactList = TempFootImpactEffect.GetComponentsInChildren<ParticleSystem>().Select(i => i).ToList();
+
+		//全てのパーティクルシステムを回す
+		foreach (ParticleSystem i in TempFootImpactList)
+		{
+			//アクセサを取得
+			ParticleSystem.ShapeModule p = i.shape;
+
+			//引数と親の角度を元にエミッタを回転、一番親の奴だけ
+			if (i.name.Contains("Clone"))
+			{
+				p.rotation = new Vector3(-r, gameObject.transform.rotation.eulerAngles.y, 0);
+			}
+
+			//エフェクトを再生
+			i.Play();
+		}
+	}
+
+	//足元の煙エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
+	private void FootSmoke(float t)
+	{
+		//コルーチン呼び出し
+		StartCoroutine(FootSmokeCoroutine(t));
+	}
+	IEnumerator FootSmokeCoroutine(float t)
+	{
+		//開始時間をキャッシュ
+		float SmokeTime = Time.time;
+
+		//エフェクトのインスタンスを生成
+		GameObject TempFootSmokeEffect = Instantiate(FootSmokeEffect);
+
+		//キャラクターの子にする
+		TempFootSmokeEffect.transform.parent = gameObject.transform.root.transform;
+
+		//ローカル座標で位置を設定
+		TempFootSmokeEffect.transform.localPosition *= 0;
+
+		//エフェクト再生
+		TempFootSmokeEffect.GetComponent<ParticleSystem>().Play();
+
+		//引数で受け取った秒数だけ待機
+		while (Time.time < SmokeTime + t)
+		{
+			yield return null;
+
+			//ポーズされたら経過時間を足していく
+			if (PauseFlag)
+			{
+				SmokeTime += Time.deltaTime;
+			}
+		}
+
+		//メインモジュールのアクセサ取得
+		ParticleSystem.MainModule TempMainModule = TempFootSmokeEffect.GetComponent<ParticleSystem>().main;
+
+		//ループを切ってエフェクトを止める、こうしないとポーズした時に変な事になる
+		TempMainModule.loop = false;
+	}
+
+	//ホールド状態を解除する、アニメーションクリップのイベントから呼ばれる。
+	public void HoldBreak()
+	{
+		if (LockEnemy != null)
+		{
+			//敵のホールド解除インターフェイス呼び出し
+			ExecuteEvents.Execute<EnemyCharacterInterface>(LockEnemy, null, (reciever, eventData) => reciever.HoldBreak(0.1f));
+
+			//ホールドブレイクコルーチン呼び出し、フラグを下ろすのを少し待つ
+			StartCoroutine(HoldBreakCoroutine());
+		}
+	}
+	//ホールドブレイクコルーチン
+	IEnumerator HoldBreakCoroutine()
+	{
+		//チョイ待機
+		yield return new WaitForSeconds(0.1f);
+
+		//ホールドフラグを下ろす
+		HoldFlag = false;
+	}
+
+	//技格納マトリクス初期化関数
+	private void ArtsMatrixSetUp()
+	{
+		//技格納マトリクス初期化
+		List<ArtsClass> ArtButtonList00 = new List<ArtsClass>();
+		List<ArtsClass> ArtButtonList01 = new List<ArtsClass>();
+		List<ArtsClass> ArtButtonList02 = new List<ArtsClass>();
+		List<ArtsClass> ArtButtonList03 = new List<ArtsClass>();
+		List<ArtsClass> ArtButtonList04 = new List<ArtsClass>();
+		List<ArtsClass> ArtButtonList05 = new List<ArtsClass>();
+
+		List<List<ArtsClass>> ArtStickList00 = new List<List<ArtsClass>>();
+		List<List<ArtsClass>> ArtStickList01 = new List<List<ArtsClass>>();
+		List<List<ArtsClass>> ArtStickList02 = new List<List<ArtsClass>>();
+
+		ArtButtonList00.Add(null);
+		ArtButtonList00.Add(null);
+		ArtButtonList00.Add(null);
+
+		ArtButtonList01.Add(null);
+		ArtButtonList01.Add(null);
+		ArtButtonList01.Add(null);
+
+		ArtButtonList02.Add(null);
+		ArtButtonList02.Add(null);
+		ArtButtonList02.Add(null);
+
+		ArtButtonList03.Add(null);
+		ArtButtonList03.Add(null);
+		ArtButtonList03.Add(null);
+
+		ArtButtonList04.Add(null);
+		ArtButtonList04.Add(null);
+		ArtButtonList04.Add(null);
+
+		ArtButtonList05.Add(null);
+		ArtButtonList05.Add(null);
+		ArtButtonList05.Add(null);
+
+		ArtStickList00.Add(ArtButtonList00);
+		ArtStickList00.Add(ArtButtonList01);
+		ArtStickList01.Add(ArtButtonList02);
+		ArtStickList01.Add(ArtButtonList03);
+		ArtStickList02.Add(ArtButtonList04);
+		ArtStickList02.Add(ArtButtonList05);
+
+		ArtsMatrix.Add(ArtStickList00);
+		ArtsMatrix.Add(ArtStickList01);
+		ArtsMatrix.Add(ArtStickList02);
+
+		//現在操作しているキャラクターのIDを受け取る変数
+		int CharacterID = 0;
+
+		//CharacterSettingScriptからID取得
+		ExecuteEvents.Execute<CharacterSettingScriptInterface>(gameObject, null, (reciever, eventData) => CharacterID = reciever.GetCharacterID());
+
+		//全ての技をnullにする
+		for (int i = 0; i <= ArtsMatrix.Count - 1; i++)
+		{
+			for (int ii = 0; ii <= ArtsMatrix[i].Count - 1; ii++)
+			{
+				for (int iii = 0; iii <= ArtsMatrix[i][ii].Count - 1; iii++)
+				{
+					ArtsMatrix[i][ii][iii] = null;
+				}
+			}
+		}
+
+		//UserDataから技を装備
+		for (int i = 0; i <= GameManagerScript.Instance.UserData.ArtsMatrix[CharacterID].Count - 1; i++)
+		{
+			for (int ii = 0; ii <= GameManagerScript.Instance.UserData.ArtsMatrix[CharacterID][i].Count - 1; ii++)
+			{
+				for (int iii = 0; iii <= GameManagerScript.Instance.UserData.ArtsMatrix[CharacterID][i][ii].Count - 1; iii++)
+				{
+					if (GameManagerScript.Instance.UserData.ArtsMatrix[CharacterID][i][ii][iii] != "")
+					{
+						foreach (var iiii in GameManagerScript.Instance.AllArtsList)
+						{
+							if (iiii.NameC == GameManagerScript.Instance.UserData.ArtsMatrix[CharacterID][i][ii][iii])
+							{
+								ArtsMatrix[i][ii][iii] = iiii;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//攻撃制御マトリクス初期化関数
+	private void ArtsStateMatrixReset()
+	{
+		//コンボステート初期化
+		ComboState = 0;
+
+		//リストを新しく作って
+		ArtsStateMatrix = new List<List<List<int>>>();
+
+		//技一覧を元にAdd
+		foreach (int i in Enumerable.Range(0, ArtsMatrix.Count))
+		{
+			List<List<int>> iList = new List<List<int>>();
+
+			foreach (int ii in Enumerable.Range(0, ArtsMatrix[i].Count))
+			{
+				List<int> iiList = new List<int>();
+
+				foreach (int iii in Enumerable.Range(0, ArtsMatrix[i][ii].Count))
+				{
+					iiList.Add(iii);
+				}
+
+				iList.Add(iiList);
+			}
+
+			ArtsStateMatrix.Add(iList);
+		}
+	}
+
+	//敵めり込み防止関数
+	public void EnemyAround()
+	{
+		//強制移動ベクトル初期化
+		ForceMoveVector *= 0;
+
+		//的接触フラグ初期化
+		EnemyContact = false;
+
+		if(!HoldFlag && !SpecialAttackFlag)
+		{
+			//全てのアクティブな敵を回す
+			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
+			{
+				//近くにいたら処理
+				if (HorizontalVector(gameObject, i).sqrMagnitude < 1f && gameObject.transform.position.y - i.transform.position.y < 1f && gameObject.transform.position.y - i.transform.position.y > -0.1f)
+				{
+					//的接触フラグを立てる
+					EnemyContact = true;
+
+					//敵と自分までのベクトルで強制移動
+					ForceMoveVector += Controller.transform.position - new Vector3(i.transform.position.x, transform.position.y, i.transform.position.z);
+				}
+			}
+		}
+	}
+
+	//武器をセットする
+	public void SetWeapon(GameObject w)
+	{
+		WeaponOBJ = w;
+	}
+
+	//攻撃時に武器のアタッチ先を変更する
+	private void AttackAttachWeapon(string s)
+	{
+		//アタッチ先を変更
+		WeaponOBJ.transform.parent = DeepFind(gameObject, s).transform;
+
+		//ローカルトランスフォームを設定
+		WeaponOBJ.transform.localPosition *= 0;
+		WeaponOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+	}
+
+	//接地判定用のRayを飛ばす関数
+	private void GroundRayCast()
+	{
+		//レイを飛ばして接地判定をしてフラグを切り替える
+		if (Physics.SphereCast(transform.position + (Vector3.up * (RayRadius.x + 1f)), RayRadius.x, Vector3.down, out RayHit, Mathf.Infinity, LayerMask.GetMask("TransparentFX")))
+		{
+			//地面との距離に値を入れる
+			GroundDistance = RayHit.distance - 1f;
+
+			//急斜面判定
+			OnSlope = Vector3.Angle(RayHit.normal, Vector3.up) > 60 && Vector3.Angle(RayHit.normal, Vector3.up) < 85;
+
+			if (GroundDistance < 0.01f || Controller.isGrounded)
+			{
+				OnGround = true;
+			}
+			else
+			{
+				OnGround = false;
+			}
+		}
+		else
+		{
+			OnGround = false;
+		}
+
+		//急斜面判定
+		OnSlope = Vector3.Angle(RayHit.normal, Vector3.up) > 60 && Vector3.Angle(RayHit.normal, Vector3.up) < 85 && OnGround;
+	}
+
+	//現在のステートを文字列で返す関数
+	private string NowStateToString()
+	{
+		//Return用変数宣言
+		string re = null;
+
+		//まずトランジション名で調べる
+		foreach (string i in AllTransitions)
+		{
+			if (CurrentAnimator.GetAnimatorTransitionInfo(0).IsName(i))
+			{
+				re = i;
+			}
+		}
+
+		//遷移中じゃなければステート名を入れる
+		if (re == null)
+		{
+			foreach (string i in AllStates)
+			{
+				if (CurrentAnimator.GetCurrentAnimatorStateInfo(0).IsName(i))
+				{
+					re = i;
+				}
+			}
+		}
+
+		//出力
+		return re;
+	}
+
+	//視線を決定するコルーチン
+	IEnumerator SetCharacterLookAtPos()
+	{
+		//ロックしている敵がいたらそいつ、複数の敵が要る場合はランダムな相手、いなければ正面を見る
+		if (LockEnemy != null)
+		{
+			CharacterLookAtPos = LockEnemy.transform.position;
+		}
+		else if (GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList().Count > 0)
+		{
+			//視線変更許可フラグで制御
+			if (LookAtPosFlag)
+			{
+				//視線変更許可フラグを下ろす
+				LookAtPosFlag = false;
+
+				//敵リストからランダムに対象を選定、座標を送る
+				CharacterLookAtPos = GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).OrderBy(i => Guid.NewGuid()).ToArray()[0].transform.position;
+
+				//ランダムな秒数待機
+				yield return new WaitForSeconds(UnityEngine.Random.Range(1f, 5f));
+
+				//視線変更許可フラグを立てる
+				LookAtPosFlag = true;
+			}
+		}
+		else
+		{
+			CharacterLookAtPos = gameObject.transform.position + gameObject.transform.forward;
+		}
+	}
+
+	//キャラクターアニメーション制御処理
+	private void AnimFunc()
+	{
+		//視線を決定するコルーチン呼び出し
+		StartCoroutine(SetCharacterLookAtPos());
+
+		//目シェーダーに視線ベクトルを送る
+		ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.GetLookPos(CharacterLookAtPos));
+
+		//Move制御：水平移動ベクトルがしきい値以上ならTrue
+		CurrentAnimator.SetBool("Move", Mathf.Abs(HorizonAcceleration.x) + Mathf.Abs(HorizonAcceleration.z) > 0.0f);
+
+		//移動中のモーションブレンド
+		if (CurrentAnimator.GetBool("Move") && !CurrentState.Contains("Attack"))
+		{
+			//ダッシュフラグでブレンド比率を加減する
+			PlayerMoveBlend = DashFlag ? Mathf.Clamp01(PlayerMoveBlend += Time.deltaTime) : Mathf.Clamp01(PlayerMoveBlend -= Time.deltaTime);
+
+			//ブレンド比率でモーション再生速度を加減する
+			CurrentAnimator.SetFloat("MoveSpeed", (Mathf.Clamp01(CurrentAnimator.GetFloat("Move_Blend") - 1) * 0.5f) + 1);
+
+			//移動値によってモーションブレンド比率を変える
+			CurrentAnimator.SetFloat("Move_Blend", PlayerMoveBlend + Mathf.Clamp01(Mathf.Abs(HorizonAcceleration.x) + Mathf.Abs(HorizonAcceleration.z)));
+		}
+		else if (!CurrentState.Contains("Run") && !CurrentState.Contains("Stop"))
+		{
+			//移動していなければブレンド比率を初期化
+			PlayerMoveBlend = 0;
+		}
+
+		//Fall制御：
+		CurrentAnimator.SetBool("Fall",
+			//攻撃しておらず、ある程度の高さがある、下り坂でFallにならないようにするやつ
+			(GroundDistance > 0.5f && !CurrentAnimator.GetBool("Combo")) ||
+			//攻撃中に全く接地していない
+			(CurrentAnimator.GetBool("Combo") && !OnGround) ||
+			//急斜面にいる
+			OnSlope);
+
+		//Crouch制御：平地に接地している
+		CurrentAnimator.SetBool("Crouch", OnGround && !OnSlope);
+
+		//Crouch中は水平移動禁止
+		if (CurrentAnimator.GetCurrentAnimatorStateInfo(0).IsName("Crouch"))
+		{
+			MoveVector.x = 0.0f;
+			MoveVector.z = 0.0f;
+		}
+
+		//Rolling遷移判定
+		if (PermitTransitionBoolDic["GroundRolling"] || PermitTransitionBoolDic["AirRolling"])
+		{
+			//アニメーション遷移フラグを立てる
+			CurrentAnimator.SetBool("Rolling", true);
+		}
+
+		//Jump遷移判定
+		if (PermitTransitionBoolDic["Jump"])
+		{
+			//アニメーション遷移フラグを立てる
+			CurrentAnimator.SetBool("Jump", true);
+		}
+
+		//Special遷移判定
+		if (PermitTransitionBoolDic["SpecialTry"])
+		{
+			//アニメーション遷移フラグを立てる
+			CurrentAnimator.SetBool("SpecialTry", true);
+		}
+
+		//ジャンプ中の処理
+		if (CurrentState == "Jump")
+		{
+			//ジャンプ加速度コルーチン呼び出し
+			StartCoroutine(JumpPowerCoroutine());
+		}
+		//地上ローリング中の処理
+		else if (CurrentState.Contains("GroundRolling"))
+		{
+			//ローリング中に攻撃が入力されたら
+			if (AttackInput && LockEnemy != null)
+			{
+				//ロックしている敵方向のベクトルを得る
+				RollingRotateVector = HorizontalVector(LockEnemy, gameObject);
+
+			}
+
+			//ローリング移動ベクトルを入れる
+			RollingMoveVector = transform.forward;
+		}
+		//空中ローリング中
+		else if (CurrentState.Contains("AirRolling"))
+		{
+			//ローリング移動ベクトルを入れる
+			RollingMoveVector = transform.forward;
+		}
+
+		//Attack遷移判定
+		if (PermitTransitionBoolDic["Attack00"] || PermitTransitionBoolDic["Attack01"])
+		{
+			//アニメーション遷移フラグを立てる
+			CurrentAnimator.SetBool("Attack0" + ComboState % 2, true);
+		}
+	}
+
+	//ジャンプ加速度コルーチン
+	IEnumerator JumpPowerCoroutine()
+	{
+		//屈伸分のディレイ
+		yield return new WaitForSeconds(0.1f);
+
+		//垂直加速度に値を入れる、ダメージを受けてたら入れない
+		if (!DamageFlag)
+		{
+			VerticalAcceleration = JumpPower;
+		}
+	}
+
+	//アニメーションステートを監視する関数
+	private void StateMonitor()
+	{
+		//キャッシュしているステートと現在のステートを比較
+		if (CurrentState != NowStateToString())
+		{
+			//ステートが変化したらキャッシュを更新
+			CurrentState = NowStateToString();
+
+			//フラグを更新
+			FlagManager(CurrentState);
+		}
+	}
+	//入力許可フラグを管理する関数、ステートが変化しないと更新されない事に注意
+	private void FlagManager(string s)
+	{
+		//特殊攻撃入力許可条件
+		PermitInputBoolDic["SpecialTry"]
+		= !PauseFlag &&
+		OnGround &&
+		!ActionEventFlag &&
+		(
+			s.Contains("Attack")
+			||
+			s.Contains("Stop")
+			||
+			s == "Idling"
+			||
+			s == "Run"
+			||
+			s == "GroundRolling"
+			||
+			s.Contains("-> Idling")
+			||
+			s.Contains("-> Run")
+			||
+			s.Contains("-> GroundRolling")
+		);
+
+		//ジャンプ入力許可条件
+		PermitInputBoolDic["Jump"]
+		= !PauseFlag &&
+		!ActionEventFlag &&
+		(
+			s.Contains("Attack")
+			||
+			s.Contains("Stop")
+			||
+			s == "Idling"
+			||
+			s == "Run"
+			||
+			s == "SpecialSuccess"
+			||
+			s == "SpecialAttack"
+			||
+			s.Contains("-> Idling")
+			||
+			s.Contains("-> Run")
+		);
+
+		//ローリング入力許可ステート
+		PermitInputBoolDic["GroundRolling"]
+		= !PauseFlag &&
+		!ActionEventFlag &&
+		(
+			s.Contains("Attack")
+			||
+			s.Contains("Stop")
+			||
+			s == "Idling"
+			||
+			s == "Run"
+			||
+			s == "Jump"
+			||
+			s == "Fall"
+			||
+			s == "SpecialSuccess"
+			||
+			s == "SpecialAttack"
+			||
+			s.Contains("-> Idling")
+			||
+			s.Contains("-> Run")
+			||
+			s.Contains("-> Jump")
+			||
+			s.Contains("-> Fall")
+		);
+
+		//空中ローリング入力許可ステート
+		PermitInputBoolDic["AirRolling"] = PermitInputBoolDic["GroundRolling"] && AirRollingPermit;
+
+		//攻撃入力許可ステート
+		PermitInputBoolDic["Attack00"]
+		= !PauseFlag &&
+		!ActionEventFlag &&
+		(
+			s.Contains("Attack")
+			||
+			s.Contains("Stop")
+			||
+			s == "Idling"
+			||
+			s == "Run"
+			||
+			s == "Jump"
+			||
+			s == "Fall"
+			||
+			s == "GroundRolling"
+			||
+			s == "AirRolling"
+			||
+			s == "SpecialSuccess"
+			||
+			s == "SpecialAttack"
+			||
+			s.Contains("-> Idling")
+			||
+			s.Contains("-> Run")
+			||
+			s.Contains("-> Jump")
+			||
+			s.Contains("-> Fall")
+			||
+			s.Contains("-> GroundRolling")
+			||
+			s.Contains("-> AirRolling")
+		);
+
+		//攻撃入力許可ステート
+		PermitInputBoolDic["Attack01"] = PermitInputBoolDic["Attack00"];
+
+		//Idlingになった瞬間の処理
+		if (s.Contains("-> Idling"))
+		{
+			//フラグ状態をまっさらに戻す関数呼び出し
+			ClearFlag();
+		}
+		//Runになった瞬間の処理
+		else if (s.Contains("-> Run"))
+		{
+			//フラグ状態をまっさらに戻す関数呼び出し
+			ClearFlag();
+
+			//入力時間を記録
+			DashInputTime = Time.time;
+		}
+
+		//Crouchになった瞬間の処理
+		else if (s.Contains("-> Crouch"))
+		{
+			//フラグ状態をまっさらに戻す関数呼び出し
+			ClearFlag();
+		}
+		//Jumpになった瞬間の処理
+		else if (s.Contains("-> Jump"))
+		{
+			//Jump入力フラグを下す
+			JumpInput = false;
+
+			//Jump遷移フラグを下す
+			CurrentAnimator.SetBool("Jump", false);
+
+			//ジャンプした瞬間に重力加速度をリセットする、接地でリセットすると着地がガクっとしてしまう
+			GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
+
+			//垂直加速度をリセット
+			VerticalAcceleration = 0;
+
+			//ジャンプ開始直後のレバー入力をキャッシュ
+			JumpHorizonVector = HorizonAcceleration * 0.5f;
+
+			//ジャンプ開始時間をキャッシュ
+			JumpTime = Time.time;
+		}
+		//Fallになった瞬間の処理
+		else if (s.Contains("-> Fall"))
+		{
+			//Jump入力フラグを下す
+			JumpInput = false;
+
+			//Jump遷移フラグを下す
+			CurrentAnimator.SetBool("Jump", false);
+		}
+		//Rollingになった瞬間の処理
+		else if (s.Contains("-> GroundRolling") || s.Contains("-> AirRolling"))
+		{
+			//入力フラグを下す
+			RollingInput = false;
+
+			//ダメージフラグを下す
+			DamageFlag = false;
+
+			//ホールド状態フラグを下す
+			HoldFlag = false;
+
+			//攻撃移動値をリセット
+			AttackMoveVector *= 0;
+
+			//Rolling遷移フラグを下す
+			CurrentAnimator.SetBool("Rolling", false);
+
+			//攻撃移動タイプを初期化
+			AttackMoveType = 100;
+
+			//空中ローリングの場合
+			if (s.Contains("-> AirRolling"))
+			{
+				//ジャンプ開始時ベクトルをリセット
+				JumpHorizonVector *= 0;
+
+				//空中ローリング許可フラグを下ろす
+				AirRollingPermit = false;
+
+				//重力加速度をリセット
+				GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
+
+				//跳ねる
+				VerticalAcceleration = JumpPower * 0.9f;
+			}
+		}
+		//Attackになった瞬間の処理
+		else if (s.Contains("-> Attack"))
+		{
+			//攻撃入力フラグを下す
+			AttackInput = false;
+
+			//ホールド状態フラグを下す
+			HoldFlag = false;
+
+			//使用技する技を選定する関数呼び出し
+			UseArts = SelectionArts();
+
+			//アニメーションを書き換えるAttackステートを選定、ステートカウントを2で割った余りで 0<->1 を切り替えて文字列として連結
+			OverrideAttackState = "Arts_void_" + ComboState % 2;
+
+			//技が無かったら
+			if (UseArts == null)
+			{
+				//オートコンボを切る
+				AutoCombo = false;
+
+				//もう一度技を探す
+				UseArts = SelectionArts();
+			}
+
+			//地上技を出したら
+			if (OnGround)
+			{
+				//空中ローリング許可フラグを立てる
+				AirRollingPermit = true;
+			}
+
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator[OverrideAttackState] = UseArts.AnimClip;
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+			//使った遷移フラグを下す
+			CurrentAnimator.SetBool("Attack0" + ComboState % 2, false);
+
+			//モーション再生時間を初期化
+			CurrentAnimator.SetFloat("AttackSpeed0" + ComboState % 2, 1.0f);
+
+			//チェインブレイクフラグを下ろす
+			CurrentAnimator.SetBool("ChainBreak", false);
+
+			//コンボフラグを立てる
+			CurrentAnimator.SetBool("Combo", true);
+
+			//遷移可能フラグを下ろす
+			CurrentAnimator.SetBool("Transition", false);
+
+			//チェイン攻撃フラグを入れる
+			CurrentAnimator.SetBool("Chain", UseArts.Chain);
+
+			//コライダを非アクティブ化
+			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+
+			//回転制御フラグを下す
+			NoRotateFlag = false;
+
+			//チャージレベル初期化
+			UseArts.ChargeLevel = 0;
+
+			//ジャンプ開始直後のベクトル初期化
+			JumpHorizonVector *= 0;
+
+			//コンボステートカウントアップ
+			ComboState++;
+		}
+		//Damageになった瞬間の処理
+		else if (s.Contains("Damage"))
+		{
+			//Damage遷移フラグを下す
+			CurrentAnimator.SetBool("Damage", false);
+
+			//フラグまっさら関数呼び出し
+			ClearFlag();
+
+		}
+		//SpecialTryになった瞬間の処理
+		else if (s.Contains("-> SpecialTry"))
+		{
+			//アニメーターのフラグを下ろす
+			CurrentAnimator.SetBool("SpecialTry", false);
+
+			//特殊攻撃入力フラグを下す
+			SpecialInput = false;
+
+			//特殊攻撃待機フラグを立てる
+			SpecialTryFlag = true;
+		}
+		//SpecialSuccessになった瞬間の処理
+		else if (s.Contains("-> SpecialSuccess"))
+		{
+			//アニメーターのフラグを下ろす
+			CurrentAnimator.SetBool("SpecialSuccess", false);
+		}
+		//SpecialAttackになった瞬間の処理
+		else if (s.Contains("-> SpecialAttack"))
+		{
+			//アニメーターのフラグを下ろす
+			CurrentAnimator.SetBool("SpecialAttack", false);
+		}
+	}
+
+	//遷移許可フラグを管理する関数
+	private void TransitionManager()
+	{
+		//特殊攻撃遷移許可条件
+		PermitTransitionBoolDic["SpecialTry"] =
+		OnGround &&
+		SpecialInput &&
+		PermitInputBoolDic["SpecialTry"] &&
+		CurrentAnimator.GetBool("Transition")
+		;
+
+		//ジャンプ遷移許可条件
+		PermitTransitionBoolDic["Jump"] =
+		OnGround &&
+		JumpInput &&
+		PermitInputBoolDic["Jump"] &&
+		CurrentAnimator.GetBool("Transition")
+		;
+
+		//地上ローリング遷移許可条件
+		PermitTransitionBoolDic["GroundRolling"] =
+		OnGround &&
+		RollingInput &&
+		PermitInputBoolDic["GroundRolling"] &&
+		CurrentAnimator.GetBool("Transition")
+		;
+
+		//空中ローリング遷移許可条件
+		PermitTransitionBoolDic["AirRolling"] =
+		!OnGround &&
+		RollingInput &&
+		PermitInputBoolDic["AirRolling"] &&
+		CurrentAnimator.GetBool("Transition")
+		;
+
+		//攻撃遷移許可条件
+		PermitTransitionBoolDic["Attack00"] =
+		AttackInput &&
+		PermitInputBoolDic["Attack00"] &&
+		//足を踏み外していない
+		!DropAttack &&
+		//下降中の低空じゃない
+		//(OnGround || (MoveVector.y > 0) || (GroundDistance > 1.0f)) &&
+		//ジャンプしてすぐじゃない
+		(Time.time - JumpTime > 0.2f)
+		;
+
+		PermitTransitionBoolDic["Attack01"] = PermitTransitionBoolDic["Attack00"];
+	}
+
+	//フラグ状態をまっさらに戻す関数
+	private void ClearFlag()
+	{
+		//攻撃入力されていない、これをしないと攻撃入力後にここが呼ばれてロックできない場合がある
+		if (!AttackInput)
+		{
+			//敵のロックを外す、マネージャーの関数を呼び出してカメラにもロック対象を反映する。
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(false, Vector3.zero));
+		}
+
+		//ダメージ状態フラグを下す
+			DamageFlag = false;
+
+		//ジャンプ入力フラグを下ろす
+		JumpInput = false;
+
+		//ローリング入力フラグを下ろす
+		RollingInput = false;
+
+		//ダッシュフラグを下す
+		DashFlag = false;
+
+		//ホールド中フラグを下す
+		HoldFlag = false;
+
+		//空中ローリング許可フラグを立てる
+		AirRollingPermit = true;
+
+		//タメ攻撃フラグを下す
+		ChargeAttack = false;
+
+		//回転制御フラグを下す
+		NoRotateFlag = false;
+
+		//ローリング移動ベクトルリセット
+		RollingMoveVector *= 0;
+
+		//攻撃移動ベクトルリセット
+		AttackMoveVector *= 0;
+
+		//ダメージ移動ベクトルリセット
+		DamageMoveVector *= 0;
+
+		//ジャンプ開始直後のベクトル初期化
+		JumpHorizonVector *= 0;
+
+		//垂直加速度をリセット
+		VerticalAcceleration = 0;
+
+		//重力加速度をリセット
+		GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
+
+		//コンボフラグを下ろす
+		CurrentAnimator.SetBool("Combo", false);
+
+		//チェインフラグを下ろす
+		CurrentAnimator.SetBool("Chain", false);
+
+		//踏み外しフラグを下ろす
+		CurrentAnimator.SetBool("Drop", false);
+
+		//ダメージフラグを下ろす
+		CurrentAnimator.SetBool("Damage", false);
+
+		//遷移可能フラグを立てる
+		CurrentAnimator.SetBool("Transition", true);
+
+		//イベントアニメーションフラグを下ろす
+		CurrentAnimator.SetBool("ActionEvent", false);
+
+		//ステートフラグを下ろす
+		CurrentAnimator.SetBool("Attack00", false);
+		CurrentAnimator.SetBool("Attack01", false);
+
+		//攻撃移動タイプを初期化
+		AttackMoveType = 100;
+
+		//コンボステートをリセット
+		ArtsStateMatrixReset();
+	}
+
+	//自身がカメラの画角に入っているか返す
+	public bool GetOnCameraBool()
+	{
+		//返り値代入用変数
+		float OnCameraTime = 0;
+
+		//retuin用変数
+		bool re = true;
+
+		//カメラに映っていた時刻取得
+		ExecuteEvents.Execute<OnCameraScriptInterface>(OnCameraObject, null, (reciever, eventData) => OnCameraTime = reciever.GetOnCameraTime());
+
+		//現在の時刻と比較、完全に同時刻にはならないので、処理落ちも考慮してラグを吸収する
+		if (Time.time - OnCameraTime > 0.025 * (GameManagerScript.Instance.FrameRate / GameManagerScript.Instance.FPS))
+		{
+			re = false;
+		}
+
+		//出力
+		return re;
+	}
+
+	//ホールド状態を維持するコルーチン
+	IEnumerator KeepHold()
+	{
+		while (HoldFlag)
+		{
+			//１フレーム待機
+			yield return null;
+		}
+
+		//敵接触フラグを下ろす、ホールド解除と同時にTrueになっている時がある
+		EnemyContact = false;
+	}
+
+	//ダメージモーションListをセットする、キャラクターセッティングから呼ばれる
+	public void SetDamageAnimList(List<AnimationClip> l)
+	{
+		DamageAnimList = new List<AnimationClip>(l);
+	}
+
+	//戦闘フラグをセットする
+	public void SetFightingFlag(bool b)
+	{
+		//引数で受け取ったフラグをセットする
+		FightingFlag = b;
+
+		//構え切り替えコルーチン呼び出し
+		StartCoroutine(IdlingChargeCoroutine());
+	}
+
+	//ポーズ処理、ゲームマネージャーから呼び出されるインターフェイス
+	public void Pause(bool b)
+	{
+		//ポーズフラグ引数で受け取ったboolをフラグに代入
+		PauseFlag = b;
+
+		//アタックコライダにフラグを送る
+		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.SetPauseFlag(PauseFlag));
+
+		//ポーズオン
+		if (PauseFlag)
+		{
+			//アニメーターを止める
+			CurrentAnimator.speed = 0;
+
+			//全ての再生中パーティクルシステムを一時停止
+			foreach (ParticleSystem i in GetComponentsInChildren<ParticleSystem>())
+			{
+				if (i.isPlaying)
+				{
+					i.Pause();
+				}
+			}
+		}
+		//ポーズオフ
+		else
+		{
+			//アニメーターを動かす
+			CurrentAnimator.speed = 1f;
+
+			//ポーズされていた全てのパーティクルシステムを再開
+			foreach (ParticleSystem i in GetComponentsInChildren<ParticleSystem>())
+			{
+				if (i.isPaused)
+				{
+					i.Play();
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,9 @@
+NameC,鍔掃
+NameH,つばはき
+UseCharacter,0
+ArtsIndex,0
+DamageIndex,40
+AnimName,Motion_0_Special0
+EffectPos,L_ElbowBone
+Trigger,0
+Info,敵の攻撃を捌いて崩す。飛び道具には効果がない。

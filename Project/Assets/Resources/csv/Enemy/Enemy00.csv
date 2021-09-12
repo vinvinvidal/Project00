@@ -1,0 +1,8 @@
+ID,00
+Name,ヤンキー
+Life,50
+Stun,10
+MoveSpeed,1
+TurnSpeed,300
+DownTime,2
+OBJname,Enemy00
