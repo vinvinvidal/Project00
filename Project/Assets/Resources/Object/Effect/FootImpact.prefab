@@ -4835,8 +4835,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Tex: {fileID: 2800000, guid: eb61700b21d0c37499fc5eddf188ac25, type: 3}
-  T: {x: 0, y: 0}
-  O: {x: 0, y: 0}
+  Tiling: {x: 0, y: 0}
+  OffSet: {x: 0, y: 0}
   ZTest: 4
 --- !u!1 &5976692740008996526
 GameObject:
@@ -9675,8 +9675,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Tex: {fileID: 2800000, guid: 65726e7245575e04fa513118e371ebed, type: 3}
-  T: {x: 1, y: 1}
-  O: {x: 0, y: 0}
+  Tiling: {x: 0, y: 0}
+  OffSet: {x: 0, y: 0}
   ZTest: 4
 --- !u!1 &9121599688921010229
 GameObject:
@@ -14504,6 +14504,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Tex: {fileID: 2800000, guid: 4b6cd75c058844445b6f673e56d4e7fd, type: 3}
-  T: {x: 0, y: 0}
-  O: {x: 0, y: 0}
+  Tiling: {x: 0, y: 0}
+  OffSet: {x: 0, y: 0}
   ZTest: 8
