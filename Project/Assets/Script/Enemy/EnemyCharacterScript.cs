@@ -112,7 +112,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	private List<string> AllTransitions = new List<string>();
 
 	//現在のステート
-	private string CurrentState;
+	public string CurrentState { get; set; }
 
 	//全ての攻撃情報List
 	public List<EnemyAttackClass> AttackClassList { get; set; }
@@ -170,9 +170,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//キャラクターに触れているフラグ
 	public bool ContactCharacterFlag { get; set; }
-
-	//行動処理可能フラグ
-	public bool BehaviorFlag { get; set; }
 
 	//スタン状態フラグ
 	public bool StunFlag { get; set; }
@@ -250,9 +247,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//キャラクターに触れているフラグ初期化
 		ContactCharacterFlag = false;
-
-		//行動可能フラグ初期化
-		BehaviorFlag = true;
 
 		//スタン状態フラグ初期化
 		StunFlag = false;
@@ -567,9 +561,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 			//死亡監視関数呼び出し
 			DeadFunc();
-
-			//行動可能判定関数呼び出し
-			BehaviorFund();
 		}
 	}
 
@@ -588,15 +579,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				ForceMoveVector += CharaController.transform.position - new Vector3(PlayerCharacter.transform.position.x, transform.position.y, PlayerCharacter.transform.position.z);
 			}
 		}
-	}
-
-	//行動可能判定関数
-	private void BehaviorFund()
-	{
-		BehaviorFlag =
-			CurrentState.Contains("Idling") ||
-			CurrentState.Contains("Walk") ||
-			CurrentState.Contains("Attack");
 	}
 
 	//接地判定用のRayを飛ばす関数
@@ -1035,6 +1017,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//フラグ状態をまっさらに戻す関数呼び出し
 				ClearFlag();
 			}
+			//攻撃になった瞬間の処理
+			else if (CurrentState.Contains("-> Attack"))
+			{
+				//アニメーターの攻撃フラグを下ろす
+				CurrentAnimator.SetBool("Attack", false);
+			}
 			//ホールドになった瞬間の処理
 			else if (CurrentState == "HoldDamage")
 			{
@@ -1195,6 +1183,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//ホールドポジション更新
 			HoldPos = (PlayerCharacter.transform.right * pos.x) + (PlayerCharacter.transform.up * pos.y) + (PlayerCharacter.transform.forward * pos.z);
 
+			//ちょっとゆらす
+			HoldPos += new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
+
 			//ホールドベクトルを設定
 			HoldVec = ((PlayerCharacter.transform.position + HoldPos) - gameObject.transform.position) * 20;
 
@@ -1248,7 +1239,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		while (BreakTime + t > Time.time)
 		{
 			//後ろ下げ
-			DamageMoveVec = -transform.forward * 3.5f;
+			DamageMoveVec = (-transform.forward * 5f) + Vector3.down;
 
 			//1フレーム待機
 			yield return null;

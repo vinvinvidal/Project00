@@ -269,7 +269,7 @@ public class Enemy00BehaviorScript : GlobalClass
 		SinCount += Time.deltaTime;
 
 		//行動可能条件
-		if (AllReadyFlag && EnemyScript.BehaviorFlag)
+		if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")|| EnemyScript.CurrentState.Contains("Attack")))
 		{
 			//各移動ベクトルを合成
 			MoveVec = (((BehaviorMoveVec.normalized + AroundMoveVec.normalized * 0.25f).normalized * MoveSpeed) + MotionMoveVec);
@@ -348,6 +348,14 @@ public class Enemy00BehaviorScript : GlobalClass
 				}
 			}
 		}
+		else
+		{
+			//アニメーターのフラグを下す
+			CurrentAnimator.SetBool("Attack", false);
+
+			//アニメーターのフラグを下す
+			CurrentAnimator.SetBool("Walk", false);
+		}
 	}
 
 	//待機コルーチン
@@ -379,7 +387,7 @@ public class Enemy00BehaviorScript : GlobalClass
 					RotateVec = PlayerVec;
 
 					//行動不能になったらブレイク
-					if (!EnemyScript.BehaviorFlag)
+					if (!(EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")))
 					{
 						break;
 					}
@@ -398,7 +406,7 @@ public class Enemy00BehaviorScript : GlobalClass
 			}
 
 			//行動不能になったらブレイク
-			if (!EnemyScript.BehaviorFlag)
+			if (!(EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")))
 			{
 				break;
 			}
@@ -454,7 +462,7 @@ public class Enemy00BehaviorScript : GlobalClass
 			}
 
 			//行動不能になったらブレイク
-			if (!EnemyScript.BehaviorFlag)
+			if (!(EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")))
 			{
 				break;
 			}
@@ -526,7 +534,7 @@ public class Enemy00BehaviorScript : GlobalClass
 			AroundMoveVec = HorizontalVector(gameObject, NearEnemy);
 			
 			//行動不能になったらブレイク
-			if (!EnemyScript.BehaviorFlag || NearEnemyDistance > Mathf.Pow(AroundDistance, 2))
+			if (!(EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")) || NearEnemyDistance > Mathf.Pow(AroundDistance, 2))
 			{
 				break;
 			}
@@ -567,14 +575,8 @@ public class Enemy00BehaviorScript : GlobalClass
 		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetAttackMotion("00"));
 
 		//フラグが降りるまで待機
-		while(CurrentAnimator.GetBool("Attack"))
+		while(EnemyScript.CurrentState.Contains("Attack"))
 		{
-			//行動不能になったらブレイク
-			if (!EnemyScript.BehaviorFlag)
-			{
-				break;
-			}
-
 			//待機
 			yield return null;
 		}
@@ -584,6 +586,9 @@ public class Enemy00BehaviorScript : GlobalClass
 
 		//モーション依存の移動値初期化
 		MotionMoveVec *= 0;
+
+		//待機する
+		StartCoroutine(WaitCoroutine());
 	}
 
 	//歩調に合わせるサインカーブ生成に使う数リセット、アニメーションクリップから呼ばれる
