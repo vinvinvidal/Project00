@@ -1239,7 +1239,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		while (BreakTime + t > Time.time)
 		{
 			//後ろ下げ
-			DamageMoveVec = (-transform.forward * 5f) + Vector3.down;
+			DamageMoveVec = (-transform.forward * 2.5f) + Vector3.down;
 
 			//1フレーム待機
 			yield return null;

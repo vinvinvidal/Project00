@@ -1931,11 +1931,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//回転値をリセット
 		TempAttackEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
-		//エフェクトのアクセサを取り出す
-		ParticleSystem.MainModule Accesser = TempAttackEffect.GetComponent<ParticleSystem>().main;
+		//タメ攻撃の場合エフェクトをでかくする
+		if(UseArts.ChargeLevel > 0)
+		{
+			//エフェクトのアクセサを取り出す
+			ParticleSystem.MainModule Accesser = TempAttackEffect.GetComponent<ParticleSystem>().main;
 
-		//チャージレベルを掛けて弾をでかくする
-		Accesser.startSize = Accesser.startSize.constant * (UseArts.ChargeLevel * 0.5f + 1);
+			//チャージレベルを掛けて弾をでかくする
+			Accesser.startSize = Accesser.startSize.constant * (UseArts.ChargeLevel * 0.5f + 1);
+		}
 	}
 
 	//攻撃モーション再生速度変更処理、アニメーションクリップのイベントから呼ばれる

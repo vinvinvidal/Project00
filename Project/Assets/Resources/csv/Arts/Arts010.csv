@@ -20,4 +20,4 @@ HitEffectPos,0*0.5*1|0*1*0.5
 HitEffectAngle,-30*30*0|45*0*0
 HitStop,0|0
 Charge,0|0
-HoldPos,0*0*0.6|0*0*0
+HoldPos,0*0*0.65|0*0*0
