@@ -777,9 +777,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetBool("Attack01", false);
 
 			//地上でレバー入力されていたらそちらに向ける
-			if (OnGroundFlag && PlayerMoveInputVecter != Vector2.zero && HorizonAcceleration != Vector3.zero)
+			if (OnGroundFlag && PlayerMoveInputVecter != Vector2.zero)
 			{
-				RollingRotateVector = HorizonAcceleration;
+				RollingRotateVector = (PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x);
 			}
 			//空中もしくはレバー入力されていなかったら正面そのまま
 			else
@@ -865,7 +865,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//キャラクター移動処理
 	private void MoveFunc()
 	{
-
 		//移動ベクトル用ダミーの座標をベクトル取得位置に移動
 		PlayerMoveAxis.transform.position = new Vector3(MainCameraTransform.position.x, transform.position.y, MainCameraTransform.position.z);
 
@@ -912,94 +911,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 
-		//通常移動制御
-		if (CurrentState.Contains("Idling") || CurrentState.Contains("Run") || CurrentState.Contains("Jump") || CurrentState.Contains("Fall") || CurrentState.Contains("Stop"))
-		{
-			//ダミーのベクトルとプレイヤーからの入力で移動ベクトルを求める
-			HorizonAcceleration = (PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x);
-
-			//接地している
-			if (OnGroundFlag)
-			{
-				//一定時間走っていたらダッシュに移行
-				if (Time.time - DashInputTime > 5 && !DashFlag && CurrentState.Contains("Run"))
-				{
-					//フラグ状態をまっさらに戻す関数呼び出し
-					ClearFlag();
-
-					//ダッシュフラグを立てる
-					DashFlag = true;
-
-					//ブレンド比率初期値
-					PlayerMoveBlend = 0;
-				}
-
-				//急停止
-				if (CurrentState.Contains("Stop"))
-				{
-					//移動補正値を減らしていく
-					PlayerMoveParam -= 2 * Time.deltaTime;
-
-					//ベクトルを正面に固定して減速
-					HorizonAcceleration = transform.forward * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
-				}
-				else
-				{
-					//ダッシュ速度補正値
-					PlayerMoveParam = 1;
-
-					//ユーザー入力による移動ベクトルに移動スピードを加える
-					HorizonAcceleration = HorizonAcceleration * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
-				}
-			}
-			else
-			{
-				//空中では移動値を下げて、ジャンプ開始直後のベクトルを加える
-				HorizonAcceleration = ((HorizonAcceleration * 0.5f) + JumpHorizonVector * 0.1f) * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed);
-			}
-		}
-
-		//水平方向の加速度を反映
-		MoveVector = HorizonAcceleration * Time.deltaTime;
-
-		//垂直方向の加速度を反映
-		MoveVector.y = (GravityAcceleration + VerticalAcceleration) * Time.deltaTime;
-
-		//強制移動ベクトルを加算、敵との接触や崖際とか動く床とか
-		if (ForceMoveVector != Vector3.zero)
-		{
-			MoveVector += ForceMoveVector * PlayerMoveSpeed * Time.deltaTime;
-		}
-
-		/*
-
-
-
-
-
-		//ローリング中の移動制御
-		else if (CurrentState.Contains("Rolling"))
-		{
-			//触れている敵に向かってローリングしていない
-			if (!(EnemyContactFlag && -0.8f > Vector3.Dot(ForceMoveVector, RollingMoveVector)))
-			{
-				//ローリングの移動値を加える
-				MoveVector = RollingMoveVector * ((RollingSpeed + PlayerDashSpeed * PlayerMoveBlend) * Time.deltaTime);
-			}
-		}
-		//ダメージ中の移動処理
-		else if (DamageFlag)
-		{
-			//ダメージモーションから受け取った移動値を入れる
-			MoveVector = DamageMoveVector * Time.deltaTime;
-		}
-		//特殊攻撃中の移動処理
-		else if (SpecialAttackFlag)
-		{
-			MoveVector = SpecialMoveVector * Time.deltaTime;
-		}
 		//攻撃中の移動制御
-		else if (CurrentState.Contains("Attack"))
+		if (CurrentState.Contains("Attack"))
 		{
 			/*
 			AttackMoveType 技の移動タイプ
@@ -1009,7 +922,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			3：空中から地上に降りる移動
 			4：地上突進移動、相手に当たるとその場で止まる、踏み外しの対象、
 			5：空中突進移動、相手に当たるとその場で止まる
-			
+			*/
+
+			//ロックしている敵に向ける
+			if (LockEnemy != null)
+			{
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * 2 * Time.deltaTime);
+			}
 
 			//下り坂で地上技を出した時に踏み外さないように地面に添わせる
 			if (OnGroundFlag && Vector3.ProjectOnPlane(AttackMoveVector, RayHit.normal).y < 0)
@@ -1063,9 +982,111 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				RollingInput = false;
 			}
 
-			//水平方向の攻撃移動値を入れる
-			MoveVector = AttackMoveVector * Time.deltaTime;
+			//水平方向の攻撃移動値を反映
+			HorizonAcceleration = AttackMoveVector;
 		}
+		//ローリング中の移動制御
+		else if (CurrentState.Contains("Rolling"))
+		{
+			//ローリングの移動方向に向ける
+			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(RollingRotateVector), TurnSpeed * 0.5f * Time.deltaTime);
+
+			//ローリングの移動値を加える
+			HorizonAcceleration = RollingMoveVector * (RollingSpeed + PlayerDashSpeed * PlayerMoveBlend);
+
+			//接触している敵に向かってローリングしていたら移動値をリセット
+			if (EnemyContactFlag && Vector3.Angle(ForceMoveVector, RollingMoveVector) > 175)
+			{
+				HorizonAcceleration *= 0;
+			}
+		}
+		//通常移動制御
+		else if (CurrentState.Contains("Run") || CurrentState.Contains("Jump") || CurrentState.Contains("Fall") || CurrentState.Contains("Stop"))
+		{
+			//ダミーのベクトルとプレイヤーからの入力で移動ベクトルを求める
+			HorizonAcceleration = (PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x);
+
+			//接地している
+			if (OnGroundFlag)
+			{
+				//入力があったら進行方向に向けて回転
+				if (HorizonAcceleration != Vector3.zero)
+				{
+					transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizonAcceleration, Vector3.up), TurnSpeed * Time.deltaTime);
+				}
+
+				//一定時間走っていたらダッシュに移行
+				if (Time.time - DashInputTime > 5 && !DashFlag && CurrentState.Contains("Run"))
+				{
+					//フラグ状態をまっさらに戻す関数呼び出し
+					ClearFlag();
+
+					//ダッシュフラグを立てる
+					DashFlag = true;
+
+					//ブレンド比率初期値
+					PlayerMoveBlend = 0;
+				}
+
+				//急停止
+				if (CurrentState.Contains("Stop"))
+				{
+					//移動補正値を減らしていく
+					PlayerMoveParam -= 2 * Time.deltaTime;
+
+					//ベクトルを正面に固定して減速
+					HorizonAcceleration = transform.forward * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
+				}
+				else
+				{
+					//ダッシュ速度補正値
+					PlayerMoveParam = 1;
+
+					//ユーザー入力による移動ベクトルに移動スピードを加える
+					HorizonAcceleration = HorizonAcceleration * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
+				}
+			}
+			else
+			{
+				//ジャンプ開始直後のベクトルに入力値を加算して空中制御
+				JumpHorizonVector += HorizonAcceleration * PlayerMoveSpeed * 0.01f;
+			
+				//移動値を反映、これだと加速し続けるので、長時間の対空シチュエーションに注意
+				HorizonAcceleration = JumpHorizonVector;
+			}
+		}
+
+		//水平方向の加速度を反映
+		MoveVector = HorizonAcceleration * Time.deltaTime;
+
+		//垂直方向の加速度を反映
+		MoveVector.y = (GravityAcceleration + VerticalAcceleration) * Time.deltaTime;
+
+		//強制移動ベクトルを加算、敵との接触や崖際とか動く床とか
+		if (ForceMoveVector != Vector3.zero)
+		{
+			MoveVector += ForceMoveVector * PlayerMoveSpeed * Time.deltaTime;
+		}
+
+		/*
+
+
+
+
+
+
+		//ダメージ中の移動処理
+		else if (DamageFlag)
+		{
+			//ダメージモーションから受け取った移動値を入れる
+			MoveVector = DamageMoveVector * Time.deltaTime;
+		}
+		//特殊攻撃中の移動処理
+		else if (SpecialAttackFlag)
+		{
+			MoveVector = SpecialMoveVector * Time.deltaTime;
+		}
+
 		//何もしていなければその場に止まる
 		else
 		{
@@ -1126,7 +1147,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizonAcceleration, Vector3.up), TurnSpeed * Time.deltaTime);
 		}
 		*/
-	}
+		}
 
 
 
@@ -1135,8 +1156,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 
 
-	//毎フレーム呼ばなくてもいい処理
-	private void DelayFunc()
+		//毎フレーム呼ばなくてもいい処理
+		private void DelayFunc()
 	{
 		//１秒毎に処理が走る
 		if (Time.time - BlinkDelayTime > 1)
@@ -2656,9 +2677,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//目シェーダーに視線ベクトルを送る
 		ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.GetLookPos(CharacterLookAtPos));
 
-		//Move制御：水平移動ベクトルがしきい値以上ならTrue
-		CurrentAnimator.SetBool("Move", Mathf.Abs(HorizonAcceleration.x) + Mathf.Abs(HorizonAcceleration.z) > 0.0f);
-
+		//移動入力がしきい値以上ならアニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Move", Mathf.Abs(PlayerMoveInputVecter.x) + Mathf.Abs(PlayerMoveInputVecter.y) > 0.0f);
+		
 		//移動中のモーションブレンド
 		if (CurrentAnimator.GetBool("Move") && !CurrentState.Contains("Attack"))
 		{
@@ -2731,7 +2752,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				//ロックしている敵方向のベクトルを得る
 				RollingRotateVector = HorizontalVector(LockEnemy, gameObject);
-
 			}
 
 			//ローリング移動ベクトルを入れる
