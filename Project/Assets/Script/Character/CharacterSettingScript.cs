@@ -37,8 +37,8 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 			//自身のCharacterClassを抽出して処理
 			if (i.CharacterID == ID)
 			{
-				//スクリプトにダメージモーションListを渡す
-				ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetDamageAnimList(GameManagerScript.Instance.AllDamageList[ID]));
+				//スクリプトにClassのデータを渡す
+				ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i,GameManagerScript.Instance.AllDamageList[ID]));
 
 				//足のボーンにコンストレイント追加
 				DeepFind(gameObject, "R_FootBone").AddComponent<PositionConstraint>().constraintActive = true;

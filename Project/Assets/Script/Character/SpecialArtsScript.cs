@@ -86,15 +86,15 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					//移動開始時間をキャッシュ
 					float temptime = Time.time;
 
-					//時間が過ぎるまでループ
-					while (temptime + 1.5f > Time.time)
+					//時間が過ぎるまでループ、途中で敵が死んだりしたら抜ける
+					while (temptime + 1.5f > Time.time && Enemy != null)
 					{
 						//目的地まで移動
 						Enemy.GetComponent<EnemyCharacterScript>().SpecialMoveVec = (TargetPos - Enemy.transform.position) * 5;
 
 						//1フレーム待機
 						yield return null;
-					}		
+					}
 				}
 
 				re.Add
@@ -107,17 +107,20 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//プレイヤーのフラグを下す
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
 
-						//敵のフラグを下す
-						Enemy.GetComponent<EnemyCharacterScript>().SpecialFlag = false;
-
-						//敵のアニメーター遷移フラグを下す
-						Enemy.GetComponent<Animator>().SetBool("Special", false);
-
 						//プレイヤーの移動ベクトル初期化
 						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
 
-						//敵の移動ベクトル初期化
-						Enemy.GetComponent<EnemyCharacterScript>().SpecialMoveVec *= 0;
+						if(Enemy != null)
+						{
+							//敵のフラグを下す
+							Enemy.GetComponent<EnemyCharacterScript>().SpecialFlag = false;
+
+							//敵のアニメーター遷移フラグを下す
+							Enemy.GetComponent<Animator>().SetBool("Special", false);
+
+							//敵の移動ベクトル初期化
+							Enemy.GetComponent<EnemyCharacterScript>().SpecialMoveVec *= 0;
+						}
 					}
 				);
 			}

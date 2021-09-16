@@ -227,7 +227,7 @@ public class Enemy00BehaviorScript : GlobalClass
 		}));
 
 		//攻撃00
-		BehaviorList.Add(new BehaviorStruct("Attack00", 20, () =>
+		BehaviorList.Add(new BehaviorStruct("Attack00", 30, () =>
 		//攻撃00の処理
 		{
 			//攻撃00コルーチン呼び出し

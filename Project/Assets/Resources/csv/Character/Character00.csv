@@ -4,3 +4,9 @@ F_NameC,御命
 F_NameH,みこと
 CharacterID,0
 OBJname,Character00
+PlayerMoveSpeed,5
+PlayerDashSpeed,8
+RollingSpeed,10
+JumpPower,10
+TurnSpeed,800
+AttackDistance,3

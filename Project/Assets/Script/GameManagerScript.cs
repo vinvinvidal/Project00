@@ -275,6 +275,13 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				string FNH = "";
 				string ON = "";
 
+				float pms = 0;
+				float pds = 0;
+				float rs = 0;
+				float jp = 0;
+				float ts = 0;
+				float ad = 0;
+
 				//改行で分割して回す
 				foreach (string ii in i.Split('\n').ToList())
 				{
@@ -287,11 +294,17 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "F_NameC": FNC = ii.Split(',').ToList().ElementAt(1); break;
 						case "F_NameH": FNH = ii.Split(',').ToList().ElementAt(1); break;
 						case "OBJname": ON = ii.Split(',').ToList().ElementAt(1); break;
+						case "PlayerMoveSpeed": pms = float.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "PlayerDashSpeed": pds = float.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "RollingSpeed": rs = float.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "JumpPower": jp = float.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "TurnSpeed": ts = float.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "AttackDistance": ad = float.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 					}
 				}
 
 				//ListにAdd
-				AllCharacterList.Add(new CharacterClass(id, LNC, LNH, FNC, FNH, Hid, Cid, Wid, ON));
+				AllCharacterList.Add(new CharacterClass(id, LNC, LNH, FNC, FNH, Hid, Cid, Wid, ON, pms, pds, rs, jp, ts, ad));
 			}
 
 			//読み込み完了フラグを立てる

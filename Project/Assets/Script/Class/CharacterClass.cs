@@ -32,6 +32,24 @@ public class CharacterClass
 	//選択されている武器ID
 	public int WeaponID;
 
+	//移動速度
+	public float PlayerMoveSpeed;
+
+	//ダッシュ速度
+	public float PlayerDashSpeed;
+
+	//ローリング速度
+	public float RollingSpeed;
+
+	//ジャンプ力
+	public float JumpPower;
+
+	//旋回速度
+	public float TurnSpeed;
+
+	//遠近攻撃切り替え距離
+	public float AttackDistance;
+
 	//コンストラクタ
 	public CharacterClass
 	(
@@ -43,7 +61,13 @@ public class CharacterClass
 		int Hid,
 		int Cid,
 		int Wid,
-		string ON
+		string ON,
+		float pms,
+		float pds,
+		float rs,
+		float jp,
+		float ts,
+		float ad
 	)
 	{
 		CharacterID = id;
@@ -55,5 +79,11 @@ public class CharacterClass
 		CostumeID = Cid;
 		WeaponID = Wid;
 		OBJname = ON;
+		PlayerMoveSpeed = pms;
+		PlayerDashSpeed = pds;
+		RollingSpeed = rs;
+		JumpPower = jp;
+		TurnSpeed = ts;
+		AttackDistance = ad;
 	}
 }
