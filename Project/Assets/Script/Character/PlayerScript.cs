@@ -577,6 +577,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		InvincibleList.Add("SpecialSuccess");
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
+		AllStates.Add("AnyState");
 		AllStates.Add("Idling");
 		AllStates.Add("Run");
 		AllStates.Add("Fall");
@@ -724,27 +725,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ジャンプ入力許可条件判定
 		if (PermitInputBoolDic["Jump"])
 		{
+			//入力フラグを全て下す関数呼び出し
+			InputReset();
+
+			//遷移フラグを全て下す関数呼び出し
+			TransitionReset();
+
 			//フラグ切り替え
 			JumpInput = true;
-
-			//攻撃入力フラグを下ろす
-			AttackInput = false;
-
-			//フラグ切り替え
-			SpecialInput = false;
-
-			//フラグ切り替え
-			RollingInput = false;
-
-			//Rolling遷移フラグを下す
-			CurrentAnimator.SetBool("Rolling", false);
-
-			//Special遷移フラグを下す
-			CurrentAnimator.SetBool("SpecialTry", false);
-
-			//Attack遷移フラグを下す
-			CurrentAnimator.SetBool("Attack00", false);
-			CurrentAnimator.SetBool("Attack01", false);
 		}
 	}
 
@@ -754,27 +742,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ローリング入力許可条件判定
 		if (PermitInputBoolDic["GroundRolling"] || PermitInputBoolDic["AirRolling"])
 		{
+			//入力フラグを全て下す関数呼び出し
+			InputReset();
+
+			//遷移フラグを全て下す関数呼び出し
+			TransitionReset();
+
 			//ローリング入力フラグ切り替え
 			RollingInput = true;
-
-			//フラグ切り替え
-			AttackInput = false;
-
-			//フラグ切り替え
-			SpecialInput = false;
-
-			//フラグ切り替え
-			JumpInput = false;
-
-			//Jump遷移フラグを下す
-			CurrentAnimator.SetBool("Jump", false);
-
-			//Special遷移フラグを下す
-			CurrentAnimator.SetBool("SpecialTry", false);
-
-			//Attack遷移フラグを下す
-			CurrentAnimator.SetBool("Attack00", false);
-			CurrentAnimator.SetBool("Attack01", false);
 
 			//地上でレバー入力されていたらそちらに向ける
 			if (OnGroundFlag && PlayerMoveInputVecter != Vector2.zero)
@@ -848,18 +823,47 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//特殊攻撃入力許可条件判定
 		if (PermitInputBoolDic["SpecialTry"])
 		{
+			//入力フラグを全て下す関数呼び出し
+			InputReset();
+
+			//遷移フラグを全て下す関数呼び出し
+			TransitionReset();
+
 			//入力フラグを立てる
 			SpecialInput = true;
-
-			//フラグ切り替え
-			AttackInput = false;
-
-			//フラグ切り替え
-			JumpInput = false;
-
-			//フラグ切り替え
-			RollingInput = false;
 		}
+	}
+
+	//入力フラグを全て下す関数
+	private void InputReset()
+	{
+		SpecialInput = false;
+
+		AttackInput = false;
+
+		JumpInput = false;
+
+		RollingInput = false;
+	}
+
+	//入力系遷移フラグを全て下す関数
+	private void TransitionReset()
+	{
+		//Damage遷移フラグを下す
+		CurrentAnimator.SetBool("Damage", false);
+
+		//Rolling遷移フラグを下す
+		CurrentAnimator.SetBool("Rolling", false);
+
+		//Jump遷移フラグを下す
+		CurrentAnimator.SetBool("Jump", false);
+
+		//Special遷移フラグを下す
+		CurrentAnimator.SetBool("SpecialTry", false);
+
+		//Attack遷移フラグを下す
+		CurrentAnimator.SetBool("Attack00", false);
+		CurrentAnimator.SetBool("Attack01", false);
 	}
 
 	//キャラクター移動処理
@@ -911,8 +915,25 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 
+		//ダメージ中の移動処理
+		if (CurrentState.Contains("Damage"))
+		{			
+			//ダメージモーションから受け取った移動値を入れる
+			HorizonAcceleration = DamageMoveVector;
+		}
+		//踏み外し中の処理
+		else if (CurrentState.Contains("Drop"))
+		{
+			//移動値を徐々に減速
+			HorizonAcceleration *= 0.95f;
+		}
+		//特殊攻撃中の移動処理
+		else if (CurrentState.Contains("Special"))
+		{
+			HorizonAcceleration = SpecialMoveVector;
+		}
 		//攻撃中の移動制御
-		if (CurrentState.Contains("Attack"))
+		else if (CurrentState.Contains("Attack"))
 		{
 			/*
 			AttackMoveType 技の移動タイプ
@@ -925,15 +946,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			*/
 
 			//ロックしている敵に向ける
-			if (LockEnemy != null)
+			if (LockEnemy != null && !NoRotateFlag)
 			{
 				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * 2 * Time.deltaTime);
-			}
-
-			//下り坂で地上技を出した時に踏み外さないように地面に添わせる
-			if (OnGroundFlag && Vector3.ProjectOnPlane(AttackMoveVector, RayHit.normal).y < 0)
-			{
-				VerticalAcceleration = -10;
 			}
 
 			//敵に接触している時は前方に動かさない
@@ -949,37 +964,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//垂直方向の加速度で重力を打ち消して攻撃加速度を入れる
 				VerticalAcceleration = AttackMoveVector.y - GravityAcceleration;
 			}
-
-			//踏み外し処理
-			if ((AttackMoveType == 0 || AttackMoveType == 4) && !OnGroundFlag)
+			else if(GroundDistance < 0.1f)
 			{
-				//重力加速度をリセット
-				GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
+				//ある程度踏み外しを防ぐために地面に沿ったベクトルを入れる
+				VerticalAcceleration = Vector3.ProjectOnPlane(AttackMoveVector, RayHit.normal).y;
+			}
 
-				//垂直加速度をリセット
-				VerticalAcceleration = 0;
-
+			//踏み外し判定
+			if ((AttackMoveType == 0 || AttackMoveType == 4) && GroundDistance > 0.5f)
+			{
 				//踏み外し遷移フラグを立てる
 				CurrentAnimator.SetBool("Drop", true);
-
-				//遷移可能フラグを下ろす
-				CurrentAnimator.SetBool("Transition", false);
-
-				//チェインフラグを下ろす
-				CurrentAnimator.SetBool("Chain", false);
-
-				//コンボフラグを下ろす
-				CurrentAnimator.SetBool("Combo", false);
-
-				//攻撃遷移フラグを下ろす
-				CurrentAnimator.SetBool("Attack00", false);
-				CurrentAnimator.SetBool("Attack01", false);
-
-				//ジャンプ入力フラグを下す
-				JumpInput = false;
-
-				//ローリング入力フラグを下す
-				RollingInput = false;
 			}
 
 			//水平方向の攻撃移動値を反映
@@ -1044,7 +1039,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 					//ユーザー入力による移動ベクトルに移動スピードを加える
 					HorizonAcceleration = HorizonAcceleration * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
-				}
+				}				
 			}
 			else
 			{
@@ -1054,6 +1049,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//移動値を反映、これだと加速し続けるので、長時間の対空シチュエーションに注意
 				HorizonAcceleration = JumpHorizonVector;
 			}
+		}
+		//何もしていなければその場に止まる
+		else
+		{
+			HorizonAcceleration *= 0;
 		}
 
 		//水平方向の加速度を反映
@@ -1067,97 +1067,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			MoveVector += ForceMoveVector * PlayerMoveSpeed * Time.deltaTime;
 		}
+	}
 
-		/*
-
-
-
-
-
-
-		//ダメージ中の移動処理
-		else if (DamageFlag)
-		{
-			//ダメージモーションから受け取った移動値を入れる
-			MoveVector = DamageMoveVector * Time.deltaTime;
-		}
-		//特殊攻撃中の移動処理
-		else if (SpecialAttackFlag)
-		{
-			MoveVector = SpecialMoveVector * Time.deltaTime;
-		}
-
-		//何もしていなければその場に止まる
-		else
-		{
-			MoveVector *= 0;
-		}
-
-		//踏み外し中の処理
-		if (CurrentState.Contains("Drop"))
-		{
-			//踏み外し遷移フラグを下ろす
-			CurrentAnimator.SetBool("Drop", false);
-
-			//攻撃移動値を徐々に減速
-			AttackMoveVector *= 0.95f;
-		}
-
-
-
-
-
-		//イベント移動処理、入力は無視する
-		if (EventMoveVector != Vector3.zero)
-		{
-			//移動ベクトルに直接代入して移動させる
-			MoveVector = EventMoveVector * PlayerMoveSpeed * PlayerMoveParam * EventMoveSpeed * Time.deltaTime;
-
-			//アニメーターのRunステートを再生、進行方向に向ける
-			HorizonAcceleration = EventMoveVector;
-		}
-
-		//ダメージ中は処理しない
-		if (DamageFlag)
-		{
-
-		}
-		//イベント回転制御
-		else if (EventRotateVector != Vector3.zero)
-		{
-			//目標に向けて回転
-			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(EventRotateVector, Vector3.up), TurnSpeed * Time.deltaTime);
-		}
-		//ローリング中の回転制御
-		else if (CurrentState.Contains("Rolling"))
-		{
-			//ローリングの移動方向に向ける
-			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(RollingRotateVector), TurnSpeed * 0.5f * Time.deltaTime);
-		}
-		//ロックしている敵がいる時の回転処理
-		else if (LockEnemy != null && !NoRotateFlag)
-		{
-			//ロックしている敵に向ける
-			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * 2 * Time.deltaTime);
-		}
-		//移動中の回転処理
-		else if ((CurrentState.Contains("Run") || CurrentState.Contains("Jump") || CurrentState.Contains("Fall")) && HorizonAcceleration != Vector3.zero)
-		{
-			//進行方向に向けて回転
-			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizonAcceleration, Vector3.up), TurnSpeed * Time.deltaTime);
-		}
-		*/
-		}
-
-
-
-
-
-
-
-
-		//毎フレーム呼ばなくてもいい処理
-		private void DelayFunc()
+	//毎フレーム呼ばなくてもいい処理
+	private void DelayFunc()
 	{
 		//１秒毎に処理が走る
 		if (Time.time - BlinkDelayTime > 1)
@@ -1280,39 +1193,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//これ以上イベントを起こさないためにAttackステートを一時停止
 			CurrentAnimator.SetFloat("AttackSpeed00", 0.0f);
 			CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
-
-			//Rolling遷移フラグを下す
-			CurrentAnimator.SetBool("Rolling", false);
-
-			//Jump遷移フラグを下す
-			CurrentAnimator.SetBool("Jump", false);
-
-			//Special遷移フラグを下す
-			CurrentAnimator.SetBool("SpecialTry", false);
-
-			//ダメージ状態フラグを立てる
-			DamageFlag = true;
-
-			//攻撃フラグを下ろす
-			AttackInput = false;
-
-			//ローリングフラグを下ろす
-			RollingInput = false;
-
-			//ジャンプフラグを下ろす
-			JumpInput = false;
-
-			//特殊攻撃入力フラグを下ろす
-			SpecialInput = false;
-
-			//ホールドフラグを下す
-			HoldFlag = false;
-
-			//ホールド状態を解除
-			HoldBreak();
-
-			//ロックを解除
-			LockEnemy = null;
 
 			//攻撃してきた敵の方を向く
 			transform.rotation = Quaternion.LookRotation(HorizontalVector(enemy, gameObject));
@@ -1464,17 +1344,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		CurrentAnimator.Play("Idling", 0, t);
 	}
 
-
-
-
-
 	//ローリングのスピードを変える、アニメーションクリップのイベントから呼ばれる
 	private void RollingMoveSpeed(float s)
 	{
 		RollingSpeed = s;
 	}
-
-
 
 	//攻撃入力受付関数
 	private void AttackInputFunc(int b)
@@ -1482,26 +1356,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//攻撃入力許可条件判定
 		if (PermitInputBoolDic["Attack00"] || PermitInputBoolDic["Attack01"])
 		{
+			//入力フラグを全て下す関数呼び出し
+			InputReset();
+
+			//遷移フラグを全て下す関数呼び出し
+			TransitionReset();
+
 			//攻撃入力フラグを立てる
 			AttackInput = true;
-
-			//フラグ切り替え
-			JumpInput = false;
-
-			//フラグ切り替え
-			RollingInput = false;
-
-			//フラグ切り替え
-			SpecialInput = false;
-
-			//Jump遷移フラグを下す
-			CurrentAnimator.SetBool("Jump", false);
-
-			//Rolling遷移フラグを下す
-			CurrentAnimator.SetBool("Rolling", false);
-
-			//Special遷移フラグを下す
-			CurrentAnimator.SetBool("SpecialTry", false);
 
 			//入力ボタンをキャッシュ
 			AttackButton = b;
@@ -1700,7 +1562,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		return ReserveArts;
 	}
 
-	//回転制御、突進攻撃で振り向かせたくない場合など、アニメーションクリップのイベントから呼ばれる
+	//回転禁止フラグ制御、突進攻撃で振り向かせたくない場合など、アニメーションクリップのイベントから呼ばれる
 	private void RotateControl(int b)
 	{
 		//引数でフラグを切り替える
@@ -2690,7 +2552,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetFloat("MoveSpeed", (Mathf.Clamp01(CurrentAnimator.GetFloat("Move_Blend") - 1) * 0.5f) + 1);
 
 			//移動値によってモーションブレンド比率を変える
-			CurrentAnimator.SetFloat("Move_Blend", PlayerMoveBlend + Mathf.Clamp01(Mathf.Abs(HorizonAcceleration.x) + Mathf.Abs(HorizonAcceleration.z)));
+			CurrentAnimator.SetFloat("Move_Blend", PlayerMoveBlend + Mathf.Clamp01(Mathf.Abs(PlayerMoveInputVecter.x) + Mathf.Abs(PlayerMoveInputVecter.y)));
 		}
 		else if (!CurrentState.Contains("Run") && !CurrentState.Contains("Stop"))
 		{
@@ -2972,6 +2834,35 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//Jump遷移フラグを下す
 			CurrentAnimator.SetBool("Jump", false);
 		}
+		//Dropになった瞬間の処理
+		else if (s.Contains("-> Drop"))
+		{
+			//踏み外し遷移フラグを下ろす
+			CurrentAnimator.SetBool("Drop", false);
+
+			//重力加速度をリセット
+			GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
+
+			//垂直加速度をリセット
+			VerticalAcceleration = 0;
+
+			//これ以上イベントを起こさないためにAttackステートを一時停止
+			CurrentAnimator.SetFloat("AttackSpeed00", 0.0f);
+			CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
+
+			//コライダを非アクティブ化
+			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+
+			//表情を普通に戻す
+			ChangeFace("Common");
+
+			//入力フラグを全て下す関数呼び出し
+			InputReset();
+
+			//遷移フラグを全て下す関数呼び出し
+			TransitionReset();
+		}
+
 		//Rollingになった瞬間の処理
 		else if (s.Contains("-> GroundRolling") || s.Contains("-> AirRolling"))
 		{
@@ -3078,22 +2969,28 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			ComboState++;
 		}
 		//Damageになった瞬間の処理
-		else if (s.Contains("Damage"))
+		else if (s.Contains("-> Damage"))
 		{
-			//Damage遷移フラグを下す
-			CurrentAnimator.SetBool("Damage", false);
+			//遷移フラグを全て下す関数呼び出し
+			TransitionReset();
 
-			//ジャンプ入力フラグを下ろす
-			JumpInput = false;
+			//コライダを非アクティブ化
+			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
 
-			//ローリング入力フラグを下ろす
-			RollingInput = false;
+			//ダメージ状態フラグを立てる
+			DamageFlag = true;
 
-			//特殊攻撃入力フラグを下ろす
-			SpecialInput = false;
+			//入力フラグを全て下す関数呼び出し
+			InputReset();
 
-			//先行入力フラグを下ろす
-			AttackInput = false; ;
+			//ホールドフラグを下す
+			HoldFlag = false;
+
+			//ホールド状態を解除
+			HoldBreak();
+
+			//ロックを解除
+			LockEnemy = null;
 		}
 		//Damageから抜けた瞬間の処理
 		else if (s.Contains("Damage ->"))
@@ -3122,7 +3019,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 		//SpecialAttackになった瞬間の処理
 		else if (s.Contains("-> SpecialAttack"))
-		{
+		{		
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("SpecialAttack", false);
 		}
@@ -3188,20 +3085,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(false, Vector3.zero));
 		}
 
+		//入力フラグを全て下す関数呼び出し
+		InputReset();
+
+		//遷移フラグを全て下す関数呼び出し
+		TransitionReset();
+
 		//ダメージ状態フラグを下す
 		DamageFlag = false;
-
-		//ジャンプ入力フラグを下ろす
-		JumpInput = false;
-
-		//ローリング入力フラグを下ろす
-		RollingInput = false;
-
-		//特殊攻撃入力フラグを下ろす
-		SpecialInput = false;
-
-		//先行入力フラグを下ろす
-		AttackInput = false; ;
 
 		//ダッシュフラグを下す
 		DashFlag = false;
@@ -3253,10 +3144,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//イベントアニメーションフラグを下ろす
 		CurrentAnimator.SetBool("ActionEvent", false);
-
-		//ステートフラグを下ろす
-		CurrentAnimator.SetBool("Attack00", false);
-		CurrentAnimator.SetBool("Attack01", false);
 
 		//攻撃移動タイプを初期化
 		AttackMoveType = 100;
