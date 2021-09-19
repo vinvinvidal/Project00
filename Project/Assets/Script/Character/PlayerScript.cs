@@ -182,6 +182,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//ジャンプ開始直後のレバー入力
 	private Vector3 JumpHorizonVector;
 
+	//キャラクターのジャンプの回転値
+	private Vector3 JumpRotateVector;
+
 	//移動速度補正値
 	private float PlayerMoveParam;
 
@@ -452,6 +455,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//キャラクターのローリング回転値初期化
 		RollingRotateVector = Vector3.zero;
+
+		//キャラクターのジャンプの回転値初期化
+		JumpRotateVector = Vector3.zero;
 
 		//ジャンプボタンが押された時間初期化
 		JumpTime = 0;
@@ -995,59 +1001,69 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				HorizonAcceleration *= 0;
 			}
 		}
-		//通常移動制御
-		else if (CurrentState.Contains("Run") || CurrentState.Contains("Jump") || CurrentState.Contains("Fall") || CurrentState.Contains("Stop"))
+		//地上移動制御
+		else if (CurrentState.Contains("Run") ||  CurrentState.Contains("Stop"))
 		{
 			//ダミーのベクトルとプレイヤーからの入力で移動ベクトルを求める
 			HorizonAcceleration = (PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x);
 
-			//接地している
-			if (OnGroundFlag)
+			//入力があったら進行方向に向けて回転
+			if (HorizonAcceleration != Vector3.zero)
 			{
-				//入力があったら進行方向に向けて回転
-				if (HorizonAcceleration != Vector3.zero)
-				{
-					transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizonAcceleration, Vector3.up), TurnSpeed * Time.deltaTime);
-				}
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizonAcceleration, Vector3.up), TurnSpeed * Time.deltaTime);
+			}
 
-				//一定時間走っていたらダッシュに移行
-				if (Time.time - DashInputTime > 5 && !DashFlag && CurrentState.Contains("Run"))
-				{
-					//フラグ状態をまっさらに戻す関数呼び出し
-					ClearFlag();
+			//一定時間走っていたらダッシュに移行
+			if (Time.time - DashInputTime > 5 && !DashFlag && CurrentState.Contains("Run"))
+			{
+				//フラグ状態をまっさらに戻す関数呼び出し
+				ClearFlag();
 
-					//ダッシュフラグを立てる
-					DashFlag = true;
+				//ダッシュフラグを立てる
+				DashFlag = true;
 
-					//ブレンド比率初期値
-					PlayerMoveBlend = 0;
-				}
+				//ブレンド比率初期値
+				PlayerMoveBlend = 0;
+			}
 
-				//急停止
-				if (CurrentState.Contains("Stop"))
-				{
-					//移動補正値を減らしていく
-					PlayerMoveParam -= 2 * Time.deltaTime;
+			//急停止
+			if (CurrentState.Contains("Stop"))
+			{
+				//移動補正値を減らしていく
+				PlayerMoveParam -= 2 * Time.deltaTime;
 
-					//ベクトルを正面に固定して減速
-					HorizonAcceleration = transform.forward * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
-				}
-				else
-				{
-					//ダッシュ速度補正値
-					PlayerMoveParam = 1;
-
-					//ユーザー入力による移動ベクトルに移動スピードを加える
-					HorizonAcceleration = HorizonAcceleration * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
-				}				
+				//ベクトルを正面に固定して減速
+				HorizonAcceleration = transform.forward * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
 			}
 			else
 			{
-				//ジャンプ開始直後のベクトルに入力値を加算して空中制御
-				JumpHorizonVector += HorizonAcceleration * PlayerMoveSpeed * 0.01f;
-			
-				//移動値を反映、これだと加速し続けるので、長時間の対空シチュエーションに注意
-				HorizonAcceleration = JumpHorizonVector;
+				//ダッシュ速度補正値
+				PlayerMoveParam = 1;
+
+				//ユーザー入力による移動ベクトルに移動スピードを加える
+				HorizonAcceleration = HorizonAcceleration * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
+			}				
+		}
+		//空中移動制御
+		else if(CurrentState.Contains("Jump") || CurrentState.Contains("Fall"))
+		{
+			//入力ベクトルキャッシュ
+			Vector3 tempVector = (PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x);
+
+			//ジャンプ開始直後のベクトルを反映
+			HorizonAcceleration = JumpHorizonVector;
+
+			//ジャンプ開始直後のベクトルと入力ベクトルの角度を比較して前じゃなければ動かす
+			if ((Vector3.Angle(tempVector , JumpHorizonVector) > 45) || JumpHorizonVector == Vector3.zero)
+			{
+				//ダミーのベクトルとプレイヤーからの入力で移動ベクトルを求める
+				HorizonAcceleration += tempVector * PlayerMoveSpeed * 0.75f;
+			}
+
+			//ジャンプ方向に向ける
+			if(JumpRotateVector != Vector3.zero)
+			{
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(JumpRotateVector), TurnSpeed * 2 * Time.deltaTime);
 			}
 		}
 		//何もしていなければその場に止まる
@@ -1251,6 +1267,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			if(CurrentState == "SpecialSuccess" && CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > SpecialSelectTime)
 			{
+				SpecialInputIndex = 0;
+
 				goto SpecialLoopBreak;
 			}
 
@@ -1267,18 +1285,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//フラグを下す
 		SpecialSuccessFlag = false;
 
-		//有効な入力があったら処理
-		if (TempInput)
-		{
-			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["Special_void"] = SpecialArtsList[SpecialInputIndex].AnimClip;
+		//オーバーライドコントローラにアニメーションクリップをセット
+		OverRideAnimator["Special_void"] = SpecialArtsList[SpecialInputIndex].AnimClip;
 
-			//アニメーターを上書きしてアニメーションクリップを切り替える
-			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
-			//アニメーターの遷移フラグを立てる
-			CurrentAnimator.SetBool("SpecialAttack", true);
-		}
+		//アニメーターの遷移フラグを立てる
+		CurrentAnimator.SetBool("SpecialAttack", true);
 	}
 
 	//特殊攻撃待機フラグを下す、アニメーションクリップから呼ばれる
@@ -2600,11 +2614,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetBool("SpecialTry", true);
 		}
 
-		//ジャンプ中の処理
-		if (CurrentState == "Jump")
+		//Attack遷移判定
+		if (PermitTransitionBoolDic["Attack00"] || PermitTransitionBoolDic["Attack01"])
 		{
-			//ジャンプ加速度コルーチン呼び出し
-			StartCoroutine(JumpPowerCoroutine());
+			//アニメーション遷移フラグを立てる
+			CurrentAnimator.SetBool("Attack0" + ComboState % 2, true);
+		}
+
+		//ジャンプ中の処理
+		if (CurrentState.Contains("Jump"))
+		{
+			//ダメージを受けてたら入れない、屈伸分のディレイをちょっと待つ
+			if (!DamageFlag && Time.time - JumpTime > 0.1f)
+			{
+				//垂直加速度に値を入れる
+				VerticalAcceleration = JumpPower;
+			}
 		}
 		//地上ローリング中の処理
 		else if (CurrentState.Contains("GroundRolling"))
@@ -2619,31 +2644,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ローリング移動ベクトルを入れる
 			RollingMoveVector = transform.forward;
 		}
-		//空中ローリング中
+		//空中ローリング中の処理
 		else if (CurrentState.Contains("AirRolling"))
 		{
 			//ローリング移動ベクトルを入れる
 			RollingMoveVector = transform.forward;
-		}
-
-		//Attack遷移判定
-		if (PermitTransitionBoolDic["Attack00"] || PermitTransitionBoolDic["Attack01"])
-		{
-			//アニメーション遷移フラグを立てる
-			CurrentAnimator.SetBool("Attack0" + ComboState % 2, true);
-		}
-	}
-
-	//ジャンプ加速度コルーチン
-	IEnumerator JumpPowerCoroutine()
-	{
-		//屈伸分のディレイ
-		yield return new WaitForSeconds(0.1f);
-
-		//垂直加速度に値を入れる、ダメージを受けてたら入れない
-		if (!DamageFlag)
-		{
-			VerticalAcceleration = JumpPower;
 		}
 	}
 
@@ -2819,11 +2824,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//垂直加速度をリセット
 			VerticalAcceleration = 0;
 
-			//ジャンプ開始直後のレバー入力をキャッシュ
-			JumpHorizonVector = HorizonAcceleration;
-
 			//ジャンプ開始時間をキャッシュ
 			JumpTime = Time.time;
+
+			//ジャンプ開始直後の移動ベクトルをキャッシュ
+			JumpHorizonVector = ((PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x)) * (PlayerMoveSpeed + PlayerMoveBlend * PlayerDashSpeed) * Mathf.Clamp01(PlayerMoveParam);
+
+			//ジャンプ回転値を入れる
+			JumpRotateVector = JumpHorizonVector;
 		}
 		//Fallになった瞬間の処理
 		else if (s.Contains("-> Fall"))
@@ -2880,6 +2888,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//攻撃移動タイプを初期化
 			AttackMoveType = 100;
+
+			//表情を普通に戻す
+			ChangeFace("Common");
 
 			//空中ローリングの場合
 			if (s.Contains("-> AirRolling"))
