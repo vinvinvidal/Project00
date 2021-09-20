@@ -1224,6 +1224,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//対象の敵をロック
 		LockEnemy = enemy;
 
+		//メインカメラにもロック対象を渡す
+		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+
 		//特殊攻撃成功フラグを立てる
 		SpecialSuccessFlag = true;
 
@@ -1265,6 +1268,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				}
 			}
 
+			//入力受付時間が過ぎたらとりあえず0を出す？どうしよう
 			if(CurrentState == "SpecialSuccess" && CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > SpecialSelectTime)
 			{
 				SpecialInputIndex = 0;
@@ -1279,7 +1283,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ループを抜ける先
 		SpecialLoopBreak:;
 
-		//時間を戻す
+		//タイムスケールを戻す
 		GameManagerScript.Instance.TimeScaleChange(0.1f, 1);
 
 		//フラグを下す
@@ -1303,7 +1307,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//特殊攻撃実行、アニメーションクリップから呼ばれる
 	public void SpecialArtsAction(int n)
-	{
+	{		
 		//特殊攻撃処理を実行
 		SpecialArtsList[SpecialInputIndex].SpecialAtcList[n](gameObject , LockEnemy , SpecialArtsList[SpecialInputIndex]);
 	}
@@ -2704,8 +2708,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			||
 			s == "Run"
 			||
-			s == "SpecialSuccess"
-			||
 			s == "SpecialAttack"
 			||
 			s.Contains("-> Idling")
@@ -2729,8 +2731,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			s == "Jump"
 			||
 			s == "Fall"
-			||
-			s == "SpecialSuccess"
 			||
 			s == "SpecialAttack"
 			||

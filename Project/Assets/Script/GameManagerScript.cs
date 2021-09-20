@@ -807,6 +807,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				string an = "";
 				string info = "";
 				int di = 0;
+				int dm = 0;
 				string ep = "";
 				List<Action<GameObject, GameObject, SpecialClass>> sa = new List<Action<GameObject, GameObject, SpecialClass>>();
 
@@ -824,7 +825,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "AnimName": an = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 						case "Info": info = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 						case "EffectPos": ep = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
-						case "DamageIndex": di = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;					
+						case "DamageIndex": di = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "Damage": dm = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 					}
 				}
 
@@ -832,7 +834,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => sa = new List<Action<GameObject, GameObject, SpecialClass>>(reciever.GetSpecialAct(cid , aid)));
 
 				//ListにAdd、アンロック状況は将来的にセーブデータから読み込む
-				AllSpecialArtsList.Add(new SpecialClass(cid, aid, 1, nc, nh, an, info, tr, di, ep, sa));
+				AllSpecialArtsList.Add(new SpecialClass(cid, aid, 1, nc, nh, an, info, tr, di, dm, ep, sa));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る。

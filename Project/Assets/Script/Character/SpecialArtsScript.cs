@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -15,6 +16,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 {
 	//特殊攻撃制御フラグ
 	bool SpecialAction000Flag = false;
+	bool SpecialAction010Flag = false;
 
 	//特殊攻撃の処理を返す
 	public List<Action<GameObject, GameObject, SpecialClass>> GetSpecialAct(int c, int i)
@@ -57,7 +59,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					}
 				);
 
-				//プレイヤー移動コルーチン
+				//プレイヤー行動コルーチン
 				IEnumerator PlayerSpecialAction000(GameObject Player, GameObject Enemy)
 				{
 					//移動目的地をキャッシュ
@@ -77,7 +79,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					}
 				}
 
-				//敵移動コルーチン
+				//敵行動コルーチン
 				IEnumerator EnemySpecialAction000(GameObject Player, GameObject Enemy)
 				{
 					//移動目的地をキャッシュ
@@ -121,6 +123,112 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 							//敵の移動ベクトル初期化
 							Enemy.GetComponent<EnemyCharacterScript>().SpecialMoveVec *= 0;
 						}
+					}
+				);
+			}
+			//可穿
+			else if (i == 1)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy , SpecialClass Arts) =>
+					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+						//特殊攻撃制御フラグを立てる
+						SpecialAction010Flag = true;
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction010(Player,Enemy));
+					}
+				);
+
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSpecialAction010(GameObject Player, GameObject Enemy)
+				{
+					//フラグが降りるまでループ
+					while (SpecialAction010Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = Player.transform.forward * 7.5f;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy , SpecialClass Arts) =>
+					{
+						//特殊行動制御フラグを下す
+						SpecialAction010Flag = false;
+
+						//プレイヤーのフラグを下す
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+
+						//プレイヤーの移動ベクトル初期化
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+
+						//ヒットエフェクトインスタンス生成
+						GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect01").ToList()[0]);
+
+						//プレイヤーの子にする
+						HitEffect.transform.parent = Player.transform;
+
+						//PRS設定
+						HitEffect.transform.localPosition = new Vector3(0,0.75f,0.5f);
+						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));
+
+						//代入用List
+						List<Color> KBV = new List<Color>();
+						List<int> ATI = new List<int>();
+						List<int> DML = new List<int>();
+						List<int> CML = new List<int>();
+
+						//代入用Listにノックバックベクトルを入れる
+						KBV.Add(new Color(0, 0.5f, 15, 0.1f));
+
+						//代入用Listにダメージインデックスを入れる
+						ATI.Add(Arts.DamageIndex);
+
+						//代入用Listにダメージを入れる
+						DML.Add(Arts.Damage);
+
+						//代入用Listにチャージダメージを入れる
+						CML.Add(0);
+
+						//架空の技Classを作る
+						ArtsClass temparts = new ArtsClass
+						(
+							"",
+							"",
+							0,
+							"",
+							new List<Color>(),
+							DML,
+							CML,
+							new List<Color>(),
+							KBV,
+							"",
+							new List<int>(),
+							new List<int>(),
+							ATI,
+							new List<int>(),
+							CML,
+							new List<int>(),
+							false,
+							new List<string>(),
+							new List<Vector3>(),
+							new List<Vector3>(),
+							new List<float>(),
+							CML,
+							new List<Vector3>()
+						);
+
+						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(temparts, 0));
 					}
 				);
 			}

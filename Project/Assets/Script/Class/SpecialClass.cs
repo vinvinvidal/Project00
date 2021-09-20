@@ -27,6 +27,9 @@ public class SpecialClass
 	//敵側のダメージモーションインデックス
 	public int DamageIndex;
 
+	//ダメージ
+	public int Damage;
+
 	/*
 	40：鍔掃よろけ 
 	*/
@@ -52,7 +55,7 @@ public class SpecialClass
 	public List<Action<GameObject, GameObject, SpecialClass>> SpecialAtcList;
 
 	//コンストラクタ
-	public SpecialClass(int cid, int aid , int ul, string nc , string nh, string an , string info , int tr, int di ,string ep ,List<Action<GameObject, GameObject, SpecialClass>> sa)
+	public SpecialClass(int cid, int aid, int ul, string nc, string nh, string an, string info, int tr, int di, int dm, string ep, List<Action<GameObject, GameObject, SpecialClass>> sa)
 	{
 		UseCharacter = cid;
 		ArtsIndex = aid;
@@ -63,6 +66,7 @@ public class SpecialClass
 		Introduction = info;
 		Trigger = tr;
 		DamageIndex = di;
+		Damage = dm;
 		EffectPos = ep;
 		SpecialAtcList = new List<Action<GameObject, GameObject, SpecialClass>>(sa);
 	}
