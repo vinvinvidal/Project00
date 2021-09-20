@@ -65718,8 +65718,22 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0
+    functionName: DamageStateFlag
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 3
+    messageOptions: 0
+  - time: 0.016666668
     functionName: FallWait
     data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.033333335
+    functionName: CharaControllerReset
+    data: Down
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

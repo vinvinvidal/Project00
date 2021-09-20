@@ -611,10 +611,20 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//移動制御関数
 	void MoveFunc()
 	{
+		//ダウン状態
+		if(DownFlag)
+		{
+			MoveMoment *= 0;
+		}
 		//特殊攻撃を受けている
-		if(SpecialFlag)
+		else if(SpecialFlag)
 		{
 			MoveMoment = SpecialMoveVec * Time.deltaTime;
+		}
+		//ホールドダメージ状態
+		else if (HoldFlag)
+		{
+			MoveMoment = HoldVec * Time.deltaTime;
 		}
 		//攻撃を喰らった瞬間のノックバック
 		else if (KnockBackFlag)
@@ -625,11 +635,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		else if (DamageFlag)
 		{
 			MoveMoment = DamageMoveVec * Time.deltaTime;
-		}
-		//ホールドダメージ状態
-		else if (HoldFlag)
-		{
-			MoveMoment = HoldVec * Time.deltaTime;
 		}
 		else
 		{
@@ -704,18 +709,21 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//攻撃用コライダを無効化
 		EndAttackCol();
 
+		//アニメーターの攻撃フラグを下ろす
+		CurrentAnimator.SetBool("Attack", false);
+
+		//ホールドフラグを下ろす
+		HoldFlag = false;
+
 		//気絶値を減らす
 		Stun -= Arts.Stun[n];
 	
-		//ダメージフラグ管理関数呼び出し
-		DamageFlagFunc(Arts, n);
-
-		//ノックバックコルーチン呼び出し
-		StartCoroutine(DamageKnockBack(Arts, n));
+		//ダメージモーション管理関数呼び出し
+		DamageMotionFunc(Arts, n);
 	}
 
-	//ダメージフラグ管理関数
-	private void DamageFlagFunc(ArtsClass Arts, int n)
+	//ダメージモーション管理関数
+	private void DamageMotionFunc(ArtsClass Arts, int n)
 	{
 		//ダメージステートカウントアップ
 		DamageState++;
@@ -725,9 +733,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//次の遷移フラグを下ろす
 		CurrentAnimator.SetBool("Damage0" + (DamageState + 1) % 2, false);
-
-		//アニメーターの攻撃フラグを下ろす
-		CurrentAnimator.SetBool("Attack", false);
 
 		//ちゃんと技がある
 		if (Arts != null)
@@ -786,109 +791,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
-			//ダメージフラグを下す
-			DamageFlag = false;
-
-			//打ち上げフラグを下ろす
-			RiseFlag = false;
-
-			//ホールドフラグを下ろす
-			HoldFlag = false;
-
-			//壁激突フラグを下す
-			WallClashFlag = false;
-
-			//特殊攻撃フラグを下す
-			SpecialFlag = false;
-
-			//アニメーターのダウンフラグを下す
-			CurrentAnimator.SetBool("Down_Prone", false);
-
-			//アニメーターのダウンフラグを下す
-			CurrentAnimator.SetBool("Down_Supine", false);
-
-			//アニメーターのダウン着地フラグを下ろす
-			CurrentAnimator.SetBool("DownLanding", false);
-
-			//ダウンしない攻撃遷移判定
-			if (UseIndex == 0 || UseIndex == 3)
-			{
-				//特に何もしない
-			}
-			//うつ伏せダウン遷移判定
-			else if (UseIndex == 1 || UseIndex == 4 || UseIndex == 6)
-			{
-				//アニメーターのダウンフラグを立てる
-				CurrentAnimator.SetBool("Down_Prone", true);
-
-				//靴の高さを表すskinWidthを消す
-				CharaControllerReset("Skin");
-			}
-			//仰向けダウン遷移判定
-			else if (UseIndex == 7)
-			{
-				//アニメーターのフラグを立てる
-				CurrentAnimator.SetBool("Down_Supine", true);
-
-				//靴の高さを表すskinWidthを消す
-				CharaControllerReset("Skin");
-			}
-			//打ち上げ判定
-			else if (UseIndex == 11)
-			{
-				//打ち上げフラグを立てる
-				RiseFlag = true;
-
-				//重力をリセット
-				Gravity = 0;
-
-				//アニメーターのダウン着地フラグを立てる
-				CurrentAnimator.SetBool("DownLanding", true);
-
-				//アニメーターのフラグを立てる
-				CurrentAnimator.SetBool("Down_Supine", true);
-
-				//靴の高さを表すskinWidthを消す
-				CharaControllerReset("Skin");
-			}
-			//香港スピン
-			else if (UseIndex == 12 || UseIndex == 13)
-			{
-				//重力をリセット
-				Gravity = 0;
-
-				//アニメーターのダウンフラグを立てる
-				CurrentAnimator.SetBool("Down_Prone", true);
-
-				//靴の高さを表すskinWidthを消す
-				CharaControllerReset("Skin");
-			}
-			//吹っ飛びダウン遷移判定
-			else if (UseIndex == 2 || UseIndex == 5)
-			{
-				//吹っ飛びフラグを立てる
-				BlownFlag = true;
-
-				//アニメーターのダウンフラグを立てる
-				CurrentAnimator.SetBool("Down_Prone", true);
-
-				//靴の高さを表すskinWidthを消す
-				CharaControllerReset("Skin");
-
-				//アニメーションの再生速度を落とす
-				CurrentAnimator.SetFloat("DamageMotionSpeed" + DamageState % 2, 0.05f);
-
-				//キャラクターの方を向く
-				transform.rotation = Quaternion.LookRotation(HorizontalVector(PlayerCharacter, gameObject));
-
-				//ちょっと浮かす
-				CharaController.Move(Vector3.up * Time.deltaTime * 3);
-			}
-			//ホールドダメージ
-			else if (Arts.AttackType[n] == 30)
+			//ホールド攻撃処理
+			if (Arts.AttackType[n] == 30)
 			{
 				//ホールドダメージフラグを立てる
 				HoldFlag = true;
+
+				//ダウンフラグを下ろす
+				DownFlag = false;
+
+				//ノックバックフラグを下ろす
+				KnockBackFlag = false;
 
 				//キャラクターの方を向く
 				transform.rotation = Quaternion.LookRotation(HorizontalVector(PlayerCharacter, gameObject));
@@ -905,8 +818,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//ホールド持続コルーチン呼び出し
 				StartCoroutine(HoldWaitCoroutine(Arts.HoldPosList[n]));
 			}
+			else
+			{
+				//ノックバックコルーチン呼び出し
+				StartCoroutine(DamageKnockBack(Arts, n));
+			}
 		}
-		//技無しで0なら壁激突
+		//技無しでインデックスが0なら壁激突
 		else if (n == 0)
 		{
 			//キャラクターコントローラの大きさを元に戻す
@@ -938,7 +856,190 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 			//アニメーターのダウンフラグを下す
 			CurrentAnimator.SetBool("Down_Supine", false);
+		}		
+	}
+
+	//ダメージ状態のフラグを切り替える、アニメーションクリップから呼ばれる
+	public void DamageStateFlag(int state)
+	{
+		//アニメーターのダウン着地フラグを下ろす
+		CurrentAnimator.SetBool("DownLanding", false);
+
+		//アニメーターのダウンフラグを下ろす
+		CurrentAnimator.SetBool("Down_Supine", false);
+
+		//アニメーターのダウンフラグを下ろす
+		CurrentAnimator.SetBool("Down_Prone", false);
+
+		//ダウンしない攻撃遷移判定
+		if (state == 0)
+		{
+			//特に何もしない
 		}
+		//うつ伏せダウン遷移判定
+		else if (state == 1)
+		{
+			//アニメーターのダウンフラグを立てる
+			CurrentAnimator.SetBool("Down_Prone", true);
+		}
+		//吹っ飛びうつ伏せダウン遷移判定
+		else if (state == 2)
+		{
+			//吹っ飛びフラグを立てる
+			BlownFlag = true;
+
+			//アニメーターのダウンフラグを立てる
+			CurrentAnimator.SetBool("Down_Prone", true);
+
+			//アニメーションの再生速度を落とす
+			CurrentAnimator.SetFloat("DamageMotionSpeed" + DamageState % 2, 0.05f);
+
+			//キャラクターの方を向く
+			transform.rotation = Quaternion.LookRotation(HorizontalVector(PlayerCharacter, gameObject));
+
+			//ちょっと浮かす
+			CharaController.Move(Vector3.up * Time.deltaTime * 3);
+		}
+		//仰向けダウン遷移判定
+		else if (state == 3)
+		{
+			//アニメーターのフラグを立てる
+			CurrentAnimator.SetBool("Down_Supine", true);
+		}
+		//打ち上げ判定
+		else if (state == 4)
+		{
+			//打ち上げフラグを立てる
+			RiseFlag = true;
+
+			//重力をリセット
+			Gravity = 0;
+
+			//アニメーターのダウン着地フラグを立てる
+			CurrentAnimator.SetBool("DownLanding", true);
+
+			//アニメーターのダウンフラグを立てる
+			CurrentAnimator.SetBool("Down_Supine", true);
+
+			//キャラクターコントローラの大きさを変える
+			CharaControllerReset("Rise");
+		}
+		//香港スピン
+		else if (state == 5)
+		{
+			//重力をリセット
+			Gravity = 0;
+
+			//アニメーターのダウンフラグを立てる
+			CurrentAnimator.SetBool("Down_Prone", true);
+		}
+
+		//ノックバックフラグを入れる
+		KnockBackFlag = true;
+	}
+
+	//ノックバック処理
+	IEnumerator DamageKnockBack(ArtsClass Arts, int n)
+	{
+		//ノックバックフラグが立つまで待機
+		while (!KnockBackFlag)
+		{
+			//1フレーム待機
+			yield return null;
+		}
+
+		//ベクトル代入用変数
+		Vector3 tempVector = Vector3.zero;
+
+		//持続時間代入用変数
+		float tempTime = 0.1f;
+
+		//経過時間を宣言
+		float t = 0.0f;
+
+		//打ち上げ時に地上の通常技が当たった場合
+		if (RiseFlag && (Arts.AttackType[n] == 0 || Arts.AttackType[n] == 3))
+		{
+			//ちょっと浮かす
+			tempVector = Vector3.up;
+		}
+		//打ち上げられていないのに空中通常技が当たった場合
+		else if (!RiseFlag && Arts.AttackType[n] == 20)
+		{
+			//後ろにノックバック
+			tempVector = Vector3.forward;
+		}
+		//普通に当たった
+		else
+		{
+			//受け取ったノックバックベクトルを代入
+			tempVector = new Vector3(Arts.KnockBackVec[n].r, Arts.KnockBackVec[n].g, Arts.KnockBackVec[n].b);
+
+			//持続時間代入
+			tempTime = Arts.KnockBackVec[n].a;
+		}
+
+		//通常攻撃
+		if (Arts.ColType[n] != 7 && Arts.ColType[n] != 8)
+		{
+			//プレイヤーキャラクターの正面ベクトルを基準にノックバックベクトルを求める
+			KnockBackVec = Quaternion.LookRotation(PlayerCharacter.transform.forward, transform.up) * tempVector;
+		}
+		//範囲攻撃
+		else
+		{
+			//プレイヤーキャラクターから敵本体までのベクトルを基準にノックバックベクトルを求める
+			KnockBackVec = Quaternion.LookRotation(transform.position - PlayerCharacter.transform.position, transform.up).normalized * tempVector;
+		}
+
+		//経過時間が過ぎるか地上に降りるまで待機
+		while (t < tempTime || !OnGround)
+		{
+			//経過時間更新
+			t += Time.deltaTime;
+
+			//壁に当たったらブレイク
+			if (WallClashFlag)
+			{
+				//壁激突フラグを下す
+				WallClashFlag = false;
+
+				//ループを抜ける
+				break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//ノックバックフラグを切る
+		KnockBackFlag = false;
+
+		//吹っ飛び中なら
+		if (BlownFlag)
+		{
+			//吹っ飛ばしフラグを下す
+			BlownFlag = false;
+
+			//着地アニメーション開始位置までフレームをジャンプ
+			CurrentAnimator.Play("Damage0" + DamageState % 2, 0, 0.1f);
+		}
+
+		//モーション再生スピードを戻す
+		CurrentAnimator.SetFloat("DamageMotionSpeed" + DamageState % 2, 1);
+
+		//ノックバックの移動ベクトル初期化
+		KnockBackVec *= 0;
+
+		//死んだら
+		if (Life <= 0)
+		{
+			//死亡フラグを立てる
+			DestroyFlag = true;
+		}
+
+		//コルーチンを抜ける
+		yield break;
 	}
 
 	//アニメーションステートを監視する関数
@@ -962,41 +1063,28 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//ダメージ遷移フラグを下ろす
 				CurrentAnimator.SetBool("Damage00", false);
 				CurrentAnimator.SetBool("Damage01", false);
-
-				//状況によって本体のコリジョンを切り替える
-				if (OnGround && !DownFlag)
-				{
-					//キャラクターコントローラの大きさを元に戻す
-					CharaControllerReset("Reset");
-				}
-				else if (DownFlag && !BlownFlag)
-				{
-					//キャラクターコントローラの大きさを変える
-					CharaControllerReset("Down");
-				}
-				else if (RiseFlag)
-				{
-					//キャラクターコントローラの大きさを変える
-					CharaControllerReset("Rise");
-				}
 			}
 			//ダウン着地になった瞬間の処理
-			else if (CurrentState.Contains("-> DownLanding"))
+			else if (CurrentState == "DownLanding")
 			{
 				//打ち上げフラグを下ろす
 				RiseFlag = false;
 
 				//アニメーターのダウン着地フラグを下ろす
 				CurrentAnimator.SetBool("DownLanding", false);
-			}				
+
+				//ダウン継続中じゃない
+				if (!DownFlag)
+				{
+					//ダウン制御コルーチン呼び出し
+					StartCoroutine(DownCoroutine());
+				}
+			}
 			//ダウンになった瞬間の処理
 			else if (CurrentState.Contains("-> Down"))
 			{
 				//打ち上げフラグを下ろす
 				RiseFlag = false;
-
-				//キャラクターコントローラの大きさを変える
-				CharaControllerReset("Down");
 
 				//ダウン継続中じゃない
 				if(!DownFlag)
@@ -1047,6 +1135,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ダウンタイム設定
 		DownTime = 2;
 
+		//キャラクターコントローラの大きさを変える
+		CharaControllerReset("Down");
+
 		//ダウンしている、打ち上げられてない、ホールドされてない、ダウンタイムがある
 		while (DownFlag  && !RiseFlag && !HoldFlag && DownTime > 0)
 		{
@@ -1069,106 +1160,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//アニメーターのダウンフラグを下す
 			CurrentAnimator.SetBool("Down_Supine", false);
 		}
-	}
-
-	//ノックバック処理
-	IEnumerator DamageKnockBack(ArtsClass Arts, int n)
-	{
-		//ノックバックフラグを入れる
-		KnockBackFlag = true;
-
-		//ベクトル代入用変数
-		Vector3 tempVector = Vector3.zero;
-
-		//持続時間代入用変数
-		float tempTime = 0.1f;
-
-		//経過時間を宣言
-		float t = 0.0f;
-
-		//打ち上げ時に地上の通常技が当たった場合
-		if (RiseFlag && (Arts.AttackType[n] == 0 || Arts.AttackType[n] == 3))
-		{
-			//ちょっと浮かす
-			tempVector = Vector3.up;
-		}
-		//打ち上げられていないのに空中通常技が当たった場合
-		else if(!RiseFlag && Arts.AttackType[n] == 20)
-		{
-			//後ろにノックバック
-			tempVector = Vector3.forward;
-		}
-		//普通に当たった
-		else
-		{
-			//受け取ったノックバックベクトルを代入
-			tempVector = new Vector3(Arts.KnockBackVec[n].r, Arts.KnockBackVec[n].g, Arts.KnockBackVec[n].b);
-
-			//持続時間代入
-			tempTime = Arts.KnockBackVec[n].a;
-		}
-
-		//通常攻撃
-		if(Arts.ColType[n] != 7 && Arts.ColType[n] != 8)
-		{
-			//プレイヤーキャラクターの正面ベクトルを基準にノックバックベクトルを求める
-			KnockBackVec = Quaternion.LookRotation(PlayerCharacter.transform.forward, transform.up) * tempVector;
-		}
-		//範囲攻撃
-		else
-		{
-			//プレイヤーキャラクターから敵本体までのベクトルを基準にノックバックベクトルを求める
-			KnockBackVec = Quaternion.LookRotation(transform.position - PlayerCharacter.transform.position, transform.up).normalized * tempVector;
-		}
-
-		//経過時間が過ぎるか地上に降りるまで待機
-		while (t < tempTime || !OnGround)
-		{
-			//経過時間更新
-			t += Time.deltaTime;
-
-			//壁に当たったらブレイク
-			if (WallClashFlag)
-			{
-				//壁激突フラグを下す
-				WallClashFlag = false;
-
-				//ループを抜ける
-				break;
-			}
-
-			//1フレーム待機
-			yield return null;
-		}
-
-		//ノックバックフラグを切る
-		KnockBackFlag = false;
-
-		//吹っ飛び中なら
-		if(BlownFlag)
-		{
-			//吹っ飛ばしフラグを下す
-			BlownFlag = false;
-
-			//着地アニメーション開始位置までフレームをジャンプ
-			CurrentAnimator.Play("Damage0" + DamageState % 2, 0, 0.1f);
-		}
-
-		//モーション再生スピードを戻す
-		CurrentAnimator.SetFloat("DamageMotionSpeed" + DamageState % 2, 1);
-
-		//ノックバックの移動ベクトル初期化
-		KnockBackVec *= 0;
-
-		//死んだら
-		if (Life <= 0)
-		{
-			//死亡フラグを立てる
-			DestroyFlag = true;
-		}
-
-		//コルーチンを抜ける
-		yield break;
 	}
 
 	//ホールド持続コルーチン
@@ -1326,8 +1317,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//1フレーム待機
 		yield return null;
 
-		//フラグ処理関数呼び出し
-		DamageFlagFunc(null, 0);
+		//ダメージモーション管理関数呼び出し
+		DamageMotionFunc(null, 0);
 	}
 
 	//現在のステートを文字列で返す関数
@@ -1370,8 +1361,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ダウンフラグを下す
 		DownFlag = false;
 
-		//ダメージモーションフラグを下ろす
+		//ダメージフラグを下ろす
 		DamageFlag = false;
+
+		//ノックバックフラグを下ろす
+		KnockBackFlag = false;
 
 		//ホールドダメージ状態を下す
 		HoldFlag = false;
@@ -1379,14 +1373,26 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//吹っ飛びフラグを下す
 		BlownFlag = false;
 
+		//打ち上げフラグを下ろす
+		RiseFlag = false;
+
+		//壁激突フラグを下す
+		WallClashFlag = false;
+
 		//特殊攻撃フラグを下す
 		SpecialFlag = false;
+
+		//アニメーターの攻撃フラグを下ろす
+		CurrentAnimator.SetBool("Attack", false);
 
 		//アニメーターのダウンフラグを下す
 		CurrentAnimator.SetBool("Down_Prone", false);
 
 		//アニメーターのダウンフラグを下す
 		CurrentAnimator.SetBool("Down_Supine", false);
+
+		//アニメーターのダウン着地フラグを下ろす
+		CurrentAnimator.SetBool("DownLanding", false);
 
 		//ダメージモーション再生スピードを戻す
 		CurrentAnimator.SetFloat("DamageMotionSpeed0", 1);
@@ -1400,7 +1406,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	}
 
 	//キャラクターコントローラの設定を変える関数
-	private void CharaControllerReset(string FlagName)
+	public void CharaControllerReset(string FlagName)
 	{
 		switch(FlagName)
 		{
@@ -1423,6 +1429,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 			case "Down":
 
+				//靴の高さを表すskinWidthを消す
+				CharaController.skinWidth = 0.1f;
+
 				//キャラクターコントローラの大きさを小さくする
 				CharaController.height = 0.1f;
 				CharaController.radius = 0.1f;
@@ -1438,6 +1447,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				break;
 
 			case "Rise":
+
+				//靴の高さを表すskinWidthを消す
+				CharaController.skinWidth = 0.1f;
 
 				//キャラクターコントローラの大きさを小さくする
 				CharaController.height = 0.1f;
