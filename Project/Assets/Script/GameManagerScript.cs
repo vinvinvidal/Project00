@@ -33,6 +33,9 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	//ロック対象の敵を返す
 	GameObject SearchLockEnemy(bool b, Vector3 Vec);
 
+	//特殊攻撃の対象を返す
+	GameObject SearchSpecialTarget(int i);
+
 	//タイムスケール変更
 	void TimeScaleChange(float t, float s);
 }
@@ -958,6 +961,19 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//タイムスケールを元に戻す
 			TimeScaleNum = 1;
 		}
+	}
+
+	//特殊攻撃の対象を探すインターフェイス
+	public GameObject SearchSpecialTarget(int i)
+	{
+		//出力用変数宣言
+		GameObject re = null;
+
+		//特殊攻撃対象を探す関数呼び出し
+		ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => re = reciever.SearchSpecialTarget(i));
+
+		//出力
+		return re;
 	}
 
 	//プレイヤーの攻撃時にロック対象を検索する関数、boolがfalseならnullを返す。メッセージシステムから呼び出される

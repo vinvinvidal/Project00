@@ -10,6 +10,9 @@ public interface SpecialArtsScriptInterface : IEventSystemHandler
 {
 	//特殊攻撃の処理を返すインターフェイス
 	List<Action<GameObject, GameObject, SpecialClass>> GetSpecialAct(int c, int i);
+
+	//特殊攻撃の対象を返すインターフェイス
+	GameObject SearchSpecialTarget(int i);
 }
 
 public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
@@ -17,6 +20,59 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	//特殊攻撃制御フラグ
 	bool SpecialAction000Flag = false;
 	bool SpecialAction010Flag = false;
+
+	//特殊攻撃の対象を返すインターフェイス
+	public GameObject SearchSpecialTarget(int i)
+	{
+		//出力用変数宣言
+		GameObject re = null;
+
+		//攻撃判定出現までの残り時間
+		float AttckTime = 100000;
+
+		//御命用処理
+		if(i == 0)
+		{
+			//全ての敵を回す
+			foreach(GameObject e in GameManagerScript.Instance.AllActiveEnemyList)
+			{
+				//nullチェック
+				if(e != null)
+				{ 
+					//アニメーター取得
+					Animator tempanim = e.GetComponent<Animator>();
+
+					//攻撃してきているか判別
+					if(tempanim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
+					{
+						//アニメーションイベントを回す
+						foreach(var ii in tempanim.GetCurrentAnimatorClipInfo(0)[0].clip.events)
+						{
+							//攻撃判定発生イベントを判別
+							if(ii.functionName == "StartAttackCol")
+							{
+								//攻撃判定発生までの時間を計測
+								float temptime = ii.time - (tempanim.GetCurrentAnimatorStateInfo(0).length * tempanim.GetCurrentAnimatorStateInfo(0).normalizedTime);
+
+								//一番早い奴をキャッシュ
+								if(AttckTime > temptime && temptime > 0)
+								{
+									//出力用変数に代入
+									re = e;
+
+									//攻撃発生時間をキャッシュ
+									AttckTime = temptime;
+								}
+							}
+						}					
+					}
+				}
+			}
+		}
+
+		//出力
+		return re;
+	}
 
 	//特殊攻撃の処理を返す
 	public List<Action<GameObject, GameObject, SpecialClass>> GetSpecialAct(int c, int i)

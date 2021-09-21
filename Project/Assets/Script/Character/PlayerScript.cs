@@ -69,7 +69,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//攻撃時にロックした敵オブジェクト
 	private GameObject LockEnemy;
 
-
+	//キャラクターのID
+	private int CharacterID;
 
 
 	//--- 固定パラメータ ---//
@@ -404,6 +405,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				OnCameraObject = i.gameObject;
 			}
 		}
+
+		//CharacterSettingScriptからID取得
+		ExecuteEvents.Execute<CharacterSettingScriptInterface>(gameObject, null, (reciever, eventData) => CharacterID = reciever.GetCharacterID());
 
 		//キャラクターコントローラ取得
 		Controller = GetComponent<CharacterController>();
@@ -937,6 +941,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else if (CurrentState.Contains("Special"))
 		{
 			HorizonAcceleration = SpecialMoveVector;
+
+			//ロックしている敵に向ける
+			if (LockEnemy != null && !NoRotateFlag)
+			{
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * Time.deltaTime);
+			}
 		}
 		//攻撃中の移動制御
 		else if (CurrentState.Contains("Attack"))
@@ -1161,9 +1171,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//特殊攻撃待機フラグを下す
 			SpecialTryFlag = false;
-
-			//攻撃してきた敵の方を向く
-			transform.rotation = Quaternion.LookRotation(HorizontalVector(enemy, gameObject));
 
 			//アニメーターの遷移フラグを立てる
 			CurrentAnimator.SetBool("SpecialSuccess", true);
@@ -2368,12 +2375,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		ArtsMatrix.Add(ArtStickList01);
 		ArtsMatrix.Add(ArtStickList02);
 
-		//現在操作しているキャラクターのIDを受け取る変数
-		int CharacterID = 0;
-
-		//CharacterSettingScriptからID取得
-		ExecuteEvents.Execute<CharacterSettingScriptInterface>(gameObject, null, (reciever, eventData) => CharacterID = reciever.GetCharacterID());
-
 		//全ての技をnullにする
 		for (int i = 0; i <= ArtsMatrix.Count - 1; i++)
 		{
@@ -3021,6 +3022,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//特殊攻撃待機フラグを立てる
 			SpecialTryFlag = true;
+
+			//特殊攻撃対象オブジェクト
+			GameObject tempOBJ = null;
+
+			//特殊攻撃の対象を探す関数呼び出し
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => tempOBJ = reciever.SearchSpecialTarget(CharacterID));
+
+			//特殊攻撃対象オブジェクトがいたらロック
+			if (tempOBJ != null)
+			{
+				LockEnemy = tempOBJ;
+			}
 		}
 		//SpecialSuccessになった瞬間の処理
 		else if (s.Contains("-> SpecialSuccess"))
