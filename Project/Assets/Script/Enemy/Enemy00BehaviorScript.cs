@@ -68,14 +68,17 @@ public class Enemy00BehaviorScript : GlobalClass
 	//接近距離
 	private float ChaseDistance;
 
+	//攻撃距離
+	private float AttackDistance;
+
 	//仲間避け距離
 	private float AroundDistance;
 
 	//最小待機時間
-	float MinWaitTime = 1;
+	float MinWaitTime = 0.5f;
 
 	//最大待機時間
-	float MaxWaitTime = 3;
+	float MaxWaitTime = 2;
 
 	//歩調に合わせるサインカーブ生成に使う数
 	float SinCount = 0;
@@ -132,6 +135,9 @@ public class Enemy00BehaviorScript : GlobalClass
 
 		//接近距離
 		ChaseDistance = 2;
+
+		//攻撃距離
+		AttackDistance = 2.5f;
 
 		//仲間避け距離
 		AroundDistance = 3f;
@@ -227,7 +233,7 @@ public class Enemy00BehaviorScript : GlobalClass
 		}));
 
 		//攻撃00
-		BehaviorList.Add(new BehaviorStruct("Attack00", 200, () =>
+		BehaviorList.Add(new BehaviorStruct("Attack00", 30, () =>
 		//攻撃00の処理
 		{
 			//攻撃00コルーチン呼び出し
@@ -239,10 +245,17 @@ public class Enemy00BehaviorScript : GlobalClass
 			//出力用変数宣言
 			bool re = false;
 
-			//射程距離で攻撃中じゃなくて大体正面にいる
-			if (PlayerDistance < ChaseDistance + 1 && PlayerAngle < 90 && !NowBehaviorDic["Attack00"])
+			//画面内に入っているかbool取得
+			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => re = reciever.GetOnCameraBool());
+
+			//画面内に入っていたら処理
+			if(re)
 			{
-				re = true;
+				//射程距離で攻撃中じゃなくて大体正面にいる
+				if (PlayerDistance < AttackDistance && PlayerAngle < 90 && !NowBehaviorDic["Attack00"])
+				{
+					re = true;
+				}
 			}
 
 			//出力
@@ -302,7 +315,7 @@ public class Enemy00BehaviorScript : GlobalClass
 			}
 
 			//行動抽選
-			if (NowBehaviorDic.All(i => !i.Value))
+			if (NowBehaviorDic.All(i => !i.Value) && (EnemyScript.CurrentState == "Idling" || EnemyScript.CurrentState == "Walk"))
 			{
 				//開始可能行動List
 				List<BehaviorStruct> TempBehavioerList = new List<BehaviorStruct>(BehaviorList.Where(b => b.BehaviorConditions()).ToList());

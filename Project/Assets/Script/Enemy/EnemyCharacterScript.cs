@@ -815,6 +815,15 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//アニメーターのダメージフラグを下す
 				CurrentAnimator.SetBool("Damage01", false);
 
+				//アニメーターのダウン着地フラグを下ろす
+				CurrentAnimator.SetBool("DownLanding", false);
+
+				//アニメーターのダウンフラグを下ろす
+				CurrentAnimator.SetBool("Down_Supine", false);
+
+				//アニメーターのダウンフラグを下ろす
+				CurrentAnimator.SetBool("Down_Prone", false);
+
 				//ホールド持続コルーチン呼び出し
 				StartCoroutine(HoldWaitCoroutine(Arts.HoldPosList[n]));
 			}
@@ -1114,6 +1123,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//ホールドになった瞬間の処理
 			else if (CurrentState == "HoldDamage")
 			{
+				//アニメーターのホールドダメージフラグを下ろす
+				CurrentAnimator.SetBool("HoldDamage", false);
+
+				//打ち上げフラグを下ろす
+				RiseFlag = false;
+
 				//ホールドベクトルを初期化
 				HoldVec *= 0;
 			}
@@ -1419,7 +1434,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				CharaController.skinWidth = CharaConSkin;
 
 				//接地コライダの大きさも合わせないと壁際で接地できなくなる
-				RayRadius = 0.5f;
+				RayRadius = CharaController.radius;
 
 				//ダメージ用コライダの大きさを戻す
 				DamageCol.center = DamageColCenter;
@@ -1433,16 +1448,16 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				CharaController.skinWidth = 0.1f;
 
 				//キャラクターコントローラの大きさを小さくする
-				CharaController.height = 0.1f;
-				CharaController.radius = 0.1f;
-				CharaController.center = new Vector3(0, CharaController.radius * 0.5f + CharaController.skinWidth, 0);
+				CharaController.height = 2f;
+				CharaController.radius = 1;
+				CharaController.center = new Vector3(0, CharaController.radius + CharaController.skinWidth, 0);
 
 				//接地コライダの大きさも合わせないと壁際で接地できなくなる
-				RayRadius = 0.1f;
+				RayRadius = CharaController.radius;
 
 				//ダメージ用コライダの大きさを小さくする
 				DamageCol.size = new Vector3(1, 0.5f, 1);
-				DamageCol.center = new Vector3(0,DamageCol.size.y * 0.5f,0);				
+				DamageCol.center = new Vector3(0, DamageCol.size.y * 0.5f, 0);
 
 				break;
 
@@ -1455,10 +1470,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				CharaController.height = 0.1f;
 				CharaController.radius = 0.1f;
 				CharaController.center = new Vector3(0, CharaController.radius * 0.5f + CharaController.skinWidth, 0);
-				
+
 				//接地コライダの大きさも合わせないと壁際で接地できなくなる
-				RayRadius = 0.1f;
-				
+				RayRadius = CharaController.radius;
+
 				//ダメージ用コライダの大きさを戻す
 				DamageCol.center = DamageColCenter;
 				DamageCol.size = DamageColSize;
