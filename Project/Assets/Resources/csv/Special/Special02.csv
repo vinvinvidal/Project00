@@ -1,0 +1,10 @@
+NameC,眩箔
+NameH,まぶはく
+UseCharacter,0
+ArtsIndex,2
+DamageIndex,0
+Damage,0
+AnimName,Motion_0_Special2
+EffectPos,L_ElbowBone
+Trigger,0
+Info,敵を挑発してバリバリゲージを上昇させる

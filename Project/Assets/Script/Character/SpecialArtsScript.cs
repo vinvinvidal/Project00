@@ -20,6 +20,10 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	//特殊攻撃制御フラグ
 	bool SpecialAction000Flag = false;
 	bool SpecialAction010Flag = false;
+	bool SpecialAction020Flag = false;
+	bool SpecialAction021Flag = false;
+	bool SpecialAction022Flag = false;
+	bool SpecialAction023Flag = false;
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -285,6 +289,156 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
 						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(temparts, 0));
+					}
+				);
+			}
+			//眩箔
+			else if (i == 2)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+						//特殊攻撃制御フラグを立てる
+						SpecialAction020Flag = true;
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction020(Player, Enemy));
+					}
+				);
+
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSpecialAction020(GameObject Player, GameObject Enemy)
+				{
+					//フラグが降りるまでループ
+					while (SpecialAction020Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 10f;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					{
+						//特殊行動制御フラグを下す
+						SpecialAction020Flag = false;
+
+						//特殊攻撃制御フラグを立てる
+						SpecialAction021Flag = true;
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction021(Player, Enemy));
+					}
+				);
+
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSpecialAction021(GameObject Player, GameObject Enemy)
+				{
+					//フラグが降りるまでループ
+					while (SpecialAction021Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 2f;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					{
+						//特殊攻撃制御フラグを下す
+						SpecialAction021Flag = false;
+
+						//プレイヤーの移動ベクトル初期化
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					{
+						//特殊攻撃制御フラグを立てる
+						SpecialAction022Flag = true;
+
+						//特殊攻撃制御フラグを下す
+						SpecialAction023Flag = false;
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction022(Player, Enemy));
+					}
+				);
+
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSpecialAction022(GameObject Player, GameObject Enemy)
+				{
+					//フラグが降りるまでループ
+					while (SpecialAction022Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 0.5f;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					{
+						//特殊攻撃制御フラグを立てる
+						SpecialAction023Flag = true;
+
+						//特殊攻撃制御フラグを下す
+						SpecialAction022Flag = false;
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction023(Player, Enemy));
+					}
+				);
+
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSpecialAction023(GameObject Player, GameObject Enemy)
+				{
+					//フラグが降りるまでループ
+					while (SpecialAction023Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 1.5f;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					{
+						//特殊攻撃制御フラグを下す
+						SpecialAction022Flag = false;
+
+						//特殊攻撃制御フラグを下す
+						SpecialAction023Flag = false;
+
+						//プレイヤーのフラグを下す
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+
+						//プレイヤーの移動ベクトル初期化
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
 					}
 				);
 			}

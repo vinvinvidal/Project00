@@ -636,14 +636,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee9fcb5866324b04e9bd7fc813581d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerMoveSpeed: 5
-  PlayerDashSpeed: 8
-  PlayerMoveParam: 0
-  PlayerMoveBlend: 0
-  RollingSpeed: 10
-  JumpPower: 10
-  TurnSpeed: 800
-  AttackDistance: 3
 --- !u!143 &2097141605791399922
 CharacterController:
   m_ObjectHideFlags: 0
@@ -790,7 +782,7 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 2233048890627264687cfaeb8dfbeff8, type: 3}
   _TexNormal: {fileID: 2800000, guid: aa18d5e7e4f211d469b4eed01c724729, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 6e31bbbfc8a854044856af7e1303360b, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
   _TexLine: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
 --- !u!1 &8972024166111775783
 GameObject:

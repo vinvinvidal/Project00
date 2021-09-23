@@ -256,6 +256,10 @@ public class Enemy00BehaviorScript : GlobalClass
 				{
 					re = true;
 				}
+				else
+				{
+					re = false;
+				}
 			}
 
 			//出力
