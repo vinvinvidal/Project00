@@ -334,11 +334,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//キャラクターの接地判定をするレイの発射位置、キャラクターコントローラから算出
 		//RayPoint = new Vector3(0, CharaController.height, CharaController.center.z);
-		RayPoint = new Vector3(0, 1, 0);
+		RayPoint = new Vector3(0, 2, 0);
 
 		//キャラクターの接地判定をするレイの大きさ、キャラクターコントローラから算出
 		//RayRadius = new Vector3(CharaController.radius, CharaController.height * 0.5f, CharaController.radius);
-		RayRadius = 0.5f;
+		RayRadius = 1f;
 
 		//重力加速度初期化
 		Gravity = Physics.gravity.y * Time.deltaTime;
@@ -941,6 +941,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 			//アニメーターのダウンフラグを立てる
 			CurrentAnimator.SetBool("Down_Prone", true);
+
+			//キャラクターコントローラの大きさを変える
+			CharaControllerReset("Down");
 		}
 
 		//ノックバックフラグを入れる
@@ -1435,6 +1438,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 				//接地コライダの大きさも合わせないと壁際で接地できなくなる
 				RayRadius = CharaController.radius;
+				RayPoint = new Vector3(0, RayRadius * 2f, 0);
 
 				//ダメージ用コライダの大きさを戻す
 				DamageCol.center = DamageColCenter;
@@ -1454,6 +1458,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 				//接地コライダの大きさも合わせないと壁際で接地できなくなる
 				RayRadius = CharaController.radius;
+				RayPoint = new Vector3(0, RayRadius * 2f, 0);
 
 				//ダメージ用コライダの大きさを小さくする
 				DamageCol.size = new Vector3(1, 0.5f, 1);
@@ -1473,6 +1478,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 				//接地コライダの大きさも合わせないと壁際で接地できなくなる
 				RayRadius = CharaController.radius;
+				RayPoint = new Vector3(0, RayRadius * 2f, 0);
 
 				//ダメージ用コライダの大きさを戻す
 				DamageCol.center = DamageColCenter;

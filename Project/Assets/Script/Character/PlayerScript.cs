@@ -3133,6 +3133,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//回転制御フラグを下す
 		NoRotateFlag = false;
 
+		//特殊攻撃フラグを下ろす
+		SpecialTryFlag = false;
+
+		//特殊攻撃成功フラグを下ろす
+		SpecialSuccessFlag = false;
+
 		//ローリング移動ベクトルリセット
 		RollingMoveVector *= 0;
 

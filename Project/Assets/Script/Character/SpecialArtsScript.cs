@@ -317,7 +317,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					while (SpecialAction020Flag)
 					{
 						//目的地まで移動
-						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 10f;
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 7.5f;
 
 						//1フレーム待機
 						yield return null;
