@@ -1296,8 +1296,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//フラグを下す
 		SpecialSuccessFlag = false;
 
-		//オーバーライドコントローラにアニメーションクリップをセット
-		OverRideAnimator["Special_void"] = SpecialArtsList[SpecialInputIndex].AnimClip;
+		//オーバーライドコントローラにアニメーションクリップをセット		
+		OverRideAnimator["Special_void"] = SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0].AnimClip;
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -1314,9 +1314,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//特殊攻撃実行、アニメーションクリップから呼ばれる
 	public void SpecialArtsAction(int n)
-	{		
+	{
 		//特殊攻撃処理を実行
-		SpecialArtsList[SpecialInputIndex].SpecialAtcList[n](gameObject , LockEnemy , SpecialArtsList[SpecialInputIndex]);
+		SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0].SpecialAtcList[n](gameObject , LockEnemy , SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0]);
 	}
 
 	//ダメージ時の移動ベクトルを設定する、アニメーションクリップから呼ばれる
@@ -3174,6 +3174,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//イベントアニメーションフラグを下ろす
 		CurrentAnimator.SetBool("ActionEvent", false);
+
+		//表情を普通に戻す
+		ChangeFace("Common");
 
 		//攻撃移動タイプを初期化
 		AttackMoveType = 100;

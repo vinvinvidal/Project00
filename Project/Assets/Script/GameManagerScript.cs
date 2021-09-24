@@ -46,6 +46,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//開発用スイッチ
 	public bool DevSwicth;
 
+	//ゲームデータ読み込み開始フラグ
+	public bool LoadGameDataFlag { get; set; } = false;
+
 	//ユニークインスタンス
 	private static GameManagerScript instance;
 
@@ -83,7 +86,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	private bool PauseFlag = false;
 
 
-	//セーブロードするユーザーデータ
+	//セーブロードするセーブデータ
 	public UserDataClass UserData { get; set; } = null;
 
 	//外部ファイルが置いてあるデータパス
@@ -95,7 +98,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//読み込み済みアセットバンドルリスト、重複ロードを防止する
 	public List<string> LoadedDataList { get; set; }
 
-	//ユーザーデータ準備完了フラグ
+	//セーブデータ準備完了フラグ
 	public bool UserDataReadyFlag { get; set; } = false;
 
 
@@ -240,8 +243,27 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//メインカメラ取得
 		MainCamera = DeepFind(gameObject, "CameraRoot");
 
+		//FPS測定用変数初期化
+		FPS = 0;
+		FrameCount = 0;
+		PrevTime = 0.0f;
+		NextTime = 0.0f;
+
+		//ゲームデータ読み込みコルーチン呼び出し
+		StartCoroutine(LoadGameData());
+	}
+
+	private IEnumerator LoadGameData()
+	{
+		//UIの準備が整うまでループ
+		while (!LoadGameDataFlag)
+		{
+			//1フレーム待機
+			yield return null;
+		}
+
 		//開発スイッチ
-		if(!DevSwicth)
+		if (!DevSwicth)
 		{
 			//AssetBudleの依存関係データ読み込み
 			DependencyManifest = AssetBundle.LoadFromFile(Application.streamingAssetsPath + "/StreamingAssets").LoadAsset<AssetBundleManifest>("AssetBundleManifest");
@@ -250,14 +272,18 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//読み込み済みデータList更新
 		LoadedDataListUpdate();
 
-		//FPS測定用変数初期化
-		FPS = 0;
-		FrameCount = 0;
-		PrevTime = 0.0f;
-		NextTime = 0.0f;
+		//セーブデータ読み込み関数呼び出し
+		UserDataLoad();
+
+		//セーブデータ読み込み完了を待つ
+		while(!UserDataReadyFlag)
+		{
+			//1フレーム待機
+			yield return null;
+		}
 
 		//キャラクターCSV読み込み
-		StartCoroutine(AllFileLoadCoroutine("csv/Character/" , "csv" , (List<object> list) =>
+		StartCoroutine(AllFileLoadCoroutine("csv/Character/", "csv", (List<object> list) =>
 		{
 			//全てのキャラクター情報を持ったList初期化
 			AllCharacterList = new List<CharacterClass>();
@@ -267,14 +293,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			{
 				//CharacterClassコンストラクタ代入用変数
 				int id = 0;
-				//ここは将来的にセーブデータから読み込む
-				int Hid = 0;
-				int Cid = 0;
-				int Wid = 0;
-				//
-				string LNC ="";
-				string LNH ="";
-				string FNC ="";
+
+				string LNC = "";
+				string LNH = "";
+				string FNC = "";
 				string FNH = "";
 				string ON = "";
 
@@ -289,7 +311,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				foreach (string ii in i.Split('\n').ToList())
 				{
 					//カンマで分割した最初の要素で条件分岐、続く値を変数に代入
-					switch(ii.Split(',').ToList().First())
+					switch (ii.Split(',').ToList().First())
 					{
 						case "CharacterID": id = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "L_NameC": LNC = ii.Split(',').ToList().ElementAt(1); break;
@@ -305,6 +327,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "AttackDistance": ad = float.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 					}
 				}
+
+				//装備中の髪型、衣装、武器のインデックス読み込む
+				int Hid = GameManagerScript.instance.UserData.EquipHairList[id];
+				int Cid = GameManagerScript.instance.UserData.EquipCostumeList[id];
+				int Wid = GameManagerScript.instance.UserData.EquipWeaponList[id];
 
 				//ListにAdd
 				AllCharacterList.Add(new CharacterClass(id, LNC, LNH, FNC, FNH, Hid, Cid, Wid, ON, pms, pds, rs, jp, ts, ad));
@@ -336,10 +363,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 				//表情アニメーションクリップ読み込み
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/Face/", "anim", (List<object> FaceOBJList) =>
-				{		
+				{
 					//読み込んだオブジェクトListを回す
 					foreach (object ii in FaceOBJList)
-					{	
+					{
 						//ListにAdd
 						AllFaceList.Add(ii as AnimationClip);
 					}
@@ -400,12 +427,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る
-			foreach(EnemyAttackClass i in AllEnemyAttackList)
+			foreach (EnemyAttackClass i in AllEnemyAttackList)
 			{
 				AllEnemyAttackAnimCompleteFlagDic.Add(i.AnimName, false);
 			}
 
-			foreach(EnemyAttackClass i in AllEnemyAttackList)
+			foreach (EnemyAttackClass i in AllEnemyAttackList)
 			{
 				//技のアニメーションを読み込む
 				StartCoroutine(LoadOBJ("Anim/Enemy/" + i.UserID + "/Attack/", i.AnimName, "anim", (object O) =>
@@ -421,7 +448,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		}));
 
 		//敵CSV読み込み
-		StartCoroutine(AllFileLoadCoroutine("csv/Enemy/" , "csv" , (List<object> list) =>
+		StartCoroutine(AllFileLoadCoroutine("csv/Enemy/", "csv", (List<object> list) =>
 		{
 			//全ての敵情報を持ったList初期化
 			AllEnemyList = new List<EnemyClass>();
@@ -457,7 +484,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				}
 
 				//ListにAdd
-				AllEnemyList.Add(new EnemyClass(LineFeedCodeClear(id), LineFeedCodeClear(objname), LineFeedCodeClear(name), life , stun , downtime,movespeed , turnspeed));
+				AllEnemyList.Add(new EnemyClass(LineFeedCodeClear(id), LineFeedCodeClear(objname), LineFeedCodeClear(name), life, stun, downtime, movespeed, turnspeed));
 			}
 
 			//読み込み完了フラグを立てる
@@ -521,7 +548,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 						case "CameraPos":
 
-							foreach(var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
+							foreach (var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
 							{
 								//*で分割した値をVector3にしてAdd
 								CameraPosList.Add(new Vector3(float.Parse(iii.Split('*').ElementAt(0)), float.Parse(iii.Split('*').ElementAt(1)), float.Parse(iii.Split('*').ElementAt(2))));
@@ -530,7 +557,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 							break;
 					}
 				}
-				
+
 				//ListにAdd
 				AllMissionList.Add(new MissionClass(Num, MissionTitle, Introduction, PlayableCharacter, ChapterStage, CharacterPosListt, CameraPosList));
 			}
@@ -564,13 +591,13 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				List<int> mt = new List<int>();
 				List<int> at = new List<int>();
 				List<int> de = new List<int>();
-				List<int> ct = new List<int>(); 
+				List<int> ct = new List<int>();
 				List<int> tt = new List<int>();
 				bool ch = true;
 				List<string> he = new List<string>();
 				List<Vector3> hp = new List<Vector3>();
 				List<Vector3> ha = new List<Vector3>();
-				List<float> hs = new List<float>(); 
+				List<float> hs = new List<float>();
 				List<int> cg = new List<int>();
 				List<Vector3> hl = new List<Vector3>();
 
@@ -611,7 +638,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 							{
 								dm.Add(int.Parse(iii));
 							}
-							
+
 							break;
 
 						case "Stun":
@@ -675,7 +702,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "DownEnable":
 
 							foreach (var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
-							{							
+							{
 								de.Add(int.Parse(iii));
 							}
 
@@ -770,14 +797,14 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				//ListにAdd
 				AllArtsList.Add(new ArtsClass(nc, nh, uc, an, mv, dm, st, cv, kb, intro, lk, mt, at, de, ct, tt, ch, he, hp, ha, hs, cg, hl));
 			}
-			
+
 			//アニメーションクリップ読み込み完了判定Dicを作る
-			foreach(ArtsClass i in AllArtsList)
+			foreach (ArtsClass i in AllArtsList)
 			{
 				AllArtsAnimCompleteFlagDic.Add(i.AnimName, false);
 			}
 
-			foreach(ArtsClass i in AllArtsList)
+			foreach (ArtsClass i in AllArtsList)
 			{
 				//技のアニメーションを読み込む
 				StartCoroutine(LoadOBJ("Anim/Character/" + i.UseCharacter + "/Arts/", i.AnimName, "anim", (object O) =>
@@ -804,6 +831,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				//EnemyAttackClassコンストラクタ代入用変数
 				int cid = 0;
 				int aid = 0;
+				int ul = 0;
 				int tr = 0;
 				string nc = "";
 				string nh = "";
@@ -823,26 +851,37 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "UseCharacter": cid = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "ArtsIndex": aid = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "Trigger": tr = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
-						case "NameC": nc = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1));	break;
-						case "NameH": nh = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1));	break;
+						case "NameC": nc = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
+						case "NameH": nh = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 						case "AnimName": an = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 						case "Info": info = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 						case "EffectPos": ep = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 						case "DamageIndex": di = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "Damage": dm = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "UnLock": ul = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 					}
 				}
 
 				//特殊攻撃処理のListを受け取る
-				ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => sa = new List<Action<GameObject, GameObject, SpecialClass>>(reciever.GetSpecialAct(cid , aid)));
+				ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => sa = new List<Action<GameObject, GameObject, SpecialClass>>(reciever.GetSpecialAct(cid, aid)));
 
-				//ListにAdd、アンロック状況は将来的にセーブデータから読み込む
-				AllSpecialArtsList.Add(new SpecialClass(cid, aid, 1, nc, nh, an, info, tr, di, dm, ep, sa));
+				//セーブデータからアンロック状況を読み込む
+				foreach(string ii in UserData.SpecialUnLock)
+				{
+					//リストに名前があればアンロック済み
+					if(ii == nc)
+					{
+						ul = 1;
+					}
+				}				
+
+				//ListにAdd
+				AllSpecialArtsList.Add(new SpecialClass(cid, aid, ul, nc, nh, an, info, tr, di, dm, ep, sa));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る。
 			foreach (SpecialClass i in AllSpecialArtsList)
-			{     
+			{
 				//フラグ管理DicにAdd
 				AllSpecialArtsAnimCompleteFlagDic.Add(i.AnimName, false);
 			}
@@ -859,7 +898,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 					//読み込んだアニメーションのDicをtrueにする
 					AllSpecialArtsAnimCompleteFlagDic[i.AnimName] = true;
 
-				}));				
+				}));
 			}
 		}));
 
@@ -903,12 +942,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 					{
 						case "CharacterID": CharacterID = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "WeaponID": WeaponID = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
-						case "WeaponName": WeaponName = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;	
+						case "WeaponName": WeaponName = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 					}
 				}
 
 				//ListにAdd
-				AllWeaponList.Add(new WeaponClass(CharacterID,WeaponID,WeaponName));
+				AllWeaponList.Add(new WeaponClass(CharacterID, WeaponID, WeaponName));
 			}
 
 			//読み込み完了フラグを立てる
@@ -1141,7 +1180,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		}
 	}
 
-
 	//引数のフォルダ内のファイルを全て非同期ロードしてobjectで返す関数
 	public IEnumerator AllFileLoadCoroutine(string Dir, string Ext, Action<List<object>> Act)
 	{
@@ -1355,19 +1393,19 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		Act(re);
 	}
 
-	//ユーザーデータロード関数
+	//セーブデータロード関数
 	public void UserDataLoad()
 	{
-		//ユーザーデータロードコルーチン呼び出し
+		//セーブデータロードコルーチン呼び出し
 		StartCoroutine(UserDataLoadCoroutine());
 	}
-	//ユーザーデータロードコルーチン
+	//セーブデータロードコルーチン
 	private IEnumerator UserDataLoadCoroutine()
 	{
-		//ユーザーデータ準備完了フラグを下す
+		//セーブデータ準備完了フラグを下す
 		UserDataReadyFlag = false;
 
-		//セーブフォルダチェック
+		//セーブフォルダチェックフラグ宣言
 		bool SaveFolderCheckCompleteFlag = false;
 
 		//セーブフォルダチェック関数呼び出し
@@ -1404,7 +1442,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				yield return null;
 			}
 
-			//ユーザーデータ準備完了フラグを立てる
+			//セーブデータ準備完了フラグを立てる
 			UserDataReadyFlag = true;
 		}
 		//無ければ新規作成
@@ -1422,7 +1460,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//UserDataにコピー
 			UserData = SaveData;
 
-			//ユーザーデータセーブ関数呼び出し
+			//セーブデータセーブ関数呼び出し
 			UserDataSaveAsync(UserData , DataPath + "/SaveData/Save", () =>
 			{
 				//処理が終わったらフラグを立てる
@@ -1435,12 +1473,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				yield return null;
 			}
 
-			//ユーザーデータ準備完了フラグを立てる
+			//セーブデータ準備完了フラグを立てる
 			UserDataReadyFlag = true;
 		}
 	}
 
-	//ユーザーデータセーブ実行関数
+	//セーブデータセーブ実行関数
 	public async void UserDataSaveAsync(UserDataClass SaveData, string path, Action Act)
 	{
 		//非同期処理
@@ -1472,7 +1510,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		});
 	}
 
-	//ユーザーデータロード実行関数
+	//セーブデータロード実行関数
 	public async void UserDataLoadAsync(string path, Action<UserDataClass> Act)
 	{
 		//retrun用変数宣言
@@ -1733,7 +1771,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						//10以下ってことは初期装備技
 						if (ii.UnLock[0] < 10)
 						{
+							//マトリクスに装備
 							tempArtsMatrix[ii.UnLock[0]][ii.UnLock[1]][ii.UnLock[2]] = ii.NameC;
+
+							//技アンロックリストに名前を入れる
+							UserData.ArtsUnLock.Add(ii.NameC);
 						}
 					}
 				}
@@ -1764,64 +1806,111 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		re.ArtsUnLock = new List<string>();
 
+		re.SpecialUnLock = new List<string>();
+
+		re.ArrowKeyInputAttackUnLock = new List<bool>();
+
 		re.ArtsMatrix = new List<List<List<List<string>>>>();
 
-		//装備している髪と衣装と武器、とりあえず00にしておくが後でちゃんと読み込み処理を書く
 		re.EquipHairList = new List<int>();
-		re.EquipHairList.Add(0);
 
 		re.EquipCostumeList = new List<int>();
-		re.EquipCostumeList.Add(0);
 
 		re.EquipWeaponList = new List<int>();
-		re.EquipWeaponList.Add(0);
 
-		//キャラクター番号とリストのインデックスを一致させるために予め要素を追加しておく
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
+		//キャラクターの数を求める為のfileinfo配列
+		FileInfo[] tempfileinfolist;
 
-		re.ArrowKeyInputAttackUnLock = new List<List<bool>>();
+		//キャラクター数
+		int Num = 0;
 
-		//キャラクター番号とリストのインデックスを一致させるために予め要素を追加しておく
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		//開発用
+		if (DevSwicth)
+		{
+			tempfileinfolist = new DirectoryInfo(DataPath + "/Resources/csv/Character/").GetFiles();
+		}
+		//本番用
+		else
+		{
+			tempfileinfolist = new DirectoryInfo(Application.streamingAssetsPath + GenerateBundlePath("/csv/Character/")).GetFiles();
+		}
 
+		//キャラクターCSVの数を数える
+		foreach(var i in tempfileinfolist)
+		{
+			//余計なファイルを除外
+			if (!Regex.IsMatch(i.Name, "meta|manifest"))
+			{
+				//キャラクター数カウントアップ
+				Num++;
+			}
+		}
+		
+		//キャラクターの数だけ回す
+		for (int i = 0; i <= Num - 1; i++)
+		{
+			//髪と衣装と武器に初期装備を入れる
+			re.EquipHairList.Add(0);
+			re.EquipCostumeList.Add(0);
+			re.EquipWeaponList.Add(0);
+
+			//装備中の技マトリクスに要素追加
+			re.ArtsMatrix.Add(null);
+
+			//レバー入れ攻撃アンロック状況を追加
+			re.ArrowKeyInputAttackUnLock.Add(false);
+		}
+
+		//出力
 		return re;
+
+		/*
+		//キャラクター番号とリストのインデックスを一致させるために予め要素を追加しておく
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+
+
+
+		//キャラクター番号とリストのインデックスを一致させるために予め要素を追加しておく
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
+		*/
+
 	}
 }

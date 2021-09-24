@@ -23,9 +23,6 @@ public class Scene00_LogoScript : GlobalClass
 		//アニメーターコントローラー取得
 		AnimCon = transform.GetComponent<Animator>();
 
-		//ユーザーデータ読み込み関数呼び出し
-		GameManagerScript.Instance.UserDataLoad();
-
 		//スクリーンエフェクトオブジェクト取得
 		ScreenEffectOBJ = GameObject.Find("MainCameraScreenEffect");
 	}
@@ -41,9 +38,15 @@ public class Scene00_LogoScript : GlobalClass
 			//アニメーターに回転速度を渡す
 			AnimCon.SetFloat("RotateSpeed", RotateSpeed);
 		}
+		
+		//ロゴの回転数が一定数以上になったらゲームデータの読み込みフラグを立てる
+		if (AnimCon.GetFloat("RotateSpeed") > 1 && !GameManagerScript.Instance.LoadGameDataFlag)
+		{
+			GameManagerScript.Instance.LoadGameDataFlag = true;
+		}
 
 		//外部データの読み込み完了して回転速度が一定以上になった
-		if(GameManagerScript.Instance.AllDetaLoadCompleteFlag && (AnimCon.GetFloat("RotateSpeed") > 1) && NextSceneFlag)
+		if (GameManagerScript.Instance.AllDetaLoadCompleteFlag && (AnimCon.GetFloat("RotateSpeed") > 1) && NextSceneFlag)
 		{
 			//フラグを下ろして処理を一度にする
 			NextSceneFlag = false;
@@ -54,7 +57,6 @@ public class Scene00_LogoScript : GlobalClass
 				//フェードが終わったらゲームマネージャーのシーン遷移関数呼び出し
 				GameManagerScript.Instance.NextScene("Scene10_Mission");			
 			}));
-
 		}
     }
 }

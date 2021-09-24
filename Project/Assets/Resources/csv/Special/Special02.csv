@@ -8,3 +8,4 @@ AnimName,Motion_0_Special2
 EffectPos,L_ElbowBone
 Trigger,0
 Info,敵を挑発してバリバリゲージを上昇させる
+UnLock,1

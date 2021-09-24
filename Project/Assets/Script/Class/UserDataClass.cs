@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//保存されるユーザーデータ
+//保存されるセーブデータ
 [System.Serializable]
 public class UserDataClass
 {
@@ -25,11 +25,14 @@ public class UserDataClass
 	//技のアンロック状況
 	public List<string> ArtsUnLock;
 
+	//特殊技のアンロック状況
+	public List<string> SpecialUnLock;
+
 	//装備している技のマトリクス
 	public List<List<List<List<string>>>> ArtsMatrix;
 
 	//レバー入れ攻撃アンロック状況
-	public List<List<bool>> ArrowKeyInputAttackUnLock;
+	public List<bool> ArrowKeyInputAttackUnLock;
 
 	//装備している髪型リスト
 	public List<int> EquipHairList;
