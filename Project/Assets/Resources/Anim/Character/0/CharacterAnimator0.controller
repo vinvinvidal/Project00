@@ -157,6 +157,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 1
     m_ConditionEvent: Attack00
     m_EventTreshold: 1
+  - m_ConditionMode: 2
+    m_ConditionEvent: SpecialTry
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -9009864727686367732}
   m_Solo: 0
@@ -665,6 +668,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: Chain
     m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: SpecialTry
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1715693583418340714}
   m_Solo: 0
@@ -689,6 +695,9 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 1
     m_ConditionEvent: Attack01
+    m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: SpecialTry
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1715693583418340714}
@@ -3485,6 +3494,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: Chain
     m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: SpecialTry
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -9009864727686367732}
   m_Solo: 0
@@ -4277,6 +4289,12 @@ AnimatorStateTransition:
   m_Conditions:
   - m_ConditionMode: 1
     m_ConditionEvent: SpecialTry
+    m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: Attack00
+    m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: Attack01
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -1565863092289723706}

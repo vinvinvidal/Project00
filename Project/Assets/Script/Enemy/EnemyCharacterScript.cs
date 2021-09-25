@@ -81,6 +81,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//攻撃用コライダを持っているオブジェクト
 	private GameObject AttackCol;
 
+	//触れた他の敵
+	private GameObject HitEnemy;
+
 	//使用している攻撃
 	private EnemyAttackClass UseArts;
 
@@ -570,13 +573,27 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//強制移動ベクトル初期化
 		ForceMoveVector *= 0;
 
+		if (HitEnemy != null)
+		{
+			if(HorizontalVector(gameObject, HitEnemy).sqrMagnitude > 3)
+			{
+				HitEnemy = null;
+			}
+			else if(gameObject.transform.position.y > HitEnemy.gameObject.transform.position.y)
+			{
+				ForceMoveVector = HorizontalVector(gameObject, HitEnemy).normalized;
+
+				CharaControllerReset("Rise");
+			}
+		}
+
 		if (!HoldFlag && !SpecialFlag && !DownFlag)
 		{
 			//近くにプレイヤーがいたら処理
 			if (HorizontalVector(gameObject, PlayerCharacter).sqrMagnitude < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y > -0.1f)
 			{
 				//敵と自分までのベクトルで強制移動
-				ForceMoveVector += CharaController.transform.position - new Vector3(PlayerCharacter.transform.position.x, transform.position.y, PlayerCharacter.transform.position.z);
+				ForceMoveVector += HorizontalVector(transform.gameObject, PlayerCharacter);
 			}
 		}
 	}
@@ -648,7 +665,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 			GraityCorrect = 0;
 		}
-		else if (!OnGround)
+		else if (!OnGround && !DownFlag)
 		{
 			Gravity += Physics.gravity.y * Time.deltaTime;
 
@@ -924,14 +941,14 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//重力をリセット
 			Gravity = 0;
 
-			//アニメーターのダウン着地フラグを立てる
-			CurrentAnimator.SetBool("DownLanding", true);
-
 			//アニメーターのダウンフラグを立てる
 			CurrentAnimator.SetBool("Down_Supine", true);
 
 			//キャラクターコントローラの大きさを変える
 			CharaControllerReset("Rise");
+
+			//打ち上げてから少し待ってからフラグを立てるコルーチン呼び出し
+			StartCoroutine(DownLandingFlagCoroutine());
 		}
 		//香港スピン
 		else if (state == 5)
@@ -950,6 +967,16 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		KnockBackFlag = true;
 	}
 
+	//打ち上げてから少し待ってからフラグを立てる
+	IEnumerator DownLandingFlagCoroutine()
+	{
+		//1フレーム待機
+		yield return new WaitForSeconds(0.25f);
+
+		//アニメーターのダウン着地フラグを立てる
+		CurrentAnimator.SetBool("DownLanding", true);
+	}
+	
 	//ノックバック処理
 	IEnumerator DamageKnockBack(ArtsClass Arts, int n)
 	{
@@ -1005,7 +1032,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 
 		//経過時間が過ぎるか地上に降りるまで待機
-		while (t < tempTime || !OnGround)
+		while (KnockBackFlag)
 		{
 			//経過時間更新
 			t += Time.deltaTime;
@@ -1016,6 +1043,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//壁激突フラグを下す
 				WallClashFlag = false;
 
+				//ループを抜ける
+				break;
+			}
+			else if(t > tempTime && OnGround)
+			{
 				//ループを抜ける
 				break;
 			}
@@ -1325,18 +1357,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			//壁に合わせて回転、水平を保つ為にyは回さない
 			transform.LookAt(new Vector3(hit.normal.x, 0, hit.normal.z) + transform.position);
+			
+			//モーションを再生スピードをリセット
+			CurrentAnimator.SetFloat("DamageMotionSpeed0", 1);
+			CurrentAnimator.SetFloat("DamageMotionSpeed1", 1);
 
-			//処理を１フレーム待つためにコルーチン呼び出し
-			StartCoroutine(WallClashCoroutine());
+			//壁当たりモーション再生
+			DamageMotionFunc(null, 0);
 		}
-	}
-	IEnumerator WallClashCoroutine()
-	{
-		//1フレーム待機
-		yield return null;
-
-		//ダメージモーション管理関数呼び出し
-		DamageMotionFunc(null, 0);
+		else if(LayerMask.LayerToName(hit.gameObject.layer) == "Enemy" && gameObject.transform.position.y > hit.gameObject.transform.position.y)
+		{
+			HitEnemy = hit.gameObject;
+		}
 	}
 
 	//現在のステートを文字列で返す関数
@@ -1421,6 +1453,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//キャラクターコントローラの大きさを元に戻す
 		CharaControllerReset("Reset");
+
+		//攻撃用コライダを無効化
+		EndAttackCol();
 	}
 
 	//キャラクターコントローラの設定を変える関数
