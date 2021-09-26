@@ -1176,6 +1176,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			{
 				//敵にポーズフラグを送る
 				ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.Pause(PauseFlag));
+				ExecuteEvents.Execute<EnemyBehaviorInterface>(i, null, (reciever, eventData) => reciever.Pause(PauseFlag));
 			}
 		}
 	}

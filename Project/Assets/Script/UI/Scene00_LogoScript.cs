@@ -55,7 +55,7 @@ public class Scene00_LogoScript : GlobalClass
 			ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject , "ScreenEffect") , null, (reciever, eventData) => reciever.Fade(false , 2 , new Color(1,1,1,1) , 1 , (GameObject g) => 
 			{
 				//フェードが終わったらゲームマネージャーのシーン遷移関数呼び出し
-				GameManagerScript.Instance.NextScene("Scene10_Mission");			
+				GameManagerScript.Instance.NextScene("Scene01_MainMenu");			
 			}));
 		}
     }

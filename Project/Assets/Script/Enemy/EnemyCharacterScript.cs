@@ -970,8 +970,21 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//打ち上げてから少し待ってからフラグを立てる
 	IEnumerator DownLandingFlagCoroutine()
 	{
-		//1フレーム待機
-		yield return new WaitForSeconds(0.25f);
+		//現在時刻をキャッシュ
+		float temptime = Time.time;
+
+		//チョイ待つ
+		while (Time.time - temptime < 0.25f)
+		{
+			if(PauseFlag)
+			{
+				//ポーズ中はキャッシュを更新
+				temptime += Time.deltaTime;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
 
 		//アニメーターのダウン着地フラグを立てる
 		CurrentAnimator.SetBool("DownLanding", true);
@@ -981,7 +994,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	IEnumerator DamageKnockBack(ArtsClass Arts, int n)
 	{
 		//ノックバックフラグが立つまで待機
-		while (!KnockBackFlag)
+		while (PauseFlag || !KnockBackFlag)
 		{
 			//1フレーム待機
 			yield return null;
@@ -1036,6 +1049,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			//経過時間更新
 			t += Time.deltaTime;
+
+			//ポーズ中は持続時間更新
+			if(PauseFlag)
+			{
+				tempTime += Time.deltaTime;
+			}
 
 			//壁に当たったらブレイク
 			if (WallClashFlag)
@@ -1192,7 +1211,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		while (DownFlag  && !RiseFlag && !HoldFlag && DownTime > 0)
 		{
 			//ダウン時間カウントダウン
-			DownTime -= Time.deltaTime;
+			if(!PauseFlag)
+			{
+				DownTime -= Time.deltaTime;
+			}
 
 			//1フレーム待機
 			yield return null;
@@ -1279,6 +1301,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//経過時間待機
 		while (BreakTime + t > Time.time)
 		{
+			//ポーズ中は待機時間更新
+			if(PauseFlag)
+			{
+				BreakTime += Time.deltaTime;
+			}
+
 			//後ろ下げ
 			DamageMoveVec = (-transform.forward * 2.5f) + Vector3.down;
 
@@ -1681,6 +1709,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	{
 		//ポーズフラグ引数で受け取ったboolをフラグに代入
 		PauseFlag = b;
+
+		if(b)
+		{
+			//アニメーション一時停止
+			CurrentAnimator.speed = 0;
+		}
+		else
+		{
+			//アニメーション再生速度を戻す
+			CurrentAnimator.speed = 1;
+		}
 	}
 
 	//プレイヤーキャラクターをセットする、キャラ交代した時にMissionManagerから呼ばれる

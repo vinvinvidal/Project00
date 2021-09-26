@@ -5,7 +5,14 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Enemy00BehaviorScript : GlobalClass
+//メッセージシステムでイベントを受け取るためのインターフェイス、敵ビヘイビアは全て共通のインターフェイスにする
+public interface EnemyBehaviorInterface : IEventSystemHandler
+{
+	//ポーズ処理
+	void Pause(bool b);
+}
+
+public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 {
 	//行動構造体
 	private struct BehaviorStruct
@@ -100,6 +107,9 @@ public class Enemy00BehaviorScript : GlobalClass
 
 	//準備完了フラグ
 	private bool AllReadyFlag = false;
+
+	//ポーズフラグ
+	private bool PauseFlag = false;
 
 	void Start()
     {
@@ -276,102 +286,105 @@ public class Enemy00BehaviorScript : GlobalClass
 
 	void Update()
     {
-		//常にプレイヤーキャラクターとの距離を測定する、高低差は無視
-		PlayerDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
-
-		//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
-		PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
-
-		//歩調に合わせるサインカーブ生成に使う数カウントアップ
-		SinCount += Time.deltaTime;
-
-		//行動可能条件
-		if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")|| EnemyScript.CurrentState.Contains("Attack")))
+		if (!PauseFlag)
 		{
-			//各移動ベクトルを合成
-			MoveVec = (((BehaviorMoveVec.normalized + AroundMoveVec.normalized * 0.25f).normalized * MoveSpeed) + MotionMoveVec);
+			//常にプレイヤーキャラクターとの距離を測定する、高低差は無視
+			PlayerDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
 
-			//移動値の有無でアニメーションを切り替える、攻撃中は無視
-			if ((MoveVec != Vector3.zero || RotateVec != Vector3.zero) && !NowBehaviorDic["Attack00"])
+			//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
+			PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
+
+			//歩調に合わせるサインカーブ生成に使う数カウントアップ
+			SinCount += Time.deltaTime;
+
+			//行動可能条件
+			if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk") || EnemyScript.CurrentState.Contains("Attack")))
 			{
-				//アニメーターのフラグを立てる
-				CurrentAnimator.SetBool("Walk", true);
+				//各移動ベクトルを合成
+				MoveVec = (((BehaviorMoveVec.normalized + AroundMoveVec.normalized * 0.25f).normalized * MoveSpeed) + MotionMoveVec);
 
-				//移動方向と体の向きを比較して歩きモーションをブレンド
-				if(MoveVec != Vector3.zero)
-				{	
-					CurrentAnimator.SetFloat("Side_Walk", Mathf.Lerp(CurrentAnimator.GetFloat("Side_Walk"), (Vector3.Angle(transform.right, MoveVec.normalized) - 90) / 90, 0.25f));			
+				//移動値の有無でアニメーションを切り替える、攻撃中は無視
+				if ((MoveVec != Vector3.zero || RotateVec != Vector3.zero) && !NowBehaviorDic["Attack00"])
+				{
+					//アニメーターのフラグを立てる
+					CurrentAnimator.SetBool("Walk", true);
+
+					//移動方向と体の向きを比較して歩きモーションをブレンド
+					if (MoveVec != Vector3.zero)
+					{
+						CurrentAnimator.SetFloat("Side_Walk", Mathf.Lerp(CurrentAnimator.GetFloat("Side_Walk"), (Vector3.Angle(transform.right, MoveVec.normalized) - 90) / 90, 0.25f));
+					}
+				}
+				else
+				{
+					//アニメーターのフラグを下す
+					CurrentAnimator.SetBool("Walk", false);
+				}
+
+				//移動
+				CharaController.Move(MoveVec * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount)) * Time.deltaTime);
+
+				//回転値が入っていたら回転
+				if (RotateVec != Vector3.zero)
+				{
+					transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(RotateVec), TurnSpeed * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount) + 0.1f) * Time.deltaTime);
+				}
+
+				//行動抽選
+				if (NowBehaviorDic.All(i => !i.Value) && (EnemyScript.CurrentState == "Idling" || EnemyScript.CurrentState == "Walk"))
+				{
+					//開始可能行動List
+					List<BehaviorStruct> TempBehavioerList = new List<BehaviorStruct>(BehaviorList.Where(b => b.BehaviorConditions()).ToList());
+
+					//行動比率
+					int BehaviorRatio = 0;
+
+					//抽選番号
+					int BehaviorLottery = 0;
+
+					//開始可能な行動がある
+					if (TempBehavioerList.Count > 0)
+					{
+						//行動比率合計
+						foreach (BehaviorStruct i in TempBehavioerList)
+						{
+							//発生比率を加算
+							BehaviorRatio += i.Priority;
+						}
+
+						//抽選番号設定
+						BehaviorLottery = UnityEngine.Random.Range(1, BehaviorRatio + 1);
+
+						//行動比率初期化
+						BehaviorRatio = 0;
+
+						//行動判定
+						foreach (BehaviorStruct i in TempBehavioerList)
+						{
+							//比率を合計していく
+							BehaviorRatio += i.Priority;
+
+							//乱数がどの範囲にあるか判定
+							if (BehaviorRatio >= BehaviorLottery)
+							{
+								//処理実行
+								i.BehaviorAction();
+
+								//ループをブレイク
+								break;
+							}
+						}
+					}
 				}
 			}
 			else
 			{
 				//アニメーターのフラグを下す
+				CurrentAnimator.SetBool("Attack", false);
+
+				//アニメーターのフラグを下す
 				CurrentAnimator.SetBool("Walk", false);
 			}
-
-			//移動
-			CharaController.Move(MoveVec * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount)) * Time.deltaTime);
-
-			//回転値が入っていたら回転
-			if(RotateVec != Vector3.zero)
-			{
-				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(RotateVec), TurnSpeed * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount) + 0.1f) * Time.deltaTime);
-			}
-
-			//行動抽選
-			if (NowBehaviorDic.All(i => !i.Value) && (EnemyScript.CurrentState == "Idling" || EnemyScript.CurrentState == "Walk"))
-			{
-				//開始可能行動List
-				List<BehaviorStruct> TempBehavioerList = new List<BehaviorStruct>(BehaviorList.Where(b => b.BehaviorConditions()).ToList());
-
-				//行動比率
-				int BehaviorRatio = 0;
-
-				//抽選番号
-				int BehaviorLottery = 0;
-
-				//開始可能な行動がある
-				if(TempBehavioerList.Count > 0)
-				{ 
-					//行動比率合計
-					foreach (BehaviorStruct i in TempBehavioerList)
-					{
-						//発生比率を加算
-						BehaviorRatio += i.Priority;
-					}
-
-					//抽選番号設定
-					BehaviorLottery = UnityEngine.Random.Range(1 , BehaviorRatio + 1);
-
-					//行動比率初期化
-					BehaviorRatio = 0;
-
-					//行動判定
-					foreach (BehaviorStruct i in TempBehavioerList)
-					{
-						//比率を合計していく
-						BehaviorRatio += i.Priority;
-
-						//乱数がどの範囲にあるか判定
-						if (BehaviorRatio >= BehaviorLottery)
-						{
-							//処理実行
-							i.BehaviorAction();
-
-							//ループをブレイク
-							break;
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			//アニメーターのフラグを下す
-			CurrentAnimator.SetBool("Attack", false);
-
-			//アニメーターのフラグを下す
-			CurrentAnimator.SetBool("Walk", false);
 		}
 	}
 
@@ -391,7 +404,10 @@ public class Enemy00BehaviorScript : GlobalClass
 		while (WaitTime > 0)
 		{
 			//待機時間を減らす
-			WaitTime -= Time.deltaTime;
+			if(!PauseFlag)
+			{
+				WaitTime -= Time.deltaTime;
+			}
 
 			if(PlayerAngle > 45)
 			{
@@ -661,5 +677,12 @@ public class Enemy00BehaviorScript : GlobalClass
 			//1フレーム待機
 			yield return null;
 		}
+	}
+
+	//ポーズ処理
+	public void Pause(bool b)
+	{
+		//ポーズフラグ引数で受け取ったboolをフラグに代入
+		PauseFlag = b;
 	}
 }
