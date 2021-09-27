@@ -1071,7 +1071,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//ジャンプ方向に向ける
-			if(JumpRotateVector != Vector3.zero)
+			if(JumpRotateVector != Vector3.zero && CurrentState.Contains("Jump"))
 			{
 				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(JumpRotateVector), TurnSpeed * 2 * Time.deltaTime);
 			}

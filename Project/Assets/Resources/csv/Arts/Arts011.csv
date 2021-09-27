@@ -1,5 +1,5 @@
-NameC,射・破憎
-NameH,しゃ・ばぞう
+NameC,射　破憎
+NameH,しゃ　ばぞう
 UseCharacter,0
 Anim,Motion_0_GroundAttack07
 MoveVec,0*0*1*3.5|0*0*1*4.5|0*0*1*4|0*0*1*3|0*0*1*4|0*0*-1*1
@@ -16,7 +16,7 @@ DownEnable,0|0|0|1|1|0
 ColType,0|0|0|0|0|0
 TimeType,0|0|0|0|0|0
 HitEffect,HitEffect00|HitEffect00|HitEffect00|HitEffect01|null|HitEffect01
-HitEffectPos,0*0.75*1.25|0*0.75*1|0*0.75*1|0*0*1|0*0*1|0*0.75*1
+HitEffectPos,0*0.75*1.25|0*0.75*1|0*0.75*1|0*0*1|0*0*1|0*0.75*1.5
 HitEffectAngle,0*45*0|45*0*0|45*0*0|-90*0*0|-90*0*0|0*0*0
 HitStop,0|0|0|0|0|0
 Charge,0|0|0|0|0|0
