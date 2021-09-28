@@ -85,6 +85,9 @@ public class ArtsClass
 	//ホールド攻撃時に敵を移動させる場所
 	public List<Vector3> HoldPosList;
 
+	//空中技フラグ
+	public bool AirAttackFlag;
+
 	/*
 	MoveType 技の移動タイプ
 	0：地上で完結する移動、踏み外しの対象、
@@ -199,7 +202,9 @@ public class ArtsClass
 
 		List<int> cg,
 
-		List<Vector3> hl
+		List<Vector3> hl,
+
+		bool af
 	)
 	{
 
@@ -255,5 +260,7 @@ public class ArtsClass
 		ChargeLevel = 0;
 
 		HoldPosList = new List<Vector3>(hl);
+
+		AirAttackFlag = af;
 	}
 }

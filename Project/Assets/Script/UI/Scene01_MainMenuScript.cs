@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class Scene01_MainMenuScript : GlobalClass
@@ -19,6 +20,9 @@ public class Scene01_MainMenuScript : GlobalClass
 	//カスタマイズのオブジェクトルート
 	private GameObject CustomizeOBJ;
 
+	//技装備マトリクスオブジェクトList
+	private List<GameObject> EquipArtsList = new List<GameObject>();
+
 	//技装備のオブジェクトルート
 	private GameObject ArtsEquipOBJ;
 
@@ -27,6 +31,12 @@ public class Scene01_MainMenuScript : GlobalClass
 
 	//技選択リストコンテンツルートオブジェクト
 	private GameObject ArtsSelectButtonContentOBJ;
+
+	//技選択リストスクロールバーオブジェクト
+	private GameObject ArtsSelectScrollBarOBJ;
+
+	//選択中のオブジェクト
+	private GameObject SelectedArtsOBJ;
 
 	//生成した技選択ボタンを格納するList
 	List<GameObject> ArtsSelectButtonList = new List<GameObject>();
@@ -45,6 +55,12 @@ public class Scene01_MainMenuScript : GlobalClass
 		//カスタマイズのオブジェクトルート取得
 		CustomizeOBJ = GameObject.Find("Customize");
 
+		//技装備マトリクスオブジェクトList取得
+		foreach(Button i in GameObject.Find("EquipArtsButton").GetComponentsInChildren<Button>())
+		{
+			EquipArtsList.Add(i.gameObject);
+		}
+
 		//技装備のオブジェクトルート取得
 		ArtsEquipOBJ = GameObject.Find("ArtsEquip");
 
@@ -53,6 +69,9 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		//技選択リストコンテンツルートオブジェクト取得
 		ArtsSelectButtonContentOBJ = GameObject.Find("ArtsListContent");
+
+		//技選択リストスクロールバーオブジェクト取得
+		ArtsSelectScrollBarOBJ = DeepFind(ArtsEquipOBJ, "ArtsList");
 
 		//キャンバスにカメラを設定
 		GetComponent<Canvas>().worldCamera = GameObject.Find("MainCamera").GetComponent<Camera>();
@@ -76,6 +95,23 @@ public class Scene01_MainMenuScript : GlobalClass
     {
 
     }
+
+	//汎用ボタンが押された時の処理
+	public void OnGeneral()
+	{
+		if (InputReadyFlag)
+		{
+			//装備技マトリクスが選択されている
+			if (EquipArtsList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+			{
+				//装備解除
+				EventSystemUI.currentSelectedGameObject.GetComponentInChildren<Text>().text = "";
+
+				//選択技解除
+				SelectedArtsOBJ = null;
+			}
+		}
+	}
 
 	//スタートボタンがSubmitされた時の処理
 	public void StartSubmit()
@@ -142,6 +178,144 @@ public class Scene01_MainMenuScript : GlobalClass
 		}
 	}
 
+	//技選択でSubmitされた時の処理
+	public void SelectedArtsSubmit()
+	{
+		//選択中の技オブジェクトなし
+		if (SelectedArtsOBJ == null)
+		{
+			//技オブジェクトを取得
+			SelectedArtsOBJ = EventSystemUI.currentSelectedGameObject;
+		}
+		//選択中の技オブジェクトがある
+		else
+		{
+			//選択側テキストキャッシュ
+			string SelectedName = SelectedArtsOBJ.GetComponentInChildren<Text>().text;
+
+			//ターゲット側テキストキャッシュ
+			string TargetName = EventSystemUI.currentSelectedGameObject.GetComponentInChildren<Text>().text;
+
+			//装備可能フラグ
+			bool EquipFlag = false;
+
+			//マトリクス側が選択されている
+			if (EquipArtsList.Any(a => a == SelectedArtsOBJ))
+			{
+				//マトリクス側がターゲットされている
+				if (EquipArtsList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+				{
+					//選択側が空欄
+					if(SelectedName == "")
+					{
+						EquipFlag = AirArtsCheck(EventSystemUI.currentSelectedGameObject, SelectedArtsOBJ);
+					}
+					else
+					{
+						EquipFlag = AirArtsCheck(SelectedArtsOBJ, EventSystemUI.currentSelectedGameObject);
+					}
+
+					//装備
+					if(EquipFlag)
+					{
+						EventSystemUI.currentSelectedGameObject.GetComponentInChildren<Text>().text = SelectedName;
+						SelectedArtsOBJ.GetComponentInChildren<Text>().text = TargetName;
+					}
+				}
+				//リスト側がターゲットされている
+				else if(ArtsSelectButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+				{
+					if (AirArtsCheck(EventSystemUI.currentSelectedGameObject , SelectedArtsOBJ))
+					{
+						//すでに装備していたら外す
+						foreach (GameObject i in EquipArtsList)
+						{
+							if (i.GetComponentInChildren<Text>().text == TargetName)
+							{
+								i.GetComponentInChildren<Text>().text = SelectedName;
+
+								break;
+							}
+						}
+
+						SelectedArtsOBJ.GetComponentInChildren<Text>().text = TargetName;
+					}
+				}
+
+				//選択技解除
+				SelectedArtsOBJ = null;
+			}
+			//リスト側が選択されている
+			else
+			{
+				//マトリクス側がターゲットされている
+				if (EquipArtsList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+				{
+					EquipFlag = AirArtsCheck(SelectedArtsOBJ, EventSystemUI.currentSelectedGameObject);					
+
+					//装備
+					if (EquipFlag)
+					{
+						//すでに装備していたら外す
+						foreach (GameObject i in EquipArtsList)
+						{
+							if (i.GetComponentInChildren<Text>().text == SelectedName)
+							{
+								i.GetComponentInChildren<Text>().text = TargetName;
+
+								break;
+							}
+						}
+
+						EventSystemUI.currentSelectedGameObject.GetComponentInChildren<Text>().text = SelectedName;
+					}
+
+					//選択技解除
+					SelectedArtsOBJ = null;
+				}
+				else
+				{
+					SelectedArtsOBJ = EventSystemUI.currentSelectedGameObject;
+				}
+			}
+		}
+	}
+
+	//空中技チェックして技装備する関数
+	private bool AirArtsCheck(GameObject arts,GameObject target)
+	{
+		//技名取得
+		string artsname = arts.GetComponentInChildren<Text>().text;
+
+		//ターゲットされている場所の名前からロケーション部分を抽出
+		char TargetArtsNum = target.name.Skip(15).Take(1).ToList()[0];
+
+		//空中装備可能場所か判別
+		bool re = TargetArtsNum == '2';
+
+		//全ての技を回す
+		foreach (ArtsClass i in GameManagerScript.Instance.AllArtsList)
+		{
+			//名前で検索
+			if(i.NameC == artsname)
+			{
+				//フラグを比較してboolを返す
+				if(i.AirAttackFlag == re)
+				{
+					re = true;
+				}
+				else
+				{
+					re = false;
+				}
+
+				break;
+			}
+		}
+
+		return re;
+	}
+
 	//装備技Listを更新する関数
 	private void ArtsEquipListReset(int n)
 	{
@@ -195,7 +369,7 @@ public class Scene01_MainMenuScript : GlobalClass
 				TempButton.GetComponent<RectTransform>().SetParent(ArtsSelectButtonContentOBJ.transform, false);
 
 				//位置を設定
-				TempButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(Temprect.anchoredPosition.x, Temprect.anchoredPosition.y - ((Temprect.rect.height + 5) * count));
+				TempButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(Temprect.anchoredPosition.x, Temprect.anchoredPosition.y - (Temprect.rect.height * count));
 
 				//テキストに技名を入れる
 				TempButton.GetComponentInChildren<Text>().text = i.NameC;
@@ -245,6 +419,83 @@ public class Scene01_MainMenuScript : GlobalClass
 
 			//ループカウントアップ
 			count++;
+		}
+
+		//装備技のボタンにナビゲータを仕込む
+		foreach(var i in EquipArtsList)
+		{
+			if(i.name.Last() == '0')
+			{
+				//ナビゲーションのアクセサ取得
+				Navigation tempnavi = i.GetComponent<Button>().navigation;
+
+				//生成したボタンの一番上を選択させる、本当は位置を合わせたい
+				tempnavi.selectOnLeft = ArtsSelectButtonList[0].GetComponent<Button>();
+
+				//アクセサを反映
+				i.GetComponent<Button>().navigation = tempnavi;
+			}
+		}
+	}
+
+	//技装備で選択変更された時の処理
+	public void ArtsEquipMove()
+	{
+		//処理実行フラグ
+		bool SelectedListOBJFlag = false;
+
+		//選択されているオブジェクトのインデックスに使うループカウント
+		int count = ArtsSelectButtonList.Count - 1;
+
+		//選択されているオブジェクトを判別、ついでにインデックスも取得
+		foreach (GameObject i in ArtsSelectButtonList)
+		{
+			//リスト内のオブジェクトが選択されていたらフラグを立てる
+			if(EventSystemUI.currentSelectedGameObject == i)
+			{
+				SelectedListOBJFlag = true;
+
+				break;
+			}
+
+			//カウントダウン
+			count--;
+		}
+
+		//フラグで処理実行
+		if(InputReadyFlag && SelectedListOBJFlag)
+		{
+			//現在のスクロールバーの位置
+			float BarPos = ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition;
+
+			//見えない部分全体のサイズ
+			float ArtsSelectButtonContentSize = ArtsSelectButtonContentOBJ.GetComponent<RectTransform>().sizeDelta.y;
+
+			//見えている部分のサイズ
+			float ArtsSelectScrollSize = ArtsSelectScrollBarOBJ.GetComponent<RectTransform>().sizeDelta.y;
+
+			//現在の下座標
+			float WindowBottomPos = ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition * (ArtsSelectButtonContentSize - ArtsSelectScrollSize);
+
+			//現在の上座標
+			float WindowTopPos = WindowBottomPos + ArtsSelectScrollSize;
+
+			//選択オブジェクトの下座標
+			float ButtonBottomPos = (count * EventSystemUI.currentSelectedGameObject.GetComponent<RectTransform>().rect.height) + (count * ArtsSelectButtonContentOBJ.GetComponent<VerticalLayoutGroup>().spacing);
+
+			//選択オブジェクトの上座標
+			float ButtonTopPos = ButtonBottomPos + EventSystemUI.currentSelectedGameObject.GetComponent<RectTransform>().rect.height;
+
+			//上にはみ出し
+			if (WindowTopPos < ButtonTopPos)
+			{
+				ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = (ButtonTopPos - ArtsSelectScrollSize) / (ArtsSelectButtonContentSize - ArtsSelectScrollSize);
+			}
+			//下にはみ出し
+			else if (ButtonBottomPos < WindowBottomPos)
+			{
+				ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = ButtonBottomPos / (ArtsSelectButtonContentSize - ArtsSelectScrollSize);
+			}
 		}
 	}
 

@@ -284,7 +284,8 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 							new List<Vector3>(),
 							new List<float>(),
 							CML,
-							new List<Vector3>()
+							new List<Vector3>(),
+							false
 						);
 
 						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
