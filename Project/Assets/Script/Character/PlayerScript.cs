@@ -1575,6 +1575,67 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 
+		//まだ見付からなければ入力ボタンを変更
+		for (int i = 0; i <= 2; i++)
+		{
+			switch (AttackButton)
+			{
+				case 0:
+					AttackButton = 1;
+					break;
+				case 1:
+					AttackButton = 2;
+					break;
+				case 2:
+					AttackButton = 0;
+					break;
+			}
+
+			//地上技
+			if (AttackLocation != 2)
+			{
+				//レバー入れを反転して判定
+				if (ArtsMatrix[AttackLocation][Mathf.Abs(AttackStick - 1)][AttackButton] != null)
+				{
+					//レバー入力判定を反転
+					AttackStick = Mathf.Abs(AttackStick - 1);
+
+					//使用する技確定
+					ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+				}
+				//それも無ければ距離を反転して判定
+				else if (ArtsMatrix[Mathf.Abs(AttackLocation - 1)][AttackStick][AttackButton] != null)
+				{
+					//敵との距離判定を反転
+					AttackLocation = Mathf.Abs(AttackLocation - 1);
+
+					//使用する技確定
+					ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+				}
+				//それも無ければレバー入れと距離を反転して判定
+				else if (ArtsMatrix[Mathf.Abs(AttackLocation - 1)][Mathf.Abs(AttackStick - 1)][AttackButton] != null)
+				{
+					//レバー入力判定を反転
+					AttackStick = Mathf.Abs(AttackStick - 1);
+
+					//敵との距離判定を反転
+					AttackLocation = Mathf.Abs(AttackLocation - 1);
+
+					//使用する技確定
+					ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+				}
+			}
+			//空中技はレバー入力を反転して調べる
+			else if (ArtsMatrix[AttackLocation][Mathf.Abs(AttackStick - 1)][AttackButton] != null)
+			{
+				//レバー入力判定を反転
+				AttackStick = Mathf.Abs(AttackStick - 1);
+
+				//使用する技確定
+				ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+			}
+		}
+
 		//技が見つかったら入力時のロケーションを保存
 		if (ReserveArts != null)
 		{

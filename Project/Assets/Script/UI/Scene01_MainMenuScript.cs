@@ -44,6 +44,9 @@ public class Scene01_MainMenuScript : GlobalClass
 	//入力許可フラグ
 	private bool InputReadyFlag = false;
 
+	//編集中のキャラクターID
+	private int CharacterID = 0;
+
 	void Start()
     {
 		//UIのイベントを受け取るイベントシステム取得
@@ -324,7 +327,13 @@ public class Scene01_MainMenuScript : GlobalClass
 		int Stick = 0;
 		int Button = 0;
 
-		//装備中の技を表示
+		//一度全部空白にする
+		foreach(GameObject i in EquipArtsList)
+		{
+			i.GetComponentInChildren<Text>().text = "";
+		}
+
+		//装備中の技をマトリクスに表示
 		foreach (var i in GameManagerScript.Instance.UserData.ArtsMatrix[n])
 		{
 			Stick = 0;
@@ -337,7 +346,7 @@ public class Scene01_MainMenuScript : GlobalClass
 				{
 					if (iii != null)
 					{
-						GameObject.Find("EquipArtsButton" + Location + Stick + Button).GetComponentInChildren<Text>().text = iii;
+						EquipArtsList.Where(a => a.name == "EquipArtsButton" + Location + Stick + Button).ToList()[0].GetComponentInChildren<Text>().text = iii;
 					}
 
 					Button++;
@@ -504,6 +513,12 @@ public class Scene01_MainMenuScript : GlobalClass
 	{
 		if (InputReadyFlag)
 		{
+			//装備技マトリクス更新
+			ArtsMatrixUpdate(CharacterID);
+
+			//選択技解除
+			SelectedArtsOBJ = null;
+
 			//アニメーターのフラグを立てる
 			UIAnim.SetBool("Customize_Vanish", false);
 			UIAnim.SetBool("Customize_Show", true);
@@ -549,5 +564,23 @@ public class Scene01_MainMenuScript : GlobalClass
 	public void InputReady()
 	{
 		InputReadyFlag = true;
+	}
+
+	//技装備更新
+	private void ArtsMatrixUpdate(int c)
+	{
+		//装備技をリセット
+		foreach (int i in Enumerable.Range(0, GameManagerScript.Instance.UserData.ArtsMatrix[c].Count))
+		{
+			foreach (int ii in Enumerable.Range(0, GameManagerScript.Instance.UserData.ArtsMatrix[c][i].Count))
+			{
+				foreach (int iii in Enumerable.Range(0, GameManagerScript.Instance.UserData.ArtsMatrix[c][i][ii].Count))
+				{
+					GameManagerScript.Instance.UserData.ArtsMatrix[c][i][ii][iii] = "";
+
+					GameManagerScript.Instance.UserData.ArtsMatrix[c][i][ii][iii] = EquipArtsList.Where(a => a.name == "EquipArtsButton" + i + ii + iii).ToList()[0].GetComponentInChildren<Text>().text;
+				}
+			}
+		}
 	}
 }
