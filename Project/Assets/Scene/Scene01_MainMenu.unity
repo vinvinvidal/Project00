@@ -496,7 +496,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -511,7 +511,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -585,7 +585,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -939,7 +939,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -967,7 +967,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -982,7 +982,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -1212,7 +1212,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -1227,7 +1227,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -1281,7 +1281,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -1423,7 +1423,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -1438,7 +1438,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -1512,7 +1512,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -1597,7 +1597,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -1612,7 +1612,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -1686,7 +1686,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -1789,7 +1789,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -1817,7 +1817,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -1832,7 +1832,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -2002,7 +2002,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -2017,7 +2017,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -2120,7 +2120,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -2532,7 +2532,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -2547,7 +2547,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -2601,7 +2601,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -3055,7 +3055,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -3070,7 +3070,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -3144,7 +3144,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -3192,7 +3192,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: CustomizeCancel
           m_Mode: 1
           m_Arguments:
@@ -3323,7 +3323,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: ArtsEquipSubmit
         m_Mode: 1
         m_Arguments:
@@ -3587,7 +3587,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -3602,7 +3602,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -3656,7 +3656,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -3972,7 +3972,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -4000,7 +4000,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -4015,7 +4015,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -4169,7 +4169,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -4184,7 +4184,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -4238,7 +4238,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -4473,7 +4473,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -4488,7 +4488,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -4619,7 +4619,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -5017,7 +5017,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -5045,7 +5045,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -5060,7 +5060,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -5191,7 +5191,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -5219,7 +5219,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -5234,7 +5234,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -5310,7 +5310,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -5325,7 +5325,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -5456,7 +5456,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -5758,7 +5758,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: StartSubmit
         m_Mode: 1
         m_Arguments:
@@ -5806,7 +5806,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -5821,7 +5821,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -5952,7 +5952,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -6058,7 +6058,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipCancel
           m_Mode: 1
           m_Arguments:
@@ -6073,7 +6073,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 5650787818714991620}
+        - m_Target: {fileID: 0}
           m_MethodName: ArtsEquipMove
           m_Mode: 1
           m_Arguments:
@@ -6127,7 +6127,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: SelectedArtsSubmit
         m_Mode: 1
         m_Arguments:
@@ -6389,18 +6389,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &5650787818714991620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5650787818714991621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22bcc900d58ce1f43942b4a98705c0d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &5650787818714991621
 GameObject:
   m_ObjectHideFlags: 0
@@ -6413,7 +6401,6 @@ GameObject:
   - component: {fileID: 5650787818714991616}
   - component: {fileID: 5650787818714991617}
   - component: {fileID: 5650787818714991622}
-  - component: {fileID: 5650787818714991620}
   - component: {fileID: 5650787818714991618}
   - component: {fileID: 5650787818714991623}
   m_Layer: 5
@@ -6502,7 +6489,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5650787818714991620}
+      - m_Target: {fileID: 0}
         m_MethodName: CustomizeSubmit
         m_Mode: 1
         m_Arguments:
