@@ -293,6 +293,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//装備している特殊技
 	public List<SpecialClass> SpecialArtsList = new List<SpecialClass>();
 
+	//何も技を装備していないフラグ
+	private bool NoEquipFlag = false;
+
 	//攻撃用コライダを持っているオブジェクト
 	private GameObject AttackColOBJ;
 
@@ -575,6 +578,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				}
 			}
 		}
+
+		//何も技を装備していない場合フラグを立てる
+		NoEquipFlag = true;
 
 		//多重ループを抜ける先
 		ArtsClassLinstLoopBreak:;
@@ -1517,10 +1523,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				}
 			}
 
-		//ループを抜ける先
-		ArtsLoopBreak:;
+			//ループを抜ける先
+			ArtsLoopBreak:;
 		}
-
 		//入力された技が存在する
 		else if (ArtsMatrix[AttackLocation][AttackStick][AttackButton] != null)
 		{
@@ -1530,67 +1535,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//入力された技が存在しなければコンボアシスト
 		else
 		{
-			//地上技
-			if (AttackLocation != 2)
-			{
-				//レバー入れを反転して判定
-				if (ArtsMatrix[AttackLocation][Mathf.Abs(AttackStick - 1)][AttackButton] != null)
-				{
-					//レバー入力判定を反転
-					AttackStick = Mathf.Abs(AttackStick - 1);
-
-					//使用する技確定
-					ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
-				}
-				//それも無ければ距離を反転して判定
-				else if (ArtsMatrix[Mathf.Abs(AttackLocation - 1)][AttackStick][AttackButton] != null)
-				{
-					//敵との距離判定を反転
-					AttackLocation = Mathf.Abs(AttackLocation - 1);
-
-					//使用する技確定
-					ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
-				}
-				//それも無ければレバー入れと距離を反転して判定
-				else if (ArtsMatrix[Mathf.Abs(AttackLocation - 1)][Mathf.Abs(AttackStick - 1)][AttackButton] != null)
-				{
-					//レバー入力判定を反転
-					AttackStick = Mathf.Abs(AttackStick - 1);
-
-					//敵との距離判定を反転
-					AttackLocation = Mathf.Abs(AttackLocation - 1);
-
-					//使用する技確定
-					ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
-				}
-			}
-			//空中技はレバー入力を反転して調べる
-			else if (ArtsMatrix[AttackLocation][Mathf.Abs(AttackStick - 1)][AttackButton] != null)
-			{
-				//レバー入力判定を反転
-				AttackStick = Mathf.Abs(AttackStick - 1);
-
-				//使用する技確定
-				ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
-			}
-		}
-
-		//まだ見付からなければ入力ボタンを変更
-		for (int i = 0; i <= 2; i++)
-		{
-			switch (AttackButton)
-			{
-				case 0:
-					AttackButton = 1;
-					break;
-				case 1:
-					AttackButton = 2;
-					break;
-				case 2:
-					AttackButton = 0;
-					break;
-			}
-
 			//地上技
 			if (AttackLocation != 2)
 			{
@@ -2193,8 +2137,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//死んでたら
 			if (tempbool)
 			{
-				//敵のロックを外す、マネージャーの関数を呼び出してカメラにもロック対象を反映する。
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(false, Vector3.zero));
+				//敵のロックを外す	
+				LockEnemy = null;
+
+				//メインカメラのロックも外す
+				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 			}
 		}
 
@@ -2811,6 +2758,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//攻撃入力許可ステート
 		PermitInputBoolDic["Attack00"]
 		= !PauseFlag &&
+		!NoEquipFlag &&
 		!ActionEventFlag &&
 		(
 			s.Contains("Attack")
@@ -2903,6 +2851,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//Jump遷移フラグを下す
 			CurrentAnimator.SetBool("Jump", false);
+
+			//強制繊維フラグを下す
+			CurrentAnimator.SetBool("ForceFall", false);
 		}
 		//Dropになった瞬間の処理
 		else if (s.Contains("-> Drop"))
@@ -2982,9 +2933,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//使用技する技を選定する関数呼び出し
 			UseArts = SelectionArts();
 
-			//アニメーションを書き換えるAttackステートを選定、ステートカウントを2で割った余りで 0<->1 を切り替えて文字列として連結
-			OverrideAttackState = "Arts_void_" + ComboState % 2;
-
 			//技が無かったら
 			if (UseArts == null)
 			{
@@ -2995,51 +2943,94 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				UseArts = SelectionArts();
 			}
 
-			//地上技を出したら
-			if (OnGroundFlag)
+			//アニメーションを書き換えるAttackステートを選定、ステートカウントを2で割った余りで 0<->1 を切り替えて文字列として連結
+			OverrideAttackState = "Arts_void_" + ComboState % 2;
+
+			//どうしても技がない場合は技を出さない処理をする
+			if (UseArts == null)
 			{
-				//空中ローリング許可フラグを立てる
-				AirRollingFlag = true;
+				//使った遷移フラグを下す
+				CurrentAnimator.SetBool("Attack0" + ComboState % 2, false);
+
+				//敵のロックを外す
+				LockEnemy = null;
+
+				//メインカメラのロックも外す
+				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+
+				//モーションをIdlingとFallにして技を出さない
+				if (OnGroundFlag)
+				{
+					//オーバーライドコントローラにアニメーションクリップをセット
+					OverRideAnimator[OverrideAttackState] = CurrentAnimator.runtimeAnimatorController.animationClips.Where(a => a.name.Contains("Idling")).ToList()[0];
+
+					//強制繊維フラグを立てる
+					CurrentAnimator.SetBool("ForceIdling", true);
+				}
+				else
+				{
+					//オーバーライドコントローラにアニメーションクリップをセット
+					OverRideAnimator[OverrideAttackState] = CurrentAnimator.runtimeAnimatorController.animationClips.Where(a => a.name.Contains("Fall")).ToList()[0];
+
+					//強制繊維フラグを立てる
+					CurrentAnimator.SetBool("ForceFall", true);
+				}
+
+				//アニメーターを上書きしてアニメーションクリップを切り替える
+				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 			}
+			//技があったら攻撃処理
+			else
+			{
+				//メインカメラにロック対象を渡す
+				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 
-			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator[OverrideAttackState] = UseArts.AnimClip;
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator[OverrideAttackState] = UseArts.AnimClip;
 
-			//アニメーターを上書きしてアニメーションクリップを切り替える
-			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+				//アニメーターを上書きしてアニメーションクリップを切り替える
+				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
-			//使った遷移フラグを下す
-			CurrentAnimator.SetBool("Attack0" + ComboState % 2, false);
+				//地上技を出したら
+				if (OnGroundFlag)
+				{
+					//空中ローリング許可フラグを立てる
+					AirRollingFlag = true;
+				}
 
-			//モーション再生時間を初期化
-			CurrentAnimator.SetFloat("AttackSpeed0" + ComboState % 2, 1.0f);
+				//使った遷移フラグを下す
+				CurrentAnimator.SetBool("Attack0" + ComboState % 2, false);
 
-			//チェインブレイクフラグを下ろす
-			CurrentAnimator.SetBool("ChainBreak", false);
+				//モーション再生時間を初期化
+				CurrentAnimator.SetFloat("AttackSpeed0" + ComboState % 2, 1.0f);
 
-			//コンボフラグを立てる
-			CurrentAnimator.SetBool("Combo", true);
+				//チェインブレイクフラグを下ろす
+				CurrentAnimator.SetBool("ChainBreak", false);
 
-			//遷移可能フラグを下ろす
-			CurrentAnimator.SetBool("Transition", false);
+				//コンボフラグを立てる
+				CurrentAnimator.SetBool("Combo", true);
 
-			//チェイン攻撃フラグを入れる
-			CurrentAnimator.SetBool("Chain", UseArts.Chain);
+				//遷移可能フラグを下ろす
+				CurrentAnimator.SetBool("Transition", false);
 
-			//コライダを非アクティブ化
-			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+				//チェイン攻撃フラグを入れる
+				CurrentAnimator.SetBool("Chain", UseArts.Chain);
 
-			//回転制御フラグを下す
-			NoRotateFlag = false;
+				//コライダを非アクティブ化
+				AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
 
-			//チャージレベル初期化
-			UseArts.ChargeLevel = 0;
+				//回転制御フラグを下す
+				NoRotateFlag = false;
 
-			//ジャンプ開始直後のベクトル初期化
-			JumpHorizonVector *= 0;
+				//チャージレベル初期化
+				UseArts.ChargeLevel = 0;
 
-			//コンボステートカウントアップ
-			ComboState++;
+				//ジャンプ開始直後のベクトル初期化
+				JumpHorizonVector *= 0;
+
+				//コンボステートカウントアップ
+				ComboState++;
+			}
 		}
 		//Damageになった瞬間の処理
 		else if (s.Contains("-> Damage"))
@@ -3166,8 +3157,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//攻撃入力されていない、これをしないと攻撃入力後にここが呼ばれてロックできない場合がある
 		if (!AttackInput)
 		{
-			//敵のロックを外す、マネージャーの関数を呼び出してカメラにもロック対象を反映する。
-			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(false, Vector3.zero));
+			//敵のロックを外す
+			LockEnemy = null;
+
+			//メインカメラのロックも外す
+			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 		}
 
 		//入力フラグを全て下す関数呼び出し
@@ -3229,6 +3223,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//ダメージフラグを下ろす
 		CurrentAnimator.SetBool("Damage", false);
+
+		//強制遷移フラグを下す
+		CurrentAnimator.SetBool("ForceIdling", false);
+		CurrentAnimator.SetBool("ForceFall", false);
 
 		//遷移可能フラグを立てる
 		CurrentAnimator.SetBool("Transition", true);

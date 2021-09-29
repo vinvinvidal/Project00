@@ -119,16 +119,24 @@ public class Scene01_MainMenuScript : GlobalClass
 	//スタートボタンがSubmitされた時の処理
 	public void StartSubmit()
 	{
-		if(InputReadyFlag)
+		if (InputReadyFlag)
 		{
-			//スクリーンエフェクトで白フェード
-			ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(false, 2, new Color(1, 1, 1, 1), 1, (GameObject g) =>
+			//入力許可フラグを下す
+			InputReadyFlag = false;
+
+			//オートセーブ関数呼び出し
+			GameManagerScript.Instance.AutoSave(() => 
 			{
-				//フェードが終わったらゲームマネージャーのシーン遷移関数呼び出し
-				GameManagerScript.Instance.NextScene("Scene10_Mission");
-			}));
+				//処理が終わったらスクリーンエフェクトで白フェード
+				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(false, 2, new Color(1, 1, 1, 1), 1, (GameObject g) =>
+				{
+					//フェードが終わったらシーン遷移関数呼び出し
+					GameManagerScript.Instance.NextScene("Scene10_Mission");
+				}));
+			});
 		}
 	}
+
 
 	//カスタマイズがSubmitされた時の処理
 	public void CustomizeSubmit()

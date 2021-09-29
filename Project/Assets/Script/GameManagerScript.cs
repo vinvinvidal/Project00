@@ -1103,7 +1103,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		}
 
 		//メインカメラにもロック対象を渡す
-		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+		//ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 
 		//選定されたロック対象の敵を出力
 		return LockEnemy;
@@ -1602,7 +1602,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 			//セーブファイル名を作成
 			string FileName = path + DateTime.Now.ToString().Replace("/", "").Replace(":", "").Replace(" ", "") + "BackUp";
-
+			
 			//ファイル名カブりフラグ
 			bool NGFileName = false;
 
@@ -1615,6 +1615,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 					//リストにadd
 					fileinfolist.Add(i);
 				}
+			}
+
+			//バックアップファイルが10以上あったら古い物を削除
+			if(fileinfolist.Count >= 10)
+			{
+				File.Delete(fileinfolist.Last().FullName);
 			}
 
 			//これから作ろうとしているバックアックファイルと同じ名前が無いかチェック
@@ -1630,17 +1636,60 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			if (NGFileName)
 			{
 				//セーブファイルをリネームしてバックアップ
-				File.Move(path, FileName + "a");
+				File.Move(dir + "/" + path, dir + "/" + FileName + "a");
 			}
 			else
 			{
 				//セーブファイルをリネームしてバックアップ
-				File.Move(path, FileName);
+				File.Move(dir + "/" + path, dir + "/" + FileName);
 			}
 
 			//処理が終わったら匿名関数実行
 			Act();
 		});
+	}
+
+	//オートセーブ実行関数
+	public void AutoSave(Action Act)
+	{
+		StartCoroutine(AutoSaveCoroutine(Act));
+	}
+	IEnumerator AutoSaveCoroutine(Action Act)
+	{
+		//バックアップ完了フラグ
+		bool BackUpFlag = false;
+
+		//セーブ完了フラグ
+		bool SaveFlag = false;
+
+		//セーブバックアップ実行関数呼び出し
+		GameManagerScript.Instance.SaveDataBackUp("Save", Application.dataPath + "/SaveData", () =>
+		{
+			//バックアップ完了フラグを立てる
+			BackUpFlag = true;
+		});
+
+		//バックアップが終わるまで待機
+		while (!BackUpFlag)
+		{
+			yield return null;
+		}
+
+		//セーブデータセーブ関数呼び出し
+		GameManagerScript.Instance.UserDataSaveAsync(GameManagerScript.Instance.UserData, Application.dataPath + "/SaveData/Save", () =>
+		{
+			//セーブ完了フラグを立てる
+			SaveFlag = true;
+		});
+
+		//セーブが終わるまで待機
+		while (!SaveFlag)
+		{
+			yield return null;
+		}
+
+		//処理が終わったら匿名関数実行
+		Act();
 	}
 
 	//アセットバンドル用のパスを作る関数
