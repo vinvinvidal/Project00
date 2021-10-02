@@ -600,7 +600,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				List<float> hs = new List<float>();
 				List<int> cg = new List<int>();
 				List<Vector3> hl = new List<Vector3>();
-				bool af = false;
+				int lf = 0;
 
 				//改行で分割して回す
 				foreach (string ii in i.Split('\n').ToList())
@@ -793,15 +793,15 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 							break;
 
-						case "AirAttackFlag":
-							af = int.Parse(ii.Split(',').ToList().ElementAt(1)) == 1 ? true : false;
+						case "LocationFlag":
+							lf = int.Parse(ii.Split(',').ToList().ElementAt(1));
 
 							break;
 					}
 				}
 
 				//ListにAdd
-				AllArtsList.Add(new ArtsClass(nc, nh, uc, an, mv, dm, st, cv, kb, intro, lk, mt, at, de, ct, tt, ch, he, hp, ha, hs, cg, hl, af));
+				AllArtsList.Add(new ArtsClass(nc, nh, uc, an, mv, dm, st, cv, kb, intro, lk, mt, at, de, ct, tt, ch, he, hp, ha, hs, cg, hl, lf));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る
@@ -1838,6 +1838,20 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 				//UserDataに代入
 				UserData.ArtsMatrix[i.CharacterID] = tempArtsMatrix;
+			}
+		}
+
+		//全ての技を回す
+		foreach(ArtsClass i in AllArtsList)
+		{
+			//初期アンロック技を探す
+			if (i.UnLock[0] < 10)
+			{
+				//ユーザーデータに名前が無ければ追加する
+				if(UserData.ArtsUnLock.Where(a => a == i.NameC).ToList().Count == 0)
+				{
+					UserData.ArtsUnLock.Add(i.NameC);
+				}
 			}
 		}
 	}

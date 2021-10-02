@@ -21,4 +21,4 @@ HitEffectAngle,-30*30*0|45*0*0
 HitStop,0|0
 Charge,0|0
 HoldPos,0*0*0.65|0*0*0
-AirAttackFlag,0
+LocationFlag,0

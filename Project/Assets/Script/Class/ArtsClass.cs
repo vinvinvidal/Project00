@@ -85,8 +85,8 @@ public class ArtsClass
 	//ホールド攻撃時に敵を移動させる場所
 	public List<Vector3> HoldPosList;
 
-	//空中技フラグ
-	public bool AirAttackFlag;
+	//ロケーションフラグ
+	public int LocationFlag;
 
 	/*
 	MoveType 技の移動タイプ
@@ -153,6 +153,13 @@ public class ArtsClass
 	100が入っていたら初期アンロック状態
 	200が入っていたら初期ロック状態
 
+	LocationFlag
+	0：近距離
+	1：遠距離
+	2：空中
+	技の適正装備位置、遠近は警告、空中は専用
+
+
 	*/
 
 	//コンストラクタ
@@ -204,7 +211,7 @@ public class ArtsClass
 
 		List<Vector3> hl,
 
-		bool af
+		int lf
 	)
 	{
 
@@ -261,6 +268,6 @@ public class ArtsClass
 
 		HoldPosList = new List<Vector3>(hl);
 
-		AirAttackFlag = af;
+		LocationFlag = lf;
 	}
 }

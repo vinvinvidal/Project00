@@ -26,6 +26,9 @@ public interface MainCameraScriptInterface : IEventSystemHandler
 	//ミッション開始時にカメラの初期設定する
 	void MissionCameraSetting();
 
+	//メニューモードカメラの初期設定をする
+	void MenuCameraSetting();
+
 	//トレースカメラモード
 	void TraceCameraMode(bool b);
 
@@ -184,7 +187,6 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		{
 			//メニューモード
 			case 0:
-
 				break;
 
 			//ミッションモード
@@ -577,6 +579,19 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		}
 	}
 
+	//メニューモードカメラの初期設定をする
+	public void MenuCameraSetting()
+	{
+		//シネマカメラを有効
+		MainCamera.GetComponent<Cinemachine.CinemachineBrain>().enabled = true;
+
+		//キャラクターコントローラを切る
+		CameraController.enabled = false;
+
+		//カメラをメニューモードに切り替える
+		CameraModeSwitch = 0;
+	}
+
 	//ミッションモードカメラの初期設定する
 	public void MissionCameraSetting()
 	{
@@ -594,6 +609,12 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 
 		//最初はカメラをキャラクターに向けておく
 		MainCamera.transform.LookAt(PlayerCharacter.transform.position + LookAtOffset);
+
+		//シネマカメラを切る
+		MainCamera.GetComponent<Cinemachine.CinemachineBrain>().enabled = false;
+
+		//キャラクターコントローラを入れる
+		CameraController.enabled = true;
 
 		//カメラをミッションモードに切り替える
 		CameraModeSwitch = 1;

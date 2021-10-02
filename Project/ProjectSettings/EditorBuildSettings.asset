@@ -9,17 +9,11 @@ EditorBuildSettings:
     path: Assets/Scene/Scene00_Logo.unity
     guid: e05aaa72a6b2e3d4a8f60f7f92be35d4
   - enabled: 1
+    path: Assets/Scene/Scene01_MainMenu.unity
+    guid: 11b7a26a026a973479ca609e302c8b42
+  - enabled: 1
     path: Assets/Scene/Scene10_Mission.unity
     guid: 3f3acffd91d95bd49bf3231566499614
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 1
-    path: Assets/Scene/Scene01_MainMenu.unity
-    guid: 6f2154060f25c40438624aec513f2d80
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 2506ecb3b74f3084e94ca9bc54f2919c,
       type: 2}

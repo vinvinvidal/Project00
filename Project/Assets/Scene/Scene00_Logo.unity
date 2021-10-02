@@ -155,6 +155,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 14120336721551211, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 887460396248877759, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -225,6 +230,26 @@ PrefabInstance:
       propertyPath: ScreenResolution
       value: 64
       objectReference: {fileID: 0}
+    - target: {fileID: 2502748904473446746, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2610441808534596749, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2610441808534596749, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3273967767531531658, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4248499279501349041, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: DevSwicth
@@ -291,7 +316,7 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
-    - {fileID: 4248499279501349041, guid: b49d9c728d920134cb39e4ea74c6ef02, type: 3}
+    - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: b49d9c728d920134cb39e4ea74c6ef02, type: 3}
 --- !u!20 &1176143577 stripped
 Camera:

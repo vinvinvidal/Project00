@@ -14,6 +14,9 @@ public class Scene01_MainMenuScript : GlobalClass
 	//UIのアニメーター
 	private Animator UIAnim;
 
+	//カメラルートオブジェクト
+	private GameObject CameraRootOBJ;
+
 	//メインメニューのオブジェクトルート
 	private GameObject MainMenuOBJ;
 
@@ -21,7 +24,7 @@ public class Scene01_MainMenuScript : GlobalClass
 	private GameObject CustomizeOBJ;
 
 	//技装備マトリクスオブジェクトList
-	private List<GameObject> EquipArtsList = new List<GameObject>();
+	private List<GameObject> ArtsMatrixButtonList = new List<GameObject>();
 
 	//技装備のオブジェクトルート
 	private GameObject ArtsEquipOBJ;
@@ -49,6 +52,9 @@ public class Scene01_MainMenuScript : GlobalClass
 
 	void Start()
     {
+		//カメラルートオブジェクト取得
+		CameraRootOBJ = GameObject.Find("CameraRoot");
+
 		//UIのイベントを受け取るイベントシステム取得
 		EventSystemUI = GameObject.Find("EventSystem").GetComponent<EventSystem>();
 
@@ -61,7 +67,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		//技装備マトリクスオブジェクトList取得
 		foreach(Button i in GameObject.Find("EquipArtsButton").GetComponentsInChildren<Button>())
 		{
-			EquipArtsList.Add(i.gameObject);
+			ArtsMatrixButtonList.Add(i.gameObject);
 		}
 
 		//技装備のオブジェクトルート取得
@@ -84,11 +90,14 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		//アニメーター取得
 		UIAnim = GetComponent<Animator>();
-
+		/*
 		//カメラの位置を移動
 		Transform CameraTransform = GameObject.Find("CameraRoot").GetComponent<Transform>();
 		CameraTransform.position = new Vector3(-12f, 6.5f, 1.4f);
 		CameraTransform.rotation = Quaternion.Euler(new Vector3(30, 140, 0));
+		*/
+		//カメラのメニューモード初期設定呼び出し
+		ExecuteEvents.Execute<MainCameraScriptInterface>(CameraRootOBJ, null, (reciever, eventData) => reciever.MenuCameraSetting());
 
 		//スクリーンエフェクトで白フェード
 		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) => { g.GetComponent<Renderer>().enabled = false; }));
@@ -99,25 +108,8 @@ public class Scene01_MainMenuScript : GlobalClass
 
     }
 
-	//汎用ボタンが押された時の処理
-	public void OnGeneral()
-	{
-		if (InputReadyFlag)
-		{
-			//装備技マトリクスが選択されている
-			if (EquipArtsList.Any(a => a == EventSystemUI.currentSelectedGameObject))
-			{
-				//装備解除
-				EventSystemUI.currentSelectedGameObject.GetComponentInChildren<Text>().text = "";
-
-				//選択技解除
-				SelectedArtsOBJ = null;
-			}
-		}
-	}
-
 	//スタートボタンがSubmitされた時の処理
-	public void StartSubmit()
+	public void MissionStartSubmit()
 	{
 		if (InputReadyFlag)
 		{
@@ -136,7 +128,6 @@ public class Scene01_MainMenuScript : GlobalClass
 			});
 		}
 	}
-
 
 	//カスタマイズがSubmitされた時の処理
 	public void CustomizeSubmit()
@@ -189,7 +180,29 @@ public class Scene01_MainMenuScript : GlobalClass
 		}
 	}
 
-	//技選択でSubmitされた時の処理
+	//技装備でCancelされた時の処理
+	public void ArtsEquipCancel()
+	{
+		if (InputReadyFlag)
+		{
+			//装備技マトリクス更新
+			ArtsMatrixUpdate(CharacterID);
+
+			//選択技解除
+			SelectedArtsOBJ = null;
+
+			//アニメーターのフラグを立てる
+			UIAnim.SetBool("Customize_Vanish", false);
+			UIAnim.SetBool("Customize_Show", true);
+			UIAnim.SetBool("ArtsEquip_Show", false);
+			UIAnim.SetBool("ArtsEquip_Vanish", true);
+
+			//入力許可フラグを下ろす
+			InputReadyFlag = false;
+		}
+	}
+
+	//技リスト、技マトリクスでSubmitされた時の処理
 	public void SelectedArtsSubmit()
 	{
 		//選択中の技オブジェクトなし
@@ -197,6 +210,16 @@ public class Scene01_MainMenuScript : GlobalClass
 		{
 			//技オブジェクトを取得
 			SelectedArtsOBJ = EventSystemUI.currentSelectedGameObject;
+
+			//技リストボタンを選択しているか判別
+			if (ArtsSelectButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+			{
+				//選択した技のロケーション属性を取得
+				int n = GameManagerScript.Instance.AllArtsList.Where(a => a.NameC == EventSystemUI.currentSelectedGameObject.GetComponentInChildren<Text>().text).ToList()[0].LocationFlag;
+
+				//選択した技のロケーションによって技マトリクスの選択先を切り替え
+				EventSystemUI.SetSelectedGameObject(GameObject.Find("EquipArtsButton" + n + "00"));
+			}
 		}
 		//選択中の技オブジェクトがある
 		else
@@ -211,10 +234,10 @@ public class Scene01_MainMenuScript : GlobalClass
 			bool EquipFlag = false;
 
 			//マトリクス側が選択されている
-			if (EquipArtsList.Any(a => a == SelectedArtsOBJ))
+			if (ArtsMatrixButtonList.Any(a => a == SelectedArtsOBJ))
 			{
 				//マトリクス側がターゲットされている
-				if (EquipArtsList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+				if (ArtsMatrixButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
 				{
 					//選択側が空欄
 					if(SelectedName == "")
@@ -239,7 +262,7 @@ public class Scene01_MainMenuScript : GlobalClass
 					if (AirArtsCheck(EventSystemUI.currentSelectedGameObject , SelectedArtsOBJ))
 					{
 						//すでに装備していたら外す
-						foreach (GameObject i in EquipArtsList)
+						foreach (GameObject i in ArtsMatrixButtonList)
 						{
 							if (i.GetComponentInChildren<Text>().text == TargetName)
 							{
@@ -260,7 +283,7 @@ public class Scene01_MainMenuScript : GlobalClass
 			else
 			{
 				//マトリクス側がターゲットされている
-				if (EquipArtsList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+				if (ArtsMatrixButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
 				{
 					EquipFlag = AirArtsCheck(SelectedArtsOBJ, EventSystemUI.currentSelectedGameObject);					
 
@@ -268,7 +291,7 @@ public class Scene01_MainMenuScript : GlobalClass
 					if (EquipFlag)
 					{
 						//すでに装備していたら外す
-						foreach (GameObject i in EquipArtsList)
+						foreach (GameObject i in ArtsMatrixButtonList)
 						{
 							if (i.GetComponentInChildren<Text>().text == SelectedName)
 							{
@@ -292,26 +315,60 @@ public class Scene01_MainMenuScript : GlobalClass
 		}
 	}
 
-	//空中技チェックして技装備する関数
+	//技マトリクスから技リストに戻る時の処理
+	public void ArtsListBack()
+	{
+		//選択中の技をリセット
+		SelectedArtsOBJ = null;
+
+		//現在のスクロールバーの位置
+		float BarPos = ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition;
+
+		//見えない部分全体のサイズ
+		float ArtsSelectButtonContentSize = ArtsSelectButtonContentOBJ.GetComponent<RectTransform>().sizeDelta.y;
+
+		//見えている部分のサイズ
+		float ArtsSelectScrollSize = ArtsSelectScrollBarOBJ.GetComponent<RectTransform>().sizeDelta.y;
+
+		//現在の下座標
+		float WindowBottomPos = ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition * (ArtsSelectButtonContentSize - ArtsSelectScrollSize);
+
+		//ボタンのサイズ
+		float ButtonSize = ArtsSelectButtonOBJ.GetComponent<RectTransform>().rect.height + ArtsSelectButtonContentOBJ.GetComponent<VerticalLayoutGroup>().spacing;
+
+		//見えているボタンの数
+		int ShowButtonCount = (int) Mathf.Round(ArtsSelectScrollSize / ButtonSize);
+
+		//下に隠れているボタンの数
+		int HiddenButtonCount = (int)Mathf.Round(WindowBottomPos / ButtonSize);
+
+		//ボタンの数とかでインデックスを選定して選択ボタンを切り替え
+		EventSystemUI.SetSelectedGameObject(ArtsSelectButtonList[ArtsSelectButtonList.Count - (HiddenButtonCount + ShowButtonCount)]);
+
+		//技リストで選択変更された時の処理実行
+		ArtsEquipMove();
+	}
+
+	//装備可能かチェックする関数
 	private bool AirArtsCheck(GameObject arts,GameObject target)
 	{
 		//技名取得
 		string artsname = arts.GetComponentInChildren<Text>().text;
 
 		//ターゲットされている場所の名前からロケーション部分を抽出
-		char TargetArtsNum = target.name.Skip(15).Take(1).ToList()[0];
+		int TargetArtsNum = int.Parse(target.name.Skip(15).Take(1).ToList()[0].ToString());
 
-		//空中装備可能場所か判別
-		bool re = TargetArtsNum == '2';
+		//出力用変数宣言
+		bool re = false;
 
 		//全ての技を回す
 		foreach (ArtsClass i in GameManagerScript.Instance.AllArtsList)
 		{
-			//名前で検索
-			if(i.NameC == artsname)
+			//名前で検索、フラグを比較してboolを返す
+			if (i.NameC == artsname)
 			{
-				//フラグを比較してboolを返す
-				if(i.AirAttackFlag == re)
+				//ロケーションが一致している、もしくは遠近の組み合わせなら装備可能
+				if(i.LocationFlag == TargetArtsNum || i.LocationFlag + TargetArtsNum == 1)
 				{
 					re = true;
 				}
@@ -327,7 +384,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		return re;
 	}
 
-	//装備技Listを更新する関数
+	//技リストと技マトリクスを更新する関数
 	private void ArtsEquipListReset(int n)
 	{
 		//装備中の技表示用変数宣言
@@ -336,7 +393,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		int Button = 0;
 
 		//一度全部空白にする
-		foreach(GameObject i in EquipArtsList)
+		foreach(GameObject i in ArtsMatrixButtonList)
 		{
 			i.GetComponentInChildren<Text>().text = "";
 		}
@@ -354,7 +411,7 @@ public class Scene01_MainMenuScript : GlobalClass
 				{
 					if (iii != null)
 					{
-						EquipArtsList.Where(a => a.name == "EquipArtsButton" + Location + Stick + Button).ToList()[0].GetComponentInChildren<Text>().text = iii;
+						ArtsMatrixButtonList.Where(a => a.name == "EquipArtsButton" + Location + Stick + Button).ToList()[0].GetComponentInChildren<Text>().text = iii;
 					}
 
 					Button++;
@@ -367,7 +424,7 @@ public class Scene01_MainMenuScript : GlobalClass
 			Location++;
 		}
 
-		//汎用ボタンのRect取得
+		//ひな型ボタンのRect取得
 		RectTransform Temprect = ArtsSelectButtonOBJ.GetComponent<RectTransform>();
 
 		//ループカウント宣言
@@ -405,7 +462,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		//ループカウントリセット
 		count = 0;
 
-		//生成したボタンを回す
+		//技リストのボタンにナビゲータを仕込む
 		foreach (GameObject o in ArtsSelectButtonList)
 		{
 			//ナビゲーションのアクセサ取得
@@ -437,25 +494,9 @@ public class Scene01_MainMenuScript : GlobalClass
 			//ループカウントアップ
 			count++;
 		}
-
-		//装備技のボタンにナビゲータを仕込む
-		foreach(var i in EquipArtsList)
-		{
-			if(i.name.Last() == '0')
-			{
-				//ナビゲーションのアクセサ取得
-				Navigation tempnavi = i.GetComponent<Button>().navigation;
-
-				//生成したボタンの一番上を選択させる、本当は位置を合わせたい
-				tempnavi.selectOnLeft = ArtsSelectButtonList[0].GetComponent<Button>();
-
-				//アクセサを反映
-				i.GetComponent<Button>().navigation = tempnavi;
-			}
-		}
 	}
 
-	//技装備で選択変更された時の処理
+	//技リストで選択変更された時の処理
 	public void ArtsEquipMove()
 	{
 		//処理実行フラグ
@@ -503,12 +544,12 @@ public class Scene01_MainMenuScript : GlobalClass
 			//選択オブジェクトの上座標
 			float ButtonTopPos = ButtonBottomPos + EventSystemUI.currentSelectedGameObject.GetComponent<RectTransform>().rect.height;
 
-			//上にはみ出し
+			//上にはみ出してる時の処理
 			if (WindowTopPos < ButtonTopPos)
 			{
 				ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = (ButtonTopPos - ArtsSelectScrollSize) / (ArtsSelectButtonContentSize - ArtsSelectScrollSize);
 			}
-			//下にはみ出し
+			//下にはみ出してる時の処理
 			else if (ButtonBottomPos < WindowBottomPos)
 			{
 				ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = ButtonBottomPos / (ArtsSelectButtonContentSize - ArtsSelectScrollSize);
@@ -516,25 +557,39 @@ public class Scene01_MainMenuScript : GlobalClass
 		}
 	}
 
-	//技装備がCancelされた時の処理
-	public void ArtsEquipCancel()
+	//汎用ボタンが押された時の処理
+	public void OnGeneral()
 	{
 		if (InputReadyFlag)
 		{
-			//装備技マトリクス更新
-			ArtsMatrixUpdate(CharacterID);
+			//装備技マトリクスが選択されている
+			if (ArtsMatrixButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+			{
+				//装備解除
+				EventSystemUI.currentSelectedGameObject.GetComponentInChildren<Text>().text = "";
 
-			//選択技解除
-			SelectedArtsOBJ = null;
+				//選択技解除
+				SelectedArtsOBJ = null;
+			}
+		}
+	}
 
-			//アニメーターのフラグを立てる
-			UIAnim.SetBool("Customize_Vanish", false);
-			UIAnim.SetBool("Customize_Show", true);
-			UIAnim.SetBool("ArtsEquip_Show", false);
-			UIAnim.SetBool("ArtsEquip_Vanish", true);
-
-			//入力許可フラグを下ろす
-			InputReadyFlag = false;
+	//スティックが入力された時の処理、イベントシステムやナビゲーションでフォローできない処理を書く
+	public void OnNavigate(InputValue input)
+	{
+		//左が押された
+		if (input.Get<Vector2>().x < -0.75f)
+		{
+			//技マトリクスボタンを選択しているか判別
+			if (ArtsMatrixButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+			{
+				//技マトリクスの左端の列で左が押されたら技リストに戻る
+				if (EventSystemUI.currentSelectedGameObject.GetComponent<Button>().navigation.selectOnLeft == null)
+				{
+					//リストに戻る処理
+					ArtsListBack();
+				}
+			}
 		}
 	}
 
@@ -586,7 +641,7 @@ public class Scene01_MainMenuScript : GlobalClass
 				{
 					GameManagerScript.Instance.UserData.ArtsMatrix[c][i][ii][iii] = "";
 
-					GameManagerScript.Instance.UserData.ArtsMatrix[c][i][ii][iii] = EquipArtsList.Where(a => a.name == "EquipArtsButton" + i + ii + iii).ToList()[0].GetComponentInChildren<Text>().text;
+					GameManagerScript.Instance.UserData.ArtsMatrix[c][i][ii][iii] = ArtsMatrixButtonList.Where(a => a.name == "EquipArtsButton" + i + ii + iii).ToList()[0].GetComponentInChildren<Text>().text;
 				}
 			}
 		}
