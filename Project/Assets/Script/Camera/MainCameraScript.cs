@@ -31,9 +31,6 @@ public interface MainCameraScriptInterface : IEventSystemHandler
 
 	//トレースカメラモード
 	void TraceCameraMode(bool b);
-
-	//クローズアップ演出モード
-	void CloseUpCameraMode(Vector3 pos, Vector3 repos, GameObject look, float time, float move, Action act);
 }
 
 public class MainCameraScript : GlobalClass, MainCameraScriptInterface
@@ -207,8 +204,8 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 				//カメラ本体処理関数呼び出し
 				CameraMove();
 
-				//トレースカメラモード
-				if(TraceCameraFlag || RayHitFlag)
+				//障害物回避処理
+				if(RayHitFlag)
 				{
 					//カメラの速度を変更、トレースポイントが溜まっているほど早くする
 					TraceCameraMoveSpeed = 0.1f * PlayerTraceList.Count;
@@ -231,7 +228,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 				break;
 		}
 	}
-
+	
 	//注視点設定関数
 	private void LookAtPosSetting()
 	{
@@ -296,7 +293,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 			MainCameraTargetOBJ.transform.position = PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * CameraNearLimit) + new Vector3(0, 1.5f, 0);
 		}
 		//視線が通ってない
-		else if (TraceCameraFlag || RayHitFlag)
+		else if (RayHitFlag)
 		{
 			//トレースポイントが２以上ある場合処理、カメラ操作で隠れた場合にガクガクさせないため
 			if (PlayerTraceList.Count > 1)
@@ -315,8 +312,11 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		else
 		{
 			//プレイヤーインプットから受け取った値をターゲットダミー移動座標に加える
-			MainCameraTargetPos = (MainCameraTargetOBJ.transform.right * -CameraMoveinputValue.x) + (MainCameraTargetOBJ.transform.up * CameraMoveinputValue.y) + (MainCameraTargetOBJ.transform.forward * CameraZoominputValue);
+			MainCameraTargetPos = (MainCameraTargetOBJ.transform.right * -CameraMoveinputValue.x) + (MainCameraTargetOBJ.transform.up * CameraMoveinputValue.y);
 
+			//プレイヤーインプットから受け取ったズーム値を距離制限に入れる
+			MainCameraTargetDistance -= CameraZoominputValue * CameraMoveSpeed * Time.deltaTime;
+			
 			//コライダがステージ触れている
 			if (ColHit != null && LayerMask.LayerToName(ColHit.gameObject.layer) == "TransparentFX")
 			{
@@ -363,21 +363,28 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 				if (!OnCameraBool)
 				{
 					//プレイヤーの後方にターゲットダミー移動、高低差も取って上げ下げする
-					MainCameraTargetPos += -(PlayerCharacter.transform.forward * 0.5f) + new Vector3(0, PlayerCharacter.transform.position.y - LockEnemy.transform.position.y, 0).normalized;
-				}
-				else
-				{
-					//コンボが続ているって事なので、ちょっとずつズームする
-					MainCameraTargetPos += MainCameraTargetOBJ.transform.forward * 0.01f;
+					MainCameraTargetPos += new Vector3(0, PlayerCharacter.transform.position.y - LockEnemy.transform.position.y, 0).normalized;
+
+					//画角を取るためカメラを引く
+					MainCameraTargetDistance += CameraMoveSpeed * 0.5f * Time.deltaTime;
 				}
 			}
 
 			//距離制限
-			if ((transform.position - MainCameraTargetOBJ.transform.position).sqrMagnitude > Mathf.Pow(CameraFarLimit, 2))
+			if (MainCameraTargetDistance > CameraFarLimit)
+			{
+				MainCameraTargetDistance = CameraFarLimit;
+			}
+			else if (MainCameraTargetDistance < CameraNearLimit)
+			{
+				MainCameraTargetDistance = CameraNearLimit;
+			}
+
+			if ((transform.position - MainCameraTargetOBJ.transform.position).sqrMagnitude > Mathf.Pow(MainCameraTargetDistance + 0.01f, 2))
 			{
 				MainCameraTargetPos += MainCameraTargetOBJ.transform.forward;
 			}
-			else if ((transform.position - MainCameraTargetOBJ.transform.position).sqrMagnitude < Mathf.Pow(CameraNearLimit, 2))
+			else if ((transform.position - MainCameraTargetOBJ.transform.position).sqrMagnitude < Mathf.Pow(MainCameraTargetDistance - 0.01f, 2))
 			{
 				MainCameraTargetPos += -MainCameraTargetOBJ.transform.forward;
 			}

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +19,12 @@ public class ActionEventScript : GlobalClass
 
 	//野外用ライト
 	GameObject OutDoorLight;
+
 	//野外用ライト
 	GameObject InDoorLight;
 
+	//トレースカメラ用ヴァーチャルカメラ
+	CinemachineVirtualCamera VCamera;
 
 	//イベント実行タイミング
 	string PlayTiming;
@@ -43,20 +47,26 @@ public class ActionEventScript : GlobalClass
 		AcitionAnim = transform.parent.GetComponentInChildren<Animation>();
 
 		//メインカメラ取得
-		MainCamera = GameObject.Find("CameraRoot");
+		MainCamera = GameObject.Find("MainCamera");
 
 		//野外用ライト取得
 		OutDoorLight = GameObject.Find("OutDoorLight");
 
 		//室内用ライト取得
 		InDoorLight = GameObject.Find("InDoorLight");
-	}
 
+		//トレースカメラ用ヴァーチャルカメラ取得
+		if(DeepFind(gameObject , "vcam") != null)
+		{
+			VCamera = gameObject.GetComponentInChildren<CinemachineVirtualCamera>();
+		}		
+	}
+	
 	//プレイヤーがエリアに進入したら呼ばれる関数
 	private void OnTriggerEnter(Collider ColHit)
 	{
 		//プレイヤーキャラクター取得
-		PlayerCharacter = ColHit.gameObject;
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => PlayerCharacter = reciever.GetPlayableCharacterOBJ());
 
 		//イベント実行タイミングに代入
 		PlayTiming = "IN";
@@ -71,7 +81,7 @@ public class ActionEventScript : GlobalClass
 	private void OnTriggerExit(Collider ColHit)
 	{
 		//プレイヤーキャラクター取得
-		PlayerCharacter = ColHit.gameObject;
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => PlayerCharacter = reciever.GetPlayableCharacterOBJ());
 
 		//イベント実行タイミングに代入
 		PlayTiming = "OUT";
@@ -161,6 +171,31 @@ public class ActionEventScript : GlobalClass
 							tempenemy.GetComponent<CharacterController>().enabled = true;
 						}));
 					}
+					else if (ActionEventList[Count] == "TraceCamera")
+					{
+						//引数用のbool宣言
+						bool b = StringList[Count] == "ON";
+
+						//ヴァーチャルカメラにプレイヤーキャラクターを仕込む
+						VCamera.Follow = PlayerCharacter.GetComponent<Transform>();
+						VCamera.LookAt = PlayerCharacter.GetComponent<Transform>();
+
+						//ヴァーチャルカメラ有効無効切り替え
+						VCamera.GetComponent<CinemachineVirtualCamera>().enabled = b;
+
+						//メインカメラのシネマシン有効無効切り替え
+						MainCamera.GetComponent<CinemachineBrain>().enabled = b;
+
+						//遷移元のヴァーチャルカメラ有効化
+						GameManagerScript.Instance.GetComponentInChildren<CinemachineVirtualCamera>().enabled = true;
+
+						//メインカメラのトランスフォームを遷移元のヴァーチャルカメラにコピー
+						GameManagerScript.Instance.GetComponentInChildren<CinemachineVirtualCamera>().transform.position = MainCamera.transform.position;
+						GameManagerScript.Instance.GetComponentInChildren<CinemachineVirtualCamera>().transform.rotation = MainCamera.transform.rotation;
+						
+						//ヴァーチャルカメラコルーチン呼び出し
+						StartCoroutine(VcameraCoroutine());
+					}
 				}
 				else if (HitOBJ == "MainCamera")
 				{
@@ -169,19 +204,121 @@ public class ActionEventScript : GlobalClass
 					{
 						StartCoroutine(ChangeLightCoroutine(ColorList[Count]));
 					}
-					else if(ActionEventList[Count] == "TraceCamera")
-					{
-						//引数用のbool宣言
-						bool b = StringList[Count] == "ON";
-
-						//カメラにフラグを送る
-						ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.TraceCameraMode(b));
-					}
 				}
 			}
 		}
 	}
 
+	//ヴァーチャルカメラパス移動コルーチン
+	private IEnumerator VcameraCoroutine()
+	{
+		//パストラッキング取得
+		CinemachineTrackedDolly PathPos = VCamera.GetCinemachineComponent<CinemachineTrackedDolly>();
+
+		//ウェイポイント取得
+		CinemachinePath.Waypoint[] WayPoint = gameObject.GetComponentInChildren<CinemachinePath>().m_Waypoints;
+
+		//遷移元のヴァーチャルカメラを１フレームだけ有効化して遷移させる
+		yield return null;
+
+		//遷移元のヴァーチャルカメラ無効化
+		GameManagerScript.Instance.GetComponentInChildren<CinemachineVirtualCamera>().enabled = false;
+
+		//一番近いウェイポイントを選出するための距離
+		float Dis = Mathf.Infinity;
+
+		//ループカウント
+		int count = 0;
+
+		//ループカウントをキャッシュしてウェイポイントのインデックスにする
+		int nearcount = 0;
+
+		//パストラッキングのポジション
+		float PathPoscount = PathPos.m_PathPosition;
+
+		//パストラッキング移動速度
+		float movespeed = 0;
+
+		//ウェイポイントの座標
+		Vector3 Waypos = Vector3.zero;
+
+		//初っ端の直近ウェイポイントを探す
+		foreach (var i in WayPoint)
+		{
+			//距離を測定、前回より近かったら処理
+			if (Dis > (i.position - (PlayerCharacter.transform.position + Vector3.up - PlayerCharacter.transform.forward)).sqrMagnitude)
+			{
+				//距離更新
+				Dis = (i.position - (PlayerCharacter.transform.position + Vector3.up - PlayerCharacter.transform.forward)).sqrMagnitude;
+
+				//ループカウントキャッシュ
+				nearcount = count;
+			}
+
+			//カウントアップ
+			count++;
+		}
+
+		//みつかった直近ウェイポイントをトラッキングポジションにする
+		PathPos.m_PathPosition = nearcount;
+
+		//ヴァーチャルカメラが無効になるまでループ
+		while (VCamera.enabled)
+		{
+			//距離初期化
+			Dis = Mathf.Infinity;
+
+			//ループカウント初期化
+			count = 0;
+
+			//トラッキングポジションをキャッシュ
+			PathPoscount = PathPos.m_PathPosition;
+
+			//直近ウェイポイントを探す
+			foreach (var i in WayPoint)
+			{
+				//距離を測定、前回より近かったら処理
+				if (Dis > (i.position - (PlayerCharacter.transform.position + Vector3.up)).sqrMagnitude)
+				{
+					//距離更新
+					Dis = (i.position - (PlayerCharacter.transform.position + Vector3.up)).sqrMagnitude;
+
+					//ループカウントキャッシュ
+					nearcount = count;
+
+					//ウェイポイントの座標キャッシュ
+					Waypos = i.position;
+				}
+
+				//カウントアップ
+				count++;
+			}
+
+			//移動速度算出、カメラとウェイポイントが離れているほど早くする
+			movespeed = (Waypos - MainCamera.transform.position).sqrMagnitude * 0.05f;
+
+			//直近のウェイポイントと現在のトラッキングポジションを比較して増減させる
+			if (PathPos.m_PathPosition > nearcount)
+			{
+				PathPoscount -= movespeed * Time.deltaTime;
+			}
+			else
+			{
+				PathPoscount += movespeed * Time.deltaTime;
+			}			
+
+			//トラッキングポジション移動
+			PathPos.m_PathPosition = PathPoscount;
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//ループが終わったらメインカメラのターゲットダミーの位置をメインカメラと同じにする
+		GameObject.Find("MainCameraTarget").transform.position = MainCamera.transform.position;
+	}
+
+	//ライト変更コルーチン
 	private IEnumerator ChangeLightCoroutine(Color c)
 	{
 		float time = Time.time;
@@ -198,9 +335,7 @@ public class ActionEventScript : GlobalClass
 			OutDoorLight.GetComponent<Light>().color = tempcolor;
 			//InDoorLight.GetComponent<Light>().color = tempcolor;
 			yield return null;
-		}
-
-		
+		}		
 	}
 
 	//アニメーション再生、↑で呼んだプレイヤーのイベントアクション関数から呼ばれる

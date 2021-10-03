@@ -122,32 +122,55 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &688622492 stripped
+--- !u!1 &54401169
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 4746529839733997480, guid: b49d9c728d920134cb39e4ea74c6ef02,
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 54401170}
+  - component: {fileID: 54401171}
+  m_Layer: 0
+  m_Name: cm
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &54401170
+Transform:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 54401169}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 688622498}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &54401171
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 54401169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &688622498 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8924161950721340865, guid: b49d9c728d920134cb39e4ea74c6ef02,
     type: 3}
   m_PrefabInstance: {fileID: 1176143576}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &688622496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 688622492}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa8fcedb8d3604d469679fe47e8ef43c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!124 &688622497
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 688622492}
-  m_Enabled: 1
 --- !u!1001 &1176143576
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -158,6 +181,11 @@ PrefabInstance:
     - target: {fileID: 14120336721551211, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 240861060790249111, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 887460396248877759, guid: b49d9c728d920134cb39e4ea74c6ef02,
@@ -215,6 +243,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1486789898196611301, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1903125799160465643, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: DevSwicth
@@ -235,6 +268,11 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2579332792912134034, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_ComponentOwner
+      value: 
+      objectReference: {fileID: 54401170}
     - target: {fileID: 2610441808534596749, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -248,12 +286,17 @@ PrefabInstance:
     - target: {fileID: 3273967767531531658, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4248499279501349041, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: DevSwicth
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4545136377900932651, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5170964909727832320, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
@@ -304,6 +347,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6006432276453156100, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6033379619502515415, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
