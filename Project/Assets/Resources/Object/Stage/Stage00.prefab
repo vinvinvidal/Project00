@@ -1205,7 +1205,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1754362736327607711}
   - component: {fileID: 4765464026130658163}
-  m_Layer: 20
+  m_Layer: 11
   m_Name: vcam
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -20,7 +20,7 @@ TagManager:
   - Mirror
   - Mosaic
   - TextureGenerate
-  - Costume
+  - VCamera
   - PlayerAttackCol
   - Enemy
   - Player
