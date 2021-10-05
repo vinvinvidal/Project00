@@ -1535,9 +1535,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				CharaController.skinWidth = 0.1f;
 
 				//キャラクターコントローラの大きさを小さくする
-				CharaController.height = 0.1f;
+				CharaController.height = 0.75f;
 				CharaController.radius = 0.1f;
-				CharaController.center = new Vector3(0, CharaController.radius * 0.5f + CharaController.skinWidth, 0);
+				CharaController.center = new Vector3(0, CharaController.height * 0.5f + CharaController.skinWidth, 0);
 
 				//接地コライダの大きさも合わせないと壁際で接地できなくなる
 				RayRadius = CharaController.radius;

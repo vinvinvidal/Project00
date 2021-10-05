@@ -122,8 +122,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//戦闘フラグ
 	private bool FightingFlag = false;
 
-	//タメ攻撃フラグ
-	private bool ChargeFlag = false;
+	//攻撃ボタン押しっぱなしフラグ
+	private bool HoldButtonFlag = false;
 
 	//ホールド攻撃フラグ
 	private bool HoldFlag = false;
@@ -784,7 +784,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void OnPlayerAttack00(InputValue i)
 	{
 		//押した時にture、離した時にfalseが入る
-		ChargeFlag = i.isPressed;
+		HoldButtonFlag = i.isPressed;
 
 		if (i.isPressed && !SpecialSuccessFlag)
 		{
@@ -799,7 +799,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void OnPlayerAttack01(InputValue i)
 	{
 		//押した時にture、離した時にfalseが入る
-		ChargeFlag = i.isPressed;
+		HoldButtonFlag = i.isPressed;
 
 		if (i.isPressed && !SpecialSuccessFlag)
 		{
@@ -814,7 +814,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void OnPlayerAttack02(InputValue i)
 	{
 		//押した時にture、離した時にfalseが入る
-		ChargeFlag = i.isPressed;
+		HoldButtonFlag = i.isPressed;
 
 		if (i.isPressed && !SpecialSuccessFlag)
 		{
@@ -1599,11 +1599,26 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		NoRotateFlag = b == 0 ? false : true;
 	}
 
+	//ループ攻撃処理、、アニメーションクリップのイベントから呼ばれる
+	private void AttackLoop(float i)
+	{
+		//ボタン押しっぱなしで先行入力されていない
+		if(HoldButtonFlag && !AttackInput)
+		{
+			//空中技で低空じゃない
+			if(!(UseArts.LocationFlag == 2 && GroundDistance < 0.5f))
+			{
+				//ループ実行
+				CurrentAnimator.Play("Attack0" + (ComboState + 1) % 2, 0, i);
+			}
+		}
+	}
+
 	//タメ攻撃処理、アニメーションクリップのイベントから呼ばれる
 	private void AttackCharge(int i)
 	{
 		//ボタンが長押しされていなければ処理をスルー
-		if (ChargeFlag)
+		if (HoldButtonFlag)
 		{
 			//コルーチン呼び出し
 			StartCoroutine(AttackChargeCoroutine(i));
@@ -1633,7 +1648,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempChargePowerEffect.SetActive(false);
 
 		//ボタン押しっぱなし、もしくはポーズ中ループ
-		while ((ChargeFlag && !PauseFlag) || PauseFlag)
+		while ((HoldButtonFlag && !PauseFlag) || PauseFlag)
 		{
 			//ポーズ中は経過時間を相殺してタメが進まないようにする
 			if (PauseFlag)
@@ -1780,7 +1795,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//入力時と違うボタンが押されたらタメ解除
 			if (UseArts.UseLocation["Button"] != AttackButton)
 			{
-				ChargeFlag = false;
+				HoldButtonFlag = false;
 			}
 
 			//ちょっと待機、毎フレームだとプルプルが早すぎるのでこんくらい
@@ -1821,8 +1836,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//チャージレベル初期化
 			UseArts.ChargeLevel = 0;
 
-			//タメフラグを下げる
-			ChargeFlag = false;
+			//攻撃ボタン押しっぱなしフラグを下げる
+			HoldButtonFlag = false;
 
 			//イベント発生を止めるためモーション再生時間を止める
 			CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0f);
@@ -3182,8 +3197,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//空中ローリング許可フラグを立てる
 		AirRollingFlag = true;
 
-		//タメ攻撃フラグを下す
-		ChargeFlag = false;
+		//攻撃ボタン押しっぱなしフラグを下す
+		HoldButtonFlag = false;
 
 		//回転制御フラグを下す
 		NoRotateFlag = false;
