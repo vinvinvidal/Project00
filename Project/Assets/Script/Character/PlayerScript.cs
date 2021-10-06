@@ -1606,7 +1606,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if(HoldButtonFlag && !AttackInput)
 		{
 			//空中技で低空じゃない
-			if(!(UseArts.LocationFlag == 2 && GroundDistance < 0.5f))
+			if(!(UseArts.LocationFlag == 2 && GroundDistance < 0.75f))
 			{
 				//ループ実行
 				CurrentAnimator.Play("Attack0" + (ComboState + 1) % 2, 0, i);
