@@ -1216,7 +1216,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
-			//イベントアニメーションフラグを立てる
+			//アニメーションフラグを立てる
 			CurrentAnimator.SetBool("Damage", true);
 
 			//これ以上イベントを起こさないためにAttackステートを一時停止
@@ -1648,7 +1648,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempChargePowerEffect.SetActive(false);
 
 		//ボタン押しっぱなし、もしくはポーズ中ループ
-		while ((HoldButtonFlag && !PauseFlag) || PauseFlag)
+		while ((HoldButtonFlag && !PauseFlag && !DamageFlag) || PauseFlag)
 		{
 			//ポーズ中は経過時間を相殺してタメが進まないようにする
 			if (PauseFlag)
@@ -1831,7 +1831,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//ジャンプかローリングが押されたら攻撃中断
-		if (JumpInput || RollingInput)
+		if (JumpInput || RollingInput || DamageFlag)
 		{
 			//チャージレベル初期化
 			UseArts.ChargeLevel = 0;
@@ -3050,17 +3050,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//Damageになった瞬間の処理
 		else if (s.Contains("-> Damage"))
 		{
-			//遷移フラグを全て下す関数呼び出し
-			TransitionReset();
+			//ダメージ状態フラグを立てる
+			DamageFlag = true;
 
 			//コライダを非アクティブ化
 			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
 
-			//ダメージ状態フラグを立てる
-			DamageFlag = true;
-
 			//入力フラグを全て下す関数呼び出し
 			InputReset();
+			
+			//遷移フラグを全て下す関数呼び出し
+			TransitionReset();
 
 			//ホールドフラグを下す
 			HoldFlag = false;

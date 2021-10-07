@@ -263,6 +263,9 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 
 			//カメラを注視点に向ける
 			MainCamera.transform.LookAt(LookAtPos);
+
+			//距離を初期化
+			MainCameraTargetDistance = 5;
 		}
 		//クローズアップカメラモード
 		else if(CloseUpCameraFlag)

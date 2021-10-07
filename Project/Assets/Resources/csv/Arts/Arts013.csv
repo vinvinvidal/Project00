@@ -2,7 +2,7 @@ NameC,月痕
 NameH,がちこん
 UseCharacter,0
 Anim,Motion_0_AirAttack04
-MoveVec,0*-11*0*0.05|0*1*0*1.25
+MoveVec,0*-1*0*0.25|0*1*0*1.25
 Damage,1
 Stun,1
 ColVec,0*1*0.5*1.5
