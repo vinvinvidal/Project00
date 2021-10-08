@@ -1543,9 +1543,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				RayRadius = CharaController.radius;
 				RayPoint = new Vector3(0, RayRadius * 2f, 0);
 
-				//ダメージ用コライダの大きさを戻す
-				DamageCol.center = DamageColCenter;
-				DamageCol.size = DamageColSize;
+				//ダメージ用コライダの大きさを小さくする
+				DamageCol.size = new Vector3(1, 1, 1);
+				DamageCol.center = new Vector3(0, DamageCol.size.y * 0.5f, 0);
 
 				break;
 
