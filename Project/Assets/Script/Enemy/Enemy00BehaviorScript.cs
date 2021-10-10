@@ -243,7 +243,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}));
 
 		//攻撃00
-		BehaviorList.Add(new BehaviorStruct("Attack00", 30, () =>
+		BehaviorList.Add(new BehaviorStruct("Attack00", 1, () =>
 		//攻撃00の処理
 		{
 			//攻撃00コルーチン呼び出し
@@ -277,8 +277,47 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		}));
 
+		//スケベ攻撃
+		BehaviorList.Add(new BehaviorStruct("H_Attack", 30, () =>
+		//スケベ攻撃の処理
+		{
+			//スケベ攻撃コルーチン呼び出し
+			StartCoroutine(H_AttackCoroutine());
+
+		}, () =>
+		//スケベ攻撃の条件
+		{
+			//出力用変数宣言
+			bool re = false;
+
+			//性的表現スイッチ
+			if(GameManagerScript.Instance.SexualSwicth)
+			{
+				//画面内に入っているかbool取得
+				ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => re = reciever.GetOnCameraBool());
+
+				//画面内に入っていたら処理
+				if (re)
+				{
+					//射程距離で大体正面にいる
+					if (PlayerDistance < AttackDistance && PlayerAngle < 90)
+					{
+						re = true;
+					}
+					else
+					{
+						re = false;
+					}
+				}
+			}			
+
+			//出力
+			return re;
+
+		}));
+
 		//行動Listを回してNowBehaviorDic作成
-		foreach(BehaviorStruct i in BehaviorList)
+		foreach (BehaviorStruct i in BehaviorList)
 		{
 			NowBehaviorDic.Add(i.Name , false);
 		}
@@ -298,13 +337,13 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			SinCount += Time.deltaTime;
 
 			//行動可能条件
-			if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk") || EnemyScript.CurrentState.Contains("Attack")))
+			if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk") || EnemyScript.CurrentState.Contains("Attack") || EnemyScript.CurrentState.Contains("H_Attack")))
 			{
 				//各移動ベクトルを合成
 				MoveVec = (((BehaviorMoveVec.normalized + AroundMoveVec.normalized * 0.25f).normalized * MoveSpeed) + MotionMoveVec);
 
 				//移動値の有無でアニメーションを切り替える、攻撃中は無視
-				if ((MoveVec != Vector3.zero || RotateVec != Vector3.zero) && !NowBehaviorDic["Attack00"])
+				if ((MoveVec != Vector3.zero || RotateVec != Vector3.zero) && !NowBehaviorDic["Attack00"] && !NowBehaviorDic["H_Attack"])
 				{
 					//アニメーターのフラグを立てる
 					CurrentAnimator.SetBool("Walk", true);
@@ -332,7 +371,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 				//行動抽選
 				if (NowBehaviorDic.All(i => !i.Value) && (EnemyScript.CurrentState == "Idling" || EnemyScript.CurrentState == "Walk"))
-				{
+				{	
 					//開始可能行動List
 					List<BehaviorStruct> TempBehavioerList = new List<BehaviorStruct>(BehaviorList.Where(b => b.BehaviorConditions()).ToList());
 
@@ -381,6 +420,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			{
 				//アニメーターのフラグを下す
 				CurrentAnimator.SetBool("Attack", false);
+
+				//アニメーターのフラグを下す
+				CurrentAnimator.SetBool("H_Attack", false);
 
 				//アニメーターのフラグを下す
 				CurrentAnimator.SetBool("Walk", false);
@@ -616,6 +658,38 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//フラグを下ろす
 		NowBehaviorDic["Attack00"] = false;
+
+		//モーション依存の移動値初期化
+		MotionMoveVec *= 0;
+
+		//待機する
+		StartCoroutine(WaitCoroutine());
+	}
+
+	//スケベ攻撃コルーチン
+	IEnumerator H_AttackCoroutine()
+	{
+		//フラグを立てる
+		NowBehaviorDic["H_Attack"] = true;
+
+		//移動値をリセット
+		MoveVec *= 0;
+
+		//プレイヤーキャラクターに向ける
+		RotateVec = HorizontalVector(PlayerCharacter, gameObject);
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("H_Attack", true);
+
+		//フラグが降りるまで待機
+		while (EnemyScript.CurrentState.Contains("H_Attack"))
+		{
+			//待機
+			yield return null;
+		}
+
+		//フラグを下ろす
+		NowBehaviorDic["H_Attack"] = false;
 
 		//モーション依存の移動値初期化
 		MotionMoveVec *= 0;
