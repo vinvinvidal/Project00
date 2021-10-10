@@ -384,6 +384,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		AllStates.Add("Idling");
 		AllStates.Add("Walk");
 		AllStates.Add("Attack");
+		AllStates.Add("H_Attack");		
 		AllStates.Add("DownLanding");
 		AllStates.Add("Damage00");
 		AllStates.Add("Damage01");
@@ -1669,6 +1670,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public void AttackEnd()
 	{
 		CurrentAnimator.SetBool("Attack" , false);
+
+		CurrentAnimator.SetBool("H_Attack", false);
 	}
 
 	//アニメーターの攻撃モーションを切り替える、ビヘイビアスクリプトから呼ばれる

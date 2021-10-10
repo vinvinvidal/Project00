@@ -46,6 +46,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//開発用スイッチ
 	public bool DevSwicth;
 
+	//性的表現スイッチ
+	public bool SexualSwicth;
+	
 	//ゲームデータ読み込み開始フラグ
 	public bool LoadGameDataFlag { get; set; } = false;
 
