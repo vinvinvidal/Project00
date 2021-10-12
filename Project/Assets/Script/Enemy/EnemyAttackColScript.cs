@@ -9,6 +9,9 @@ public interface EnemyAttackCollInterface : IEventSystemHandler
 	//コライダ出現処理
 	void ColStart(int n, EnemyAttackClass arts);
 
+	//スケベ攻撃コライダ出現処理
+	void H_ColStart();
+
 	//コライダ終了処理
 	void ColEnd();
 }
@@ -19,7 +22,10 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 	private BoxCollider AttackCol;
 
 	//当たった攻撃
-	EnemyAttackClass HitArts;
+	private EnemyAttackClass HitArts;
+
+   //スケベ攻撃フラグ
+   private bool H_AttackFlag = false;
 
 	private void Start()
 	{
@@ -34,19 +40,22 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 		bool AttackEnable = false;
 
 		//プレイヤーキャラクターのスクリプトを呼び出して攻撃が有効か判定
-		ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => AttackEnable = reciever.AttackEnable());
+		ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => AttackEnable = reciever.AttackEnable(H_AttackFlag));
 
 		//攻撃が有効なら処理
 		if (AttackEnable)
 		{
 			//プレイヤーキャラクターのスクリプトを呼び出す
-			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.HitEnemyAttack(HitArts, gameObject.transform.root.gameObject));
+			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.HitEnemyAttack(HitArts, gameObject.transform.root.gameObject , H_AttackFlag));
 		}
 	}
 
 	//コライダ出現処理、メッセージシステムから呼び出される
 	public void ColStart(int n, EnemyAttackClass arts)
 	{
+		//スケベ攻撃フラグを下ろす
+		H_AttackFlag = false;
+
 		//攻撃コライダ有効化
 		AttackCol.enabled = true;
 
@@ -68,6 +77,22 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 			default: break;
 
 		}
+	}
+
+	//スケベ攻撃コライダ出現処理、メッセージシステムから呼び出される
+	public void H_ColStart()
+	{
+		//スケベ攻撃フラグを立てる
+		H_AttackFlag = true;
+
+		//攻撃コライダ有効化
+		AttackCol.enabled = true;
+
+		//出現位置設定
+		AttackCol.center = new Vector3(0, 0.5f, 1f);
+
+		//大きさ設定
+		AttackCol.size = new Vector3(0.5f, 1f, 1f);
 	}
 
 	//コライダ終了処理処理、メッセージシステムから呼び出される

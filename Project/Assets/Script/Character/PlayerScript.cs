@@ -25,7 +25,7 @@ using System;
 		void HitAttack(GameObject e, int AttackIndex);
 
 		//敵の攻撃が当たった時の処理
-		void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy);
+		void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy , bool H);
 
 		//武器をセットする
 		void SetWeapon(GameObject w);
@@ -43,7 +43,7 @@ using System;
 		void SetCharacterData(CharacterClass CC , List<AnimationClip> DAL);
 
 		//当たった攻撃が有効か返す
-		bool AttackEnable();
+		bool AttackEnable(bool H);
 	}
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
@@ -1163,14 +1163,23 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//当たった攻撃が有効かを返す関数
-	public bool AttackEnable()
+	public bool AttackEnable(bool H)
 	{
-		//無敵ステートを調ベて出力
-		return !(InvincibleList.Any(t => CurrentState.Contains(t)) || (Time.time - JumpTime < 0.25f));
+		//現在が無敵ステートか調べる
+		bool re = !(InvincibleList.Any(t => CurrentState.Contains(t)) || (Time.time - JumpTime < 0.25f));
+
+		//スケベ攻撃だった場合は攻撃コライダが有効なら喰らわない
+		if(re && H)
+		{
+			re = !AttackColOBJ.GetComponent<BoxCollider>().enabled;
+		}
+
+		//出力
+		return re;
 	}
 
 	//敵の攻撃が当たった時の処理
-	public void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy)
+	public void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy, bool H)
 	{
 		//当身に当たった
 		if (SpecialTryFlag && SpecialArtsList[0].Trigger == 0)
@@ -1183,6 +1192,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//特殊攻撃成功コルーチン呼び出し
 			StartCoroutine(SpecialArtsSuccess(enemy));
+		}
+		//スケベ攻撃を喰らった
+		else if(H)
+		{
+
 		}
 		//普通に喰らった
 		else

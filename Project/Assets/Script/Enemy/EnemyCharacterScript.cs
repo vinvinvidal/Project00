@@ -1175,6 +1175,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//アニメーターの攻撃フラグを下ろす
 				CurrentAnimator.SetBool("Attack", false);
 			}
+			//スケベ攻撃攻撃になった瞬間の処理
+			else if (CurrentState.Contains("-> H_Attack"))
+			{
+				//アニメーターのスケベ攻撃攻撃を下ろす
+				CurrentAnimator.SetBool("H_Attack", false);
+			}
 			//ホールドになった瞬間の処理
 			else if (CurrentState == "HoldDamage")
 			{
@@ -1464,6 +1470,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//アニメーターの攻撃フラグを下ろす
 		CurrentAnimator.SetBool("Attack", false);
 
+		//アニメーターのスケベ攻撃攻撃を下ろす
+		CurrentAnimator.SetBool("H_Attack", false);
+
 		//アニメーターのダウンフラグを下す
 		CurrentAnimator.SetBool("Down_Prone", false);
 
@@ -1657,6 +1666,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	{
 		//攻撃用コライダーのコライダ移動関数呼び出し、インデックスとコライダ移動タイプを渡す
 		ExecuteEvents.Execute<EnemyAttackCollInterface>(AttackCol, null, (reciever, eventData) => reciever.ColStart(n, UseArts));
+	}
+
+	//スケベ攻撃コライダ移動開始処理、アニメーションクリップのイベントから呼ばれる
+	private void StartH_AttackCol()
+	{
+		//スケベ攻撃用コライダーのコライダ移動関数呼び出し、インデックスとコライダ移動タイプを渡す
+		ExecuteEvents.Execute<EnemyAttackCollInterface>(AttackCol, null, (reciever, eventData) => reciever.H_ColStart());
 	}
 
 	//攻撃コライダ終了処理、アニメーションクリップのイベントから呼ばれる

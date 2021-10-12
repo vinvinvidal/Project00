@@ -278,7 +278,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}));
 
 		//スケベ攻撃
-		BehaviorList.Add(new BehaviorStruct("H_Attack", 30, () =>
+		BehaviorList.Add(new BehaviorStruct("H_Attack", 300, () =>
 		//スケベ攻撃の処理
 		{
 			//スケベ攻撃コルーチン呼び出し
@@ -337,7 +337,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			SinCount += Time.deltaTime;
 
 			//行動可能条件
-			if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk") || EnemyScript.CurrentState.Contains("Attack") || EnemyScript.CurrentState.Contains("H_Attack")))
+			if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk") || EnemyScript.CurrentState.Contains("Attack")))
 			{
 				//各移動ベクトルを合成
 				MoveVec = (((BehaviorMoveVec.normalized + AroundMoveVec.normalized * 0.25f).normalized * MoveSpeed) + MotionMoveVec);
@@ -360,8 +360,17 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 					CurrentAnimator.SetBool("Walk", false);
 				}
 
-				//移動
-				CharaController.Move(MoveVec * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount)) * Time.deltaTime);
+				//攻撃中は歩調に合わせる数値を反映しないする
+				if(EnemyScript.CurrentState.Contains("Attack"))
+				{
+					//移動
+					CharaController.Move(MoveVec * Time.deltaTime);
+				}
+				else
+				{
+					//移動
+					CharaController.Move(MoveVec * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount)) * Time.deltaTime);
+				}
 
 				//回転値が入っていたら回転
 				if (RotateVec != Vector3.zero)
@@ -649,8 +658,11 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//モーション名を敵スクリプトに送る
 		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetAttackMotion("00"));
 
+		//ステートを反映させる為に１フレーム待つ
+		yield return null;
+
 		//フラグが降りるまで待機
-		while(EnemyScript.CurrentState.Contains("Attack"))
+		while (EnemyScript.CurrentState.Contains("Attack"))
 		{
 			//待機
 			yield return null;
@@ -680,6 +692,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("H_Attack", true);
+
+		//ステートを反映させる為に１フレーム待つ
+		yield return null;
 
 		//フラグが降りるまで待機
 		while (EnemyScript.CurrentState.Contains("H_Attack"))

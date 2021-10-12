@@ -47,13 +47,13 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					Animator tempanim = e.GetComponent<Animator>();
 
 					//攻撃してきているか判別
-					if(tempanim.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
+					if(tempanim.GetCurrentAnimatorStateInfo(0).IsName("Attack") || tempanim.GetCurrentAnimatorStateInfo(0).IsName("H_Attack"))
 					{
 						//アニメーションイベントを回す
 						foreach(var ii in tempanim.GetCurrentAnimatorClipInfo(0)[0].clip.events)
 						{
 							//攻撃判定発生イベントを判別
-							if(ii.functionName == "StartAttackCol")
+							if(ii.functionName == "StartAttackCol" || ii.functionName == "StartH_AttackCol")
 							{
 								//攻撃判定発生までの時間を計測
 								float temptime = ii.time - (tempanim.GetCurrentAnimatorStateInfo(0).length * tempanim.GetCurrentAnimatorStateInfo(0).normalizedTime);
