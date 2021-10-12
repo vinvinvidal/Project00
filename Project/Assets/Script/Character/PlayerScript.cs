@@ -39,8 +39,8 @@ using System;
 		//自身がカメラの画角に入っているか返す
 		bool GetOnCameraBool();
 
-		//キャラクターのデータセットする
-		void SetCharacterData(CharacterClass CC , List<AnimationClip> DAL);
+	//キャラクターのデータセットする
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL);
 
 		//当たった攻撃が有効か返す
 		bool AttackEnable(bool H);
@@ -155,6 +155,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//特殊攻撃中フラグ
 	public bool SpecialAttackFlag { get; set; }
 
+	//スケベフラグ
+	public bool H_Flag { get; set; }
+
 	//回転禁止フラグ
 	private bool NoRotateFlag = false;
 
@@ -209,6 +212,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//ダメージ移動ベクトル
 	private Vector3 DamageMoveVector;
+
+	//キャラクターのスケベ移動ベクトル
+	private Vector3 H_MoveVector;
+
+	//キャラクターのスケベ回転値
+	private Vector3 H_RotateVector;
 
 	//イベント移動ベクトル
 	private Vector3 EventMoveVector;
@@ -325,6 +334,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//出す表情を判定するコンボステート
 	private int FaceState;
 
+	//出すスケベダメージモーションを判定するスケベステート
+	private int H_State;
+
 	//遷移するステートを振り分ける文字列
 	private string TransitionAttackState;
 
@@ -356,6 +368,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//ダメージモーションList
 	private List<AnimationClip> DamageAnimList = new List<AnimationClip>();
 
+	//スケベヒットモーションList
+	private List<AnimationClip> H_HitAnimList = new List<AnimationClip>();
+
+	//スケベダメージモーションList
+	private List<AnimationClip> H_DamageAnimList = new List<AnimationClip>();
+
+	//スケベブレイクモーションList
+	private List<AnimationClip> H_BreakAnimList = new List<AnimationClip>();
+
 	//ダメージモーションインデックス
 	private int DamageAnimIndex = 0;
 
@@ -364,6 +385,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//特殊攻撃入力待ち時間
 	private float SpecialSelectTime = 0.1f;
+
+
+
 
 
 
@@ -463,6 +487,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//キャラクターのローリング回転値初期化
 		RollingRotateVector = Vector3.zero;
 
+		//キャラクターのスケベ移動ベクトル初期化
+		H_MoveVector = Vector3.zero;
+
+		//キャラクターのスケベ回転値初期化
+		H_RotateVector = Vector3.zero;
+
 		//キャラクターのジャンプの回転値初期化
 		JumpRotateVector = Vector3.zero;
 
@@ -490,6 +520,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//出す表情を判定するコンボステート初期化
 		FaceState = 0;
 
+		//出すスケベダメージモーションを判定するスケベステート初期化
+		H_State = 0;
+
 		//現在使用している技初期化
 		UseArts = null;
 
@@ -516,6 +549,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//特殊攻撃中フラグ初期化
 		SpecialAttackFlag = false;
+
+		//スケベフラグ初期化
+		H_Flag = false;
 
 		//イベント移動ベクトル初期化
 		EventMoveVector = Vector3.zero;
@@ -591,6 +627,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		InvincibleList.Add("-> Jump");
 		InvincibleList.Add("SpecialAttack");
 		InvincibleList.Add("SpecialSuccess");
+		InvincibleList.Add("H_Hit");
+		InvincibleList.Add("H_Damage00");
+		InvincibleList.Add("H_Damage01");
+		InvincibleList.Add("H_Break");
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
 		AllStates.Add("AnyState");
@@ -611,6 +651,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AllStates.Add("SpecialTry");
 		AllStates.Add("SpecialSuccess");		
 		AllStates.Add("SpecialAttack");
+		AllStates.Add("H_Hit");
+		AllStates.Add("H_Damage00");
+		AllStates.Add("H_Damage01");
+		AllStates.Add("H_Break");
 
 		//全てのステートとトランジションをListにAdd
 		foreach (string i in AllStates)
@@ -914,7 +958,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag)
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag)
 		{
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
@@ -1196,7 +1240,27 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベ攻撃を喰らった
 		else if(H)
 		{
+			//後ろから喰らった
+			if(Vector3.Angle(HorizontalVector(enemy , gameObject) , gameObject.transform.forward) > 90)
+			{
+				//スケベフラグを立てる
+				H_Flag = true;
 
+				//アニメーターのフラグを立てる
+				CurrentAnimator.SetBool("H_Hit", true);
+
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["H_Hit_void"] = H_HitAnimList[0];
+
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList[0];
+
+				//アニメーターを上書きしてアニメーションクリップを切り替える
+				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+				//アニメーション遷移フラグを立てる
+				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);				
+			}
 		}
 		//普通に喰らった
 		else
@@ -3128,6 +3192,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("SpecialAttack", false);
 		}
+		//H_Hitになった瞬間の処理
+		else if (s.Contains("-> H_Hit"))
+		{
+			//アニメーターのフラグを下ろす
+			CurrentAnimator.SetBool("H_Hit", false);
+		}		
 	}
 
 	//遷移許可フラグを管理する関数
@@ -3208,6 +3278,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ホールド中フラグを下す
 		HoldFlag = false;
 
+		//スケベフラグを下ろす
+		H_Flag = false;
+
 		//空中ローリング許可フラグを立てる
 		AirRollingFlag = true;
 
@@ -3231,6 +3304,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//ダメージ移動ベクトルリセット
 		DamageMoveVector *= 0;
+
+		//キャラクターのスケベ移動ベクトルリセット
+		H_MoveVector *= 0;
 
 		//ジャンプ開始直後のベクトル初期化
 		JumpHorizonVector *= 0;
@@ -3309,10 +3385,19 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる
-	public void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL)
+	public void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL , List<AnimationClip> HHL , List<AnimationClip> HDL , List<AnimationClip> HBL)
 	{
 		//ダメージモーションList
 		DamageAnimList = new List<AnimationClip>(DAL);
+
+		//スケベヒットモーションList
+		H_HitAnimList = new List<AnimationClip>(HHL);
+
+		//スケベダメージモーションList
+		H_DamageAnimList = new List<AnimationClip>(HDL);
+
+		//スケベブレイクモーションList
+		H_BreakAnimList = new List<AnimationClip>(HBL);
 
 		//移動速度
 		PlayerMoveSpeed = CC.PlayerMoveSpeed;

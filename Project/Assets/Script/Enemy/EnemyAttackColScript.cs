@@ -24,8 +24,8 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 	//当たった攻撃
 	private EnemyAttackClass HitArts;
 
-   //スケベ攻撃フラグ
-   private bool H_AttackFlag = false;
+	//スケベ攻撃フラグ
+	private bool H_AttackFlag = false;
 
 	private void Start()
 	{
@@ -47,6 +47,13 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 		{
 			//プレイヤーキャラクターのスクリプトを呼び出す
 			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.HitEnemyAttack(HitArts, gameObject.transform.root.gameObject , H_AttackFlag));
+
+			//スケベ攻撃の場合は敵側のスクリプトを呼び出す
+			if (H_AttackFlag)
+			{
+				//敵キャラクターのスクリプトを呼び出す
+				ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit());
+			}
 		}
 	}
 

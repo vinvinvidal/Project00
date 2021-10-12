@@ -16,6 +16,9 @@ public class EnemySettingScript : GlobalClass
 	//ダメージモーション読み込み完了フラグ
 	private bool DamageAnimLoadCompleteFlag = false;
 
+	//スケベヒットモーション読み込み完了フラグ
+	private bool H_HitAnimLoadCompleteFlag = false;
+
 	//髪オブジェクト読み込み完了フラグ
 	private bool HairLoadCompleteFlag = false;
 
@@ -105,7 +108,38 @@ public class EnemySettingScript : GlobalClass
 			DamageAnimLoadCompleteFlag = true;
 
 		}));
+		/*
+		//スケベヒットモーション読み込み
+		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Anim/Enemy/" + ID + "/Damage/", "anim", (List<object> OBJList) =>
+		{
+			//モーション番号判別ループ
+			for (int count1 = 0; count1 < 6; count1++)
+			{
+				for (int count2 = 0; count2 < 10; count2++)
+				{
+					//連想配列に番号をキーにした要素追加
+					DamageAnimDic.Add(count1.ToString() + count2, null);
 
+					//読み込んだアニメーションListを回す
+					foreach (object i in OBJList)
+					{
+						//名前で検索、ヒットしたらDictionaryにAdd
+						if ((i as AnimationClip).name.Contains("Damage" + count1.ToString() + count2))
+						{
+							DamageAnimDic[count1.ToString() + count2] = i as AnimationClip;
+						}
+					}
+				}
+			}
+
+			//Listを敵スクリプトに送る
+			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetDamageAnimList(new List<AnimationClip>(DamageAnimDic.Values)));
+
+			//読み込み完了フラグを立てる
+			DamageAnimLoadCompleteFlag = true;
+
+		}));
+		*/
 		//足のボーンにコンストレイント追加
 		DeepFind(gameObject, "R_FootBone").AddComponent<PositionConstraint>().constraintActive = true;
 		DeepFind(gameObject, "L_FootBone").AddComponent<PositionConstraint>().constraintActive = true;

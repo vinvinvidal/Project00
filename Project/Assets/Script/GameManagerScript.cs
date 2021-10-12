@@ -177,6 +177,21 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllDamageAnimCompleteFlagDic = new Dictionary<string, bool>();
 
+	//全てのスケベヒットアニメーションを持ったList
+	public List<List<AnimationClip>> AllH_HitList { get; set; }
+	//↑の全てのアニメーションクリップ読み込み完了Dic
+	private Dictionary<string, bool> AllH_HitAnimCompleteFlagDic = new Dictionary<string, bool>();
+
+	//全てのスケベダメージアニメーションを持ったList
+	public List<List<AnimationClip>> AllH_DamageList { get; set; }
+	//↑の全てのアニメーションクリップ読み込み完了Dic
+	private Dictionary<string, bool> AllH_DamageAnimCompleteFlagDic = new Dictionary<string, bool>();
+
+	//全てのスケベブレイクアニメーションを持ったList
+	public List<List<AnimationClip>> AllH_BreakList { get; set; }
+	//↑の全てのアニメーションクリップ読み込み完了Dic
+	private Dictionary<string, bool> AllH_BreakAnimCompleteFlagDic = new Dictionary<string, bool>();
+
 	//全ての武器情報を持ったList
 	public List<WeaponClass> AllWeaponList { get; set; }
 	//↑の読み込み完了フラグ
@@ -212,7 +227,13 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			AllFaceAnimCompleteFlagDic.Any() &&
 			AllFaceAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllDamageAnimCompleteFlagDic.Any() &&
-			AllDamageAnimCompleteFlagDic.All(a => a.Value == true) &&			
+			AllDamageAnimCompleteFlagDic.All(a => a.Value == true) &&
+			AllH_HitAnimCompleteFlagDic.Any() &&
+			AllH_HitAnimCompleteFlagDic.All(a => a.Value == true) &&
+			AllH_DamageAnimCompleteFlagDic.Any() &&
+			AllH_DamageAnimCompleteFlagDic.All(a => a.Value == true) &&
+			AllH_BreakAnimCompleteFlagDic.Any() &&
+			AllH_BreakAnimCompleteFlagDic.All(a => a.Value == true) &&
 			UserDataReadyFlag
 		))
 		{
@@ -355,6 +376,15 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//全てのダメージモーションを持ったList初期化
 			AllDamageList = new List<List<AnimationClip>>();
 
+			//全てのスケベヒットモーションを持ったList初期化
+			AllH_HitList = new List<List<AnimationClip>>();
+
+			//全てのスケベダメージモーションを持ったList初期化
+			AllH_DamageList = new List<List<AnimationClip>>();
+
+			//全てのスケベブレイクモーションを持ったList初期化
+			AllH_BreakList = new List<List<AnimationClip>>();
+
 			//キャラクターリストを回す
 			foreach (CharacterClass i in AllCharacterList)
 			{
@@ -386,6 +416,39 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 					//読み込んだダメージアニメーションのDicをtrueにする
 					AllDamageAnimCompleteFlagDic[i.F_NameC] = true;
+
+				}));
+
+				//スケベヒットアニメーションクリップ読み込み
+				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/H_Hit/", "anim", (List<object> H_HitOBJList) =>
+				{
+					//読み込んだアニメーションをListにしてAdd
+					AllH_HitList.Add(H_HitOBJList.Select(o => o as AnimationClip).ToList());
+
+					//読み込んだスケベヒットアニメーションのDicをtrueにする
+					AllH_HitAnimCompleteFlagDic[i.F_NameC] = true;
+
+				}));
+
+				//スケベダメージアニメーションクリップ読み込み
+				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/H_Damage/", "anim", (List<object> H_DamageOBJList) =>
+				{
+					//読み込んだアニメーションをListにしてAdd
+					AllH_DamageList.Add(H_DamageOBJList.Select(o => o as AnimationClip).ToList());
+
+					//読み込んだスケベダメージアニメーションのDicをtrueにする
+					AllH_DamageAnimCompleteFlagDic[i.F_NameC] = true;
+
+				}));
+
+				//スケベブレイクアニメーションクリップ読み込み
+				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/H_Break/", "anim", (List<object> H_BreakOBJList) =>
+				{
+					//読み込んだアニメーションをListにしてAdd
+					AllH_BreakList.Add(H_BreakOBJList.Select(o => o as AnimationClip).ToList());
+
+					//読み込んだスケベブレイクアニメーションのDicをtrueにする
+					AllH_BreakAnimCompleteFlagDic[i.F_NameC] = true;
 
 				}));
 			}
