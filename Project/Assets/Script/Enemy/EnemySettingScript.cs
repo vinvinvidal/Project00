@@ -108,38 +108,27 @@ public class EnemySettingScript : GlobalClass
 			DamageAnimLoadCompleteFlag = true;
 
 		}));
-		/*
+		
 		//スケベヒットモーション読み込み
-		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Anim/Enemy/" + ID + "/Damage/", "anim", (List<object> OBJList) =>
+		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Anim/Enemy/" + ID + "/H_HIt/", "anim", (List<object> OBJList) =>
 		{
-			//モーション番号判別ループ
-			for (int count1 = 0; count1 < 6; count1++)
-			{
-				for (int count2 = 0; count2 < 10; count2++)
-				{
-					//連想配列に番号をキーにした要素追加
-					DamageAnimDic.Add(count1.ToString() + count2, null);
+			//代入用変数宣言
+			List<AnimationClip> templist = new List<AnimationClip>();
 
-					//読み込んだアニメーションListを回す
-					foreach (object i in OBJList)
-					{
-						//名前で検索、ヒットしたらDictionaryにAdd
-						if ((i as AnimationClip).name.Contains("Damage" + count1.ToString() + count2))
-						{
-							DamageAnimDic[count1.ToString() + count2] = i as AnimationClip;
-						}
-					}
-				}
+			//読み込んだアニメーションをListにAdd
+			foreach(var i in OBJList)
+			{
+				templist.Add(i as AnimationClip);
 			}
 
 			//Listを敵スクリプトに送る
-			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetDamageAnimList(new List<AnimationClip>(DamageAnimDic.Values)));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetH_HitAnimList(templist));
 
 			//読み込み完了フラグを立てる
-			DamageAnimLoadCompleteFlag = true;
+			H_HitAnimLoadCompleteFlag = true;
 
 		}));
-		*/
+		
 		//足のボーンにコンストレイント追加
 		DeepFind(gameObject, "R_FootBone").AddComponent<PositionConstraint>().constraintActive = true;
 		DeepFind(gameObject, "L_FootBone").AddComponent<PositionConstraint>().constraintActive = true;
@@ -373,6 +362,7 @@ public class EnemySettingScript : GlobalClass
 		//読み込み完了するまで回る
 		while (!(
 			DamageAnimLoadCompleteFlag &&
+			H_HitAnimLoadCompleteFlag&&
 			HairLoadCompleteFlag && 
 			UnderWearLoadCompleteFlag && 
 			InnerLoadCompleteFlag && 

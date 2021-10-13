@@ -183,6 +183,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//キャラクターに触れているフラグ
 	public bool ContactCharacterFlag { get; set; }
 
+	//スケベフラグ
+	public bool H_Flag { get; set; }
+
 	//スタン状態フラグ
 	public bool StunFlag { get; set; }
 
@@ -259,6 +262,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//キャラクターに触れているフラグ初期化
 		ContactCharacterFlag = false;
+
+		//スケベフラグ初期化
+		H_Flag = false;
 
 		//スタン状態フラグ初期化
 		StunFlag = false;
@@ -600,7 +606,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			}
 		}
 
-		if (!HoldFlag && !SpecialFlag && !DownFlag)
+		if (!HoldFlag && !SpecialFlag && !DownFlag && !H_Flag)
 		{
 			//近くにプレイヤーがいたら処理
 			if (HorizontalVector(gameObject, PlayerCharacter).sqrMagnitude < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y > -0.1f)
@@ -1473,6 +1479,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ホールドダメージ状態を下す
 		HoldFlag = false;
 
+		//スケベフラグを下す
+		H_Flag = false;
+
 		//吹っ飛びフラグを下す
 		BlownFlag = false;
 
@@ -1683,13 +1692,16 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public void H_AttackHit()
 	{
 		//後ろから当てた
-		if (Vector3.Angle(HorizontalVector(PlayerCharacter, gameObject), gameObject.transform.forward) > 90)
+		if (Vector3.Angle(PlayerCharacter.transform.forward, gameObject.transform.forward) < 90)
 		{
+			//スケベフラグを立てる
+			H_Flag = true;
+
 			//アニメーターのフラグを立てる
 			CurrentAnimator.SetBool("H_Hit" , true);
 
 			//スケベ攻撃ヒットモーションを切り替える
-			OverRideAnimator["H_Hit_Void"] = H_HitAnimList[0];
+			OverRideAnimator["H_Hit_Void"] = H_HitAnimList.Where(a => a.name.Contains("BackHold00")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;

@@ -337,7 +337,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			SinCount += Time.deltaTime;
 
 			//行動可能条件
-			if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk") || EnemyScript.CurrentState.Contains("Attack")))
+			if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk") || EnemyScript.CurrentState.Contains("Attack") || EnemyScript.CurrentState.Contains("H_")))
 			{
 				//各移動ベクトルを合成
 				MoveVec = (((BehaviorMoveVec.normalized + AroundMoveVec.normalized * 0.25f).normalized * MoveSpeed) + MotionMoveVec);
@@ -360,16 +360,17 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 					CurrentAnimator.SetBool("Walk", false);
 				}
 
-				//攻撃中は歩調に合わせる数値を反映しないする
-				if(EnemyScript.CurrentState.Contains("Attack"))
+				//Walk中は歩調に合わせる数値を反映する
+				if(EnemyScript.CurrentState.Contains("Walk"))
 				{
 					//移動
-					CharaController.Move(MoveVec * Time.deltaTime);
+					CharaController.Move(MoveVec * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount)) * Time.deltaTime);
+	
 				}
 				else
 				{
 					//移動
-					CharaController.Move(MoveVec * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount)) * Time.deltaTime);
+					CharaController.Move(MoveVec * Time.deltaTime);
 				}
 
 				//回転値が入っていたら回転
@@ -431,7 +432,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 				CurrentAnimator.SetBool("Attack", false);
 
 				//アニメーターのフラグを下す
-				CurrentAnimator.SetBool("H_Attack", false);
+				CurrentAnimator.SetBool("H_Try", false);
 
 				//アニメーターのフラグを下す
 				CurrentAnimator.SetBool("Walk", false);
@@ -691,13 +692,13 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		RotateVec = HorizontalVector(PlayerCharacter, gameObject);
 
 		//アニメーターのフラグを立てる
-		CurrentAnimator.SetBool("H_Attack", true);
+		CurrentAnimator.SetBool("H_Try", true);
 
 		//ステートを反映させる為に１フレーム待つ
 		yield return null;
 
 		//フラグが降りるまで待機
-		while (EnemyScript.CurrentState.Contains("H_Attack"))
+		while (EnemyScript.CurrentState.Contains("H_Try"))
 		{
 			//待機
 			yield return null;

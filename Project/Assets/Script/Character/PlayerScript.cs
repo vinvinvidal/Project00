@@ -1126,6 +1126,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(JumpRotateVector), TurnSpeed * 2 * Time.deltaTime);
 			}
 		}
+		//スケベ中の移動制御
+		else if (CurrentState.Contains("H_"))
+		{
+			HorizonAcceleration = H_MoveVector;
+		}
 		//何もしていなければその場に止まる
 		else
 		{
@@ -1241,7 +1246,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else if(H)
 		{
 			//後ろから喰らった
-			if(Vector3.Angle(HorizontalVector(enemy , gameObject) , gameObject.transform.forward) > 90)
+			if(Vector3.Angle(gameObject.transform.forward, enemy.transform.forward) < 90)
 			{
 				//スケベフラグを立てる
 				H_Flag = true;
@@ -1250,16 +1255,25 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				CurrentAnimator.SetBool("H_Hit", true);
 
 				//オーバーライドコントローラにアニメーションクリップをセット
-				OverRideAnimator["H_Hit_void"] = H_HitAnimList[0];
+				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("BackHold00")).ToList()[0];
 
 				//オーバーライドコントローラにアニメーションクリップをセット
-				OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList[0];
-
+				OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("BackDamage00")).ToList()[0];
+				
 				//アニメーターを上書きしてアニメーションクリップを切り替える
 				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
 				//アニメーション遷移フラグを立てる
-				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);				
+				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+
+				//キャラクターのスケベ移動ベクトル設定
+				H_MoveVector = (enemy.transform.position + enemy.transform.forward * 0.25f) - gameObject.transform.position;
+
+				//キャラクターのスケベ回転値
+				H_RotateVector = enemy.transform.forward;
+
+				//スケベ攻撃位置合わせコルーチン呼び出し
+				StartCoroutine(H_PositionSetting());
 			}
 		}
 		//普通に喰らった
@@ -1306,6 +1320,25 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 	}
 
+	//スケベ攻撃を喰らった時に位置を合わせるコルーチン
+	IEnumerator H_PositionSetting()
+	{
+		//ループ制御bool
+		bool loopbool = true;
+
+		while (loopbool)
+		{
+			if (Vector3.SqrMagnitude(gameObject.transform.position - H_MoveVector) < 0.05f)
+			{
+				loopbool = false;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		H_MoveVector *= 0;
+	}
 	//特殊攻撃が成功した時の処理
 	IEnumerator SpecialArtsSuccess(GameObject enemy)
 	{
