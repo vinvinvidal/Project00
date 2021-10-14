@@ -26,6 +26,12 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 	//武器オブジェクト読み込み完了フラグ
 	private bool WeaponLoadCompleteFlag = false;
 
+	//顔テクスチャ読み込み完了フラグ
+	private bool BaseTexLoadCompleteFlag = false;
+
+	//頬テクスチャ読み込み完了フラグ
+	private bool CheekTexLoadCompleteFlag = false;
+
 	void Start()
     {
 		//準備完了待機コルーチン呼び出し
@@ -37,7 +43,27 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 			//自身のCharacterClassを抽出して処理
 			if (i.CharacterID == ID)
 			{
-				//スクリプトにClassのデータを渡す
+				//顔テクスチャ読み込み
+				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Texture/Character/" + ID + "/Face/", "_TexFace0" + ID + "Base", "tga", (object O) =>
+				{
+					//読み込んだオブジェクトを変換
+					gameObject.GetComponent<PlayerScript>().FaceBaseTex = O as Texture2D;
+
+					//読み込み完了フラグを立てる
+					BaseTexLoadCompleteFlag = true;
+				}));
+
+				//頬テクスチャ読み込み
+				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Texture/Character/" + ID + "/Face/", "_TexFace0" + ID + "Cheek", "tga", (object O) =>
+				{
+					//読み込んだオブジェクトを変換
+					gameObject.GetComponent<PlayerScript>().FaceCheekTex = O as Texture2D;
+
+					//読み込み完了フラグを立てる
+					CheekTexLoadCompleteFlag = true;
+				}));
+
+				//スクリプトにデータを渡す
 				ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllDamageList[ID], GameManagerScript.Instance.AllH_HitList[ID], GameManagerScript.Instance.AllH_DamageList[ID], GameManagerScript.Instance.AllH_BreakList[ID]));
 
 				//足のボーンにコンストレイント追加
@@ -196,7 +222,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 	IEnumerator AllReadyCoroutine()
 	{
 		//読み込み完了するまで回る
-		while (!(HairLoadCompleteFlag && CostumeLoadCompleteFlag && WeaponLoadCompleteFlag))
+		while (!(HairLoadCompleteFlag && CostumeLoadCompleteFlag && WeaponLoadCompleteFlag && BaseTexLoadCompleteFlag && CheekTexLoadCompleteFlag))
 		{
 			yield return null;
 		}

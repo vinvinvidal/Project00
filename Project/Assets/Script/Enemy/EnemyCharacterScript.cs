@@ -14,6 +14,9 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	//スケベヒットモーションListを受け取る、セッティングスクリプトから呼ばれる
 	void SetH_HitAnimList(List<AnimationClip> i);
 
+	//スケベヒットモーションListを受け取る、セッティングスクリプトから呼ばれる
+	void SetH_AttackAnimList(List<AnimationClip> i);
+
 	//攻撃情報Listを受け取る、セッティングスクリプトから呼ばれる
 	void SetAttackClassList(List<EnemyAttackClass> i);
 
@@ -24,7 +27,7 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	void PlayerAttackHit(ArtsClass i, int c);
 
 	//スケベ攻撃が当たった時に呼ばれる
-	void H_AttackHit();
+	void H_AttackHit(string ang , GameObject Player);
 
 	//引数でプレイヤーキャラクターを受け取る
 	void SetPlayerCharacter(GameObject c);
@@ -132,8 +135,14 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//全てのスケベヒットモーションList
 	public List<AnimationClip> H_HitAnimList { get; set; }
 
+	//全てのスケベアタックモーションList
+	public List<AnimationClip> H_AttackAnimList { get; set; }
+
 	//ダメージモーションを制御するステート
 	private int DamageState = 0;
+
+	//スケベモーションを制御するステート
+	private int H_State = 0;
 
 	//全ての移動値を合算した移動ベクトル
 	private Vector3 MoveMoment;
@@ -1205,6 +1214,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//アニメーターのスケベ攻撃ヒットフラグを下ろす
 				CurrentAnimator.SetBool("H_Hit", false);
 			}
+			//スケベ攻撃になった瞬間の処理
+			else if (CurrentState.Contains("-> H_Attack"))
+			{
+				//アニメーターのスケベ攻撃フラグを下ろす
+				CurrentAnimator.SetBool("H_Attack00", false);
+				CurrentAnimator.SetBool("H_Attack01", false);
+			}
 			//ホールドになった瞬間の処理
 			else if (CurrentState == "HoldDamage")
 			{
@@ -1586,6 +1602,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 				break;
 
+			case "H":
+
+				//靴の高さを表すskinWidthをキャラクターと合わせる
+				CharaController.skinWidth = 0.1f;
+
+				break;
+
 			case "Skin":
 
 				//靴の高さを表すskinWidthを消す
@@ -1689,19 +1712,28 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	}
 
 	//スケベ攻撃が当たった時に呼ばれる
-	public void H_AttackHit()
+	public void H_AttackHit(string ang , GameObject Player)
 	{
 		//後ろから当てた
-		if (Vector3.Angle(PlayerCharacter.transform.forward, gameObject.transform.forward) < 90)
+		if (ang == "Back")
 		{
 			//スケベフラグを立てる
 			H_Flag = true;
 
+			//キャラクターコントローラを設定
+			CharaControllerReset("H");
+
 			//アニメーターのフラグを立てる
 			CurrentAnimator.SetBool("H_Hit" , true);
 
+			//スケベ攻撃フラグを立てる
+			CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
+
 			//スケベ攻撃ヒットモーションを切り替える
 			OverRideAnimator["H_Hit_Void"] = H_HitAnimList.Where(a => a.name.Contains("BackHold00")).ToList()[0];
+
+			//スケベ攻撃ヒットモーションを切り替える
+			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("BackAttack00")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -1756,6 +1788,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//受け取ったListを変数に格納
 		H_HitAnimList = new List<AnimationClip>(i);
 	}
+
+	//スケベアタックモーションListを受け取る、セッティングスクリプトから呼ばれる
+	public void SetH_AttackAnimList(List<AnimationClip> i)
+	{
+		//受け取ったListを変数に格納
+		H_AttackAnimList = new List<AnimationClip>(i);
+	}	
 
 	//ダメージモーションListを受け取る、セッティングスクリプトから呼ばれる
 	public void SetDamageAnimList(List<AnimationClip> i)

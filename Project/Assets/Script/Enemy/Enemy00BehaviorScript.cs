@@ -261,8 +261,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//画面内に入っていたら処理
 			if(re)
 			{
-				//射程距離で攻撃中じゃなくて大体正面にいる
-				if (PlayerDistance < AttackDistance && PlayerAngle < 90 && !NowBehaviorDic["Attack00"])
+				//射程距離で攻撃中じゃなくて大体正面にいてスケベ中じゃない
+				if (PlayerDistance < AttackDistance && PlayerAngle < 90 && !NowBehaviorDic["Attack00"] && !GameManagerScript.Instance.H_Flag)
 				{
 					re = true;
 				}
@@ -299,8 +299,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 				//画面内に入っていたら処理
 				if (re)
 				{
-					//射程距離で大体正面にいる
-					if (PlayerDistance < AttackDistance && PlayerAngle < 90)
+					//射程距離で大体正面にいてスケベ中じゃない
+					if (PlayerDistance < AttackDistance && PlayerAngle < 90 && !GameManagerScript.Instance.H_Flag)
 					{
 						re = true;
 					}

@@ -42,18 +42,26 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 		//プレイヤーキャラクターのスクリプトを呼び出して攻撃が有効か判定
 		ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => AttackEnable = reciever.AttackEnable(H_AttackFlag));
 
-		//攻撃が有効なら処理
-		if (AttackEnable)
+		//普通の攻撃が有効
+		if (AttackEnable && !H_AttackFlag)
 		{
 			//プレイヤーキャラクターのスクリプトを呼び出す
-			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.HitEnemyAttack(HitArts, gameObject.transform.root.gameObject , H_AttackFlag));
+			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.HitEnemyAttack(HitArts, gameObject.transform.root.gameObject));
+		}
+		//スケベ攻撃が有効
+		else if(AttackEnable && H_AttackFlag)
+		{
+			//当たった方向を調べる
+			string HitAngle = Vector3.Angle(Hit.gameObject.transform.root.gameObject.transform.forward , gameObject.transform.root.gameObject.transform.forward) > 90 ? "Forward" : "Back";
 
-			//スケベ攻撃の場合は敵側のスクリプトを呼び出す
-			if (H_AttackFlag)
-			{
-				//敵キャラクターのスクリプトを呼び出す
-				ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit());
-			}
+			//ゲームマネージャーのスケベフラグを立てる
+			GameManagerScript.Instance.H_Flag = true;
+
+			//プレイヤーキャラクターのスクリプトを呼び出す
+			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit(HitAngle , gameObject.transform.root.gameObject));
+
+			//敵キャラクターのスクリプトを呼び出す
+			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit(HitAngle , Hit.gameObject.transform.root.gameObject));
 		}
 	}
 

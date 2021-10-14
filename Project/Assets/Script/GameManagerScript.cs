@@ -121,6 +121,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//メインカメラ
 	private GameObject MainCamera;
 
+	//スケベフラグ
+	public bool H_Flag = false;
+
 	//ロック対象になる敵を入れるList
 	private List<GameObject> LockEnemyList;
 

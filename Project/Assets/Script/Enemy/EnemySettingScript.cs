@@ -19,6 +19,9 @@ public class EnemySettingScript : GlobalClass
 	//スケベヒットモーション読み込み完了フラグ
 	private bool H_HitAnimLoadCompleteFlag = false;
 
+	//スケベアタックモーション読み込み完了フラグ
+	private bool H_AttackAnimLoadCompleteFlag = false;
+
 	//髪オブジェクト読み込み完了フラグ
 	private bool HairLoadCompleteFlag = false;
 
@@ -110,7 +113,7 @@ public class EnemySettingScript : GlobalClass
 		}));
 		
 		//スケベヒットモーション読み込み
-		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Anim/Enemy/" + ID + "/H_HIt/", "anim", (List<object> OBJList) =>
+		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Anim/Enemy/" + ID + "/H_Hit/", "anim", (List<object> OBJList) =>
 		{
 			//代入用変数宣言
 			List<AnimationClip> templist = new List<AnimationClip>();
@@ -128,7 +131,27 @@ public class EnemySettingScript : GlobalClass
 			H_HitAnimLoadCompleteFlag = true;
 
 		}));
-		
+
+		//スケベアタックモーション読み込み
+		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Anim/Enemy/" + ID + "/H_Attack/", "anim", (List<object> OBJList) =>
+		{
+			//代入用変数宣言
+			List<AnimationClip> templist = new List<AnimationClip>();
+
+			//読み込んだアニメーションをListにAdd
+			foreach (var i in OBJList)
+			{
+				templist.Add(i as AnimationClip);
+			}
+
+			//Listを敵スクリプトに送る
+			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetH_AttackAnimList(templist));
+
+			//読み込み完了フラグを立てる
+			H_AttackAnimLoadCompleteFlag = true;
+
+		}));	
+
 		//足のボーンにコンストレイント追加
 		DeepFind(gameObject, "R_FootBone").AddComponent<PositionConstraint>().constraintActive = true;
 		DeepFind(gameObject, "L_FootBone").AddComponent<PositionConstraint>().constraintActive = true;
@@ -148,6 +171,32 @@ public class EnemySettingScript : GlobalClass
 		//足首を繋げる
 		DeepFind(gameObject, "R_FootBone").GetComponent<PositionConstraint>().AddSource(R_FootConstraint);
 		DeepFind(gameObject, "L_FootBone").GetComponent<PositionConstraint>().AddSource(L_FootConstraint);
+
+
+		//クロス用コライダを腕に仕込む
+		foreach(CapsuleCollider i in gameObject.GetComponentsInChildren<CapsuleCollider>())
+		{
+			//右手
+			if(i.gameObject.name.Contains("_R"))
+			{
+				//ボーンを親にする
+				i.gameObject.transform.parent = DeepFind(gameObject, "R_LowerArmBone").transform;
+
+				//ローカルTRSをリセット
+				i.gameObject.transform.localPosition = Vector3.zero;
+				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			}
+			//左手
+			if (i.gameObject.name.Contains("_L"))
+			{
+				//ボーンを親にする
+				i.gameObject.transform.parent = DeepFind(gameObject, "L_LowerArmBone").transform;
+
+				//ローカルTRSをリセット
+				i.gameObject.transform.localPosition = Vector3.zero;
+				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			}
+		}
 
 		//性器オブジェクトにモザイクエフェクトを仕込む
 		foreach (Transform ii in gameObject.GetComponentsInChildren<Transform>())
@@ -363,6 +412,7 @@ public class EnemySettingScript : GlobalClass
 		while (!(
 			DamageAnimLoadCompleteFlag &&
 			H_HitAnimLoadCompleteFlag&&
+			H_AttackAnimLoadCompleteFlag &&
 			HairLoadCompleteFlag && 
 			UnderWearLoadCompleteFlag && 
 			InnerLoadCompleteFlag && 

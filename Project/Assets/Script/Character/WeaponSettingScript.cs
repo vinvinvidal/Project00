@@ -75,17 +75,21 @@ public class WeaponSettingScript : GlobalClass
 			count++;
 		}
 
-		//武器のクロス用コリジョン取得、代入用に配列に入れる
-		CapsuleCollider[] ColArray = { DeepFind(transform.root.gameObject, "WeaponClothCol").GetComponent<CapsuleCollider>() };
+		//クロスがあればコリジョンを処理
+		if(DeepFind(transform.root.gameObject, "WeaponClothCol") != null)
+		{
+			//武器のクロス用コリジョン取得、代入用に配列に入れる
+			CapsuleCollider[] ColArray = { DeepFind(transform.root.gameObject, "WeaponClothCol").GetComponent<CapsuleCollider>() , null ,null};
 
-		//武器のクロス用コリジョンを設定する
-		gameObject.GetComponentInChildren<Cloth>().capsuleColliders = ColArray;
+			//武器のクロス用コリジョンを設定する
+			gameObject.GetComponentInChildren<Cloth>().capsuleColliders = ColArray;
 
-		//武器のクロス用コリジョンをBodyのBoneの子にする
-		WeaponClothCol.transform.parent = DeepFind(gameObject.transform.root.gameObject, WeaponClothColName).transform;
+			//武器のクロス用コリジョンをBodyのBoneの子にする
+			WeaponClothCol.transform.parent = DeepFind(gameObject.transform.root.gameObject, WeaponClothColName).transform;
 
-		//ローカルTransformを設定
-		WeaponClothCol.transform.localPosition = WeaponClothColPos;
-		WeaponClothCol.transform.localRotation = Quaternion.Euler(WeaponClothColRotate);
+			//ローカルTransformを設定
+			WeaponClothCol.transform.localPosition = WeaponClothColPos;
+			WeaponClothCol.transform.localRotation = Quaternion.Euler(WeaponClothColRotate);
+		}
 	}
 }

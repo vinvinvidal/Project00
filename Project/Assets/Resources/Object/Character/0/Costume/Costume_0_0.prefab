@@ -636,7 +636,9 @@ Cloth:
     collisionSphereDistance: 0
   - maxDistance: 0.1
     collisionSphereDistance: 0
-  m_CapsuleColliders: []
+  m_CapsuleColliders:
+  - {fileID: 0}
+  - {fileID: 0}
   m_SphereColliders:
   - first: {fileID: 2650684794094059849}
     second: {fileID: 0}
@@ -1554,7 +1556,9 @@ Cloth:
     collisionSphereDistance: 3.4028235e+38
   - maxDistance: 0.3
     collisionSphereDistance: 3.4028235e+38
-  m_CapsuleColliders: []
+  m_CapsuleColliders:
+  - {fileID: 0}
+  - {fileID: 0}
   m_SphereColliders:
   - first: {fileID: 4542272844966370057}
     second: {fileID: 1431705512815140428}
@@ -3002,7 +3006,9 @@ Cloth:
     collisionSphereDistance: 3.4028235e+38
   - maxDistance: 0
     collisionSphereDistance: 3.4028235e+38
-  m_CapsuleColliders: []
+  m_CapsuleColliders:
+  - {fileID: 0}
+  - {fileID: 0}
   m_SphereColliders:
   - first: {fileID: 5993779791947572550}
     second: {fileID: 8405276169171509429}
