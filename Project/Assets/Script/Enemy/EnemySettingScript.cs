@@ -22,6 +22,9 @@ public class EnemySettingScript : GlobalClass
 	//スケベアタックモーション読み込み完了フラグ
 	private bool H_AttackAnimLoadCompleteFlag = false;
 
+	//スケベブレイクモーション読み込み完了フラグ
+	private bool H_BreakAnimLoadCompleteFlag = false;
+
 	//髪オブジェクト読み込み完了フラグ
 	private bool HairLoadCompleteFlag = false;
 
@@ -150,7 +153,27 @@ public class EnemySettingScript : GlobalClass
 			//読み込み完了フラグを立てる
 			H_AttackAnimLoadCompleteFlag = true;
 
-		}));	
+		}));
+
+		//スケベブレイクモーション読み込み
+		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Anim/Enemy/" + ID + "/H_Break/", "anim", (List<object> OBJList) =>
+		{
+			//代入用変数宣言
+			List<AnimationClip> templist = new List<AnimationClip>();
+
+			//読み込んだアニメーションをListにAdd
+			foreach (var i in OBJList)
+			{
+				templist.Add(i as AnimationClip);
+			}
+
+			//Listを敵スクリプトに送る
+			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetH_BreakAnimList(templist));
+
+			//読み込み完了フラグを立てる
+			H_BreakAnimLoadCompleteFlag = true;
+
+		}));
 
 		//足のボーンにコンストレイント追加
 		DeepFind(gameObject, "R_FootBone").AddComponent<PositionConstraint>().constraintActive = true;
@@ -413,6 +436,7 @@ public class EnemySettingScript : GlobalClass
 			DamageAnimLoadCompleteFlag &&
 			H_HitAnimLoadCompleteFlag&&
 			H_AttackAnimLoadCompleteFlag &&
+			H_BreakAnimLoadCompleteFlag &&
 			HairLoadCompleteFlag && 
 			UnderWearLoadCompleteFlag && 
 			InnerLoadCompleteFlag && 

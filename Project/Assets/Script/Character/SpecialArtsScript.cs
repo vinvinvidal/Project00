@@ -241,55 +241,8 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						HitEffect.transform.localPosition = new Vector3(0,0.75f,0.5f);
 						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));
 
-						//代入用List
-						List<Color> KBV = new List<Color>();
-						List<int> ATI = new List<int>();
-						List<int> DML = new List<int>();
-						List<int> CML = new List<int>();
-
-						//代入用Listにノックバックベクトルを入れる
-						KBV.Add(new Color(0, 0.5f, 15, 0.1f));
-
-						//代入用Listにダメージインデックスを入れる
-						ATI.Add(Arts.DamageIndex);
-
-						//代入用Listにダメージを入れる
-						DML.Add(Arts.Damage);
-
-						//代入用Listにチャージダメージを入れる
-						CML.Add(0);
-
-						//架空の技Classを作る
-						ArtsClass temparts = new ArtsClass
-						(
-							"",
-							"",
-							0,
-							"",
-							new List<Color>(),
-							DML,
-							CML,
-							new List<Color>(),
-							KBV,
-							"",
-							new List<int>(),
-							new List<int>(),
-							ATI,
-							new List<int>(),
-							CML,
-							new List<int>(),
-							false,
-							new List<string>(),
-							new List<Vector3>(),
-							new List<Vector3>(),
-							new List<float>(),
-							CML,
-							new List<Vector3>(),
-							0
-						);
-
 						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(temparts, 0));
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0.5f, 15, 0.1f) } , new List<int>() { Arts.Damage }, new List<int>() { Arts.DamageIndex }), 0));
 					}
 				);
 			}

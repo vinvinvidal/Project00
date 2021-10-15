@@ -36,6 +36,9 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	//特殊攻撃の対象を返す
 	GameObject SearchSpecialTarget(int i);
 
+	//バーチャルカメラを有効化する
+
+
 	//タイムスケール変更
 	void TimeScaleChange(float t, float s);
 }

@@ -17,6 +17,9 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	//スケベヒットモーションListを受け取る、セッティングスクリプトから呼ばれる
 	void SetH_AttackAnimList(List<AnimationClip> i);
 
+	//スケベブレイクモーションListを受け取る、セッティングスクリプトから呼ばれる
+	void SetH_BreakAnimList(List<AnimationClip> i);
+
 	//攻撃情報Listを受け取る、セッティングスクリプトから呼ばれる
 	void SetAttackClassList(List<EnemyAttackClass> i);
 
@@ -27,7 +30,10 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	void PlayerAttackHit(ArtsClass i, int c);
 
 	//スケベ攻撃が当たった時に呼ばれる
-	void H_AttackHit(string ang , GameObject Player);
+	void H_AttackHit(string ang , int men, GameObject Player);
+
+	//スケベ攻撃が解除された時に呼ばれる
+	void H_Break(string location);
 
 	//引数でプレイヤーキャラクターを受け取る
 	void SetPlayerCharacter(GameObject c);
@@ -137,6 +143,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//全てのスケベアタックモーションList
 	public List<AnimationClip> H_AttackAnimList { get; set; }
+
+	//全てのスケベブレイクモーションList
+	public List<AnimationClip> H_BreakAnimList { get; set; }
 
 	//ダメージモーションを制御するステート
 	private int DamageState = 0;
@@ -412,6 +421,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		AllStates.Add("H_Hit");		
 		AllStates.Add("H_Attack00");
 		AllStates.Add("H_Attack01");
+		AllStates.Add("H_Break");
 		AllStates.Add("DownLanding");
 		AllStates.Add("Damage00");
 		AllStates.Add("Damage01");
@@ -601,27 +611,34 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//強制移動ベクトル初期化
 		ForceMoveVector *= 0;
 
-		if (HitEnemy != null)
+		//スケベ中じゃない
+		if (!H_Flag)
 		{
-			if(HorizontalVector(gameObject, HitEnemy).sqrMagnitude > 3)
+			//他の敵と振れている
+			if (HitEnemy != null)
 			{
-				HitEnemy = null;
-			}
-			else if(gameObject.transform.position.y > HitEnemy.gameObject.transform.position.y)
-			{
-				ForceMoveVector = HorizontalVector(gameObject, HitEnemy).normalized;
+				//水平方向に３メートル以上離れている
+				if (HorizontalVector(gameObject, HitEnemy).sqrMagnitude > 3)
+				{
+					HitEnemy = null;
+				}
+				//上にいる時に動かす
+				else if (gameObject.transform.position.y > HitEnemy.gameObject.transform.position.y)
+				{
+					ForceMoveVector = HorizontalVector(gameObject, HitEnemy).normalized;
 
-				CharaControllerReset("Rise");
+					CharaControllerReset("Rise");
+				}
 			}
-		}
 
-		if (!HoldFlag && !SpecialFlag && !DownFlag && !H_Flag)
-		{
-			//近くにプレイヤーがいたら処理
-			if (HorizontalVector(gameObject, PlayerCharacter).sqrMagnitude < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y > -0.1f)
+			if (!HoldFlag && !SpecialFlag && !DownFlag)
 			{
-				//敵と自分までのベクトルで強制移動
-				ForceMoveVector += HorizontalVector(transform.gameObject, PlayerCharacter);
+				//近くにプレイヤーがいたら処理
+				if (HorizontalVector(gameObject, PlayerCharacter).sqrMagnitude < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y > -0.1f)
+				{
+					//敵と自分までのベクトルで強制移動
+					ForceMoveVector += HorizontalVector(transform.gameObject, PlayerCharacter);
+				}
 			}
 		}
 	}
@@ -1221,6 +1238,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				CurrentAnimator.SetBool("H_Attack00", false);
 				CurrentAnimator.SetBool("H_Attack01", false);
 			}
+			//スケベ攻撃が解除された瞬間の処理
+			else if (CurrentState.Contains("-> H_Break"))
+			{
+				//アニメーターのスケベ解除フラグを下ろす
+				CurrentAnimator.SetBool("H_Break", false);
+			}
 			//ホールドになった瞬間の処理
 			else if (CurrentState == "HoldDamage")
 			{
@@ -1712,32 +1735,43 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	}
 
 	//スケベ攻撃が当たった時に呼ばれる
-	public void H_AttackHit(string ang , GameObject Player)
+	public void H_AttackHit(string ang , int men , GameObject Player)
 	{
-		//後ろから当てた
-		if (ang == "Back")
-		{
-			//スケベフラグを立てる
-			H_Flag = true;
 
-			//キャラクターコントローラを設定
-			CharaControllerReset("H");
+		//スケベフラグを立てる
+		H_Flag = true;
 
-			//アニメーターのフラグを立てる
-			CurrentAnimator.SetBool("H_Hit" , true);
+		//キャラクターコントローラを設定
+		CharaControllerReset("H");
 
-			//スケベ攻撃フラグを立てる
-			CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("H_Hit" , true);
 
-			//スケベ攻撃ヒットモーションを切り替える
-			OverRideAnimator["H_Hit_Void"] = H_HitAnimList.Where(a => a.name.Contains("BackHold00")).ToList()[0];
+		//スケベ攻撃フラグを立てる
+		CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
 
-			//スケベ攻撃ヒットモーションを切り替える
-			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("BackAttack00")).ToList()[0];
+		//スケベ攻撃ヒットモーションを切り替える
+		OverRideAnimator["H_Hit_Void"] = H_HitAnimList.Where(a => a.name.Contains(ang + men)).ToList()[0];
 
-			//アニメーターを上書きしてアニメーションクリップを切り替える
-			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
-		}
+		//スケベ攻撃ヒットモーションを切り替える
+		OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains(ang + men)).ToList()[0];
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+	}
+
+	//スケベ攻撃が解除された時に呼ばれる
+	public void H_Break(string location)
+	{
+		//アニメーターのスケベ解除フラグを立てる
+		CurrentAnimator.SetBool("H_Break", true);
+
+		//使用するモーションに差し替え
+		OverRideAnimator["H_Break_Void"] = H_BreakAnimList.Where(a => a.name.Contains(location)).ToList()[0];
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 	}
 
 	//攻撃コライダ移動開始処理、アニメーションクリップのイベントから呼ばれる
@@ -1794,7 +1828,14 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	{
 		//受け取ったListを変数に格納
 		H_AttackAnimList = new List<AnimationClip>(i);
-	}	
+	}
+
+	//スケベブレイクモーションListを受け取る、セッティングスクリプトから呼ばれる
+	public void SetH_BreakAnimList(List<AnimationClip> i)
+	{
+		//受け取ったListを変数に格納
+		H_BreakAnimList = new List<AnimationClip>(i);
+	}
 
 	//ダメージモーションListを受け取る、セッティングスクリプトから呼ばれる
 	public void SetDamageAnimList(List<AnimationClip> i)

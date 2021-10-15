@@ -51,6 +51,9 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 		//スケベ攻撃が有効
 		else if(AttackEnable && H_AttackFlag)
 		{
+			//将来的に周囲にいる敵の数を入れる、多人数スケベ
+			int men = 0;
+
 			//当たった方向を調べる
 			string HitAngle = Vector3.Angle(Hit.gameObject.transform.root.gameObject.transform.forward , gameObject.transform.root.gameObject.transform.forward) > 90 ? "Forward" : "Back";
 
@@ -58,10 +61,10 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 			GameManagerScript.Instance.H_Flag = true;
 
 			//プレイヤーキャラクターのスクリプトを呼び出す
-			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit(HitAngle , gameObject.transform.root.gameObject));
+			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit(HitAngle , men ,gameObject.transform.root.gameObject));
 
 			//敵キャラクターのスクリプトを呼び出す
-			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit(HitAngle , Hit.gameObject.transform.root.gameObject));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit(HitAngle , men , Hit.gameObject.transform.root.gameObject));
 		}
 	}
 

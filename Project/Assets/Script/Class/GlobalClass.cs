@@ -43,6 +43,41 @@ public class GlobalClass : MonoBehaviour
 		return new Vector3(TargetOBJ.transform.position.x, FromOBJ.transform.position.y, TargetOBJ.transform.position.z) - FromOBJ.transform.position;
 	}
 
+	//適当なArtsClassを作って返す関数
+	public ArtsClass MakeInstantArts(List<Color> KBV, List<int> DML, List<int> ATI)
+	{
+		//架空の技Classを作る
+		ArtsClass temparts = new ArtsClass
+		(
+			"",
+			"",
+			0,
+			"",
+			new List<Color>(),
+			DML,
+			new List<int>() { 0 },
+			new List<Color>(),
+			KBV,
+			"",
+			new List<int>(),
+			new List<int>(),
+			ATI,
+			new List<int>(),
+			new List<int>() { 0 },
+			new List<int>(),
+			false,
+			new List<string>(),
+			new List<Vector3>(),
+			new List<Vector3>(),
+			new List<float>(),
+			new List<int>() { 0 },
+			new List<Vector3>(),
+			0
+		);
+
+		return temparts;
+	}
+
 	/*
 	//引数のフォルダ内のサブフォルダ全てのパスを返す関数
 	public List<string> GetSubFolders(string p)

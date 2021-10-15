@@ -243,7 +243,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}));
 
 		//攻撃00
-		BehaviorList.Add(new BehaviorStruct("Attack00", 1, () =>
+		BehaviorList.Add(new BehaviorStruct("Attack00", 50, () =>
 		//攻撃00の処理
 		{
 			//攻撃00コルーチン呼び出し
@@ -278,7 +278,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}));
 
 		//スケベ攻撃
-		BehaviorList.Add(new BehaviorStruct("H_Attack", 300, () =>
+		BehaviorList.Add(new BehaviorStruct("H_Attack", 3000, () =>
 		//スケベ攻撃の処理
 		{
 			//スケベ攻撃コルーチン呼び出し

@@ -28,7 +28,7 @@ using System;
 		void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy);
 
 		//スケベ攻撃が当たった時の処理
-		void H_AttackHit(string ang , GameObject enemy);
+		void H_AttackHit(string ang , int men , GameObject enemy);
 
 		//武器をセットする
 		void SetWeapon(GameObject w);
@@ -71,6 +71,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//攻撃時にロックした敵オブジェクト
 	private GameObject LockEnemy;
+
+	//スケベ攻撃をしてきた敵オブジェクト
+	private GameObject H_Enemy;
 
 	//キャラクターのID
 	private int CharacterID;
@@ -551,6 +554,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//攻撃時にロックした敵初期化
 		LockEnemy = null;
 
+		//スケベ攻撃をしてきた敵初期化
+		H_Enemy = null;
+
 		//ターゲットしている敵との距離初期化
 		EnemyDistance = 0;
 
@@ -1026,7 +1032,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if (CurrentState.Contains("H_"))
 		{
 			//敵に合わせて移動
-			HorizonAcceleration = H_MoveVector * PlayerDashSpeed;
+			HorizonAcceleration = H_MoveVector * PlayerDashSpeed * 2;
 
 			//敵に合わせて回転
 			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(H_RotateVector), TurnSpeed * Time.deltaTime);
@@ -1361,13 +1367,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//スケベ攻撃が当たった時の処理
-	public void H_AttackHit(string ang , GameObject enemy)
+	public void H_AttackHit(string ang , int men ,GameObject enemy)
 	{
 		//スケベフラグを立てる
 		H_Flag = true;
 
 		//スケベ状況を代入
-		H_Location = ang;
+		H_Location = ang + men;
+		
+		//スケベ攻撃をしてきた敵代入
+		H_Enemy = enemy;
 
 		//顔テクスチャを頬テクスチャに差し替え
 		FaceMaterial.SetTexture("_TexFaceBase", FaceCheekTex);
@@ -1375,45 +1384,45 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("H_Hit", true);
 
+		//これ以上イベントを起こさないためにAttackステートを一時停止
+		CurrentAnimator.SetFloat("AttackSpeed00", 0.0f);
+		CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
+
 		//敵のクロス用コライダを自身のクロスオブジェクトに設定
-		foreach(var i in gameObject.GetComponentsInChildren<Cloth>())
+		foreach (var i in gameObject.GetComponentsInChildren<Cloth>())
 		{
 			//クロスのカプセルコライダーを取得
 			CapsuleCollider[] ColArray = i.capsuleColliders;
 
 			//配列に腕のコライダを設定
-			ColArray[ColArray.Length - 2] = DeepFind(enemy, "ClothCol_R").GetComponent<CapsuleCollider>();
-			ColArray[ColArray.Length - 1] = DeepFind(enemy, "ClothCol_L").GetComponent<CapsuleCollider>();
+			ColArray[ColArray.Length - 2] = DeepFind(H_Enemy, "ClothCol_R").GetComponent<CapsuleCollider>();
+			ColArray[ColArray.Length - 1] = DeepFind(H_Enemy, "ClothCol_L").GetComponent<CapsuleCollider>();
 
 			//クロスのコライダに反映
 			i.capsuleColliders = ColArray;
 		}
 
-		//後ろから当てた
-		if (H_Location == "Back")
-		{
-			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("BackHold00")).ToList()[0];
+		//オーバーライドコントローラにアニメーションクリップをセット
+		OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains(ang + men)).ToList()[0];
 
-			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("Back00")).ToList()[0];
+		//オーバーライドコントローラにアニメーションクリップをセット
+		OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains(ang + men)).ToList()[0];
 
-			//アニメーターを上書きしてアニメーションクリップを切り替える
-			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
-			//アニメーション遷移フラグを立てる
-			CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+		//アニメーション遷移フラグを立てる
+		CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
 
-			//キャラクターのスケベ回転値
-			H_RotateVector = enemy.transform.forward;
+		//キャラクターのスケベ回転値
+		H_RotateVector = H_Enemy.transform.forward;
 
-			//スケベ攻撃位置合わせコルーチン呼び出し
-			StartCoroutine(H_PositionSetting(enemy));
-		}
+		//スケベ攻撃位置合わせコルーチン呼び出し
+		StartCoroutine(H_PositionSetting());
 	}
 
 	//スケベ攻撃を喰らった時に位置を合わせるコルーチン
-	IEnumerator H_PositionSetting(GameObject enemy)
+	IEnumerator H_PositionSetting()
 	{
 		//ループ制御bool
 		bool loopbool = true;
@@ -1424,7 +1433,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		while (loopbool)
 		{
 			//キャラクターのスケベ移動ベクトル設定
-			H_MoveVector = (enemy.transform.position + enemy.transform.forward * 0.25f) - gameObject.transform.position;
+			H_MoveVector = (H_Enemy.transform.position + H_Enemy.transform.forward * 0.25f) - gameObject.transform.position;
 
 			//指定の位置まで移動したらフラグを下ろしてループを抜ける、保険として1秒経過で抜ける
 			if (H_MoveVector.sqrMagnitude < 0.0025f || (t + 1 < Time.time))
@@ -1439,6 +1448,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベ移動ベクトル初期化
 		H_MoveVector *= 0;
 	}
+
 	//特殊攻撃が成功した時の処理
 	IEnumerator SpecialArtsSuccess(GameObject enemy)
 	{
@@ -2556,6 +2566,27 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		HoldFlag = false;
 	}
 
+	//スケベ状態を解除する、アニメーションクリップから呼ばれる
+	public void H_Break()
+	{
+		//後ろ１人
+		if(H_Location.Contains("Back"))
+		{
+			//ヒットエフェクトインスタンス生成
+			GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect00").ToList()[0]);
+
+			//プレイヤーの子にする
+			HitEffect.transform.parent = gameObject.transform;
+
+			//PRS設定
+			HitEffect.transform.localPosition = new Vector3(0, 0.75f, -0.5f);
+			HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(180, 0, 0));
+
+			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
+			ExecuteEvents.Execute<EnemyCharacterInterface>(H_Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, 0.1f) }, new List<int>() { 0 }, new List<int>() { 1 }), 0));
+		}
+	}
+
 	//技格納マトリクス初期化関数
 	private void ArtsMatrixSetUp()
 	{
@@ -2890,7 +2921,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else if (CurrentState.Contains("H_Damage"))
 		{
 			//ブレイクカウントが達した
-			if(BreakCount > 50)
+			if(BreakCount > 10)
 			{
 				//フラグを下ろす
 				//H_Flag = false;
@@ -2907,15 +2938,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//ブレイクカウントリセット
 				BreakCount = 0;
 
-				//後
-				if (H_Location == "Back")
-				{
-					//オーバーライドコントローラにアニメーションクリップをセット
-					OverRideAnimator["H_Break_void"] = GameManagerScript.Instance.AllH_BreakList[CharacterID].Where(a => a.name.Contains("Back")).ToArray()[0];
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["H_Break_void"] = H_BreakAnimList.Where(a => a.name.Contains(H_Location)).ToArray()[0];
 
-					//アニメーターを上書きしてアニメーションクリップを切り替える
-					CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
-				}
+				//アニメーターを上書きしてアニメーションクリップを切り替える
+				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+				//敵側のスケベ解除スクリプト呼び出し
+				ExecuteEvents.Execute<EnemyCharacterInterface>(H_Enemy, null, (reciever, eventData) => reciever.H_Break(H_Location));
 			}
 		}
 	}
@@ -3363,6 +3393,24 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Hit", false);
+
+			//コライダを非アクティブ化
+			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+
+			//入力フラグを全て下す関数呼び出し
+			InputReset();
+
+			//遷移フラグを全て下す関数呼び出し
+			TransitionReset();
+
+			//ホールドフラグを下す
+			HoldFlag = false;
+
+			//ホールド状態を解除
+			HoldBreak();
+
+			//ロックを解除
+			LockEnemy = null;
 		}
 		//H_Breakになった瞬間の処理
 		else if (s.Contains("-> H_Break"))
@@ -3434,6 +3482,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//メインカメラのロックも外す
 			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 		}
+
+		//スケベ攻撃をしてきた敵初期化
+		H_Enemy = null;
 
 		//入力フラグを全て下す関数呼び出し
 		InputReset();
