@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -35,9 +36,6 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 
 	//特殊攻撃の対象を返す
 	GameObject SearchSpecialTarget(int i);
-
-	//バーチャルカメラを有効化する
-
 
 	//タイムスケール変更
 	void TimeScaleChange(float t, float s);
@@ -124,6 +122,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//メインカメラ
 	private GameObject MainCamera;
 
+	//バーチャルカメラ
+	private CinemachineVirtualCamera VCamera;
+
 	//スケベフラグ
 	public bool H_Flag = false;
 
@@ -132,9 +133,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//タイムスケール係数
 	float TimeScaleNum = 1;
-
-
-
 
 
 	//存在している全てのキャラクターリスト
@@ -272,6 +270,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//メインカメラ取得
 		MainCamera = DeepFind(gameObject, "CameraRoot");
+
+		//バーチャルカメラ取得
+		VCamera = DeepFind(gameObject , "vcam").GetComponent<CinemachineVirtualCamera>();
 
 		//FPS測定用変数初期化
 		FPS = 0;

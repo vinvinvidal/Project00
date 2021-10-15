@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 using System;
+using Cinemachine;
 
 /*
 +	//角度がきつい坂で滑り落ちる処理
@@ -18,8 +19,8 @@ using System;
 	
 */
 
-	//他のスクリプトから関数を呼ぶ為のインターフェイス
-	public interface PlayerScriptInterface : IEventSystemHandler
+//他のスクリプトから関数を呼ぶ為のインターフェイス
+public interface PlayerScriptInterface : IEventSystemHandler
 	{
 		//プレイヤーの攻撃が敵に当たった時の処理
 		void HitAttack(GameObject e, int AttackIndex);
@@ -344,6 +345,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//赤頬テクスチャ		
 	public Texture2D FaceCheekTex { get; set; }
 
+	//スケベ用カメラワークオブジェクト
+	private GameObject H_CameraOBJ;
+
 
 
 
@@ -490,6 +494,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//メインカメラのトランスフォーム取得
 		MainCameraTransform = GameObject.Find("MainCamera").transform;
+
+		//スケベ用カメラワークオブジェクト取得
+		H_CameraOBJ = DeepFind(gameObject , "H_Camera");
 
 		//移動ベクトル用ダミー取得
 		PlayerMoveAxis = DeepFind(transform.gameObject, "PlayerMoveAxis");
@@ -1416,6 +1423,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//キャラクターのスケベ回転値
 		H_RotateVector = H_Enemy.transform.forward;
+
+		//スケベカメラワーク再生
+		H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains("_" + H_Location)).ToList()[0]));
 
 		//スケベ攻撃位置合わせコルーチン呼び出し
 		StartCoroutine(H_PositionSetting());
@@ -2585,6 +2595,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
 			ExecuteEvents.Execute<EnemyCharacterInterface>(H_Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, 0.1f) }, new List<int>() { 0 }, new List<int>() { 1 }), 0));
 		}
+
+		//スケベカメラ無効化、このままじゃ階段とかで別のヴァーチャルカメラが有効な時に上手くいかないのでとりあえず
+		H_CameraOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;
 	}
 
 	//技格納マトリクス初期化関数
@@ -2923,9 +2936,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ブレイクカウントが達した
 			if(BreakCount > 10)
 			{
-				//フラグを下ろす
-				//H_Flag = false;
-
 				//アニメーターのフラグを立てる
 				CurrentAnimator.SetBool("H_Break", true);
 
@@ -2946,6 +2956,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//敵側のスケベ解除スクリプト呼び出し
 				ExecuteEvents.Execute<EnemyCharacterInterface>(H_Enemy, null, (reciever, eventData) => reciever.H_Break(H_Location));
+
+				//ブレイクのカメラワーク設定
+				H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains("_Break" + H_Location)).ToList()[0]);
+
+				//カメラワーク持続フラグを下ろして次のカメラワークへ
+				H_CameraOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;			
 			}
 		}
 	}

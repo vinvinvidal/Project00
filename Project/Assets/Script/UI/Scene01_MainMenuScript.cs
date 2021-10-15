@@ -90,14 +90,12 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		//アニメーター取得
 		UIAnim = GetComponent<Animator>();
-		/*
-		//カメラの位置を移動
-		Transform CameraTransform = GameObject.Find("CameraRoot").GetComponent<Transform>();
-		CameraTransform.position = new Vector3(-12f, 6.5f, 1.4f);
-		CameraTransform.rotation = Quaternion.Euler(new Vector3(30, 140, 0));
-		*/
+
 		//カメラのメニューモード初期設定呼び出し
 		ExecuteEvents.Execute<MainCameraScriptInterface>(CameraRootOBJ, null, (reciever, eventData) => reciever.MenuCameraSetting());
+
+		//カメラワーク再生
+		GameObject.Find("CameraWork").GetComponent<CinemachineCameraScript>().PlayCameraWork(0);
 
 		//スクリーンエフェクトで白フェード
 		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) => { g.GetComponent<Renderer>().enabled = false; }));

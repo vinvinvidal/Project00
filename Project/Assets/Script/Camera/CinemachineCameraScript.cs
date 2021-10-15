@@ -13,10 +13,7 @@ public class CinemachineCameraScript : GlobalClass
 	private CinemachineVirtualCamera Vcam;
 
 	//使用するカメラワークオブジェクト
-	private List<GameObject> CameraWorkList;
-
-	//カメラワークインデックス
-	private int Index = 0;
+	public List<GameObject> CameraWorkList { get; set; }
 
 	//トラッキングポジション
 	private CinemachineTrackedDolly PathPos;
@@ -24,24 +21,24 @@ public class CinemachineCameraScript : GlobalClass
 	//カメラワーク持続フラグ
 	public bool KeepCameraFlag { get; set; } = true;
 
+	//インデックス指定用
+	public int SpecifyIndex { get; set; }
+
 	void Start()
 	{
 		//メインカメラ取得
 		MainCamera = GameObject.Find("MainCamera");
 
-		//メインカメラのシネマシン有効無効切り替え
-		MainCamera.GetComponent<CinemachineBrain>().enabled = true;
-
 		//カメラワークオブジェクトを取得
 		CameraWorkList = new List<GameObject>(gameObject.transform.root.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("CameraWorkOBJ")).ToList().Select(b => b.gameObject).ToList());
-
-		//カメラワーク再生関数呼び出し
-		PlayCameraWork();
 	}
 
 	//カメラワーク再生関数
-	private void PlayCameraWork()
+	public void PlayCameraWork(int Index)
 	{
+		//メインカメラのシネマシン有効無効切り替え
+		MainCamera.GetComponent<CinemachineBrain>().enabled = true;
+
 		//カメラワーク持続フラグ初期化
 		KeepCameraFlag = true;
 
@@ -81,30 +78,30 @@ public class CinemachineCameraScript : GlobalClass
 		PathPos = Vcam.GetCinemachineComponent<CinemachineTrackedDolly>();
 
 		//トラッキング制御コルーチン呼び出し
-		StartCoroutine(TrackingMoveCoroutine(CameraWorkList[Index].GetComponent<CameraWorkScript>().CameraMode));
+		StartCoroutine(TrackingMoveCoroutine(CameraWorkList[Index].GetComponent<CameraWorkScript>().CameraMode, Index));
 
 		//持続条件によって呼び出すコルーチンを切り替える
 		switch (CameraWorkList[Index].GetComponent<CameraWorkScript>().KeepMode)
 		{
 			//外部からフラグ変更されるまで持続
 			case 0:
-				StartCoroutine(FlagModeCoroutine());
+				StartCoroutine(FlagModeCoroutine(Index));
 				break;
 
 			//持続時間が経過するまで持続
 			case 1:
-				StartCoroutine(TimeModeCoroutine());
+				StartCoroutine(TimeModeCoroutine(Index));
 				break;
 
 			//トラッキングが終了するまで持続
 			case 2:
-				StartCoroutine(TrackingEndModeCoroutine());
+				StartCoroutine(TrackingEndModeCoroutine(Index));
 				break;
 		}
 	}
 
 	//トラッキング制御コルーチン呼び出し
-	IEnumerator TrackingMoveCoroutine(int i)
+	IEnumerator TrackingMoveCoroutine(int i , int Index)
 	{
 		//片道
 		if (i == 1)
@@ -139,7 +136,7 @@ public class CinemachineCameraScript : GlobalClass
 	}
 
 	//トラッキングが終了するまで持続コルーチン
-	IEnumerator TrackingEndModeCoroutine()
+	IEnumerator TrackingEndModeCoroutine(int Index)
 	{
 		//トラッキングポジションを初期位置に移動
 		PathPos.m_PathPosition = 0;
@@ -151,11 +148,11 @@ public class CinemachineCameraScript : GlobalClass
 		}
 
 		//カメラワーク終了関数呼び出し
-		StartCoroutine(EndCameraWork());
+		StartCoroutine(EndCameraWork(Index));
 	}
 
 	//持続時間が経過するまで持続コルーチン
-	IEnumerator TimeModeCoroutine()
+	IEnumerator TimeModeCoroutine(int Index)
 	{
 		//終了時刻をキャッシュ
 		float t = Time.time + CameraWorkList[Index].GetComponent<CameraWorkScript>().KeepTime;
@@ -167,11 +164,11 @@ public class CinemachineCameraScript : GlobalClass
 		}
 
 		//カメラワーク終了関数呼び出し
-		StartCoroutine(EndCameraWork());
+		StartCoroutine(EndCameraWork(Index));
 	}
 
 	//外部からフラグ変更されるまで持続コルーチン
-	IEnumerator FlagModeCoroutine()
+	IEnumerator FlagModeCoroutine(int Index)
 	{
 		//フラグが降りるまで持続
 		while (KeepCameraFlag)
@@ -180,14 +177,19 @@ public class CinemachineCameraScript : GlobalClass
 		}
 
 		//カメラワーク終了関数呼び出し
-		StartCoroutine(EndCameraWork());
+		StartCoroutine(EndCameraWork(Index));
 	}
 
 	//カメラワーク終了関数
-	IEnumerator EndCameraWork()
+	IEnumerator EndCameraWork(int Index)
 	{
+		int NextIndex = Index;
+
+		//メインカメラのシネマシン有効無効切り替え
+		MainCamera.GetComponent<CinemachineBrain>().enabled = false;
+
 		//ここで終わりなら処理しない
-		if(CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode != 10)
+		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode != 10)
 		{
 			//カメラワーク持続フラグを下す
 			KeepCameraFlag = false;
@@ -197,17 +199,22 @@ public class CinemachineCameraScript : GlobalClass
 			{
 				//次のインデックス
 				case 0:
-					Index++;
+					NextIndex++;
 					break;
 
 				//最初に戻る
 				case 1:
-					Index = 0;
+					NextIndex = 0;
 					break;
 
 				//ランダム
 				case 2:
-					Index = Random.Range(0, CameraWorkList.Count);
+					NextIndex = Random.Range(0, CameraWorkList.Count);
+					break;
+
+				//インデックス指定
+				case 3:
+					NextIndex = SpecifyIndex;
 					break;
 			}
 
@@ -218,7 +225,7 @@ public class CinemachineCameraScript : GlobalClass
 			Vcam.enabled = false;
 
 			//次のカメラワーク再生
-			PlayCameraWork();
+			PlayCameraWork(NextIndex);
 		}
 	}
 }

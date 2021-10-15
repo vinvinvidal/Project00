@@ -33,6 +33,7 @@ public class CameraWorkScript : MonoBehaviour
 		0:次のインデックス
 		1:最初に戻る
 		2:ランダム
+		3:インデックス指定
 		10:ここで終わり
 	*/
 
