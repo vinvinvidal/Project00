@@ -987,7 +987,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CameraMode: 1
   KeepMode: 2
-  TransrationMode: 0
+  TransrationMode: 1
   NextCameraWorkMode: 0
   KeepTime: 0
   MoveSpeed: 0.05

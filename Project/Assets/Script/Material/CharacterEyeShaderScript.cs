@@ -10,6 +10,9 @@ public interface CharacterEyeShaderScriptInterface : IEventSystemHandler
 {
 	//視線を向ける先の座標を受け取る関数
 	void GetLookPos(Vector3 vec);
+
+	//ダイレクトモードを設定する関数
+	void SetDirectMode(bool b);
 }
 
 public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptInterface
@@ -53,6 +56,18 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 	float HeadDotEyePosY;
 	float HeadDotEyePosZ;
 
+	//ダイレクトモードフラグ
+	public bool DirectFlag { get; set; } = false;
+
+	//ダイレクトモードに使うタイリング値
+	public Vector2 DirectEyeTiling { get; set; } = new Vector2(1, 1);
+
+	//ダイレクトモードに使うオフセット値
+	public Vector2 DirectEyeOffset { get; set; } = new Vector2(0, 0);
+
+	//視線を滑らかに変更するベロシティ
+	public float DirectEyeVelocity { get; set; } = 0;
+
 	void Start()
     {
 		//マテリアル取得、マルチの場合1番目のマテリアルを取得するので注意
@@ -88,12 +103,31 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 		EyeMaterial.SetFloat("Eye_HiLightRotationSin", HeadDotLigntY + HeadDotLigntZ * 0.75f);
 		EyeMaterial.SetFloat("Eye_HiLightRotationCos", HeadDotLigntX + HeadDotLigntZ * 0.25f);
 
-		//顔の方向と注視点からのベクトルの内積を求める
-		EyeOffset.x = Vector3.Dot(HeadAngle.right, EyeVec.normalized) * -0.15f;
-		EyeOffset.y = Vector3.Dot(HeadAngle.up, EyeVec.normalized) * 0.12f;
-		
-		//視線を動かす
-		EyeMaterial.SetTextureOffset("_EyeTex", EyeOffset);
+		//ダイレクトモード
+		if (DirectFlag)
+		{
+			//視線を動かす
+			EyeMaterial.SetTextureScale("_EyeTex", new Vector2(Mathf.Lerp(EyeMaterial.GetTextureScale("_EyeTex").x, DirectEyeTiling.x, DirectEyeVelocity) , Mathf.Lerp(EyeMaterial.GetTextureScale("_EyeTex").y, DirectEyeTiling.y, DirectEyeVelocity)));
+			EyeMaterial.SetTextureOffset("_EyeTex", new Vector2(Mathf.Lerp(EyeMaterial.GetTextureOffset("_EyeTex").x, DirectEyeOffset.x, DirectEyeVelocity), Mathf.Lerp(EyeMaterial.GetTextureOffset("_EyeTex").y, DirectEyeOffset.y, DirectEyeVelocity)));
+
+			//ベロシティカウントアップ
+			DirectEyeVelocity += Time.deltaTime * 0.75f;
+
+			//1になったら止める
+			if (DirectEyeVelocity >= 1)
+			{
+				DirectEyeVelocity = 1;
+			}
+		}
+		else
+		{
+			//顔の方向と注視点からのベクトルの内積を求める
+			EyeOffset.x = Vector3.Dot(HeadAngle.right, EyeVec.normalized) * -0.15f;
+			EyeOffset.y = Vector3.Dot(HeadAngle.up, EyeVec.normalized) * 0.12f;
+
+			//視線を動かす
+			EyeMaterial.SetTextureOffset("_EyeTex", EyeOffset);
+		}
 	}
 
 	//視線を向ける先の座標を受け取る関数、メッセージシステムから呼ばれる
@@ -101,5 +135,18 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 	{
 		//受け取ったポジションから頭までのベクトルを変数に代入
 		EyeVec = HeadAngle.transform.position - vec;		
+	}
+
+	//ダイレクトモードを設定する関数
+	public void SetDirectMode(bool b)
+	{
+		//フラグを反映
+		DirectFlag = b;
+
+		//ダイレクトモード解除なら目の大きさをリセットする
+		if(!DirectFlag)
+		{
+			EyeMaterial.SetTextureScale("_EyeTex", new Vector2(1, 1));
+		}
 	}
 }

@@ -496,91 +496,94 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void LateUpdate()
 	{
-		//ループカウント
-		int count = 0;
-
-		//揺らし具合を設定
-		AnimNoiseVol = 1f;
-
-		//打ち上げ
-		if (RiseFlag || HoldFlag || BlownFlag)
+		if (!H_Flag)
 		{
-			//打ち上げ時に揺らすポーンListを回す
-			foreach (GameObject i in RiseAnimNoiseBone)
-			{
-				//揺らし具合を設定
-				AnimNoiseVol = 5f;
+			//ループカウント
+			int count = 0;
 
+			//揺らし具合を設定
+			AnimNoiseVol = 1f;
+
+			//打ち上げ
+			if (RiseFlag || HoldFlag || BlownFlag)
+			{
+				//打ち上げ時に揺らすポーンListを回す
+				foreach (GameObject i in RiseAnimNoiseBone)
+				{
+					//揺らし具合を設定
+					AnimNoiseVol = 5f;
+
+					//ノイズ生成
+					Vector3 NoiseVec1 = new Vector3
+					(
+						Mathf.PerlinNoise(Time.time * 0.25f * AnimNoiseVol, RiseAnimNoiseSeedList[count].x) - 0.5f,
+						Mathf.PerlinNoise(Time.time * 0.25f * AnimNoiseVol, RiseAnimNoiseSeedList[count].y) - 0.5f,
+						Mathf.PerlinNoise(Time.time * 0.25f * AnimNoiseVol, RiseAnimNoiseSeedList[count].z) - 0.5f
+					);
+
+					//ノイズ生成
+					Vector3 NoiseVec2 = new Vector3
+					(
+						Mathf.PerlinNoise(Time.time * AnimNoiseVol, RiseAnimNoiseSeedList[count].x) - 0.5f,
+						Mathf.PerlinNoise(Time.time * AnimNoiseVol, RiseAnimNoiseSeedList[count].y) - 0.5f,
+						Mathf.PerlinNoise(Time.time * AnimNoiseVol, RiseAnimNoiseSeedList[count].z) - 0.5f
+					);
+
+					//打ち上げ揺らし具合を設定
+					if (RiseFlag)
+					{
+						//地面から離れているほど揺らす
+						AnimNoiseVol = 3f * GroundDistance;
+
+						//ボーンにパーリンノイズの回転を加えて揺らす
+						i.transform.localRotation *= Quaternion.Euler((NoiseVec1 + NoiseVec2 * 0.25f) * 5f * AnimNoiseVol);
+					}
+					//ホールド時は小刻みに揺らす
+					else if (HoldFlag || BlownFlag)
+					{
+						AnimNoiseVol = 10f;
+
+						//ボーンにパーリンノイズの回転を加えて揺らす
+						i.transform.localRotation *= Quaternion.Euler((NoiseVec1 + NoiseVec2) * AnimNoiseVol);
+					}
+
+					//カウントアップ
+					count++;
+				}
+
+				//LateUpdateで動かすとコンストレイントが利かないので手動で足首を繋げる
+				DeepFind(gameObject, "R_FootBone").transform.position = DeepFind(gameObject, "R_LowerLegBone_end").transform.position;
+				DeepFind(gameObject, "L_FootBone").transform.position = DeepFind(gameObject, "L_LowerLegBone_end").transform.position;
+			}
+
+			//ループカウント
+			count = 0;
+
+			//揺らすポーンListを回す
+			foreach (GameObject i in AnimNoiseBone)
+			{
 				//ノイズ生成
 				Vector3 NoiseVec1 = new Vector3
 				(
-					Mathf.PerlinNoise(Time.time * 0.25f * AnimNoiseVol, RiseAnimNoiseSeedList[count].x) - 0.5f,
-					Mathf.PerlinNoise(Time.time * 0.25f * AnimNoiseVol, RiseAnimNoiseSeedList[count].y) - 0.5f,
-					Mathf.PerlinNoise(Time.time * 0.25f * AnimNoiseVol, RiseAnimNoiseSeedList[count].z) - 0.5f
+					Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].x) - 0.5f,
+					Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].y) - 0.5f,
+					Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].z) - 0.5f
 				);
 
 				//ノイズ生成
 				Vector3 NoiseVec2 = new Vector3
 				(
-					Mathf.PerlinNoise(Time.time * AnimNoiseVol, RiseAnimNoiseSeedList[count].x) - 0.5f,
-					Mathf.PerlinNoise(Time.time * AnimNoiseVol, RiseAnimNoiseSeedList[count].y) - 0.5f,
-					Mathf.PerlinNoise(Time.time * AnimNoiseVol, RiseAnimNoiseSeedList[count].z) - 0.5f
+					Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].x) - 0.5f,
+					Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].y) - 0.5f,
+					Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].z) - 0.5f
 				);
 
-				//打ち上げ揺らし具合を設定
-				if (RiseFlag)
-				{
-					//地面から離れているほど揺らす
-					AnimNoiseVol = 3f * GroundDistance;
-
-					//ボーンにパーリンノイズの回転を加えて揺らす
-					i.transform.localRotation *= Quaternion.Euler((NoiseVec1 + NoiseVec2 * 0.25f) * 5f * AnimNoiseVol);
-				}
-				//ホールド時は小刻みに揺らす
-				else if(HoldFlag || BlownFlag)
-				{
-					AnimNoiseVol = 10f;
-
-					//ボーンにパーリンノイズの回転を加えて揺らす
-					i.transform.localRotation *= Quaternion.Euler((NoiseVec1 + NoiseVec2) * AnimNoiseVol);
-				}			
+				//ボーンにパーリンノイズの回転を加えて揺らす
+				i.transform.localRotation *= Quaternion.Euler((NoiseVec1 + NoiseVec2 * 0.25f) * 5f * AnimNoiseVol);
 
 				//カウントアップ
 				count++;
 			}
-
-			//LateUpdateで動かすとコンストレイントが利かないので手動で足首を繋げる
-			DeepFind(gameObject, "R_FootBone").transform.position = DeepFind(gameObject, "R_LowerLegBone_end").transform.position;
-			DeepFind(gameObject, "L_FootBone").transform.position = DeepFind(gameObject, "L_LowerLegBone_end").transform.position;
-		}
-
-		//ループカウント
-		count = 0;
-
-		//揺らすポーンListを回す
-		foreach (GameObject i in AnimNoiseBone)
-		{
-			//ノイズ生成
-			Vector3 NoiseVec1 = new Vector3
-			(
-				Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].x) - 0.5f,
-				Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].y) - 0.5f,
-				Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].z) - 0.5f
-			);
-
-			//ノイズ生成
-			Vector3 NoiseVec2 = new Vector3
-			(
-				Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].x) - 0.5f,
-				Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].y) - 0.5f,
-				Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].z) - 0.5f
-			);
-
-			//ボーンにパーリンノイズの回転を加えて揺らす
-			i.transform.localRotation *= Quaternion.Euler((NoiseVec1 + NoiseVec2 * 0.25f) * 5f * AnimNoiseVol);
-
-			//カウントアップ
-			count++;
 		}
 	}
 
@@ -1263,6 +1266,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				CurrentAnimator.SetBool("Attack", false);
 			}
 		}
+
+		//スケベ攻撃中の処理
+		if(CurrentState.Contains("H_Attack"))
+		{
+			//アニメーション再生速度にノイズを加える
+			CurrentAnimator.SetFloat("H_Speed", Mathf.PerlinNoise(Time.time * 2.5f, -Time.time) + 0.5f);
+		}
 	}
 
 	//ダウン制御コルーチン
@@ -1628,7 +1638,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			case "H":
 
 				//靴の高さを表すskinWidthをキャラクターと合わせる
-				CharaController.skinWidth = 0.1f;
+				//CharaController.skinWidth = 0.1f;
 
 				break;
 

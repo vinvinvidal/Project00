@@ -116,7 +116,7 @@
 			{
 
 				//Return用変数宣言してベーステクスチャを貼る、オフセットを足して眼球を移動
-				fixed4 re = tex2D(_EyeTex, i.uv + _EyeTex_ST.zw);
+				fixed4 re = tex2D(_EyeTex, i.uv * _EyeTex_ST.xy + (_EyeTex_ST.zw - ((_EyeTex_ST.xy - 1) * 0.5f)));
 				
 				//まぶたから落ちる目の影を乗算合成
 				re *= lerp(1,tex2D(_EyeShadow, i.uv), tex2D(_EyeShadow, i.uv).a);

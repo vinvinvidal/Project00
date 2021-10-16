@@ -1446,7 +1446,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			H_MoveVector = (H_Enemy.transform.position + H_Enemy.transform.forward * 0.25f) - gameObject.transform.position;
 
 			//指定の位置まで移動したらフラグを下ろしてループを抜ける、保険として1秒経過で抜ける
-			if (H_MoveVector.sqrMagnitude < 0.0025f || (t + 1 < Time.time))
+			if (H_MoveVector.sqrMagnitude < 0.0001f || (t + 1 < Time.time))
 			{
 				loopbool = false;
 			}
@@ -2600,6 +2600,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_CameraOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;
 	}
 
+	//視線を直接指定する、アニメーションクリップから呼ばれる
+	public void DirectEye(string i)
+	{
+		//引数をカンマで分割してFloatにキャスト
+		List<float> templist = new List<float>(i.Split(',').ToList().Select(a => float.Parse(a)));
+
+		//スムースダンプベロシティ
+		EyeOBJ.GetComponent<CharacterEyeShaderScript>().DirectEyeVelocity = 0;
+
+		//タイリング
+		EyeOBJ.GetComponent<CharacterEyeShaderScript>().DirectEyeTiling = new Vector2(templist[0], templist[1]);
+
+		//オフセット
+		EyeOBJ.GetComponent<CharacterEyeShaderScript>().DirectEyeOffset = new Vector2(templist[2], templist[3]);
+	}
+
 	//技格納マトリクス初期化関数
 	private void ArtsMatrixSetUp()
 	{
@@ -2933,8 +2949,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベダメージ中の処理
 		else if (CurrentState.Contains("H_Damage"))
 		{
+			//アニメーション再生速度にノイズを加える
+			CurrentAnimator.SetFloat("H_Speed", Mathf.PerlinNoise(Time.time * 2.5f, -Time.time) + 0.5f);
+
 			//ブレイクカウントが達した
-			if(BreakCount > 10)
+			if (BreakCount > 10)
 			{
 				//アニメーターのフラグを立てる
 				CurrentAnimator.SetBool("H_Break", true);
@@ -3410,6 +3429,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Hit", false);
 
+			//視線ダイレクトモード設定
+			ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(true));
+
 			//コライダを非アクティブ化
 			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
 
@@ -3433,6 +3455,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Break", false);
+
+			//視線ダイレクトモード解除
+			ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(false));
 		}		
 	}
 
