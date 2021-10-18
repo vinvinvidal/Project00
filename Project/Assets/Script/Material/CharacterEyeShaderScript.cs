@@ -99,6 +99,12 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 		HeadDotLigntY = Mathf.Clamp(Vector3.Dot(HeadAngle.up, DrcLight.transform.forward), -1.0f, 1.0f);
 		HeadDotLigntZ = Mathf.Clamp(Vector3.Dot(HeadAngle.forward, DrcLight.transform.forward), -1.0f, 1.0f);
 
+		//スケベ中はハイライトを小刻みに動かす
+		if(GameManagerScript.Instance.H_Flag)
+		{
+			HeadDotLigntZ += ((Mathf.PerlinNoise(Time.time * 50, -Time.time) - 0.5f) * 2) * 0.25f;
+		}
+
 		//ハイライト回転用の値をシェーダーに渡す
 		EyeMaterial.SetFloat("Eye_HiLightRotationSin", HeadDotLigntY + HeadDotLigntZ * 0.75f);
 		EyeMaterial.SetFloat("Eye_HiLightRotationCos", HeadDotLigntX + HeadDotLigntZ * 0.25f);

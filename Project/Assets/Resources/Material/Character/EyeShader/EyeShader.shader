@@ -134,10 +134,10 @@
 				i.EyeHilightuv = mul(Eye_HiLightRotation, i.EyeHilightuv);
 
 				//ズラしたハイライトの基点を戻す
-				i.EyeHilightuv += float2(0.5, 0.5);
+				i.EyeHilightuv += float2(0.5, 0.5) / _EyeTex_ST.xy;
 			
 				//ハイライトを加算合成
-				re += lerp(0, tex2D(_EyeHiLight, i.EyeHilightuv), tex2D(_EyeHiLight, i.EyeHilightuv).a);
+				re += lerp(0, tex2D(_EyeHiLight, i.EyeHilightuv), tex2D(_EyeHiLight, i.EyeHilightuv).a * 0.75);
 
 				//ライトカラーを乗算
 				re *= lerp(1, _LightColor0, _LightColor0.a);

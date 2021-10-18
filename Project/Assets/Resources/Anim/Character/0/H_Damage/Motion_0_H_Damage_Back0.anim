@@ -59621,14 +59621,14 @@ AnimationClip:
   m_Events:
   - time: 0
     functionName: DirectEye
-    data: 0.9,0.9,-0.05,0
+    data: 0.9,0.9,-0.15,-0.025
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.016666668
     functionName: ChangeFace
-    data: Motion_0_Face09
+    data: Motion_0_Face09,1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

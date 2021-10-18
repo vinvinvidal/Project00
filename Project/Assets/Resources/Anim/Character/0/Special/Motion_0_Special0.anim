@@ -76276,7 +76276,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.33333334
     functionName: ChangeFace
-    data: Common
+    data: Reset
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

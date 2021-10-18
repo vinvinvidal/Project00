@@ -108716,7 +108716,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.033333335
     functionName: ChangeFace
-    data: Motion_0_Face06
+    data: Motion_0_Face06,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -108744,7 +108744,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.25
     functionName: ChangeFace
-    data: Motion_0_Face07
+    data: Motion_0_Face07,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -108772,7 +108772,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.8333333
     functionName: ChangeFace
-    data: Motion_0_Face03
+    data: Motion_0_Face03,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

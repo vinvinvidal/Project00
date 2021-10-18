@@ -68,18 +68,26 @@ public class OutLineScript : GlobalClass
 
 		//メインカメラとFOVを同期
 		PostEffectCamera.fieldOfView = MainCamera.fieldOfView;
-	
-		//キャラクターリストとエネミーリストをLinqで合体させて回す
-		foreach (GameObject i in GameManagerScript.Instance.AllActiveCharacterList.Concat(GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null)))
-		{
-			//カメラとの距離を計る
-			float tempDist = (transform.position - i.transform.position).sqrMagnitude;
 
-			//距離を比較
-			if (Distance < tempDist)
+		//スケベ中はプレイヤーキャラクターに合わせる
+		if(GameManagerScript.Instance.H_Flag)
+		{
+			Distance = (transform.position - GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position).sqrMagnitude;
+		}
+		else
+		{
+			//キャラクターリストとエネミーリストをLinqで合体させて回す
+			foreach (GameObject i in GameManagerScript.Instance.AllActiveCharacterList.Concat(GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null)))
 			{
-				//遠かったら値を更新
-				Distance = tempDist;			
+				//カメラとの距離を計る
+				float tempDist = (transform.position - i.transform.position).sqrMagnitude;
+
+				//距離を比較
+				if (Distance < tempDist)
+				{
+					//遠かったら値を更新
+					Distance = tempDist;
+				}
 			}
 		}
 

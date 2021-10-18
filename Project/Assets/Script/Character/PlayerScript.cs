@@ -333,6 +333,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//視線変更許可フラグ
 	private bool LookAtPosFlag = true;
 
+	//瞬き禁止フラグ
+	private bool NoBlinkFlag = false;
+
 	//瞬き処理経過時間
 	private float BlinkDelayTime;
 
@@ -1224,7 +1227,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			BlinkDelayTime = Time.time;
 
 			//瞬きアニメーション
-			if (Mathf.FloorToInt(UnityEngine.Random.Range(0f, 5f)) == 0)
+			if (Mathf.FloorToInt(UnityEngine.Random.Range(0f, 5f)) == 0 && !NoBlinkFlag)
 			{
 				//瞬きコルーチン呼び出し
 				StartCoroutine(WinkCoroutine());
@@ -1238,6 +1241,47 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//瞬きレイヤーの重み
 		float tempnum = 0;
 
+		//瞬きが終わるまでループ
+		while (tempnum < 1)
+		{
+			//カウントアップ
+			tempnum += Time.deltaTime * 10;
+
+			//目のアニメーションレイヤーの重みを変更にする
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), tempnum);
+
+			//瞬き禁止フラグが立ったらブレイク
+			if (NoBlinkFlag)
+			{
+				break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//ちょっと閉じたまま待機
+		yield return new WaitForSeconds(0.05f);
+
+		//瞬きが終わるまでループ
+		while (tempnum > 0)
+		{
+			//カウントアップ
+			tempnum -= Time.deltaTime * 10;
+
+			//目のアニメーションレイヤーの重みを変更にする
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), tempnum);
+
+			//瞬き禁止フラグが立ったらブレイク
+			if (NoBlinkFlag)
+			{
+				break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+		/*
 		//開始時間
 		float t = Time.time;
 
@@ -1250,10 +1294,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//目のアニメーションレイヤーの重みを変更にする
 			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), Mathf.Sin(2 * Mathf.PI * 1.5f * tempnum));
 
+			//瞬き禁止フラグが立ったらブレイク
+			if(NoBlinkFlag)
+			{
+				break;
+			}
+
 			//1フレーム待機
 			yield return null;
 		}
-
+		*/
 		//目のアニメーションレイヤーの重み0にする
 		CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), 0);
 	}
@@ -1597,7 +1647,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		DamageFlag = false;
 
 		//表情を戻す
-		ChangeFace("Common");
+		ChangeFace("Reset");
 	}
 
 	//立ちモーションループ
@@ -2425,41 +2475,45 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 	}
 
-	//目のアニメーションブレンドを切る、クリップのイベントから呼ばれる
-	private void ForceEye()
+	//瞬き禁止、アニメーションクリップのイベントから呼ばれる
+	private void NoBlink()
 	{
-		//目のアニメーションレイヤーの重みをゼロにする
-		CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), 0);
+		//瞬き禁止フラグを立てる
+		NoBlinkFlag = true;
 	}
 
 	//攻撃中に表情を変える、アニメーションクリップのイベントから呼ばれる
 	private void ChangeFace(string n)
 	{
-		if (n == "Common")
-		{
-			//表情ステート変数初期化
-			FaceState = 0;
+		//瞬き禁止フラグを下ろす
+		NoBlinkFlag = false;
 
-			//フラグを下して普通の表情に戻す
-			CurrentAnimator.SetBool("Face0", false);
-			CurrentAnimator.SetBool("Face1", false);
+		//普通の表情に戻す
+		if (n == "Reset")
+		{
+			//クロスフェードで表情切り替え
+			CurrentAnimator.CrossFadeInFixedTime("FaceBase", 0.5f, 1);
 		}
+		//指定された表情に変える
 		else
 		{
+			//使用するアニメーションクリップ名
+			string AnimName = n.Split(',').ToList()[0];
+
+			//遷移時間
+			float DurationTime = float.Parse(n.Split(',').ToList()[1]);
+
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["Face_Void_" + FaceState % 2] = GameManagerScript.Instance.AllFaceList.Where(a => a.name == n).ToArray()[0];
+			OverRideAnimator["Face_Void_" + FaceState % 2] = GameManagerScript.Instance.AllFaceList.Where(a => a.name == AnimName).ToArray()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
-			//フラグを立てる
-			CurrentAnimator.SetBool("Face" + FaceState % 2, true);
+			//クロスフェードで表情切り替え
+			CurrentAnimator.CrossFadeInFixedTime("Face_" + FaceState % 2, DurationTime, 1);
 
 			//表情ステート変数カウントアップ
 			FaceState++;
-
-			//逆のフラグを下す
-			CurrentAnimator.SetBool("Face" + FaceState % 2, false);
 		}
 	}
 
@@ -2958,9 +3012,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//アニメーターのフラグを立てる
 				CurrentAnimator.SetBool("H_Break", true);
 
-				//ゲームマネージャーのスケベフラグを下ろす
-				GameManagerScript.Instance.H_Flag = false;
-
 				//頬テクスチャを顔テクスチャに差し替え
 				FaceMaterial.SetTexture("_TexFaceBase", FaceBaseTex);
 
@@ -3199,7 +3250,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
 
 			//表情を普通に戻す
-			ChangeFace("Common");
+			ChangeFace("Reset");
 
 			//入力フラグを全て下す関数呼び出し
 			InputReset();
@@ -3227,7 +3278,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			AttackMoveType = 100;
 
 			//表情を普通に戻す
-			ChangeFace("Common");
+			ChangeFace("Reset");
 
 			//空中ローリングの場合
 			if (s.Contains("-> AirRolling"))
@@ -3458,6 +3509,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//視線ダイレクトモード解除
 			ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(false));
+
+			//ゲームマネージャーのスケベフラグを下ろす
+			GameManagerScript.Instance.H_Flag = false;
 		}		
 	}
 
@@ -3607,7 +3661,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		CurrentAnimator.SetBool("ActionEvent", false);
 
 		//表情を普通に戻す
-		ChangeFace("Common");
+		ChangeFace("Reset");
 
 		//攻撃移動タイプを初期化
 		AttackMoveType = 100;
