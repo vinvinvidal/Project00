@@ -95,7 +95,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		ExecuteEvents.Execute<MainCameraScriptInterface>(CameraRootOBJ, null, (reciever, eventData) => reciever.MenuCameraSetting());
 
 		//カメラワーク再生
-		GameObject.Find("CameraWork").GetComponent<CinemachineCameraScript>().PlayCameraWork(0);
+		GameObject.Find("CameraWork").GetComponent<CinemachineCameraScript>().PlayCameraWork(0 , true);
 
 		//スクリーンエフェクトで白フェード
 		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) => { g.GetComponent<Renderer>().enabled = false; }));

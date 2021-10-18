@@ -701,13 +701,27 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			MoveMoment = DamageMoveVec * Time.deltaTime;
 		}
+		//スケベ中の移動
+		else if(H_Flag)
+		{
+			//プレイヤーと位置を合わせる
+			MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * 0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
+
+			//プレイヤーと高さを合わせる
+			MoveMoment.y = (PlayerCharacter.transform.position - gameObject.transform.position).y * Time.deltaTime * 20;
+		}
 		else
 		{
 			MoveMoment *= 0;
 		}
 
 		//条件で重力加速度を増減させる
-		if ((!OnGround && (PlayerCharacter.transform.position - transform.position).sqrMagnitude > Mathf.Pow(3, 2)) || CurrentState.Contains("DownLanding"))
+		if(H_Flag)
+		{
+			//重力を打ち消す
+			GraityCorrect = -Gravity;
+		}
+		else if ((!OnGround && (PlayerCharacter.transform.position - transform.position).sqrMagnitude > Mathf.Pow(3, 2)) || CurrentState.Contains("DownLanding"))
 		{
 			Gravity += Physics.gravity.y * 2 * Time.deltaTime;
 
@@ -1246,6 +1260,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			{
 				//アニメーターのスケベ解除フラグを下ろす
 				CurrentAnimator.SetBool("H_Break", false);
+
+				//スケベフラグを下す
+				H_Flag = false;
+
+				//キャラクターコントローラを設定
+				CharaControllerReset("Reset");
 			}
 			//ホールドになった瞬間の処理
 			else if (CurrentState == "HoldDamage")
@@ -1637,8 +1657,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 			case "H":
 
-				//靴の高さを表すskinWidthをキャラクターと合わせる
-				//CharaController.skinWidth = 0.1f;
+				//キャラクターコントローラの高さをゼロにする
+				CharaController.height = 0f;
 
 				break;
 
@@ -1747,7 +1767,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//スケベ攻撃が当たった時に呼ばれる
 	public void H_AttackHit(string ang , int men , GameObject Player)
 	{
-
 		//スケベフラグを立てる
 		H_Flag = true;
 
@@ -1768,7 +1787,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
-
 	}
 
 	//スケベ攻撃が解除された時に呼ばれる

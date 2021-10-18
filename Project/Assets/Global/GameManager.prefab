@@ -658,10 +658,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DevSwicth: 1
+  SexualSwicth: 0
   ScreenAspect: {x: 16, y: 9}
   ScreenResolution: 64
   FrameRate: 60
   FPS: 0
+  H_Flag: 0
 --- !u!114 &1338258338725903517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -814,7 +816,7 @@ MonoBehaviour:
   - m_Script
   m_LockStageInInspector: 
   m_StreamingVersion: 20170927
-  m_Priority: 100
+  m_Priority: 1000
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}

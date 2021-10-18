@@ -304,6 +304,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//脱出用レバガチャカウント
 	private int BreakCount = 0;
 
+	//脱出レバガチャ許可フラグ
+	private bool BreakInputFlag = false;
 
 
 	//装備している武器のオブジェクト
@@ -885,7 +887,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//スケベ脱出カウントアップ
-		if(H_Flag)
+		if(BreakInputFlag)
 		{
 			BreakCount++;
 		}
@@ -907,7 +909,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//スケベ脱出カウントアップ
-		if (H_Flag)
+		if (BreakInputFlag)
 		{
 			BreakCount++;
 		}
@@ -928,7 +930,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//スケベ脱出カウントアップ
-		if (H_Flag)
+		if (BreakInputFlag)
 		{
 			BreakCount++;
 		}
@@ -1281,31 +1283,55 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//1フレーム待機
 			yield return null;
 		}
-		/*
-		//開始時間
-		float t = Time.time;
 
-		//瞬きが終わるまでループ
-		while(t + 0.5f > Time.time)
-		{
-			//カウントアップ
-			tempnum += Time.deltaTime;
-
-			//目のアニメーションレイヤーの重みを変更にする
-			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), Mathf.Sin(2 * Mathf.PI * 1.5f * tempnum));
-
-			//瞬き禁止フラグが立ったらブレイク
-			if(NoBlinkFlag)
-			{
-				break;
-			}
-
-			//1フレーム待機
-			yield return null;
-		}
-		*/
 		//目のアニメーションレイヤーの重み0にする
 		CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), 0);
+	}
+
+	//たまに口を閉じる処理、アニメーションクリップから呼ばれる
+	public void MouthClose(float i)
+	{
+		//引数は開閉頻度になる
+		if(UnityEngine.Random.Range(0f, 1f) <= i)
+		{
+			StartCoroutine(MouthCloseCoroutine());
+		}
+	}
+	IEnumerator MouthCloseCoroutine()
+	{
+		//現在のブレンド比率を取得
+		float TempBlend = CurrentAnimator.GetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"));
+
+		//開いてたら閉じる
+		if (TempBlend < 0.5f)
+		{
+			while (TempBlend < 1)
+			{
+				//１フレーム待機
+				yield return null;
+
+				//ブレンド比率変更
+				TempBlend += Time.deltaTime * 10;
+
+				//口のアニメーションレイヤーの重みを変更
+				CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), TempBlend);
+			}
+		}
+		//閉じてたら開く
+		else
+		{
+			while (TempBlend > 0)
+			{
+				//１フレーム待機
+				yield return null;
+
+				//ブレンド比率変更
+				TempBlend -= Time.deltaTime * 10;
+
+				//口のアニメーションレイヤーの重みを変更
+				CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), TempBlend);
+			}
+		}
 	}
 
 	//立ち構え切り替えコルーチン
@@ -1475,7 +1501,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_RotateVector = H_Enemy.transform.forward;
 
 		//スケベカメラワーク再生
-		H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains("_" + H_Location)).ToList()[0]));
+		H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Hit")).ToList()[0]) , true);
+
+		//次のカメラワーク設定
+		H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Damage")).ToList()[0]);
 
 		//スケベ攻撃位置合わせコルーチン呼び出し
 		StartCoroutine(H_PositionSetting());
@@ -3009,14 +3038,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ブレイクカウントが達した
 			if (BreakCount > 10)
 			{
+				//レバガチャインプットフラグを下す
+				BreakInputFlag = false;
+
+				//脱出用レバガチャカウントリセット
+				BreakCount = 0;
+
 				//アニメーターのフラグを立てる
 				CurrentAnimator.SetBool("H_Break", true);
 
 				//頬テクスチャを顔テクスチャに差し替え
 				FaceMaterial.SetTexture("_TexFaceBase", FaceBaseTex);
-
-				//ブレイクカウントリセット
-				BreakCount = 0;
 
 				//オーバーライドコントローラにアニメーションクリップをセット
 				OverRideAnimator["H_Break_void"] = H_BreakAnimList.Where(a => a.name.Contains(H_Location)).ToArray()[0];
@@ -3028,7 +3060,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				ExecuteEvents.Execute<EnemyCharacterInterface>(H_Enemy, null, (reciever, eventData) => reciever.H_Break(H_Location));
 
 				//ブレイクのカメラワーク設定
-				H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains("_Break" + H_Location)).ToList()[0]);
+				H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Break")).ToList()[0]);
 
 				//カメラワーク持続フラグを下ろして次のカメラワークへ
 				H_CameraOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;			
@@ -3480,6 +3512,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Hit", false);
 
+			//アニメーターのフラグを下す
+			//CurrentAnimator.SetBool("H_Break", false);
+
+			//レバガチャインプットフラグを立てる
+			BreakInputFlag = true;
+
 			//視線ダイレクトモード設定
 			ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(true));
 
@@ -3501,14 +3539,30 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ロックを解除
 			LockEnemy = null;
 		}
+		//H_Damageになった瞬間の処理
+		else if (s.Contains("-> H_Damage"))
+		{
+			//口のアニメーションレイヤーの重みをリセット
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), 0);
+
+			//アニメーターのフラグを下ろす
+			CurrentAnimator.SetBool("H_Damage00", false);
+			CurrentAnimator.SetBool("H_Damage01", false);
+		}
 		//H_Breakになった瞬間の処理
 		else if (s.Contains("-> H_Break"))
 		{
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Break", false);
 
+			//脱出用レバガチャカウントリセット
+			BreakCount = 0;
+
 			//視線ダイレクトモード解除
 			ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(false));
+
+			//口のアニメーションレイヤーの重みをリセット
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), 0);
 
 			//ゲームマネージャーのスケベフラグを下ろす
 			GameManagerScript.Instance.H_Flag = false;
@@ -3632,9 +3686,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//垂直加速度をリセット
 		VerticalAcceleration = 0;
 
-		//脱出用レバガチャカウントリセット
-		BreakCount = 0;
-	
 		//重力加速度をリセット
 		GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
 

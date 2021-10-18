@@ -9,6 +9,9 @@ public class CinemachineCameraScript : GlobalClass
 	//メインカメラ
 	private GameObject MainCamera;
 
+	//メインカメラのターゲットオブジェクト
+	private GameObject CameraTarget;
+
 	//バーチャルカメラ
 	private CinemachineVirtualCamera Vcam;
 
@@ -24,18 +27,47 @@ public class CinemachineCameraScript : GlobalClass
 	//インデックス指定用
 	public int SpecifyIndex { get; set; }
 
+	//デフォルト優先度
+	public int DefaultPriority;
+
+	//優先度カウント
+	private int PriorityCount = 0;
+
 	void Start()
 	{
 		//メインカメラ取得
 		MainCamera = GameObject.Find("MainCamera");
+
+		//メインカメラのターゲットオブジェクト取得
+		CameraTarget = GameObject.Find("MainCameraTarget");
 
 		//カメラワークオブジェクトを取得
 		CameraWorkList = new List<GameObject>(gameObject.transform.root.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("CameraWorkOBJ")).ToList().Select(b => b.gameObject).ToList());
 	}
 
 	//カメラワーク再生関数
-	public void PlayCameraWork(int Index)
+	public void PlayCameraWork(int Index, bool F)
 	{
+		//カメラワーク開始時
+		if (F)
+		{
+			//イージング用Vcamera有効化関数呼び出し
+			GameManagerScript.Instance.EasingVcamera();
+
+			//優先度カウントリセット
+			PriorityCount = 0;
+
+			//全てのカメラワークを回す
+			foreach (var i in CameraWorkList)
+			{
+				//優先度をリセット
+				i.GetComponentInChildren<CinemachineVirtualCamera>().Priority = DefaultPriority;
+
+				//ヴァーチャルカメラ有効化
+				i.GetComponentInChildren<CinemachineVirtualCamera>().enabled = true;
+			}
+		}
+
 		//メインカメラのシネマシン有効無効切り替え
 		MainCamera.GetComponent<CinemachineBrain>().enabled = true;
 
@@ -45,8 +77,11 @@ public class CinemachineCameraScript : GlobalClass
 		//ヴァーチャルカメラ取得
 		Vcam = CameraWorkList[Index].GetComponentInChildren<CinemachineVirtualCamera>();
 
-		//ヴァーチャルカメラ有効化
-		Vcam.enabled = true;
+		//優先度カウントアップ
+		PriorityCount++;
+
+		//カメラ優先度を上げて切り替える
+		Vcam.Priority += PriorityCount; 
 
 		//注視点オブジェクトが指定されていたら設定
 		if(CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJName != "")
@@ -70,6 +105,8 @@ public class CinemachineCameraScript : GlobalClass
 
 				//メインカメラの遷移をイージングに設定
 				MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Style = CinemachineBlendDefinition.Style.EaseInOut;
+
+				MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time = CameraWorkList[Index].GetComponent<CameraWorkScript>().EasingTime;
 
 				break;
 		}
@@ -147,8 +184,8 @@ public class CinemachineCameraScript : GlobalClass
 			yield return null;
 		}
 
-		//カメラワーク終了関数呼び出し
-		StartCoroutine(EndCameraWork(Index));
+		//カメラワーク切り替え関数呼び出し
+		StartCoroutine(NextCameraWork(Index));
 	}
 
 	//持続時間が経過するまで持続コルーチン
@@ -163,8 +200,8 @@ public class CinemachineCameraScript : GlobalClass
 			yield return null;
 		}
 
-		//カメラワーク終了関数呼び出し
-		StartCoroutine(EndCameraWork(Index));
+		//カメラワーク切り替え関数呼び出し
+		StartCoroutine(NextCameraWork(Index));
 	}
 
 	//外部からフラグ変更されるまで持続コルーチン
@@ -176,24 +213,33 @@ public class CinemachineCameraScript : GlobalClass
 			yield return null;
 		}
 
-		//カメラワーク終了関数呼び出し
-		StartCoroutine(EndCameraWork(Index));
+		//カメラワーク切り替え関数呼び出し
+		StartCoroutine(NextCameraWork(Index));
 	}
 
-	//カメラワーク終了関数
-	IEnumerator EndCameraWork(int Index)
+	//カメラワーク切り替え関数
+	IEnumerator NextCameraWork(int Index)
 	{
+		//インデックスを取得
 		int NextIndex = Index;
 
-		//メインカメラのシネマシン有効無効切り替え
-		MainCamera.GetComponent<CinemachineBrain>().enabled = false;
-
-		//ここで終わりなら処理しない
-		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode != 10)
+		//最後のカメラワークの場合
+		if(CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode == 10)
 		{
-			//カメラワーク持続フラグを下す
-			KeepCameraFlag = false;
+			//メインカメラのシネマシン無効
+			MainCamera.GetComponent<CinemachineBrain>().enabled = false;
 
+			//全てのカメラワークを回す
+			foreach (var i in CameraWorkList)
+			{
+				//ヴァーチャルカメラ無効化
+				i.GetComponentInChildren<CinemachineVirtualCamera>().enabled = false;
+			}
+
+			CameraTarget.transform.position = MainCamera.transform.position;
+		}
+		else
+		{
 			//次のカメラワークを設定
 			switch (CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode)
 			{
@@ -221,11 +267,8 @@ public class CinemachineCameraScript : GlobalClass
 			//フラグを反映するために１フレーム待機
 			yield return null;
 
-			//ヴァーチャルカメラ無効化
-			Vcam.enabled = false;
-
 			//次のカメラワーク再生
-			PlayCameraWork(NextIndex);
+			PlayCameraWork(NextIndex, false);
 		}
 	}
 }

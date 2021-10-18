@@ -27,6 +27,9 @@ public class CameraWorkScript : MonoBehaviour
 		1:イージング		 
 	*/
 
+	//イージング時間
+	public float EasingTime;
+	
 	//次のカメラワークモード
 	public int NextCameraWorkMode;
 	/*

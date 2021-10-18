@@ -37,6 +37,9 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	//特殊攻撃の対象を返す
 	GameObject SearchSpecialTarget(int i);
 
+	//カメラワークの遷移でイージングをするためヴァーチャルカメラを制御する
+	void EasingVcamera();
+
 	//タイムスケール変更
 	void TimeScaleChange(float t, float s);
 }
@@ -1079,6 +1082,28 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//タイムスケールを元に戻す
 			TimeScaleNum = 1;
 		}
+	}
+
+	//カメラワークの遷移でイージングをするためヴァーチャルカメラを制御する
+	public void EasingVcamera()
+	{
+		//バーチャルカメラPRSをメインカメラに合わせる
+		VCamera.gameObject.transform.position = DeepFind(MainCamera , "MainCamera").transform.position;
+		VCamera.gameObject.transform.rotation = DeepFind(MainCamera, "MainCamera").transform.rotation;
+
+		//バーチャルカメラ有効化
+		VCamera.enabled = true;
+
+		//コルーチン呼び出し
+		StartCoroutine(VcameraWaitCoroutine());
+	}
+	IEnumerator VcameraWaitCoroutine()
+	{
+		//1フレーム待機
+		yield return null;
+
+		//バーチャルカメラ無効化
+		VCamera.enabled = false;
 	}
 
 	//特殊攻撃の対象を探すインターフェイス
