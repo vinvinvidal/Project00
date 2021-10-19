@@ -22,6 +22,15 @@ public class CharacterBodyShaderScript : GlobalClass
 	//線画テクスチャ
 	public Texture2D _TexLine;
 
+	//ベーステクスチャのはだけ
+	public Texture2D _TexBaseOff;
+
+	//線画テクスチャのはだけ
+	public Texture2D _TexLineOff;
+
+	//ノーマルマップのはだけ
+	public Texture2D _TexNormalOff;
+
 	//ディレクショナルライトのトランスフォーム
 	private Transform LightTransform;
 
@@ -45,5 +54,27 @@ public class CharacterBodyShaderScript : GlobalClass
     {
 		//ディレクショナルライトの行列をシェーダーに渡す
 		BodyMaterial.SetMatrix("_LightMatrix", LightTransform.worldToLocalMatrix);
+	}
+
+	//はだけテクスチャに変える
+	public void SetOffTexture()
+	{
+		//マテリアルにテクスチャを渡す
+		BodyMaterial.SetTexture("_TexBase", _TexBaseOff);
+		BodyMaterial.SetTexture("_TexNormal", _TexNormalOff);
+		BodyMaterial.SetTexture("_TexHiLight", _TexHiLight);
+		BodyMaterial.SetTexture("_HiLightMatCap", _HiLightMatCap);
+		BodyMaterial.SetTexture("_TexLine", _TexLineOff);
+	}
+
+	//はだけテクスチャを元に戻す
+	public void SetOnTexture()
+	{
+		//マテリアルにテクスチャを渡す
+		BodyMaterial.SetTexture("_TexBase", _TexBase);
+		BodyMaterial.SetTexture("_TexNormal", _TexNormal);
+		BodyMaterial.SetTexture("_TexHiLight", _TexHiLight);
+		BodyMaterial.SetTexture("_HiLightMatCap", _HiLightMatCap);
+		BodyMaterial.SetTexture("_TexLine", _TexLine);
 	}
 }

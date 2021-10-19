@@ -153,7 +153,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 				}));
 
 				//衣装オブジェクト読み込み
-				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Character/" + ID + "/Costume/", "Costume_" + ID + "_" + i.HairID, "prefab", (object O) =>
+				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Character/" + ID + "/Costume/", "Costume_" + ID + "_" + i.CostumeID, "prefab", (object O) =>
 				{
 					//読み込んだオブジェクトをインスタンス化
 					GameObject CostumeOBJ = Instantiate(O as GameObject);

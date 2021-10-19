@@ -79,6 +79,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//キャラクターのID
 	private int CharacterID;
 
+	//バリバリゲージ
+	public float B_Gauge { get; set; }
+
+
+
+	//--- UI ---//
+
+	
+
 
 	//--- 固定パラメータ ---//
 
@@ -307,6 +316,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//脱出レバガチャ許可フラグ
 	private bool BreakInputFlag = false;
 
+	//上着はだけフラグ
+	private bool TopsOffFlag = false;
+
 
 	//装備している武器のオブジェクト
 	private GameObject WeaponOBJ;
@@ -502,6 +514,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//スケベ用カメラワークオブジェクト取得
 		H_CameraOBJ = DeepFind(gameObject , "H_Camera");
+
+		//バリバリゲージ初期化
+		B_Gauge = 0.5f;
+
+		//UIにカメラを追加
+		DeepFind(gameObject, "UI").GetComponent<Canvas>().worldCamera = MainCameraTransform.gameObject.GetComponent<Camera>();
+
+		//UIのパネルディタンス設定
+		DeepFind(gameObject, "UI").GetComponent<Canvas>().planeDistance = 0.15f;
 
 		//移動ベクトル用ダミー取得
 		PlayerMoveAxis = DeepFind(transform.gameObject, "PlayerMoveAxis");
@@ -1486,10 +1507,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//オーバーライドコントローラにアニメーションクリップをセット
-		OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains(ang + men)).ToList()[0];
+		OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains(H_Location)).ToList()[0];
 
 		//オーバーライドコントローラにアニメーションクリップをセット
-		OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains(ang + men)).ToList()[0];
+		OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains(H_Location)).ToList()[0];
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -2406,6 +2427,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//プレイヤーの攻撃が敵に当たった時の処理
 	public void HitAttack(GameObject e, int AttackIndex)
 	{
+		//バリバリゲージ増加
+		SetB_Gauge(0.01f);
+
 		//巻き込み攻撃でなければ当たった敵をロックする
 		if (UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
 		{
@@ -2509,6 +2533,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//瞬き禁止フラグを立てる
 		NoBlinkFlag = true;
+	}
+
+	//バリバリゲージセット関数
+	public void SetB_Gauge(float i)
+	{
+		B_Gauge += i;
+
+		if (B_Gauge > 1 || B_Gauge < 0)
+		{
+			B_Gauge = Mathf.Round(B_Gauge);
+		}
 	}
 
 	//攻撃中に表情を変える、アニメーションクリップのイベントから呼ばれる
@@ -2657,6 +2692,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//ホールドフラグを下ろす
 		HoldFlag = false;
+	}
+
+	//トップスをはだける、アニメーションクリップから呼ばれる
+	public void TopsOff()
+	{
+		DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOffTexture();
 	}
 
 	//スケベ状態を解除する、アニメーションクリップから呼ばれる
@@ -3035,8 +3076,25 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーション再生速度にノイズを加える
 			CurrentAnimator.SetFloat("H_Speed", Mathf.PerlinNoise(Time.time * 2.5f, -Time.time) + 0.5f);
 
+			//バリバリゲージが下がった
+			if(B_Gauge < 0.4f && !TopsOffFlag)
+			{
+				TopsOffFlag = true;
+
+				//レバガチャインプットフラグを下す
+				BreakInputFlag = false;
+
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains(H_Location + "_TopsOff")).ToList()[0];
+
+				//アニメーターを上書きしてアニメーションクリップを切り替える
+				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+				//アニメーション遷移フラグを立てる
+				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+			}
 			//ブレイクカウントが達した
-			if (BreakCount > 10)
+			else if (BreakCount > 10)
 			{
 				//レバガチャインプットフラグを下す
 				BreakInputFlag = false;
@@ -3544,6 +3602,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//口のアニメーションレイヤーの重みをリセット
 			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), 0);
+
+			//スケベステートカウントアップ
+			H_State++;
 
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Damage00", false);
