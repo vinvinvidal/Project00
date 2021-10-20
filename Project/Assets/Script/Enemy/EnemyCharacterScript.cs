@@ -32,6 +32,12 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	//スケベ攻撃が当たった時に呼ばれる
 	void H_AttackHit(string ang , int men, GameObject Player);
 
+	//スケベ攻撃遷移関数
+	void H_Transition(string Act);
+
+	//元のスケベステートに戻る関数
+	void H_ReturnState();
+
 	//スケベ攻撃が解除された時に呼ばれる
 	void H_Break(string location);
 
@@ -71,6 +77,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//気絶値
 	public float Stun { get; set; }
+
+	//興奮度
+	public float Excite { get; set; } = 0.1f;
 
 	//気絶値キャッシュ
 	private float StunMax;
@@ -152,6 +161,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//スケベモーションを制御するステート
 	private int H_State = 0;
+
+	//現在のスケベ状況
+	private string H_Location;
 
 	//全ての移動値を合算した移動ベクトル
 	private Vector3 MoveMoment;
@@ -1254,6 +1266,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//アニメーターのスケベ攻撃フラグを下ろす
 				CurrentAnimator.SetBool("H_Attack00", false);
 				CurrentAnimator.SetBool("H_Attack01", false);
+
+				//スケベステートカウントアップ
+				H_State++;
 			}
 			//スケベ攻撃が解除された瞬間の処理
 			else if (CurrentState.Contains("-> H_Break"))
@@ -1764,11 +1779,25 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CurrentAnimator.SetFloat("StunBlend" , 0f);
 	}
 
+	//興奮値セット関数
+	public void SetExcite(float i)
+	{
+		Excite += i;
+
+		if (Excite > 1 || Excite < 0)
+		{
+			Excite = Mathf.Round(Excite);
+		}
+	}
+
 	//スケベ攻撃が当たった時に呼ばれる
 	public void H_AttackHit(string ang , int men , GameObject Player)
 	{
 		//スケベフラグを立てる
 		H_Flag = true;
+
+		//スケベ状況を入れる
+		H_Location = ang + men;
 
 		//キャラクターコントローラを設定
 		CharaControllerReset("H");
@@ -1780,13 +1809,33 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
 
 		//スケベ攻撃ヒットモーションを切り替える
-		OverRideAnimator["H_Hit_Void"] = H_HitAnimList.Where(a => a.name.Contains(ang + men)).ToList()[0];
+		OverRideAnimator["H_Hit_Void"] = H_HitAnimList.Where(a => a.name.Contains(H_Location)).ToList()[0];
 
 		//スケベ攻撃ヒットモーションを切り替える
-		OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains(ang + men)).ToList()[0];
+		OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains(H_Location)).ToList()[0];
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+	}
+
+	//スケベ攻撃遷移関数
+	public void H_Transition(string Act)
+	{
+		//スケベ攻撃フラグを立てる
+		CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
+
+		//スケベ攻撃ヒットモーションを切り替える
+		OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains(H_Location + Act)).ToList()[0];
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+	}
+
+	//元のスケベステートに戻る関数
+	public void H_ReturnState()
+	{
+		//スケベ攻撃フラグを立てる
+		CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
 	}
 
 	//スケベ攻撃が解除された時に呼ばれる
@@ -1911,342 +1960,3 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 }
 
 
-/*
-gameObject.GetComponent<CharacterController>().enabled = false;
-
-foreach (Transform i in GetComponentsInChildren<Transform>())
-{
-	if (i.name.Contains("Bone"))
-	{
-		i.gameObject.AddComponent<SphereCollider>().radius = 0.05f;
-		i.gameObject.AddComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Continuous;
-		i.gameObject.GetComponent<Rigidbody>().drag = 1;
-		i.gameObject.GetComponent<Rigidbody>().AddForce(KnockBackVec, ForceMode.Impulse);
-	}
-}
-
-foreach (Rigidbody i in GetComponentsInChildren<Rigidbody>())
-{
-	//カンマで分割した最初の要素で条件分岐、続く値を変数に代入
-	switch (i.name)
-	{
-		case "SpineBone.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "PelvisBone").GetComponent<Rigidbody>();
-			break;
-
-		case "SpineBone.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "SpineBone.000").GetComponent<Rigidbody>();
-			break;
-
-		case "SpineBone.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "SpineBone.001").GetComponent<Rigidbody>();
-			break;
-
-		case "NeckBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "SpineBone.002").GetComponent<Rigidbody>();
-			break;
-
-		case "HeadBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "NeckBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_ShoulderBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "SpineBone.002").GetComponent<Rigidbody>();
-			break;
-
-		case "R_ShoulderBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "SpineBone.002").GetComponent<Rigidbody>();
-			break;
-
-		case "L_UpperArmBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_ShoulderBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_UpperArmBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_ShoulderBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_ElbowBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_UpperArmBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_ElbowBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_UpperArmBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_LowerArmBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_ElbowBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_LowerArmBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_ElbowBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_WristBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_LowerArmBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_WristBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_LowerArmBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_HandBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_WristBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_HandBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_WristBone").GetComponent<Rigidbody>();
-			break;
-
-
-
-
-
-		case "L_Thumb.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_HandBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_First.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_HandBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Middle.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_HandBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Ring.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_HandBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Pinky.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_HandBone").GetComponent<Rigidbody>();
-			break;
-
-
-
-
-
-		case "L_Thumb.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Thumb.000").GetComponent<Rigidbody>();
-			break;
-
-		case "L_First.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_First.000").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Middle.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Middle.000").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Ring.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Ring.000").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Pinky.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Pinky.000").GetComponent<Rigidbody>();
-			break;
-
-
-
-
-		case "L_Thumb.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Thumb.001").GetComponent<Rigidbody>();
-			break;
-
-		case "L_First.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_First.001").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Middle.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Middle.001").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Ring.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Ring.001").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Pinky.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Pinky.001").GetComponent<Rigidbody>();
-			break;
-
-
-		case "L_First.003":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_First.002").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Middle.003":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Middle.002").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Ring.003":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Ring.002").GetComponent<Rigidbody>();
-			break;
-
-		case "L_Pinky.003":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_Pinky.002").GetComponent<Rigidbody>();
-			break;
-
-
-
-
-
-
-
-
-
-
-		case "R_Thumb.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_HandBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_First.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_HandBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Middle.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_HandBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Ring.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_HandBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Pinky.000":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_HandBone").GetComponent<Rigidbody>();
-			break;
-
-
-
-
-
-		case "R_Thumb.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Thumb.000").GetComponent<Rigidbody>();
-			break;
-
-		case "R_First.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_First.000").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Middle.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Middle.000").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Ring.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Ring.000").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Pinky.001":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Pinky.000").GetComponent<Rigidbody>();
-			break;
-
-
-
-
-		case "R_Thumb.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Thumb.001").GetComponent<Rigidbody>();
-			break;
-
-		case "R_First.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_First.001").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Middle.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Middle.001").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Ring.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Ring.001").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Pinky.002":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Pinky.001").GetComponent<Rigidbody>();
-			break;
-
-
-		case "R_First.003":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_First.002").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Middle.003":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Middle.002").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Ring.003":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Ring.002").GetComponent<Rigidbody>();
-			break;
-
-		case "R_Pinky.003":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_Pinky.002").GetComponent<Rigidbody>();
-			break;
-
-
-
-
-
-
-
-
-
-
-		case "L_HipBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "PelvisBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_HipBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "PelvisBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_UpperLegBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_HipBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_UpperLegBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_HipBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_KneeBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_UpperLegBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_KneeBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_UpperLegBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_LowerLegBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_KneeBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_LowerLegBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_KneeBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_FootBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_LowerLegBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_FootBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_LowerLegBone").GetComponent<Rigidbody>();
-			break;
-
-		case "L_ToeBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "L_FootBone").GetComponent<Rigidbody>();
-			break;
-
-		case "R_ToeBone":
-			i.gameObject.AddComponent<CharacterJoint>().connectedBody = DeepFind(gameObject, "R_FootBone").GetComponent<Rigidbody>();
-			break;
-
-	}
-}
-
-foreach(CharacterJoint i in gameObject.GetComponentsInChildren<CharacterJoint>())
-{
-	SoftJointLimit tempjoint = new SoftJointLimit();
-
-	tempjoint.limit = 1f;
-
-	i.swing1Limit = tempjoint;
-	i.swing2Limit = tempjoint;
-	i.highTwistLimit = tempjoint;
-	i.lowTwistLimit = tempjoint;
-}*/

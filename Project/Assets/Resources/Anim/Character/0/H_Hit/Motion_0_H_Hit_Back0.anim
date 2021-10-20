@@ -74703,7 +74703,7 @@ AnimationClip:
   m_Events:
   - time: 0.083333336
     functionName: ChangeFace
-    data: Motion_0_Face10,0.1
+    data: Motion_0_Face09,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

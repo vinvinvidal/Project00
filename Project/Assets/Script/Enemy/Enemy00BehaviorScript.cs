@@ -278,7 +278,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}));
 
 		//スケベ攻撃
-		BehaviorList.Add(new BehaviorStruct("H_Attack", 3000, () =>
+		BehaviorList.Add(new BehaviorStruct("H_Attack", 5000, () =>
 		//スケベ攻撃の処理
 		{
 			//スケベ攻撃コルーチン呼び出し
@@ -397,8 +397,16 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 						//行動比率合計
 						foreach (BehaviorStruct i in TempBehavioerList)
 						{
-							//発生比率を加算
-							BehaviorRatio += i.Priority;
+							if(i.Name.Contains("H_"))
+							{
+								//スケベ攻撃だったら興奮度を加味して発生比率を加算
+								BehaviorRatio += i.Priority * (int)(gameObject.GetComponent<EnemyCharacterScript>().Excite * 10);
+							}
+							else
+							{
+								//発生比率を加算
+								BehaviorRatio += i.Priority;
+							}
 						}
 
 						//抽選番号設定
@@ -406,12 +414,21 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 						//行動比率初期化
 						BehaviorRatio = 0;
-
+						
 						//行動判定
 						foreach (BehaviorStruct i in TempBehavioerList)
 						{
 							//比率を合計していく
-							BehaviorRatio += i.Priority;
+							if (i.Name.Contains("H_"))
+							{
+								//スケベ攻撃だったら興奮度を加味して発生比率を加算
+								BehaviorRatio += i.Priority * (int)(gameObject.GetComponent<EnemyCharacterScript>().Excite * 10);
+							}
+							else
+							{
+								//発生比率を加算
+								BehaviorRatio += i.Priority;
+							}
 
 							//乱数がどの範囲にあるか判定
 							if (BehaviorRatio >= BehaviorLottery)

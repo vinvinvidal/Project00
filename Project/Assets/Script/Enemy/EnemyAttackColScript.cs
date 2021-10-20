@@ -51,17 +51,49 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 		//スケベ攻撃が有効
 		else if(AttackEnable && H_AttackFlag)
 		{
-			//将来的に周囲にいる敵の数を入れる、多人数スケベ
+			//将来的に周囲にいる敵の数を入れる
 			int men = 0;
+
+			//周囲にいる敵オブジェクト
+			GameObject SubEnemy = null;
 
 			//当たった方向を調べる
 			string HitAngle = Vector3.Angle(Hit.gameObject.transform.root.gameObject.transform.forward , gameObject.transform.root.gameObject.transform.forward) > 90 ? "Forward" : "Back";
+
+			//近くにいる敵を探す、別に一番近くじゃなくてもいいか？
+			foreach (var i in GameManagerScript.Instance.AllActiveEnemyList)
+			{
+				//プレイヤーの近くにいる敵
+				if(Vector3.SqrMagnitude(Hit.gameObject.transform.root.gameObject.transform.position - i.transform.position) < 3f)
+				{
+					//後ろから当てたら、プレイヤーの前にいる敵から探す
+					if (HitAngle == "Back")
+					{
+						if (Vector3.Angle((i.transform.position - Hit.gameObject.transform.root.gameObject.transform.position), Hit.gameObject.transform.root.gameObject.transform.forward) < 90)
+						{
+							SubEnemy = i;
+
+							break;
+						}
+					}
+					//前から当てたら、プレイヤーの後ろにいる敵から探す
+					else if (HitAngle == "Forward")
+					{
+						if (Vector3.Angle((i.transform.position - Hit.gameObject.transform.root.gameObject.transform.position), Hit.gameObject.transform.root.gameObject.transform.forward) > 90)
+						{
+							SubEnemy = i;
+
+							break;
+						}
+					}
+				}
+			}
 
 			//ゲームマネージャーのスケベフラグを立てる
 			GameManagerScript.Instance.H_Flag = true;
 
 			//プレイヤーキャラクターのスクリプトを呼び出す
-			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit(HitAngle , men ,gameObject.transform.root.gameObject));
+			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit(HitAngle , men ,gameObject.transform.root.gameObject , SubEnemy));
 
 			//敵キャラクターのスクリプトを呼び出す
 			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.H_AttackHit(HitAngle , men , Hit.gameObject.transform.root.gameObject));

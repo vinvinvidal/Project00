@@ -314,6 +314,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//特殊攻撃制御フラグを下す
 						SpecialAction021Flag = false;
 
+						//敵の興奮値を上げる
+						Enemy.GetComponent<EnemyCharacterScript>().Excite += 0.2f;
+
 						//プレイヤーの移動ベクトル初期化
 						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
 					}

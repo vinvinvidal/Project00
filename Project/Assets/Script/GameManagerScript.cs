@@ -1861,7 +1861,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	private void AddContentCheck()
 	{
 		//全てのキャラクターを回す
-		foreach(var i in AllCharacterList)
+		foreach (var i in AllCharacterList)
 		{
 			//技マトリクスが存在するかチェック、無ければ新規作成
 			if(UserData.ArtsMatrix[i.CharacterID] == null)

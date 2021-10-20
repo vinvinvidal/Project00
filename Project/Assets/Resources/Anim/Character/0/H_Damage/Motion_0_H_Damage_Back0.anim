@@ -60367,8 +60367,15 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0.016666668
-    functionName: ChangeFace
-    data: Motion_0_Face09,1
+    functionName: ChangeH_Face
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.083333336
+    functionName: H_BreakInputFlag
+    data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -60377,13 +60384,6 @@ AnimationClip:
     functionName: SetB_Gauge
     data: 
     objectReferenceParameter: {fileID: 0}
-    floatParameter: -0.02
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.41666666
-    functionName: MouthClose
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0.25
+    floatParameter: -0.05
     intParameter: 0
     messageOptions: 0
