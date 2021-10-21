@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -61,7 +62,7 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 			string HitAngle = Vector3.Angle(Hit.gameObject.transform.root.gameObject.transform.forward , gameObject.transform.root.gameObject.transform.forward) > 90 ? "Forward" : "Back";
 
 			//近くにいる敵を探す、別に一番近くじゃなくてもいいか？
-			foreach (var i in GameManagerScript.Instance.AllActiveEnemyList)
+			foreach (var i in GameManagerScript.Instance.AllActiveEnemyList.Where(a => a != null).ToList())
 			{
 				//プレイヤーの近くにいる敵
 				if(Vector3.SqrMagnitude(Hit.gameObject.transform.root.gameObject.transform.position - i.transform.position) < 3f)

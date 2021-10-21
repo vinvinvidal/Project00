@@ -79,7 +79,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public float Stun { get; set; }
 
 	//興奮度
-	public float Excite { get; set; } = 0.1f;
+	public float Excite { get; set; } = 0.3f;
 
 	//気絶値キャッシュ
 	private float StunMax;

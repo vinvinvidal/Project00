@@ -46,10 +46,10 @@ public class CinemachineCameraScript : GlobalClass
 	}
 
 	//カメラワーク再生関数
-	public void PlayCameraWork(int Index, bool F)
+	public void PlayCameraWork(int Index, bool First)
 	{
 		//カメラワーク開始時
-		if (F)
+		if (First)
 		{
 			//イージング用Vcamera有効化関数呼び出し
 			GameManagerScript.Instance.EasingVcamera();
@@ -178,6 +178,9 @@ public class CinemachineCameraScript : GlobalClass
 		//トラッキングポジションを初期位置に移動
 		PathPos.m_PathPosition = 0;
 
+		//優先度カウントキャッシュ
+		int TempCount = PriorityCount;
+
 		//トラッキングが終わるまで待機
 		while (PathPos.m_PathPosition <= 1)
 		{
@@ -220,11 +223,14 @@ public class CinemachineCameraScript : GlobalClass
 	//カメラワーク切り替え関数
 	IEnumerator NextCameraWork(int Index)
 	{
+		//カメラワーク持続フラグを下ろす
+		KeepCameraFlag = false;
+
 		//インデックスを取得
 		int NextIndex = Index;
-
+		
 		//最後のカメラワークの場合
-		if(CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode == 10)
+		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode == 10)
 		{
 			//メインカメラのシネマシン無効
 			MainCamera.GetComponent<CinemachineBrain>().enabled = false;

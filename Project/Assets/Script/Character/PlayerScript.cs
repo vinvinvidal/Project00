@@ -380,6 +380,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//出すスケベダメージモーションを判定するスケベステート
 	private int H_State;
 
+	//スケベモーションループカウント
+	private int H_Count;
+
 	//現在のスケベ状況
 	private string H_Location;
 
@@ -455,6 +458,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//特殊攻撃成功エフェクト
 	private GameObject SpecialSuccessEffect;
 
+	//スケベエフェクト00
+	private GameObject H_Effect00;
+
 
 
 	//モーションにノイズを加えるボーンList
@@ -519,7 +525,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_CameraOBJ = DeepFind(gameObject , "H_Camera");
 
 		//バリバリゲージ初期化
-		B_Gauge = 0.1f;
+		B_Gauge = 1f;
 
 		//UIにカメラを追加
 		DeepFind(gameObject, "UI").GetComponent<Canvas>().worldCamera = MainCameraTransform.gameObject.GetComponent<Camera>();
@@ -583,6 +589,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//出すスケベダメージモーションを判定するスケベステート初期化
 		H_State = 0;
+
+		//スケベモーションループカウント初期化
+		H_Count = 0;
 
 		//現在使用している技初期化
 		UseArts = null;
@@ -655,6 +664,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//特殊攻撃成功エフェクト取得
 		SpecialSuccessEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "SpecialSuccessEffect").ToArray()[0];
+
+		//スケベエフェクト00取得
+		H_Effect00 = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "H_Effect00").ToArray()[0];
+
 
 		//とりあえずなんでもいいから技を入れる、これが無いと最初の攻撃の時に一瞬Ｔスタンスが見える
 		foreach (List<List<ArtsClass>> i in ArtsMatrix)
@@ -834,8 +847,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//キャラクター移動
 			Controller.Move(MoveVector);
 
-			//スケベ処理
-			if(H_Flag)
+			//スケベ処理、遷移中は処理しない
+			if (H_Flag)
 			{
 				H_Func();
 			}
@@ -878,8 +891,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//カメラワーク持続フラグを下ろして次のカメラワークへ
 			H_CameraOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;
 		}
-		//敵の興奮値が上がった
-		else if(H_MainEnemy.GetComponent<EnemyCharacterScript>().Excite > 0.2f)
+		//敵の興奮値が上がり、何回かループした
+		else if(H_MainEnemy.GetComponent<EnemyCharacterScript>().Excite > 0.2f && H_Count > 2 && CurrentState.Contains("H_Damage"))
 		{
 			//トップスがはだけていない
 			if (!TopsOffFlag)
@@ -906,9 +919,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//アニメーション遷移フラグを立てる
 				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
 
-
 				//スケベカメラワーク再生
-				H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_TopsOff")).ToList()[0]), true);
+				H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_TopsOff")).ToList()[0]), false);
 
 				//次のカメラワーク設定
 				H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Damage")).ToList()[0]);
@@ -935,6 +947,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//レバガチャインプットフラグを立てる
 		BreakInputFlag = true;
+	}
+
+	//スケベループカウントアップ
+	public void H_CountUp()
+	{
+		H_Count++;
 	}
 
 	//移動キーを押した時
@@ -993,7 +1011,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//スケベ脱出カウントアップ
-		if (H_Flag)
+		if (BreakInputFlag)
 		{
 			BreakCount++;
 		}
@@ -1114,6 +1132,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//入力フラグを立てる
 			SpecialInput = true;
 		}
+
+		//テクスチャ差し替え
+		DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOnTexture();
+
+		TopsOffFlag = false;
 	}
 
 	//入力フラグを全て下す関数
@@ -2860,8 +2883,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//テクスチャ差し替え
 		DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOffTexture();
 
+		//スケベエフェクト生成
+		GameObject TempEffect = Instantiate(H_Effect00);
+
+		//親を設定
+		TempEffect.transform.parent = gameObject.transform;
+
+		//ローカルPRSリセット
+		TempEffect.transform.localPosition = Vector3.up;
+		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
 		//スローモーション
-		GameManagerScript.Instance.TimeScaleChange(1f, 0.1f);
+		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f);
 	}
 
 	//スケベ状態を解除する、アニメーションクリップから呼ばれる
@@ -3708,6 +3741,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ホールドフラグを下す
 			HoldFlag = false;
 
+			//スケベモーションループカウント初期化
+			H_Count = 0;
+
 			//ホールド状態を解除
 			HoldBreak();
 
@@ -3722,6 +3758,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//スケベステートカウントアップ
 			H_State++;
+
+			//スケベモーションループカウント初期化
+			H_Count = 0;
 
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Damage00", false);
