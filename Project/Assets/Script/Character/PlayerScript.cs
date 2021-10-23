@@ -1134,7 +1134,19 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//テクスチャ差し替え
-		DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOnTexture();
+		//DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOnTexture();
+
+		foreach (var ii in gameObject.GetComponentsInChildren<Transform>())
+		{
+			if (ii.name.Contains("TopsOff"))
+			{
+				ii.GetComponent<SkinnedMeshRenderer>().enabled = false;
+			}
+			else if (ii.name.Contains("TopsOn"))
+			{
+				ii.GetComponent<SkinnedMeshRenderer>().enabled = true;
+			}
+		}
 
 		TopsOffFlag = false;
 	}
@@ -2883,7 +2895,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void TopsOff()
 	{
 		//テクスチャ差し替え
-		DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOffTexture();
+		//DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOffTexture();
+
+		foreach(var i in gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("Costume")).ToList()[0].GetComponentsInChildren<SkinnedMeshRenderer>())
+		{
+			print(i.transform.gameObject.name);
+			if(i.transform.gameObject.name.Contains("TopsOff"))
+			{
+				i.enabled = true;
+			}
+			else if (i.transform.gameObject.name.Contains("TopsOn"))
+			{
+				i.enabled = false;
+			}
+		}
 
 		//スケベエフェクト生成
 		GameObject TempEffect = Instantiate(H_Effect00);
