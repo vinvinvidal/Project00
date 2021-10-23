@@ -13,7 +13,7 @@ public class CinemachineCameraScript : GlobalClass
 	private GameObject CameraTarget;
 
 	//バーチャルカメラ
-	private CinemachineVirtualCamera Vcam;
+	private List<CinemachineVirtualCamera> Vcam;
 
 	//使用するカメラワークオブジェクト
 	public List<GameObject> CameraWorkList { get; set; }
@@ -60,11 +60,14 @@ public class CinemachineCameraScript : GlobalClass
 			//全てのカメラワークを回す
 			foreach (var i in CameraWorkList)
 			{
-				//優先度をリセット
-				i.GetComponentInChildren<CinemachineVirtualCamera>().Priority = DefaultPriority;
+				foreach(var ii in i.GetComponentsInChildren<CinemachineVirtualCamera>())
+				{
+					//優先度をリセット
+					ii.Priority = DefaultPriority;
 
-				//ヴァーチャルカメラ有効化
-				i.GetComponentInChildren<CinemachineVirtualCamera>().enabled = true;
+					//ヴァーチャルカメラ有効化
+					ii.enabled = true;
+				}
 			}
 		}
 
@@ -75,18 +78,20 @@ public class CinemachineCameraScript : GlobalClass
 		KeepCameraFlag = true;
 
 		//ヴァーチャルカメラ取得
-		Vcam = CameraWorkList[Index].GetComponentInChildren<CinemachineVirtualCamera>();
+		Vcam = new List<CinemachineVirtualCamera>(CameraWorkList[Index].GetComponentsInChildren<CinemachineVirtualCamera>());
 
 		//優先度カウントアップ
 		PriorityCount++;
 
+		int VcamIndex = Random.Range(0, Vcam.Count);
+
 		//カメラ優先度を上げて切り替える
-		Vcam.Priority += PriorityCount; 
+		Vcam[VcamIndex].Priority += PriorityCount; 
 
 		//注視点オブジェクトが指定されていたら設定
 		if(CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJName != "")
 		{
-			Vcam.LookAt = GameObject.Find(CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJName).transform;
+			Vcam[VcamIndex].LookAt = GameObject.Find(CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJName).transform;
 		}
 
 		//遷移モードを設定
@@ -112,7 +117,7 @@ public class CinemachineCameraScript : GlobalClass
 		}
 
 		//ヴァーチャルカメラのパストラッキング取得
-		PathPos = Vcam.GetCinemachineComponent<CinemachineTrackedDolly>();
+		PathPos = Vcam[VcamIndex].GetCinemachineComponent<CinemachineTrackedDolly>();
 
 		//トラッキング制御コルーチン呼び出し
 		StartCoroutine(TrackingMoveCoroutine(CameraWorkList[Index].GetComponent<CameraWorkScript>().CameraMode, Index));
@@ -238,10 +243,14 @@ public class CinemachineCameraScript : GlobalClass
 			//全てのカメラワークを回す
 			foreach (var i in CameraWorkList)
 			{
-				//ヴァーチャルカメラ無効化
-				i.GetComponentInChildren<CinemachineVirtualCamera>().enabled = false;
+				foreach (var ii in i.GetComponentsInChildren<CinemachineVirtualCamera>())
+				{
+					//ヴァーチャルカメラ無効化
+					ii.enabled = false;
+				}
 			}
 
+			//メインカメラターゲットを現在のカメラの位置に移動させる
 			CameraTarget.transform.position = MainCamera.transform.position;
 		}
 		else

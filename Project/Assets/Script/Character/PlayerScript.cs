@@ -1702,7 +1702,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
 
 		//キャラクターのスケベ回転値
-		H_RotateVector = H_MainEnemy.transform.forward;
+		H_RotateVector = ang == "Back" ? H_MainEnemy.transform.forward : -H_MainEnemy.transform.forward;
 
 		//スケベカメラワーク再生
 		H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Hit")).ToList()[0]) , true);
@@ -1711,12 +1711,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Damage")).ToList()[0]);
 
 		//スケベ攻撃位置合わせコルーチン呼び出し
-		StartCoroutine(H_PositionSetting());
+		StartCoroutine(H_PositionSetting(ang));
 	}
 
 	//スケベ攻撃を喰らった時に位置を合わせるコルーチン
-	IEnumerator H_PositionSetting()
+	IEnumerator H_PositionSetting(string ang)
 	{
+		float Dis = 0.25f;
+
 		//ループ制御bool
 		bool loopbool = true;
 
@@ -1726,7 +1728,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		while (loopbool)
 		{
 			//キャラクターのスケベ移動ベクトル設定
-			H_MoveVector = (H_MainEnemy.transform.position + H_MainEnemy.transform.forward * 0.25f) - gameObject.transform.position;
+			H_MoveVector = (H_MainEnemy.transform.position + H_MainEnemy.transform.forward * Dis) - gameObject.transform.position;
 
 			//指定の位置まで移動したらフラグを下ろしてループを抜ける、保険として1秒経過で抜ける
 			if (H_MoveVector.sqrMagnitude < 0.0001f || (t + 1 < Time.time))
@@ -2915,6 +2917,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
 			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, 0.1f) }, new List<int>() { 0 }, new List<int>() { 1 }), 0));
+		}
+		//前１人
+		else if(H_Location.Contains("Forward"))
+		{
+			//ヒットエフェクトインスタンス生成
+			GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect01").ToList()[0]);
+
+			//プレイヤーの子にする
+			HitEffect.transform.parent = gameObject.transform;
+
+			//PRS設定
+			HitEffect.transform.localPosition = new Vector3(0, 1.5f, 0.5f);
+			HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(45, 0, 0));
+
+			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
+			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, -3f) }, new List<int>() { 0 }, new List<int>() { 4 }), 0));
 		}
 
 		//敵のクロス用コライダを解除する

@@ -716,8 +716,16 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//スケベ中の移動
 		else if(H_Flag)
 		{
-			//プレイヤーと位置を合わせる
-			MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * 0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
+			if(H_Location.Contains("Back"))
+			{
+				//プレイヤーと位置を合わせる
+				MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * 0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
+			}
+			else
+			{
+				//プレイヤーと位置を合わせる
+				MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * -0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
+			}
 
 			//プレイヤーと高さを合わせる
 			MoveMoment.y = (PlayerCharacter.transform.position - gameObject.transform.position).y * Time.deltaTime * 20;
@@ -805,6 +813,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//ホールドフラグを下ろす
 		HoldFlag = false;
+
+		//スケベフラグを下す
+		H_Flag = false;
 
 		//気絶値を減らす
 		Stun -= Arts.Stun[n];
@@ -1276,9 +1287,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//アニメーターのスケベ解除フラグを下ろす
 				CurrentAnimator.SetBool("H_Break", false);
 
-				//スケベフラグを下す
-				H_Flag = false;
-
 				//キャラクターコントローラを設定
 				CharaControllerReset("Reset");
 			}
@@ -1299,6 +1307,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			{
 				//攻撃遷移フラグを下す
 				CurrentAnimator.SetBool("Attack", false);
+			}
+
+			//スケベ解除から遷移する瞬間の処理
+			if (CurrentState.Contains("H_Break ->"))
+			{
+				//スケベフラグを下す
+				H_Flag = false;
 			}
 		}
 
@@ -1674,6 +1689,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 				//キャラクターコントローラの高さをゼロにする
 				CharaController.height = 0f;
+				CharaController.radius = 0.1f;
 
 				break;
 
