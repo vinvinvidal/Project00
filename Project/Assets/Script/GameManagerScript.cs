@@ -129,7 +129,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	private CinemachineVirtualCamera VCamera;
 
 	//スケベフラグ
-	public bool H_Flag = false;
+	public bool H_Flag { get; set; } = false;
 
 	//ロック対象になる敵を入れるList
 	private List<GameObject> LockEnemyList;

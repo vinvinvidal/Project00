@@ -808,6 +808,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//攻撃用コライダを無効化
 		EndAttackCol();
 
+		//これ以上イベントを起こさないために攻撃ステートを一時停止
+		CurrentAnimator.SetFloat("AttackSpeed", 0.0f);
+
 		//アニメーターの攻撃フラグを下ろす
 		CurrentAnimator.SetBool("Attack", false);
 
@@ -835,6 +838,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//次の遷移フラグを下ろす
 		CurrentAnimator.SetBool("Damage0" + (DamageState + 1) % 2, false);
+
+		//使用するダメージステートのスピードを戻す
+		CurrentAnimator.SetFloat("DamageMotionSpeed" + DamageState % 2, 1);
+
+		//これ以上イベントを起こさないために使わないダメージステートを一時停止
+		CurrentAnimator.SetFloat("DamageMotionSpeed" + (DamageState + 1) % 2, 0);
 
 		//ちゃんと技がある
 		if (Arts != null)

@@ -673,6 +673,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("Attack", true);
 
+		//攻撃ステート再生速度リセット
+		CurrentAnimator.SetFloat("AttackSpeed", 1.0f);
+
 		//モーション名を敵スクリプトに送る
 		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetAttackMotion("00"));
 
@@ -710,6 +713,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("H_Try", true);
+
+		//攻撃ステート再生速度リセット
+		CurrentAnimator.SetFloat("AttackSpeed", 1.0f);
 
 		//ステートを反映させる為に１フレーム待つ
 		yield return null;

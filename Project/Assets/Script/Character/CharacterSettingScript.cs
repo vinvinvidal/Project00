@@ -63,9 +63,6 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					CheekTexLoadCompleteFlag = true;
 				}));
 
-				//スクリプトにデータを渡す
-				ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllDamageList[ID], GameManagerScript.Instance.AllH_HitList[ID], GameManagerScript.Instance.AllH_DamageList[ID], GameManagerScript.Instance.AllH_BreakList[ID]));
-
 				//足のボーンにコンストレイント追加
 				DeepFind(gameObject, "R_FootBone").AddComponent<PositionConstraint>().constraintActive = true;
 				DeepFind(gameObject, "L_FootBone").AddComponent<PositionConstraint>().constraintActive = true;
@@ -215,6 +212,10 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						//読み込み完了フラグを立てる
 						CostumeLoadCompleteFlag = true;
 					}
+
+					//スクリプトにデータを渡す
+					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllDamageList[ID], GameManagerScript.Instance.AllH_HitList[ID], GameManagerScript.Instance.AllH_DamageList[ID], GameManagerScript.Instance.AllH_BreakList[ID] , CostumeOBJ));
+
 				}));
 			}
 		}

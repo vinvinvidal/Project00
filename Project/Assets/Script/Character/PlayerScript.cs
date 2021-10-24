@@ -43,8 +43,8 @@ public interface PlayerScriptInterface : IEventSystemHandler
 		//自身がカメラの画角に入っているか返す
 		bool GetOnCameraBool();
 
-		//キャラクターのデータセットする
-		void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL);
+	//キャラクターのデータセットする
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO);
 
 		//当たった攻撃が有効か返す
 		bool AttackEnable(bool H);
@@ -54,6 +54,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 {
 
 	//--- オブジェクト　コンポーネント類 ---//
+
+	//キャラクターのID
+	private int CharacterID;
+
+	//バリバリゲージ
+	public float B_Gauge { get; set; }
 
 	//GameManagerのAllActiveCharacterListに登録されているインデックス
 	private int AllActiveCharacterListListIndex;
@@ -79,11 +85,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//スケベ攻撃時に近くにいた敵オブジェクト
 	private GameObject H_SubEnemy;
 
-	//キャラクターのID
-	private int CharacterID;
-
-	//バリバリゲージ
-	public float B_Gauge { get; set; }
+	//コスチュームルートオブジェクト
+	private GameObject CostumeRootOBJ;
 
 
 
@@ -1136,7 +1139,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//テクスチャ差し替え
 		//DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOnTexture();
 
-		foreach (var ii in gameObject.GetComponentsInChildren<Transform>())
+		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
 			if (ii.name.Contains("TopsOff"))
 			{
@@ -1539,7 +1542,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//立ち構え切り替えコルーチン
-	IEnumerator IdlingChargeCoroutine()
+	IEnumerator IdlingChangeCoroutine()
 	{
 		//現在のブレンド比率をキャッシュ
 		float BlendRatio = CurrentAnimator.GetFloat("Idling_Blend");
@@ -1612,6 +1615,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//普通に喰らった
 		else
 		{
+			//攻撃用コライダ無効化
+			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+
 			//接地を判別、ongroundじゃなくアニメーターのフラグを使う
 			if (CurrentAnimator.GetBool("Fall"))
 			{
@@ -1677,6 +1683,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//これ以上イベントを起こさないためにAttackステートを一時停止
 		CurrentAnimator.SetFloat("AttackSpeed00", 0.0f);
 		CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
+
+		//攻撃用コライダ無効化
+		AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
 
 		//敵のクロス用コライダを自身のクロスオブジェクトに設定
 		foreach (var i in gameObject.GetComponentsInChildren<Cloth>())
@@ -2176,7 +2185,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempChargePowerEffect.SetActive(false);
 
 		//ボタン押しっぱなし、もしくはポーズ中ループ
-		while ((HoldButtonFlag && !PauseFlag && !DamageFlag) || PauseFlag)
+		while ((HoldButtonFlag && !PauseFlag && !DamageFlag && !H_Flag) || PauseFlag)
 		{
 			//ポーズ中は経過時間を相殺してタメが進まないようにする
 			if (PauseFlag)
@@ -2559,7 +2568,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 						}
 					}
 					//ローリングかジャンプか特殊攻撃かダメージででチェイン中断
-					else if ((RollingInput && AirRollingFlag) || (JumpInput && OnGroundFlag) || SpecialInput || DamageFlag)
+					else if ((RollingInput && AirRollingFlag) || (JumpInput && OnGroundFlag) || SpecialInput || DamageFlag || H_Flag)
 					{
 						//これ以上イベントを起こさないために現在のステートを一時停止
 						CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
@@ -2897,16 +2906,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//テクスチャ差し替え
 		//DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOffTexture();
 
-		foreach(var i in gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("Costume")).ToList()[0].GetComponentsInChildren<SkinnedMeshRenderer>())
+		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
-			print(i.transform.gameObject.name);
-			if(i.transform.gameObject.name.Contains("TopsOff"))
+			if (ii.name.Contains("TopsOff"))
 			{
-				i.enabled = true;
+				ii.GetComponent<SkinnedMeshRenderer>().enabled = true;
 			}
-			else if (i.transform.gameObject.name.Contains("TopsOn"))
+			else if (ii.name.Contains("TopsOn"))
 			{
-				i.enabled = false;
+				ii.GetComponent<SkinnedMeshRenderer>().enabled = false;
 			}
 		}
 
@@ -2957,7 +2965,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(45, 0, 0));
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, -3f) }, new List<int>() { 0 }, new List<int>() { 4 }), 0));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 7.5f, 0.1f) }, new List<int>() { 0 }, new List<int>() { 4 }), 0));
 		}
 
 		//敵のクロス用コライダを解除する
@@ -3702,9 +3710,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ダメージ状態フラグを立てる
 			DamageFlag = true;
 
-			//コライダを非アクティブ化
-			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
-
 			//入力フラグを全て下す関数呼び出し
 			InputReset();
 			
@@ -4020,7 +4025,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる
-	public void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL , List<AnimationClip> HHL , List<AnimationClip> HDL , List<AnimationClip> HBL)
+	public void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO)
 	{
 		//ダメージモーションList
 		DamageAnimList = new List<AnimationClip>(DAL);
@@ -4033,6 +4038,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//スケベブレイクモーションList
 		H_BreakAnimList = new List<AnimationClip>(HBL);
+
+		//コスチュームルートオブジェクト
+		CostumeRootOBJ = CRO;
 
 		//移動速度
 		PlayerMoveSpeed = CC.PlayerMoveSpeed;
@@ -4060,7 +4068,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		FightingFlag = b;
 
 		//構え切り替えコルーチン呼び出し
-		StartCoroutine(IdlingChargeCoroutine());
+		StartCoroutine(IdlingChangeCoroutine());
 	}
 
 	//ポーズ処理、ゲームマネージャーから呼び出されるインターフェイス
