@@ -670,9 +670,6 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 6b1616fcc182a1b499b1738e7d8547b8, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 6b55b06d7186e8e43af581f164973c8d, type: 3}
-  _TexBaseOff: {fileID: 0}
-  _TexLineOff: {fileID: 0}
-  _TexNormalOff: {fileID: 0}
 --- !u!1 &2719170773694126440
 GameObject:
   m_ObjectHideFlags: 0
@@ -1013,14 +1010,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3967391350876126448}
-  m_LocalRotation: {x: -0.31147933, y: -0.84822863, z: 0.23409078, w: 0.35873443}
-  m_LocalPosition: {x: 0.5, y: 1.35, z: 0.75}
+  m_LocalRotation: {x: -0.49433094, y: -0.86380965, z: 0.09713404, w: -0.005904571}
+  m_LocalPosition: {x: 0.25, y: 1.4, z: 1.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1259209929264929940}
   m_Father: {fileID: 4292999508512683451}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 10, y: -130, z: 45}
+  m_LocalEulerAnglesHint: {x: 10, y: -175, z: 60}
 --- !u!114 &6785560912957086395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1080,14 +1077,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4069249295202104533}
-  m_LocalRotation: {x: -0.41766688, y: -0.79219055, z: -0.35635474, w: -0.26645806}
-  m_LocalPosition: {x: -1.25, y: 0.2, z: 1}
+  m_LocalRotation: {x: -0.39826983, y: -0.7954011, z: -0.3871304, w: -0.24258661}
+  m_LocalPosition: {x: -0.75, y: 0.6, z: 0.75}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7130607623853475190}
   m_Father: {fileID: 2728717124061099827}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: -20, y: -230, z: 65}
+  m_LocalEulerAnglesHint: {x: -25, y: -230, z: 65}
 --- !u!114 &8798744671935318307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2704,9 +2701,6 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 6b1616fcc182a1b499b1738e7d8547b8, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 6b55b06d7186e8e43af581f164973c8d, type: 3}
-  _TexBaseOff: {fileID: 0}
-  _TexLineOff: {fileID: 0}
-  _TexNormalOff: {fileID: 0}
 --- !u!114 &5313920557198517649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2724,9 +2718,6 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 6e31bbbfc8a854044856af7e1303360b, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
   _TexLine: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
-  _TexBaseOff: {fileID: 0}
-  _TexLineOff: {fileID: 0}
-  _TexNormalOff: {fileID: 0}
 --- !u!1 &8972024166111775783
 GameObject:
   m_ObjectHideFlags: 0

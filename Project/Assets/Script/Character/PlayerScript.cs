@@ -317,7 +317,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private float DashInputTime;
 
 	//脱出用レバガチャカウント
-	private int BreakCount = 0;
+	public int BreakCount = 0;
 
 	//脱出レバガチャ許可フラグ
 	private bool BreakInputFlag = false;
@@ -865,13 +865,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void H_Func()
 	{
 		//ブレイクカウントが達した
-		if (BreakCount > 10)
+		if (BreakCount > 10 && BreakInputFlag)
 		{
 			//レバガチャインプットフラグを下す
 			BreakInputFlag = false;
-
-			//脱出用レバガチャカウントリセット
-			BreakCount = 0;
 
 			//アニメーターのフラグを立てる
 			CurrentAnimator.SetBool("H_Break", true);
@@ -900,12 +897,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//トップスがはだけていない
 			if (!TopsOffFlag)
 			{
-				//レバガチャインプットフラグを下す
-				BreakInputFlag = false;
-
 				//後ろから
 				if (H_Location.Contains("Back"))
 				{
+					//レバガチャインプットフラグを下す
+					BreakInputFlag = false;
+
 					//トップスはだけフラグを立てる
 					TopsOffFlag = true;
 
@@ -914,8 +911,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 					//敵側の処理を呼び出す
 					ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.H_Transition("_TopsOff"));
-				}
 
+					//アニメーターを上書きしてアニメーションクリップを切り替える
+					CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+					//アニメーション遷移フラグを立てる
+					CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+
+					//スケベカメラワーク再生
+					H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_TopsOff")).ToList()[0]), false);
+
+					//次のカメラワーク設定
+					H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Damage")).ToList()[0]);
+				}
+				/*
 				//アニメーターを上書きしてアニメーションクリップを切り替える
 				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
@@ -927,6 +936,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//次のカメラワーク設定
 				H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Damage")).ToList()[0]);
+				*/
 			}
 		}
 	}
@@ -948,8 +958,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//スケベブレイク許可フラグを立てる関数
 	public void H_BreakInputFlag()
 	{
-		//レバガチャインプットフラグを立てる
-		BreakInputFlag = true;
+		//初回ループ時のみ処理
+		if(H_Count == 0)
+		{
+			//レバガチャインプットフラグを立てる
+			BreakInputFlag = true;
+		}
 	}
 
 	//スケベループカウントアップ
@@ -1506,7 +1520,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				yield return null;
 
 				//ブレンド比率変更
-				TempBlend += Time.deltaTime * 10;
+				TempBlend += Time.deltaTime * 2.5f;
 
 				//口のアニメーションレイヤーの重みを変更
 				CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), TempBlend);
@@ -1694,16 +1708,29 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			List<CapsuleCollider> tempList = new List<CapsuleCollider>();
 
 			//ListにコライダをAdd
+			foreach(var ii in M_Enemy.GetComponentsInChildren<Transform>())
+			{
+				if(ii.gameObject.name.Contains("Cloth"))
+				{
+					tempList.Add(ii.gameObject.GetComponent<CapsuleCollider>());
+				}
+			}
+			/*
 			tempList.Add(DeepFind(H_MainEnemy, "ClothCol_R").GetComponent<CapsuleCollider>());
 			tempList.Add(DeepFind(H_MainEnemy, "ClothCol_L").GetComponent<CapsuleCollider>());
 			tempList.Add(DeepFind(H_MainEnemy, "ClothCol_H").GetComponent<CapsuleCollider>());
+			*/
 
 			//複数人ならそいつのコライダもAdd
 			if (H_SubEnemy != null)
 			{
-				tempList.Add(DeepFind(H_SubEnemy, "ClothCol_R").GetComponent<CapsuleCollider>());
-				tempList.Add(DeepFind(H_SubEnemy, "ClothCol_L").GetComponent<CapsuleCollider>());
-				tempList.Add(DeepFind(H_SubEnemy, "ClothCol_H").GetComponent<CapsuleCollider>());
+				foreach (var ii in H_SubEnemy.GetComponentsInChildren<Transform>())
+				{
+					if (ii.gameObject.name.Contains("Cloth"))
+					{
+						tempList.Add(ii.gameObject.GetComponent<CapsuleCollider>());
+					}
+				}
 			}
 
 			//クロスのコライダに反映
@@ -3814,24 +3841,24 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetBool("H_Damage00", false);
 			CurrentAnimator.SetBool("H_Damage01", false);
 		}
-		//H_Breakになった瞬間の処理
-		else if (s.Contains("-> H_Break"))
+
+		if (s.Contains("H_Break ->"))
 		{
+			//脱出用レバガチャカウントリセット
+			BreakCount = 0;
+
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Break", false);
 
-			//脱出用レバガチャカウントリセット
-			BreakCount = 0;
+			//ゲームマネージャーのスケベフラグを下ろす
+			GameManagerScript.Instance.H_Flag = false;
 
 			//視線ダイレクトモード解除
 			ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(false));
 
 			//口のアニメーションレイヤーの重みをリセット
 			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), 0);
-
-			//ゲームマネージャーのスケベフラグを下ろす
-			GameManagerScript.Instance.H_Flag = false;
-		}		
+		}
 	}
 
 	//遷移許可フラグを管理する関数

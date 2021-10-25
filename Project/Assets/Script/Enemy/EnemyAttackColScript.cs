@@ -50,7 +50,7 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.HitEnemyAttack(HitArts, gameObject.transform.root.gameObject));
 		}
 		//スケベ攻撃が有効
-		else if(AttackEnable && H_AttackFlag)
+		else if(AttackEnable && H_AttackFlag && !GameManagerScript.Instance.H_Flag)
 		{
 			//将来的に周囲にいる敵の数を入れる
 			int men = 0;

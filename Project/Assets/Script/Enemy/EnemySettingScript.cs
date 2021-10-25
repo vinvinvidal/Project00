@@ -199,8 +199,8 @@ public class EnemySettingScript : GlobalClass
 		//クロス用コライダを腕に仕込む
 		foreach(CapsuleCollider i in gameObject.GetComponentsInChildren<CapsuleCollider>())
 		{
-			//右手
-			if(i.gameObject.name.Contains("_R"))
+			//右腕
+			if(i.gameObject.name.Contains("_RArm"))
 			{
 				//ボーンを親にする
 				i.gameObject.transform.parent = DeepFind(gameObject, "R_LowerArmBone").transform;
@@ -209,11 +209,40 @@ public class EnemySettingScript : GlobalClass
 				i.gameObject.transform.localPosition = Vector3.zero;
 				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
 			}
-			//左手
-			if (i.gameObject.name.Contains("_L"))
+			//右手
+			else if (i.gameObject.name.Contains("_RHand"))
+			{
+				//ボーンを親にする
+				i.gameObject.transform.parent = DeepFind(gameObject, "R_HandBone").transform;
+
+				//ローカルTRSをリセット
+				i.gameObject.transform.localPosition = Vector3.zero;
+				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			}
+			//左腕
+			else if (i.gameObject.name.Contains("_LArm"))
 			{
 				//ボーンを親にする
 				i.gameObject.transform.parent = DeepFind(gameObject, "L_LowerArmBone").transform;
+
+				//ローカルTRSをリセット
+				i.gameObject.transform.localPosition = Vector3.zero;
+				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			}
+			//左手
+			else if (i.gameObject.name.Contains("_LHand"))
+			{
+				//ボーンを親にする
+				i.gameObject.transform.parent = DeepFind(gameObject, "L_HandBone").transform;
+
+				//ローカルTRSをリセット
+				i.gameObject.transform.localPosition = Vector3.zero;
+				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			}
+			else if (i.gameObject.name.Contains("_Head"))
+			{
+				//ボーンを親にする
+				i.gameObject.transform.parent = DeepFind(gameObject, "HeadBone").transform;
 
 				//ローカルTRSをリセット
 				i.gameObject.transform.localPosition = Vector3.zero;

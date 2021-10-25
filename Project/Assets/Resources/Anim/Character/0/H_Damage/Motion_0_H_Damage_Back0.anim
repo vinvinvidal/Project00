@@ -60361,7 +60361,7 @@ AnimationClip:
   m_Events:
   - time: 0
     functionName: DirectEye
-    data: 0.9,0.9,-0.15,-0.025
+    data: 0.9,0.9,-0.15,0
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
