@@ -2390,6 +2390,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee9fcb5866324b04e9bd7fc813581d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SuperGauge: 1
 --- !u!143 &2097141605791399922
 CharacterController:
   m_ObjectHideFlags: 0

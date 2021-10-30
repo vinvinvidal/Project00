@@ -61,6 +61,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//バリバリゲージ
 	public float B_Gauge { get; set; }
 
+	//超必殺技を発動できるバリバリゲージしきい値
+	public float SuperGauge;
+
 	//GameManagerのAllActiveCharacterListに登録されているインデックス
 	private int AllActiveCharacterListListIndex;
 
@@ -130,6 +133,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//特殊攻撃入力フラグ
 	private bool SpecialInput = false;
+
+	//超必殺技入力フラグ
+	private bool SuperInput = false;
 
 	//オートコンボ入力フラグ
 	private bool AutoComboInput = false;
@@ -317,13 +323,19 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private float DashInputTime;
 
 	//脱出用レバガチャカウント
-	public int BreakCount = 0;
+	public int BreakCount { get; set; } = 0;
 
 	//脱出レバガチャ許可フラグ
 	private bool BreakInputFlag = false;
 
 	//上着はだけフラグ
 	private bool TopsOffFlag = false;
+
+
+
+
+
+
 
 
 	//装備している武器のオブジェクト
@@ -714,6 +726,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		InvincibleList.Add("H_Damage00");
 		InvincibleList.Add("H_Damage01");
 		InvincibleList.Add("H_Break");
+		InvincibleList.Add("SuperArts");
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
 		AllStates.Add("AnyState");
@@ -738,6 +751,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AllStates.Add("H_Damage00");
 		AllStates.Add("H_Damage01");
 		AllStates.Add("H_Break");
+		AllStates.Add("SuperTry");
+		AllStates.Add("SuperArts");
 
 		//全てのステートとトランジションをListにAdd
 		foreach (string i in AllStates)
@@ -1149,10 +1164,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//入力フラグを立てる
 			SpecialInput = true;
 		}
-
-		//テクスチャ差し替え
-		//DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOnTexture();
-
+		
 		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
 			if (ii.name.Contains("TopsOff"))
@@ -1168,10 +1180,29 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TopsOffFlag = false;
 	}
 
+	//超必殺技ボタンを押した時の処理
+	private void OnPlayerSuperArts(InputValue i)
+	{
+		//超必殺技入力許可条件判定
+		if (PermitInputBoolDic["SuperTry"])
+		{
+			//入力フラグを全て下す関数呼び出し
+			InputReset();
+
+			//遷移フラグを全て下す関数呼び出し
+			TransitionReset();
+
+			//入力フラグを立てる
+			SuperInput = true;
+		}
+	}
+
 	//入力フラグを全て下す関数
 	private void InputReset()
 	{
 		SpecialInput = false;
+
+		SuperInput = false;
 
 		AttackInput = false;
 
@@ -1194,6 +1225,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//Special遷移フラグを下す
 		CurrentAnimator.SetBool("SpecialTry", false);
+
+		//Super遷移フラグを下す
+		CurrentAnimator.SetBool("SuperTry", false);
 
 		//Attack遷移フラグを下す
 		CurrentAnimator.SetBool("Attack00", false);
@@ -1273,8 +1307,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//特殊攻撃中の移動処理
 		else if (CurrentState.Contains("Special"))
 		{
+			//特殊攻撃移動値
 			HorizonAcceleration = SpecialMoveVector;
 
+			//ロックしている敵に向ける
+			if (LockEnemy != null && !NoRotateFlag)
+			{
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * Time.deltaTime);
+			}
+		}
+		//超必殺技中の移動処理
+		else if (CurrentState.Contains("SuperTry"))
+		{
 			//ロックしている敵に向ける
 			if (LockEnemy != null && !NoRotateFlag)
 			{
@@ -2491,6 +2535,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.ColEnd());
 	}
 
+	//超必殺技コライダ出現処理、アニメーションクリップのイベントから呼ばれる
+	private void StartSuperCol(string pos)
+	{
+		//受け取った引数をfloatのListに入れる
+		List<float> PosList = new List<float>(pos.Split(',').Select(a => float.Parse(a)));
+
+		//超必殺技コライダ処理関数呼び出し
+		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.StartSuperCol(new Vector3(PosList[0], PosList[1], PosList[2]), new Vector3(PosList[3], PosList[4], PosList[5])));
+	}
+
 	//画面揺らし演出、アニメーションクリップのイベントから呼ばれる
 	private void ScreenShake(float t)
 	{
@@ -2660,103 +2714,111 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//プレイヤーの攻撃が敵に当たった時の処理
 	public void HitAttack(GameObject e, int AttackIndex)
 	{
-		//バリバリゲージ増加
-		SetB_Gauge(0.01f);
-
-		//巻き込み攻撃でなければ当たった敵をロックする
-		if (UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
+		//超必殺技が当たった
+		if(CurrentState.Contains("SuperTry"))
 		{
-			LockEnemy = e;
+			//超必殺技遷移フラグを立てる
+			CurrentAnimator.SetBool("SuperArts", true);
 		}
-
-		//メインカメラにもロック対象を渡す
-		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
-
-		//攻撃ステート制御リストに使用済み数値を入れる
-		ArtsStateMatrix[UseArts.UseLocation["Location"]][UseArts.UseLocation["Stick"]][UseArts.UseLocation["Button"]] = 10000;
-
-		//ヒットストップに値が入っていたら演出
-		if (UseArts.HitStop[AttackIndex] != 0)
+		else
 		{
-			//ヒットストップ処理
-			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.1f));
-		}
 
-		//地上突進技が当たったらその場で停止させる
-		if (AttackMoveType == 4)
-		{
-			AttackMoveVector *= 0;
-		}
+			//バリバリゲージ増加
+			SetB_Gauge(0.01f);
 
-		//引き起こし攻撃が当たった
-		if (UseArts.AttackType[AttackIndex] == 30)
-		{
-			//強制移動ベクトル初期化
-			ForceMoveVector *= 0;
-
-			//ホールド状態フラグを立てる
-			HoldFlag = true;
-
-			//回転制御フラグを立てる
-			NoRotateFlag = true;
-
-			//当たった敵の方を向く
-			transform.rotation = Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject));
-
-			//ホールド状態維持コルーチン呼び出し
-			StartCoroutine(KeepHold());
-		}
-
-		//敵を倒したらロックを外す処理
-		if (LockEnemy != null)
-		{
-			//返り値受け取り用変数
-			bool tempbool = false;
-
-			//攻撃を当てた敵から死亡フラグを受け取る
-			ExecuteEvents.Execute<EnemyCharacterInterface>(LockEnemy, null, (reciever, eventData) => tempbool = reciever.GetDestroyFlag());
-
-			//死んでたら
-			if (tempbool)
+			//巻き込み攻撃でなければ当たった敵をロックする
+			if (UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
 			{
-				//敵のロックを外す	
-				LockEnemy = null;
-
-				//メインカメラのロックも外す
-				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+				LockEnemy = e;
 			}
-		}
 
-		//タメ攻撃がフルチャージ
-		if (UseArts.ChargeLevel == 3)
-		{
-			//ヒットストップ処理
-			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0.5f, 0.1f));
+			//メインカメラにもロック対象を渡す
+			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 
-			//フェードエフェクト呼び出し
-			ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
+			//攻撃ステート制御リストに使用済み数値を入れる
+			ArtsStateMatrix[UseArts.UseLocation["Location"]][UseArts.UseLocation["Stick"]][UseArts.UseLocation["Button"]] = 10000;
 
-			//ズームエフェクト呼び出し
-			ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.05f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
-		}
-
-		//ある程度の高度で空中突進技が当たった
-		if (AttackMoveType == 5 && GroundDistance > 1.25f)
-		{
-			//これ以上イベントを起こさないために現在のステートを一時停止
-			CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
-
-			//攻撃を強制終了
-			EndAttack();
-
-			//攻撃が先行入力されていなければ空中ローリング
-			if (!AttackInput)
+			//ヒットストップに値が入っていたら演出
+			if (UseArts.HitStop[AttackIndex] != 0)
 			{
-				//ローリングの正面を設定
-				RollingRotateVector = transform.forward;
+				//ヒットストップ処理
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.1f));
+			}
 
-				//ローリングフラグを立てて強制的にローリング実行
-				CurrentAnimator.SetBool("Rolling", true);
+			//地上突進技が当たったらその場で停止させる
+			if (AttackMoveType == 4)
+			{
+				AttackMoveVector *= 0;
+			}
+			//ある程度の高度で空中突進技が当たった
+			else if (AttackMoveType == 5 && GroundDistance > 1.25f)
+			{
+				//これ以上イベントを起こさないために現在のステートを一時停止
+				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
+
+				//攻撃を強制終了
+				EndAttack();
+
+				//攻撃が先行入力されていなければ空中ローリング
+				if (!AttackInput)
+				{
+					//ローリングの正面を設定
+					RollingRotateVector = transform.forward;
+
+					//ローリングフラグを立てて強制的にローリング実行
+					CurrentAnimator.SetBool("Rolling", true);
+				}
+			}
+			//引き起こし攻撃が当たった
+			else if (UseArts.AttackType[AttackIndex] == 30)
+			{
+				//強制移動ベクトル初期化
+				ForceMoveVector *= 0;
+
+				//ホールド状態フラグを立てる
+				HoldFlag = true;
+
+				//回転制御フラグを立てる
+				NoRotateFlag = true;
+
+				//当たった敵の方を向く
+				transform.rotation = Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject));
+
+				//ホールド状態維持コルーチン呼び出し
+				StartCoroutine(KeepHold());
+			}
+
+			//敵を倒したらロックを外す処理
+			if (LockEnemy != null)
+			{
+				//返り値受け取り用変数
+				bool tempbool = false;
+
+				//攻撃を当てた敵から死亡フラグを受け取る
+				ExecuteEvents.Execute<EnemyCharacterInterface>(LockEnemy, null, (reciever, eventData) => tempbool = reciever.GetDestroyFlag());
+
+				//死んでたら
+				if (tempbool)
+				{
+					//敵のロックを外す	
+					LockEnemy = null;
+
+					//メインカメラのロックも外す
+					ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+				}
+			}
+
+			//タメ攻撃がフルチャージ
+			if (UseArts.ChargeLevel == 3)
+			{
+				//ヒットストップ処理
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0.5f, 0.1f));
+
+				//フェードエフェクト呼び出し
+				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
+
+				//ズームエフェクト呼び出し
+				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.05f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
 			}
 		}
 	}
@@ -3316,6 +3378,19 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetBool("SpecialTry", true);
 		}
 
+		//Super遷移判定
+		if (PermitTransitionBoolDic["SuperTry"])
+		{
+			//アニメーション遷移フラグを立てる
+			CurrentAnimator.SetBool("SuperTry", true);
+
+			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
+			if (LockEnemy == null)
+			{
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(true, HorizonAcceleration));
+			}
+		}
+
 		//Attack遷移判定
 		if (PermitTransitionBoolDic["Attack00"] || PermitTransitionBoolDic["Attack01"])
 		{
@@ -3382,6 +3457,31 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		!H_Flag &&
 		OnGroundFlag &&
 		!ActionEventFlag &&
+		(
+			s.Contains("Attack")
+			||
+			s.Contains("Stop")
+			||
+			s == "Idling"
+			||
+			s == "Run"
+			||
+			s == "GroundRolling"
+			||
+			s.Contains("-> Idling")
+			||
+			s.Contains("-> Run")
+			||
+			s.Contains("-> GroundRolling")
+		);
+
+		//超必殺技入力許可条件
+		PermitInputBoolDic["SuperTry"]
+		= !PauseFlag &&
+		!H_Flag &&
+		OnGroundFlag &&
+		!ActionEventFlag &&
+		B_Gauge >= SuperGauge &&
 		(
 			s.Contains("Attack")
 			||
@@ -3841,7 +3941,23 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetBool("H_Damage00", false);
 			CurrentAnimator.SetBool("H_Damage01", false);
 		}
+		//SuperTryになった瞬間の処理
+		else if (s.Contains("-> SuperTry"))
+		{
+			//超必殺技入力フラグを下す
+			SuperInput = false;
 
+			//アニメーターのフラグを下ろす
+			CurrentAnimator.SetBool("SuperTry", false);
+		}
+		//SuperArtsになった瞬間の処理
+		else if (s.Contains("-> SuperArts"))
+		{
+			//アニメーターのフラグを下ろす
+			CurrentAnimator.SetBool("SuperArts", false);
+		}
+
+		//スケベブレイクから遷移した瞬間の処理
 		if (s.Contains("H_Break ->"))
 		{
 			//脱出用レバガチャカウントリセット
@@ -3864,6 +3980,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//遷移許可フラグを管理する関数
 	private void TransitionManager()
 	{
+		//超必殺技遷移許可条件
+		PermitTransitionBoolDic["SuperTry"] =
+		OnGroundFlag &&
+		SuperInput &&
+		PermitInputBoolDic["SuperTry"] &&
+		CurrentAnimator.GetBool("Transition")
+		;
+
 		//特殊攻撃遷移許可条件
 		PermitTransitionBoolDic["SpecialTry"] =
 		OnGroundFlag &&

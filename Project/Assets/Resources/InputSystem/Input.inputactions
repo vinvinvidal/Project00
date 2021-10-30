@@ -100,6 +100,14 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "PlayerSuperArts",
+                    "type": "Button",
+                    "id": "5c0cc81f-34ab-48d6-8594-f723af3dfeb9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -507,6 +515,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "PlayerSpecial",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1eb3416f-30c6-478f-abdd-bf48f7f0be4f",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PlayerSuperArts",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "160d3d35-4fc3-4839-97cc-0a8998a98000",
+                    "path": "<Keyboard>/leftAlt",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PlayerSuperArts",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
