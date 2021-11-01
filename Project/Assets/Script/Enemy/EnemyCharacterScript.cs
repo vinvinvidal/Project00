@@ -29,6 +29,9 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	//プレイヤーからの攻撃を受けた時の処理
 	void PlayerAttackHit(ArtsClass i, int c);
 
+	//超必殺技を受けた時の処理
+	void SuperArtsHit(int n, int dwn);
+
 	//スケベ攻撃が当たった時に呼ばれる
 	void H_AttackHit(string ang , int men, GameObject Player);
 
@@ -177,6 +180,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//ホールド中の移動ベクトル
 	private Vector3 HoldVec;
 
+	//超必殺技中の移動ベクトル
+	public Vector3 SuperMoveVec { get; set; }
+
 	//特殊攻撃中の移動ベクトル
 	public Vector3 SpecialMoveVec { get; set; }
 
@@ -224,6 +230,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//ホールドダメージ状態フラグ
 	public bool HoldFlag { get; set; }
+
+	//超必殺技ダメージ状態フラグ
+	public bool SuperFlag { get; set; }
 
 	//特殊攻撃状態フラグ
 	public bool SpecialFlag { get; set; }
@@ -305,6 +314,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ホールドダメージ状態フラグ初期化
 		HoldFlag = false;
 
+		//超必殺技ダメージ状態フラグ初期化
+		SuperFlag = false;
+
 		//打ち上げ状態フラグ初期化
 		RiseFlag = false;
 
@@ -377,6 +389,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ホールド中の移動ベクトル初期化
 		HoldVec = Vector3.zero;
 
+		//超必殺技中の移動ベクトル初期化
+		SuperMoveVec = Vector3.zero;
+
 		//地面との距離初期化
 		GroundDistance = 0.0f;
 
@@ -443,6 +458,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		AllStates.Add("Down_Supine");
 		AllStates.Add("GetUp_Prone");
 		AllStates.Add("GetUp_Supine");
+		AllStates.Add("SuperDamage");
 
 		//全てのステートとトランジションをListにAdd
 		foreach (string i in AllStates)
@@ -626,8 +642,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//強制移動ベクトル初期化
 		ForceMoveVector *= 0;
 
-		//スケベ中じゃない
-		if (!H_Flag)
+		//スケベ、もしくは超必殺技中じゃない
+		if (!H_Flag && !SuperFlag)
 		{
 			//他の敵と振れている
 			if (HitEnemy != null)
@@ -712,6 +728,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		else if (DamageFlag)
 		{
 			MoveMoment = DamageMoveVec * Time.deltaTime;
+		}
+		//超必殺技中の移動
+		else if(SuperFlag)
+		{
+			MoveMoment = SuperMoveVec * Time.deltaTime;
 		}
 		//スケベ中の移動
 		else if(H_Flag)
@@ -803,7 +824,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		Life -= Arts.Damage[n];
 
 		//タメ攻撃の係数を掛ける
-		Life -= Arts.ChargeDamage[n] * Arts.ChargeLevel;
+		Life -= Arts.ChargeDamage[n] * PlayerCharacter.GetComponent<PlayerScript>().ChargeLevel;
 
 		//攻撃用コライダを無効化
 		EndAttackCol();
@@ -825,6 +846,32 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	
 		//ダメージモーション管理関数呼び出し
 		DamageMotionFunc(Arts, n);
+	}
+
+	//超必殺技を受けた時の処理
+	public void SuperArtsHit(int n, int dwn)
+	{
+		//遷移フラグを立てる
+		CurrentAnimator.SetBool("SuperDamage", true);
+
+		//引数で技後のダウンフラグを立てる
+		if(dwn == 0)
+		{
+			CurrentAnimator.SetBool("Down_Prone", true);
+		}
+		else
+		{
+			CurrentAnimator.SetBool("Down_Supine", true);
+		}
+
+		//超必殺技フラグを立てる
+		SuperFlag = true;
+
+		//使用するモーションに差し替え
+		OverRideAnimator["Super_void"] = DamageAnimList[50 + n];
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 	}
 
 	//ダメージモーション管理関数
@@ -1317,12 +1364,29 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//攻撃遷移フラグを下す
 				CurrentAnimator.SetBool("Attack", false);
 			}
+			//超必殺技を喰らった瞬間の処理
+			else if (CurrentState == "SuperDamage")
+			{
+				//遷移フラグを下ろす
+				CurrentAnimator.SetBool("SuperDamage", false);
+
+				//移動ベクトルを初期化
+				SuperMoveVec *= 0;
+
+				//プレイヤーキャラクターに向ける
+				transform.LookAt(new Vector3(PlayerCharacter.transform.position.x , transform.position.y , PlayerCharacter.transform.position.z));
+			}
 
 			//スケベ解除から遷移する瞬間の処理
 			if (CurrentState.Contains("H_Break ->"))
 			{
 				//スケベフラグを下す
 				H_Flag = false;
+			}
+			else if (CurrentState.Contains("SuperDamage ->"))
+			{
+				//超必殺技フラグを下す
+				SuperFlag = false;
 			}
 		}
 
@@ -1586,6 +1650,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//ホールドダメージ状態を下す
 		HoldFlag = false;
+
+		//超必殺技フラグを下す
+		SuperFlag = false;
 
 		//スケベフラグを下す
 		H_Flag = false;

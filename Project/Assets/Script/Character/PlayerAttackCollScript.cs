@@ -155,7 +155,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 			AttackCol.enabled = true;
 
 			//コライダ移動コルーチン呼び出し
-			StartCoroutine(ColMove(HitArts.ColVec[n], HitArts.ColType[n], HitArts.ChargeLevel));
+			StartCoroutine(ColMove(HitArts.ColVec[n], HitArts.ColType[n], PlayerCharacter.GetComponent<PlayerScript>().ChargeLevel));
 		}
 	}
 

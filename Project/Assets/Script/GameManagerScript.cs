@@ -174,6 +174,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllSpecialArtsAnimCompleteFlagDic = new Dictionary<string, bool>();
 
+	//全ての超必殺技情報を持ったList
+	public List<SuperClass> AllSuperArtsList { get; set; }
+	//↑の全てのアニメーションクリップ読み込み完了Dic
+	private Dictionary<string, bool> AllSuperArtsAnimCompleteFlagDic = new Dictionary<string, bool>();
+
 	//全ての表情アニメーションを持ったList
 	public List<AnimationClip> AllFaceList { get; set; }
 	//↑の全てのアニメーションクリップ読み込み完了Dic
@@ -226,6 +231,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			AllEnemyAttackAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllSpecialArtsAnimCompleteFlagDic.Any() &&
 			AllSpecialArtsAnimCompleteFlagDic.All(a => a.Value == true) &&
+			AllSuperArtsAnimCompleteFlagDic.Any() &&
+			AllSuperArtsAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllMissionListCompleteFlag && 
 			AllParticleEffectListCompleteFlag &&
 			AllWeaponListCompleteFlag &&
@@ -980,6 +987,95 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 					//読み込んだアニメーションのDicをtrueにする
 					AllSpecialArtsAnimCompleteFlagDic[i.AnimName] = true;
 
+				}));
+			}
+		}));
+
+		//超必殺技CSV読み込み
+		StartCoroutine(AllFileLoadCoroutine("csv/Super/", "csv", (List<object> list) =>
+		{
+			//全ての特殊技情報を持ったList初期化
+			AllSuperArtsList = new List<SuperClass>();
+
+			//読み込んだCSVを回す
+			foreach (string i in list.Select(t => t as TextAsset).Select(t => t.text))
+			{
+				//EnemyAttackClassコンストラクタ代入用変数
+				int cid = 0;
+				int aid = 0;
+				int ul = 0;
+				int dwn = 0;
+				string nc = "";
+				string nh = "";
+				string tan = "";
+				string aan = "";
+				string info = "";
+				List<Action<GameObject, GameObject>> sa = new List<Action<GameObject, GameObject>>();
+
+				//改行で分割して回す
+				foreach (string ii in i.Split('\n').ToList())
+				{
+					//カンマで分割した最初の要素で条件分岐、続く値を変数に代入
+					switch (ii.Split(',').ToList().First())
+					{
+						case "UseCharacter": cid = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "ArtsIndex": aid = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "NameC": nc = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
+						case "NameH": nh = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
+						case "TryAnimName": tan = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
+						case "ArtsAnimName": aan = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
+						case "Info": info = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
+						case "UnLock": ul = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "Down": dwn = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+					}
+				}
+
+				//超必殺技処理のListを受け取る
+				ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => sa = new List<Action<GameObject, GameObject>>(reciever.GetSuperAct(cid, aid)));
+
+				//セーブデータからアンロック状況を読み込む
+				foreach (string ii in UserData.SuperUnLock)
+				{
+					//リストに名前があればアンロック済み
+					if (ii == nc)
+					{
+						ul = 1;
+					}
+				}
+
+				//ListにAdd
+				AllSuperArtsList.Add(new SuperClass(cid, aid, ul, tan, aan, nc, nh, info, dwn, sa));
+			}
+
+			//アニメーションクリップ読み込み完了判定Dicを作る。
+			foreach (SuperClass i in AllSuperArtsList)
+			{
+				//フラグ管理DicにAdd
+				AllSuperArtsAnimCompleteFlagDic.Add(i.TryAnimName, false);
+				AllSuperArtsAnimCompleteFlagDic.Add(i.ArtsAnimName, false);
+			}
+
+			//特殊攻撃Listを回す
+			foreach (SuperClass i in AllSuperArtsList)
+			{
+				//技のアニメーションを読み込む
+				StartCoroutine(LoadOBJ("Anim/Character/" + i.UseCharacter + "/Super/", i.TryAnimName, "anim", (object O) =>
+				{
+					//ClassのListにAdd
+					i.TryAnimClip = O as AnimationClip;
+
+					//読み込んだアニメーションのDicをtrueにする
+					AllSuperArtsAnimCompleteFlagDic[i.TryAnimName] = true;
+				}));
+
+				//技のアニメーションを読み込む
+				StartCoroutine(LoadOBJ("Anim/Character/" + i.UseCharacter + "/Super/", i.ArtsAnimName, "anim", (object O) =>
+				{
+					//ClassのListにAdd
+					i.ArtsAnimClip = O as AnimationClip;
+
+					//読み込んだアニメーションのDicをtrueにする
+					AllSuperArtsAnimCompleteFlagDic[i.ArtsAnimName] = true;
 				}));
 			}
 		}));
@@ -1976,6 +2072,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		re.SpecialUnLock = new List<string>();
 
+		re.SuperUnLock = new List<string>();
+
+		re.EquipSuperArts = new List<int>();
+
 		re.ArrowKeyInputAttackUnLock = new List<bool>();
 
 		re.ArtsMatrix = new List<List<List<List<string>>>>();
@@ -2027,58 +2127,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 			//レバー入れ攻撃アンロック状況を追加
 			re.ArrowKeyInputAttackUnLock.Add(false);
+
+			//超必殺技装備を追加
+			re.EquipSuperArts.Add(0);
 		}
 
 		//出力
-		return re;
-
-		/*
-		//キャラクター番号とリストのインデックスを一致させるために予め要素を追加しておく
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-		re.ArtsMatrix.Add(null);
-
-
-
-		//キャラクター番号とリストのインデックスを一致させるために予め要素を追加しておく
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		re.ArrowKeyInputAttackUnLock.Add(new List<bool>());
-		*/
-
+		return re;	
 	}
 }

@@ -70,9 +70,6 @@ public class ArtsClass
 	//タメ攻撃威力
 	public List<int> ChargeDamage;
 
-	//タメ段階
-	public int ChargeLevel;
-
 	//使われたロケーション
 	public Dictionary<string, int> UseLocation;
 
@@ -263,8 +260,6 @@ public class ArtsClass
 		HitStop = new List<float>(hs);
 
 		ChargeDamage = new List<int>(cg);
-
-		ChargeLevel = 0;
 
 		HoldPosList = new List<Vector3>(hl);
 

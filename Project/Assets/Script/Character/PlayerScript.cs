@@ -43,8 +43,8 @@ public interface PlayerScriptInterface : IEventSystemHandler
 		//自身がカメラの画角に入っているか返す
 		bool GetOnCameraBool();
 
-	//キャラクターのデータセットする
-	void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO);
+		//キャラクターのデータセットする
+		void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO);
 
 		//当たった攻撃が有効か返す
 		bool AttackEnable(bool H);
@@ -181,7 +181,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private bool SpecialSuccessFlag = false;
 
 	//特殊攻撃中フラグ
-	public bool SpecialAttackFlag { get; set; }
+	public bool SpecialAttackFlag { get; set; } = false;
+
+	//超必殺技中フラグ
+	public bool SuperFlag { get; set; } = false;
 
 	//スケベフラグ
 	public bool H_Flag { get; set; }
@@ -262,6 +265,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//特殊攻撃移動ベクトル
 	public Vector3 SpecialMoveVector { get; set; }
 
+	//超必殺技移動ベクトル
+	public Vector3 SuperMoveVector { get; set; }
+
 
 
 	//--- レイキャスト関連 ---//
@@ -319,6 +325,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//チェイン攻撃の入力受付時間
 	private float ChainAttackWaitTime;
 
+	//タメ攻撃チャージレベル
+	public int ChargeLevel { get; set; }
+
 	//ダッシュ入力受付時間
 	private float DashInputTime;
 
@@ -343,6 +352,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//装備している特殊技
 	public List<SpecialClass> SpecialArtsList = new List<SpecialClass>();
+
+	//装備している超必殺技
+	private SuperClass SuperArts; 
 
 	//何も技を装備していないフラグ
 	private bool NoEquipFlag = false;
@@ -638,9 +650,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ダッシュ入力受付時間初期化
 		DashInputTime = 0;
 
-		//特殊攻撃中フラグ初期化
-		SpecialAttackFlag = false;
-
 		//スケベフラグ初期化
 		H_Flag = false;
 
@@ -661,6 +670,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//特殊攻撃移動ベクトル初期化
 		SpecialMoveVector = Vector3.zero;
+
+		//超必殺技移動ベクトル初期化
+		SuperMoveVector = Vector3.zero;
 
 		//攻撃時のTrailエフェクト取得
 		AttackTrail = DeepFind(gameObject, "AttackTrail");
@@ -683,6 +695,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベエフェクト00取得
 		H_Effect00 = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "H_Effect00").ToArray()[0];
 
+		//超必殺技装備
+		SuperArts = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray()[0]; 
+
+		//超必殺技のモーションを仕込む
+		OverRideAnimator["SuperTry_void"] = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.TryAnimClip.name.Contains(CharacterID + "_SuperTry" + a.ArtsIndex)).ToArray()[0].TryAnimClip;
+		OverRideAnimator["SuperArts_void"] = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.ArtsAnimClip.name.Contains(CharacterID + "_SuperArts" + a.ArtsIndex)).ToArray()[0].ArtsAnimClip;
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
 		//とりあえずなんでもいいから技を入れる、これが無いと最初の攻撃の時に一瞬Ｔスタンスが見える
 		foreach (List<List<ArtsClass>> i in ArtsMatrix)
@@ -1266,7 +1287,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag && !H_Flag)
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag)
 		{
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
@@ -1317,8 +1338,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 		//超必殺技中の移動処理
-		else if (CurrentState.Contains("SuperTry"))
+		else if (CurrentState.Contains("Super"))
 		{
+			//超必殺技移動値
+			HorizonAcceleration = SuperMoveVector;
+
 			//ロックしている敵に向ける
 			if (LockEnemy != null && !NoRotateFlag)
 			{
@@ -1933,6 +1957,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0].SpecialAtcList[n](gameObject , LockEnemy , SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0]);
 	}
 
+	//超必殺技処理実行、アニメーションクリップから呼ばれる
+	public void SuperArtsAction(int n)
+	{
+		//特殊攻撃処理を実行
+		SuperArts.SuperAtcList[n](gameObject, LockEnemy);
+	}
+
 	//ダメージ時の移動ベクトルを設定する、アニメーションクリップから呼ばれる
 	public void StartDamageMove(float s)
 	{
@@ -2201,7 +2232,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//回転禁止フラグ制御、突進攻撃で振り向かせたくない場合など、アニメーションクリップのイベントから呼ばれる
-	private void RotateControl(int b)
+	public void RotateControl(int b)
 	{
 		//引数でフラグを切り替える
 		NoRotateFlag = b == 0 ? false : true;
@@ -2281,14 +2312,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//チャージが1段階以上溜まったら
-			if (UseArts.ChargeLevel > 0)
+			if (ChargeLevel > 0)
 			{
 				//クロスに力を加えてなびかせる
 				foreach (Cloth c in GetComponentsInChildren<Cloth>())
 				{
 					c.randomAcceleration = new Vector3(0, 200, 0);
 
-					c.randomAcceleration *= UseArts.ChargeLevel;
+					c.randomAcceleration *= ChargeLevel;
 				}
 
 				//DynamicBoneに力を加えてなびかせる
@@ -2301,16 +2332,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 						ii.m_Force.y = UnityEngine.Random.Range(0, 0.01f);
 						ii.m_Force.z = UnityEngine.Random.Range(-0.002f, 0.002f);
 
-						ii.m_Force *= UseArts.ChargeLevel;
+						ii.m_Force *= ChargeLevel;
 					}
 				}
 			}
 
 			//チャージ1段階完了処理
-			if ((Time.time - ChargeTime > 0.5f) && UseArts.ChargeLevel == 0)
+			if ((Time.time - ChargeTime > 0.5f) && ChargeLevel == 0)
 			{
 				//チャージレベルをあげる
-				UseArts.ChargeLevel = 1;
+				ChargeLevel = 1;
 
 				//タメループエフェクトをアクティブにする
 				TempChargePowerEffect.SetActive(true);
@@ -2340,10 +2371,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.025f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
 			}
 			//チャージ2段階完了処理
-			else if ((Time.time - ChargeTime > 2.0f) && UseArts.ChargeLevel == 1)
+			else if ((Time.time - ChargeTime > 2.0f) && ChargeLevel == 1)
 			{
 				//チャージレベルをあげる
-				UseArts.ChargeLevel = 2;
+				ChargeLevel = 2;
 
 				//タメループエフェクトの段階をあげる
 				DeepFind(TempChargePowerEffect, "ChargePower2").GetComponent<ParticleSystem>().Play();
@@ -2370,10 +2401,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.025f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
 			}
 			//チャージ3段階完了処理
-			else if ((Time.time - ChargeTime > 5.0f) && UseArts.ChargeLevel == 2)
+			else if ((Time.time - ChargeTime > 5.0f) && ChargeLevel == 2)
 			{
 				//チャージレベルをあげる
-				UseArts.ChargeLevel = 3;
+				ChargeLevel = 3;
 
 				//タメループエフェクトの段階をあげる
 				DeepFind(TempChargePowerEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
@@ -2442,7 +2473,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if (JumpInput || RollingInput || DamageFlag)
 		{
 			//チャージレベル初期化
-			UseArts.ChargeLevel = 0;
+			ChargeLevel = 0;
 
 			//攻撃ボタン押しっぱなしフラグを下げる
 			HoldButtonFlag = false;
@@ -2457,29 +2488,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//モーション再生時間を戻して発射
 			CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 1.0f);
-			/*
-			//フルチャージ演出
-			if (UseArts.ChargeLevel == 3 && LockEnemy != null)
-			{
-				//フルチャージ演出時間
-				float EffectTime = 0.5f;
-
-				//フルチャージ演出タイムスケール
-				float EffectScale = 0.1f;
-
-				//瞬きをさせないために待機時間を更新
-				BlinkDelayTime = Time.time;
-
-				//スロー演出
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(EffectTime, EffectScale));
-
-				//カメラクローズアップ演出
-				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.CloseUpCameraMode(transform.position + DeepFind(gameObject, "HeadBone").transform.forward, MainCameraTransform.position, DeepFind(gameObject, "HeadBone"), EffectTime * EffectScale, 0.05f, () =>
-			   {
-				   //一応匿名関数を渡しておく
-			   }));
-			}
-			*/
 		}
 	}
 
@@ -2568,13 +2576,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempAttackEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//タメ攻撃の場合エフェクトをでかくする
-		if(UseArts.ChargeLevel > 0)
+		if(ChargeLevel > 0)
 		{
 			//エフェクトのアクセサを取り出す
 			ParticleSystem.MainModule Accesser = TempAttackEffect.GetComponent<ParticleSystem>().main;
 
 			//チャージレベルを掛けて弾をでかくする
-			Accesser.startSize = Accesser.startSize.constant * (UseArts.ChargeLevel * 0.5f + 1);
+			Accesser.startSize = Accesser.startSize.constant * (ChargeLevel * 0.5f + 1);
 		}
 	}
 
@@ -2649,7 +2657,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 						}
 					}
 					//ローリングかジャンプか特殊攻撃かダメージででチェイン中断
-					else if ((RollingInput && AirRollingFlag) || (JumpInput && OnGroundFlag) || SpecialInput || DamageFlag || H_Flag)
+					else if ((RollingInput && AirRollingFlag) || (JumpInput && OnGroundFlag) || SpecialInput || SuperInput || DamageFlag || H_Flag)
 					{
 						//これ以上イベントを起こさないために現在のステートを一時停止
 						CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
@@ -2719,6 +2727,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//超必殺技遷移フラグを立てる
 			CurrentAnimator.SetBool("SuperArts", true);
+
+			//攻撃が当たった時の敵側の処理を呼び出す
+			ExecuteEvents.Execute<EnemyCharacterInterface>(e.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.SuperArtsHit(CharacterID, SuperArts.Down));
 		}
 		else
 		{
@@ -2809,7 +2820,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//タメ攻撃がフルチャージ
-			if (UseArts.ChargeLevel == 3)
+			if (ChargeLevel == 3)
 			{
 				//ヒットストップ処理
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0.5f, 0.1f));
@@ -3822,7 +3833,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				NoRotateFlag = false;
 
 				//チャージレベル初期化
-				UseArts.ChargeLevel = 0;
+				ChargeLevel = 0;
 
 				//ジャンプ開始直後のベクトル初期化
 				JumpHorizonVector *= 0;

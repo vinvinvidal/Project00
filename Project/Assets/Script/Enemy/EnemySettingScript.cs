@@ -88,7 +88,7 @@ public class EnemySettingScript : GlobalClass
 		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Anim/Enemy/" + ID + "/Damage/", "anim", (List<object> OBJList) =>
 		{
 			//モーション番号判別ループ
-			for (int count1 = 0; count1 < 6; count1++)
+			for (int count1 = 0; count1 < 10; count1++)
 			{
 				for (int count2 = 0; count2 < 10; count2++)
 				{

@@ -11,6 +11,9 @@ public interface SpecialArtsScriptInterface : IEventSystemHandler
 	//特殊攻撃の処理を返すインターフェイス
 	List<Action<GameObject, GameObject, SpecialClass>> GetSpecialAct(int c, int i);
 
+	//超必殺技の処理を返すインターフェイス
+	List<Action<GameObject, GameObject>> GetSuperAct(int c, int i);
+
 	//特殊攻撃の対象を返すインターフェイス
 	GameObject SearchSpecialTarget(int i);
 }
@@ -24,6 +27,14 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	bool SpecialAction021Flag = false;
 	bool SpecialAction022Flag = false;
 	bool SpecialAction023Flag = false;
+
+	//超必殺技制御フラグ
+	bool SuperAction000Flag = false;
+	bool SuperAction001Flag = false;
+	bool SuperAction002Flag = false;
+	bool SuperAction003Flag = false;
+	bool SuperAction004Flag = false;
+	bool SuperAction005Flag = false;
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -75,6 +86,136 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 		}
 
 		//出力
+		return re;
+	}
+
+	//超必殺技の処理を返すインターフェイス
+	public List<Action<GameObject, GameObject>> GetSuperAct(int c, int i)
+	{
+		List<Action<GameObject, GameObject>> re = new List<Action<GameObject, GameObject>>();
+
+		//御命
+		if (c == 0)
+		{
+			//怒傑
+			if (i == 0)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SuperFlag = true;
+
+						//ロック対象に対する回転を止める
+						Player.GetComponent<PlayerScript>().RotateControl(1);
+
+						//超必殺技制御フラグを立てる
+						SuperAction000Flag = true;
+
+						//敵移動コルーチン呼び出し
+						StartCoroutine(EnemySuperAction000(Player, Enemy));
+					}
+				);
+
+				//敵行動コルーチン
+				IEnumerator EnemySuperAction000(GameObject Player, GameObject Enemy)
+				{
+					//移動目的地をキャッシュ
+					Vector3 TargetPos = Player.transform.position + Player.transform.forward * 1.5f;
+
+					//フラグが降りるまでループ
+					while (SuperAction000Flag)
+					{
+						//目的地まで移動
+						Enemy.GetComponent<EnemyCharacterScript>().SuperMoveVec = (TargetPos - Enemy.transform.position) * 5;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//超必殺技制御フラグを下す
+						SuperAction000Flag = false;
+
+						//超必殺技制御フラグを立てる
+						SuperAction001Flag = true;
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSuperlAction001(Player, Enemy));
+					}
+				);
+
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSuperlAction001(GameObject Player, GameObject Enemy)
+				{
+					//移動目的地をキャッシュ
+					Vector3 TargetPos = Enemy.transform.position + (Enemy.transform.forward * 0.5f);
+
+					//フラグが降りるまでループ
+					while (SuperAction001Flag)
+					{
+						//敵を向く
+						Player.transform.rotation = Quaternion.LookRotation(HorizontalVector(Enemy, Player));
+
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SuperMoveVector = (TargetPos - Player.transform.position) * 10;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//超必殺技制御フラグを下す
+						SuperAction001Flag = false;
+
+						//超必殺技制御フラグを立てる
+						SuperAction002Flag = true;
+
+						//敵移動コルーチン呼び出し
+						StartCoroutine(EnemySuperAction002(Player, Enemy));
+					}
+				);
+
+				//敵行動コルーチン
+				IEnumerator EnemySuperAction002(GameObject Player, GameObject Enemy)
+				{
+					//移動目的地をキャッシュ
+					Vector3 TargetPos = Player.transform.position + Player.transform.right;
+
+					//フラグが降りるまでループ
+					while (SuperAction002Flag)
+					{
+						//目的地まで移動
+						Enemy.GetComponent<EnemyCharacterScript>().SuperMoveVec = (TargetPos - Enemy.transform.position) * 5;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//超必殺技制御フラグを下す
+						SuperAction002Flag = false;
+
+						//プレイヤーのフラグを下ろす
+						Player.GetComponent<PlayerScript>().SuperFlag = false;
+					}
+				);
+			}
+		}
+
 		return re;
 	}
 

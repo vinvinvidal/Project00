@@ -28,6 +28,12 @@ public class UserDataClass
 	//特殊技のアンロック状況
 	public List<string> SpecialUnLock;
 
+	//超必殺技のアンロック状況
+	public List<string> SuperUnLock;
+
+	//装備している超必殺技
+	public List<int> EquipSuperArts;
+
 	//装備している技のマトリクス
 	public List<List<List<List<string>>>> ArtsMatrix;
 
