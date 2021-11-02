@@ -331,6 +331,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//ダッシュ入力受付時間
 	private float DashInputTime;
 
+	//超必殺技制御カウント
+	private int SuperCount = 0;
+
 	//脱出用レバガチャカウント
 	public int BreakCount { get; set; } = 0;
 
@@ -1961,7 +1964,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void SuperArtsAction(int n)
 	{
 		//特殊攻撃処理を実行
-		SuperArts.SuperAtcList[n](gameObject, LockEnemy);
+		SuperArts.SuperAtcList[SuperCount](gameObject, LockEnemy);
+
+		SuperCount++;
 	}
 
 	//ダメージ時の移動ベクトルを設定する、アニメーションクリップから呼ばれる
@@ -3957,6 +3962,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//超必殺技入力フラグを下す
 			SuperInput = false;
+
+			//超必殺技制御カウント初期化
+			SuperCount = 0;
 
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("SuperTry", false);

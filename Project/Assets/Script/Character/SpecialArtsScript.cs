@@ -168,7 +168,158 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//1フレーム待機
 						yield return null;
 					}
-				}
+				}				
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect0 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect02").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect0.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect0.transform.localPosition = new Vector3(0,0.8f,1.25f);
+
+						//回転値を設定
+						TempAttackEffect0.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect1 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "AttackEffect00").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect1.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect1.transform.localPosition = new Vector3(0, 0.05f, 0);
+
+						//回転値を設定
+						TempAttackEffect1.transform.localRotation = Quaternion.Euler(Vector3.zero);
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect0 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect02").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect0.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect0.transform.localPosition = new Vector3(0,1.6f,0.75f);
+
+						//回転値を設定
+						TempAttackEffect0.transform.localRotation = Quaternion.Euler(new Vector3(-40,0,0));
+
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect1 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "AttackEffect00").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect1.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect1.transform.localPosition = new Vector3(0, 0.2f, 0.3f);
+
+						//回転値を設定
+						TempAttackEffect1.transform.localRotation = Quaternion.Euler(new Vector3(-40, 0, 0));
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect0 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect02").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect0.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect0.transform.localPosition = new Vector3(0, 1.6f, 0.75f);
+
+						//回転値を設定
+						TempAttackEffect0.transform.localRotation = Quaternion.Euler(new Vector3(-40, 0, 0));
+
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect1 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "AttackEffect00").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect1.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect1.transform.localPosition = new Vector3(0, 0.2f, 0.3f);
+
+						//回転値を設定
+						TempAttackEffect1.transform.localRotation = Quaternion.Euler(new Vector3(-40, 0, 0));
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect0 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect02").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect0.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect0.transform.localPosition = new Vector3(0, 1.6f, 0.75f);
+
+						//回転値を設定
+						TempAttackEffect0.transform.localRotation = Quaternion.Euler(new Vector3(-40, 0, 0));
+
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect1 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "AttackEffect00").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect1.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect1.transform.localPosition = new Vector3(0, 0.2f, 0.3f);
+
+						//回転値を設定
+						TempAttackEffect1.transform.localRotation = Quaternion.Euler(new Vector3(-40, 0, 0));
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect0 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "AttackEffect03").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect0.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect0.transform.localPosition = new Vector3(0, 1.6f, -0.25f);
+
+						//回転値を設定
+						TempAttackEffect0.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
+
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect1 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "ChargeLevel").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect1.transform.parent = Player.transform;
+
+						//位置を設定
+						TempAttackEffect1.transform.localPosition *= 0;
+
+						//回転値を設定
+						TempAttackEffect1.transform.localRotation = Quaternion.Euler(Vector3.zero);					
+
+					}
+				);
 
 				re.Add
 				(
