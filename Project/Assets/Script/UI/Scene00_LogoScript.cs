@@ -12,9 +12,6 @@ public class Scene00_LogoScript : GlobalClass
 	//ロゴ回転速度
 	private float RotateSpeed = 0;
 
-	//スクリーンエフェクトオブジェクト
-	private GameObject ScreenEffectOBJ;
-
 	//次のシーンを読み込む処理を一度だけにするためのフラグ
 	private bool NextSceneFlag = true;
 
@@ -22,9 +19,6 @@ public class Scene00_LogoScript : GlobalClass
     {
 		//アニメーターコントローラー取得
 		AnimCon = transform.GetComponent<Animator>();
-
-		//スクリーンエフェクトオブジェクト取得
-		ScreenEffectOBJ = GameObject.Find("MainCameraScreenEffect");
 	}
 
 	void Update()

@@ -42,6 +42,13 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 
 	//タイムスケール変更
 	void TimeScaleChange(float t, float s);
+
+	//スカイボックス取得、シーンの最初に呼び出す
+	void SetSkyBox();
+
+	//超必殺技暗転演出
+	void StartSuperArtsLightEffect(float t);
+	void EndSuperArtsLightEffect(float t);
 }
 
 //シングルトンなので専用オブジェクトにつけてシーン移動後も常に存在させる
@@ -135,7 +142,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	private List<GameObject> LockEnemyList;
 
 	//タイムスケール係数
-	float TimeScaleNum = 1;
+	private float TimeScaleNum = 1;
+
+	//使用中のスカイボックス
+	private Material SkyBoxMaterial;
+
 
 
 	//存在している全てのキャラクターリスト
@@ -1152,6 +1163,16 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		Time.timeScale = FPS / FrameRate * TimeScaleNum;
 	}
 
+	//スカイボックスをセットする、シーンの最初に呼び出す
+	public void SetSkyBox()
+	{
+		//スカイボックスを取得
+		SkyBoxMaterial = new Material(RenderSettings.skybox);
+
+		//スカイボックスを設定、これをしないと元のスカイボックスの設定が変わってしまう
+		RenderSettings.skybox = SkyBoxMaterial;
+	}
+
 	//タイムスケール係数を入れる
 	public void TimeScaleChange(float t , float s)
 	{
@@ -1213,6 +1234,83 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//出力
 		return re;
+	}
+
+	//超必殺技暗転演出
+	public void StartSuperArtsLightEffect(float t)
+	{
+		//スカイボックスをフェードで消す
+		StartCoroutine(SkyBoxOffCoroutine(t));
+
+		//他のライトを消す
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 1, () => { }));
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 0.5f, () => { }));
+
+		//演出用ライト点灯
+		DeepFind(gameObject, "SuperArtsLight").GetComponent<Light>().enabled = true;
+	}
+	public void EndSuperArtsLightEffect(float t)
+	{
+		//スカイボックスをフェードで点ける
+		StartCoroutine(SkyBoxOnCoroutine(t));
+
+		//他のライトを点ける
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightOn(t, 1, () =>{}));
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightOn(t, 0.5f, () =>
+		{
+			//演出用ライト消灯
+			DeepFind(gameObject, "SuperArtsLight").GetComponent<Light>().enabled = false;
+		}));
+	}
+
+	//スカイボックスを消す
+	private IEnumerator SkyBoxOffCoroutine(float t)
+	{
+		//係数
+		float SkyBoxNum = 1;
+
+		//時間
+		float SkyBoxTime = t;
+
+		while(SkyBoxNum > 0)
+		{
+			//係数を算出
+			SkyBoxNum -= (SkyBoxTime - Time.deltaTime) / t;
+
+			//スカイボックスに係数を反映
+			SkyBoxMaterial.SetFloat("_Exposure", SkyBoxNum);
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//正規化
+		SkyBoxMaterial.SetFloat("_Exposure", 0);
+	}
+
+	//スカイボックスを点ける
+	private IEnumerator SkyBoxOnCoroutine(float t)
+	{
+		//係数
+		float SkyBoxNum = 0;
+
+		//時間
+		float SkyBoxTime = 0;
+
+		while (SkyBoxNum < 1)
+		{
+			//係数を算出
+			SkyBoxNum += (SkyBoxTime + Time.deltaTime) / t;
+
+			//スカイボックスに係数を反映
+			SkyBoxMaterial.SetFloat("_Exposure", SkyBoxNum);
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//正規化
+		SkyBoxMaterial.SetFloat("_Exposure", 1);
 	}
 
 	//プレイヤーの攻撃時にロック対象を検索する関数、boolがfalseならnullを返す。メッセージシステムから呼び出される

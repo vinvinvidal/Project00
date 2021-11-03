@@ -139,6 +139,7 @@ Transform:
   - {fileID: 6886114011023491528}
   - {fileID: 6840072480453630304}
   - {fileID: 8293974993472811359}
+  - {fileID: 853065888414294392}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -174,11 +175,15 @@ MonoBehaviour:
   WeaponAttachOBJRotate: {x: -56, y: -2, z: 230}
   WeaponAttachAttackOBJList:
   - {fileID: 364341059597733971}
+  - {fileID: 4039385837747198377}
   WeaponAttachAttackNameList:
   - R_HandBone
+  - L_HandBone
   WeaponAttachAttackPosList:
   - {x: 0, y: 0.04, z: -0.03}
+  - {x: 0, y: 0.04, z: -0.03}
   WeaponAttachAttackRotateList:
+  - {x: 0, y: 180, z: 0}
   - {x: 0, y: 180, z: 0}
   WeaponClothCol: {fileID: 9059807308993659841}
   WeaponClothColName: HeadBone
@@ -201,6 +206,36 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: baa31ef7e79617a42aabb3d856a27adf, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 90ff4c6afaa29b44fa90666e9a8bcf5b, type: 3}
+--- !u!1 &4039385837747198377
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 853065888414294392}
+  m_Layer: 0
+  m_Name: WeaponAttachAttack1OBJ
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &853065888414294392
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4039385837747198377}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 9074121332275549937}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!183 &2174074294670664135
 Cloth:
   m_ObjectHideFlags: 0

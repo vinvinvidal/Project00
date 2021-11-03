@@ -122,7 +122,7 @@ Transform:
   - {fileID: 8924161950721340865}
   - {fileID: 5121091996019298132}
   m_Father: {fileID: 887460396248877759}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &240861060790249111
 MonoBehaviour:
@@ -188,6 +188,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5803030190458597584}
   - component: {fileID: 8314543263117610428}
+  - component: {fileID: 2933731386860103672}
   m_Layer: 0
   m_Name: OutDoorLight
   m_TagString: Untagged
@@ -270,6 +271,47 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2933731386860103672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283561799206440820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e5671aa93f199469ea518be5ff0b1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LightColorGradient:
+    serializedVersion: 2
+    key0: {r: 0, g: 0, b: 0, a: 1}
+    key1: {r: 0, g: 0, b: 0.19607843, a: 1}
+    key2: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0}
+    key3: {r: 1, g: 1, b: 0.7529412, a: 0}
+    key4: {r: 1, g: 1, b: 1, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 16384
+    ctime2: 32768
+    ctime3: 49151
+    ctime4: 65535
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 5
+    m_NumAlphaKeys: 2
 --- !u!1 &1905513687396893290
 GameObject:
   m_ObjectHideFlags: 0
@@ -323,6 +365,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5170964909727832320}
   - component: {fileID: 5431692923833097757}
+  - component: {fileID: 4615747352669188964}
   m_Layer: 0
   m_Name: InDoorLight
   m_TagString: Untagged
@@ -394,6 +437,139 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 5268224
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 2
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+--- !u!114 &4615747352669188964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2727513442559151897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88e5671aa93f199469ea518be5ff0b1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LightColorGradient:
+    serializedVersion: 2
+    key0: {r: 0, g: 0, b: 0, a: 1}
+    key1: {r: 0, g: 0, b: 0.19607843, a: 1}
+    key2: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0}
+    key3: {r: 1, g: 1, b: 0.7529412, a: 0}
+    key4: {r: 1, g: 1, b: 1, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 16384
+    ctime2: 32768
+    ctime3: 49151
+    ctime4: 65535
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 5
+    m_NumAlphaKeys: 2
+--- !u!1 &3491676453230451148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2294932399964994104}
+  - component: {fileID: 4969916146866645709}
+  m_Layer: 0
+  m_Name: SuperArtsLight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2294932399964994104
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3491676453230451148}
+  m_LocalRotation: {x: 0.09330113, y: 0.83057845, z: -0.5291368, w: 0.14645344}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 887460396248877759}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: -45, y: 0, z: 0}
+--- !u!108 &4969916146866645709
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3491676453230451148}
+  m_Enabled: 0
+  serializedVersion: 10
+  m_Type: 1
+  m_Shape: 0
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 1
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize: 10
+  m_Shadows:
+    m_Type: 2
+    m_Resolution: 3
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.05
+    m_NearPlane: 0.1
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 12100000, guid: 09d7fcc15c8530545918f89520749a5f, type: 2}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 1073664
   m_RenderingLayerMask: 1
   m_Lightmapping: 2
   m_LightShadowCasterMode: 0
@@ -632,6 +808,7 @@ Transform:
   m_Children:
   - {fileID: 5803030190458597584}
   - {fileID: 5170964909727832320}
+  - {fileID: 2294932399964994104}
   - {fileID: 794280783220138341}
   - {fileID: 1486789898196611301}
   m_Father: {fileID: 0}
@@ -663,7 +840,6 @@ MonoBehaviour:
   ScreenResolution: 64
   FrameRate: 60
   FPS: 0
-  H_Flag: 0
 --- !u!114 &1338258338725903517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -798,7 +974,7 @@ Transform:
   m_Children:
   - {fileID: 7780066789926863903}
   m_Father: {fileID: 887460396248877759}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4910921701053832415
 MonoBehaviour:

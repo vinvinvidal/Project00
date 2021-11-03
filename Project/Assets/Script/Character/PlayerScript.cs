@@ -21,34 +21,34 @@ using Cinemachine;
 
 //他のスクリプトから関数を呼ぶ為のインターフェイス
 public interface PlayerScriptInterface : IEventSystemHandler
-	{
-		//プレイヤーの攻撃が敵に当たった時の処理
-		void HitAttack(GameObject e, int AttackIndex);
+{
+	//プレイヤーの攻撃が敵に当たった時の処理
+	void HitAttack(GameObject e, int AttackIndex);
 
-		//敵の攻撃が当たった時の処理
-		void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy);
+	//敵の攻撃が当たった時の処理
+	void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy);
 
-		//スケベ攻撃が当たった時の処理
-		void H_AttackHit(string ang, int men, GameObject M_Enemy, GameObject S_Enemy);
+	//スケベ攻撃が当たった時の処理
+	void H_AttackHit(string ang, int men, GameObject M_Enemy, GameObject S_Enemy);
 
-		//武器をセットする
-		void SetWeapon(GameObject w);
+	//武器をセットする
+	void SetWeapon(GameObject w);
 
-		//戦闘フラグをセットする
-		void SetFightingFlag(bool b);
+	//戦闘フラグをセットする
+	void SetFightingFlag(bool b);
 
-		//ポーズ処理
-		void Pause(bool b);
+	//ポーズ処理
+	void Pause(bool b);
 
-		//自身がカメラの画角に入っているか返す
-		bool GetOnCameraBool();
+	//自身がカメラの画角に入っているか返す
+	bool GetOnCameraBool();
 
-		//キャラクターのデータセットする
-		void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO);
+	//キャラクターのデータセットする
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO);
 
-		//当たった攻撃が有効か返す
-		bool AttackEnable(bool H);
-	}
+	//当たった攻撃が有効か返す
+	bool AttackEnable(bool H);
+}
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
 {
@@ -1376,6 +1376,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				AttackMoveVector.x = 0;
 				AttackMoveVector.z = 0;
+
+				SuperMoveVector *= 0;
 			}
 
 			//空中攻撃移動制御
@@ -1966,6 +1968,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//特殊攻撃処理を実行
 		SuperArts.SuperAtcList[SuperCount](gameObject, LockEnemy);
 
+		//特殊攻撃カウントアップ
 		SuperCount++;
 	}
 
@@ -2504,7 +2507,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//使用技を破棄
 		UseArts = null;
-	}
+	}	
 
 	//攻撃移動開始処理、アニメーションクリップのイベントから呼ばれる
 	private void StartAttackMove(int n)
@@ -2534,6 +2537,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AttackMoveType = 100;
 	}
 
+	//超必殺技移動開始処理、アニメーションクリップのイベントから呼ばれる
+	private void StartSuperMove(float n)
+	{
+		SuperMoveVector = transform.forward * n;
+	}
+
+	//超必殺技移動終了処理、アニメーションクリップのイベントから呼ばれる
+	private void EndSuperMove()
+	{
+		SuperMoveVector *= 0;
+	}
+
 	//攻撃コライダ移動開始処理、アニメーションクリップのイベントから呼ばれる
 	private void StartAttackCol(int n)
 	{
@@ -2556,6 +2571,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//超必殺技コライダ処理関数呼び出し
 		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.StartSuperCol(new Vector3(PosList[0], PosList[1], PosList[2]), new Vector3(PosList[3], PosList[4], PosList[5])));
+	}
+
+	//超必殺技暗転演出、アニメーションクリップのイベントから呼ばれる
+	private void StartSuperArtsLightEffect(float t)
+	{
+		//超必殺技暗転演出呼び出し
+		GameManagerScript.Instance.StartSuperArtsLightEffect(t);
+	}
+	private void EndSuperArtsLightEffect(float t)
+	{
+		//超必殺技暗転演出呼び出し
+		GameManagerScript.Instance.EndSuperArtsLightEffect(t);
 	}
 
 	//画面揺らし演出、アニメーションクリップのイベントから呼ばれる
@@ -2735,10 +2762,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//攻撃が当たった時の敵側の処理を呼び出す
 			ExecuteEvents.Execute<EnemyCharacterInterface>(e.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.SuperArtsHit(CharacterID, SuperArts.Down));
+
+			//敵をプレイヤーキャラクターに向ける
+			e.transform.LookAt(new Vector3(gameObject.transform.position.x, e.transform.position.y, gameObject.transform.position.z));
 		}
 		else
 		{
-
 			//バリバリゲージ増加
 			SetB_Gauge(0.01f);
 

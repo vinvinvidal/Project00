@@ -1372,9 +1372,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 				//移動ベクトルを初期化
 				SuperMoveVec *= 0;
-
-				//プレイヤーキャラクターに向ける
-				transform.LookAt(new Vector3(PlayerCharacter.transform.position.x , transform.position.y , PlayerCharacter.transform.position.z));
 			}
 
 			//スケベ解除から遷移する瞬間の処理

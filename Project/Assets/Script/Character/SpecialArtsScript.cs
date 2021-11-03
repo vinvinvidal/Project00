@@ -115,6 +115,18 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//敵移動コルーチン呼び出し
 						StartCoroutine(EnemySuperAction000(Player, Enemy));
+
+						//エフェクトのインスタンスを生成
+						GameObject TempAttackEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect01").ToArray()[0]);
+
+						//キャラクターの子にする
+						TempAttackEffect.transform.parent = Enemy.transform;
+
+						//位置を設定
+						TempAttackEffect.transform.localPosition = new Vector3(0, 0.75f, 0.25f);
+
+						//回転値を設定
+						TempAttackEffect.transform.localRotation = Quaternion.Euler(new Vector3(180, 0, 0));
 					}
 				);
 
@@ -313,7 +325,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						TempAttackEffect1.transform.parent = Player.transform;
 
 						//位置を設定
-						TempAttackEffect1.transform.localPosition *= 0;
+						TempAttackEffect1.transform.localPosition = new Vector3(0, 1.5f, 0);
 
 						//回転値を設定
 						TempAttackEffect1.transform.localRotation = Quaternion.Euler(Vector3.zero);					

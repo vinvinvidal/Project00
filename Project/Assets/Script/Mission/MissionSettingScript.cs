@@ -93,12 +93,15 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 		//GameManagerにプレイアブルキャラクターを送る
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetPlayableCharacterOBJ(PlayableCharacter));
 
+		//GameManagerにスカイボックスを取得させる
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetSkyBox());
+
 		//メインカメラにプレイアブルキャラクターを送る
 		ExecuteEvents.Execute<MainCameraScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot"), null, (reciever, eventData) => reciever.SetPlayerCharacter(PlayableCharacter));
 
 		//メインカメラの初期設定関数呼び出し
 		ExecuteEvents.Execute<MainCameraScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot"), null, (reciever, eventData) => reciever.MissionCameraSetting());
-
+		
 		//読み込み完了したら時間を進める
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0, 1));
 
