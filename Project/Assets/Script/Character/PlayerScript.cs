@@ -750,7 +750,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		InvincibleList.Add("H_Damage00");
 		InvincibleList.Add("H_Damage01");
 		InvincibleList.Add("H_Break");
-		InvincibleList.Add("SuperArts");
+		InvincibleList.Add("SuperTry");
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
 		AllStates.Add("AnyState");
@@ -2588,7 +2588,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//超必殺技時間停止演出
 	private void SuperArtsStopEffect(float t)
 	{
-		GameManagerScript.Instance.SuperArtsStopEffect(t);
+		GameManagerScript.Instance.SuperArtsStopEffect(t, LockEnemy);
 	}
 
 	//画面揺らし演出、アニメーションクリップのイベントから呼ばれる

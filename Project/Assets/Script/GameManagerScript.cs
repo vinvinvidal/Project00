@@ -51,7 +51,7 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	void EndSuperArtsLightEffect(float t);
 
 	//超必殺技時間停止演出
-	void SuperArtsStopEffect(float t);
+	void SuperArtsStopEffect(float t, GameObject e);
 }
 
 //シングルトンなので専用オブジェクトにつけてシーン移動後も常に存在させる
@@ -1240,22 +1240,44 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//超必殺技時間停止演出
-	public void SuperArtsStopEffect(float t)
+	public void SuperArtsStopEffect(float t, GameObject e)
 	{
 		//コルーチンＹ呼び出し
-		StartCoroutine(SuperArtsStopEffectCoroutine(t));
+		StartCoroutine(SuperArtsStopEffectCoroutine(t, e));
 	}
-	private IEnumerator SuperArtsStopEffectCoroutine(float t)
+	private IEnumerator SuperArtsStopEffectCoroutine(float t, GameObject e)
 	{
 		//経過時間
 		float StopTime = 0;
 
-		//プレイヤーポーズ処理
-		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.Pause(true));
-
 		//レンズフレア演出
 		ExecuteEvents.Execute<LensFlareEffectScriptInterface>(DeepFind(gameObject, "LensFlareEffect"), null, (reciever, eventData) => reciever.LensFlareEffect(t));
+
+		//エフェクト再生
+		GameObject TempEffect = Instantiate(AllParticleEffectList.Where(a => a.name == "SuperArtsStopTimeEffect").ToArray()[0]);
+
+		//親を設定
+		TempEffect.transform.parent = PlayableCharacterOBJ.transform;
+
+		//ローカルポジションリセット
+		TempEffect.transform.localPosition = Vector3.zero;
+
+		//ローカルローテーションリセット
+		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+		//プレイヤーポーズ処理
+		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.Pause(true));
 		
+		//敵ポーズ処理
+		foreach(GameObject i in AllActiveEnemyList)
+		{
+			if(i != null)
+			{
+				ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
+				ExecuteEvents.Execute<EnemyBehaviorInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
+			}
+		}
+
 		while (StopTime < t)
 		{
 			//経過時間加算
@@ -1267,6 +1289,16 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//プレイヤーポーズ解除
 		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.Pause(false));
+
+		//攻撃対象ポーズ解除
+		if(e != null)
+		{
+			ExecuteEvents.Execute<EnemyCharacterInterface>(e, null, (reciever, eventData) => reciever.Pause(false));
+			ExecuteEvents.Execute<EnemyBehaviorInterface>(e, null, (reciever, eventData) => reciever.Pause(false));
+		}
+
+		//エフェクト削除
+		Destroy(TempEffect);
 	}
 
 	//超必殺技暗転演出
@@ -1281,6 +1313,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//演出用ライト点灯
 		DeepFind(gameObject, "SuperArtsLight").GetComponent<Light>().enabled = true;
+
+		//キャラクターの顔シェーダーのライト切り替え
+		ExecuteEvents.Execute<CharacterFaceShaderScriptInterface>(PlayableCharacterOBJ.GetComponentInChildren<CharacterFaceShaderScript>().gameObject, null, (reciever, eventData) => reciever.ChangeLight(DeepFind(gameObject, "SuperArtsLight").transform));
+
 	}
 	public void EndSuperArtsLightEffect(float t)
 	{
@@ -1293,6 +1329,19 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		{
 			//演出用ライト消灯
 			DeepFind(gameObject, "SuperArtsLight").GetComponent<Light>().enabled = false;
+
+			//キャラクターの顔シェーダーのライト切り替え
+			ExecuteEvents.Execute<CharacterFaceShaderScriptInterface>(PlayableCharacterOBJ.GetComponentInChildren<CharacterFaceShaderScript>().gameObject, null, (rec, eve) => rec.ChangeLight(DeepFind(gameObject, "OutDoorLight").transform));
+
+			//敵ポーズ解除
+			foreach (GameObject i in AllActiveEnemyList)
+			{
+				if (i != null)
+				{
+					ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (rec, eve) => rec.Pause(false));
+					ExecuteEvents.Execute<EnemyBehaviorInterface>(i, null, (rec, eve) => rec.Pause(false));
+				}
+			}
 		}));
 	}
 

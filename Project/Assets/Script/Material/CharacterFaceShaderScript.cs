@@ -2,8 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class CharacterFaceShaderScript : GlobalClass
+//他のスクリプトから関数を呼ぶ為のインターフェイス
+public interface CharacterFaceShaderScriptInterface : IEventSystemHandler
+{
+	//ディレクショナルライトを切り替える、演出時に使う
+	void ChangeLight(Transform t);
+}
+
+public class CharacterFaceShaderScript : GlobalClass, CharacterFaceShaderScriptInterface
 {
 	//顔マテリアル
 	private Material FaceMaterial;
@@ -294,5 +302,11 @@ public class CharacterFaceShaderScript : GlobalClass
 		FaceMaterial.SetTexture("texXZ", FaceMaterial.GetTexture("_TexFaceShadowBackRight"));
 
 		FaceMaterial.SetTexture("texYZ", FaceMaterial.GetTexture("_TexFaceShadowBackTop"));
+	}
+
+	//ディレクショナルライトを切り替える、演出時に使う
+	public void ChangeLight(Transform t)
+	{
+		LightTransform = t;
 	}
 }

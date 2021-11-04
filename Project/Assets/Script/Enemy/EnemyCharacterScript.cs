@@ -273,6 +273,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//打ち上げ時にモーションノイズのランダムシードList
 	private List<Vector3> RiseAnimNoiseSeedList = new List<Vector3>();
 
+	//足元の衝撃エフェクト
+	private GameObject FootImpactEffect;
+
 	void Start()
 	{
 		//プレイヤーキャラクター取得
@@ -439,6 +442,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//胸倉ホールド攻撃
 		RiseEnableAttakList.Add(30);
+
+		//足元の衝撃エフェクト取得
+		FootImpactEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "FootImpact").ToArray()[0];
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
 		AllStates.Add("Idling");
@@ -1967,6 +1973,41 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CurrentAnimator.SetBool("Attack" , false);
 
 		CurrentAnimator.SetBool("H_Try", false);
+	}
+
+	//足元の衝撃エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
+	private void FootImpact(float r)
+	{
+		//エフェクトのインスタンスを生成
+		GameObject TempFootImpactEffect = Instantiate(FootImpactEffect);
+
+		//パーティクルシステムを全て格納するList宣言
+		List<ParticleSystem> TempFootImpactList = new List<ParticleSystem>();
+
+		//キャラクターの子にする
+		TempFootImpactEffect.transform.parent = gameObject.transform.root.transform;
+
+		//ローカル座標で位置を設定
+		TempFootImpactEffect.transform.localPosition *= 0;
+
+		//全てのパーティクルシステムを取得
+		TempFootImpactList = TempFootImpactEffect.GetComponentsInChildren<ParticleSystem>().Select(i => i).ToList();
+
+		//全てのパーティクルシステムを回す
+		foreach (ParticleSystem i in TempFootImpactList)
+		{
+			//アクセサを取得
+			ParticleSystem.ShapeModule p = i.shape;
+
+			//引数と親の角度を元にエミッタを回転、一番親の奴だけ
+			if (i.name.Contains("Clone"))
+			{
+				p.rotation = new Vector3(-r, gameObject.transform.rotation.eulerAngles.y, 0);
+			}
+
+			//エフェクトを再生
+			i.Play();
+		}
 	}
 
 	//アニメーターの攻撃モーションを切り替える、ビヘイビアスクリプトから呼ばれる
