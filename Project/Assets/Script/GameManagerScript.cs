@@ -49,6 +49,9 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	//超必殺技暗転演出
 	void StartSuperArtsLightEffect(float t);
 	void EndSuperArtsLightEffect(float t);
+
+	//超必殺技時間停止演出
+	void SuperArtsStopEffect(float t);
 }
 
 //シングルトンなので専用オブジェクトにつけてシーン移動後も常に存在させる
@@ -1236,6 +1239,36 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		return re;
 	}
 
+	//超必殺技時間停止演出
+	public void SuperArtsStopEffect(float t)
+	{
+		//コルーチンＹ呼び出し
+		StartCoroutine(SuperArtsStopEffectCoroutine(t));
+	}
+	private IEnumerator SuperArtsStopEffectCoroutine(float t)
+	{
+		//経過時間
+		float StopTime = 0;
+
+		//プレイヤーポーズ処理
+		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.Pause(true));
+
+		//レンズフレア演出
+		ExecuteEvents.Execute<LensFlareEffectScriptInterface>(DeepFind(gameObject, "LensFlareEffect"), null, (reciever, eventData) => reciever.LensFlareEffect(t));
+		
+		while (StopTime < t)
+		{
+			//経過時間加算
+			StopTime += Time.deltaTime;
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//プレイヤーポーズ解除
+		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.Pause(false));
+	}
+
 	//超必殺技暗転演出
 	public void StartSuperArtsLightEffect(float t)
 	{
@@ -1243,8 +1276,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		StartCoroutine(SkyBoxOffCoroutine(t));
 
 		//他のライトを消す
-		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 1, () => { }));
-		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 0.5f, () => { }));
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 1, () => {}));
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 0.5f, () =>{}));
 
 		//演出用ライト点灯
 		DeepFind(gameObject, "SuperArtsLight").GetComponent<Light>().enabled = true;

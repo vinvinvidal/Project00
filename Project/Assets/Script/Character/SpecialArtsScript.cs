@@ -313,23 +313,10 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						TempAttackEffect0.transform.parent = Player.transform;
 
 						//位置を設定
-						TempAttackEffect0.transform.localPosition = new Vector3(0, 1.6f, -0.25f);
+						TempAttackEffect0.transform.localPosition *= 0;
 
 						//回転値を設定
 						TempAttackEffect0.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
-
-						//エフェクトのインスタンスを生成
-						GameObject TempAttackEffect1 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "ChargeLevel").ToArray()[0]);
-
-						//キャラクターの子にする
-						TempAttackEffect1.transform.parent = Player.transform;
-
-						//位置を設定
-						TempAttackEffect1.transform.localPosition = new Vector3(0, 1.5f, 0);
-
-						//回転値を設定
-						TempAttackEffect1.transform.localRotation = Quaternion.Euler(Vector3.zero);					
-
 					}
 				);
 

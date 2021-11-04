@@ -2585,6 +2585,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		GameManagerScript.Instance.EndSuperArtsLightEffect(t);
 	}
 
+	//超必殺技時間停止演出
+	private void SuperArtsStopEffect(float t)
+	{
+		GameManagerScript.Instance.SuperArtsStopEffect(t);
+	}
+
 	//画面揺らし演出、アニメーションクリップのイベントから呼ばれる
 	private void ScreenShake(float t)
 	{
