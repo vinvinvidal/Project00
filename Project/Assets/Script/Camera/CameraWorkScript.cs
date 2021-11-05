@@ -5,40 +5,24 @@ using UnityEngine;
 public class CameraWorkScript : MonoBehaviour
 {
 	//カメラモード
+	[Header("カメラモード"), Tooltip("　0　フィックス　\n　1　パストラッキング、片道　\n　2　パストラッキング、往復")]
 	public int CameraMode;
-	/*
-		0:フィックス
-		1:パストラッキング、片道
-		2:パストラッキング、往復
-	*/
-
+		
 	//持続条件
+	[Header("持続条件"), Tooltip("　0　外部からフラグ変更されるまで持続　\n　1　持続時間が経過するまで持続　\n　2　トラッキングが終了するまで持続")]
 	public int KeepMode;
-	/*
-		0:外部からフラグ変更されるまで持続
-		1:持続時間が経過するまで持続
-		2:トラッキングが終了するまで持続
-	*/
 
 	//遷移モード
+	[Header("遷移モード"), Tooltip("　0　カット　\n　1　イージング")]
 	public int TransrationMode;
-	/*
-	 	0:カット
-		1:イージング		 
-	*/
+
+	//次のカメラワークモード
+	[Header("次のカメラワークモード"), Tooltip("　0　次のインデックス　\n　1　最初に戻る　\n　2　ランダム　\n　3　インデックス指定　\n　10　ここで終わり")]
+	public int NextCameraWorkMode;
+	[Space(15)]
 
 	//イージング時間
 	public float EasingTime;
-	
-	//次のカメラワークモード
-	public int NextCameraWorkMode;
-	/*
-		0:次のインデックス
-		1:最初に戻る
-		2:ランダム
-		3:インデックス指定
-		10:ここで終わり
-	*/
 
 	//持続時間
 	public float KeepTime;
@@ -47,5 +31,5 @@ public class CameraWorkScript : MonoBehaviour
 	public float MoveSpeed;
 
 	//注視点にするオブジェクト名
-	public string LookAtOBJName;
+	public string LookAtOBJName;	
 }

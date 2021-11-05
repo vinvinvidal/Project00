@@ -11,7 +11,7 @@ public interface LightColorChangeScriptInterface : IEventSystemHandler
 	void LightOn(float t, float n, Action act);
 
 	//ライトを消す
-	void LightOff(float t, float n, Action act);
+	void LightOff(float t, float n, float i, Action act);
 }
 public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterface
 {
@@ -35,10 +35,10 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 	}
 
 	//ライトを消す
-	public void LightOff(float t, float n, Action act)
+	public void LightOff(float t, float n, float i, Action act)
 	{
 		//コルーチン呼び出し
-		StartCoroutine(LightOffCoroutine(t, n, act));
+		StartCoroutine(LightOffCoroutine(t, n, i, act));
 	}
 
 	//ライトを点けるコルーチン
@@ -70,7 +70,7 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 	}
 
 	//ライトを消すコルーチン
-	private IEnumerator LightOffCoroutine(float t, float n, Action act)
+	private IEnumerator LightOffCoroutine(float t, float n, float i, Action act)
 	{
 		//ライト係数
 		float LightNum = 1;
@@ -87,7 +87,7 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 			LightNum = FadeTime / t;
 
 			//ライトカラーに反映
-			LightComp.color = LightColorGradient.Evaluate(LightNum * n);
+			LightComp.color = LightColorGradient.Evaluate(LightNum * n + i);
 
 			//1フレーム待機
 			yield return null;

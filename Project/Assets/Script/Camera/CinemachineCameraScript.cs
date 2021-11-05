@@ -42,7 +42,7 @@ public class CinemachineCameraScript : GlobalClass
 		CameraTarget = GameObject.Find("MainCameraTarget");
 
 		//カメラワークオブジェクトを取得
-		CameraWorkList = new List<GameObject>(gameObject.transform.root.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("CameraWorkOBJ")).ToList().Select(b => b.gameObject).ToList());
+		CameraWorkList = new List<GameObject>(gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("CameraWorkOBJ")).ToList().Select(b => b.gameObject).ToList());
 	}
 
 	//カメラワーク再生関数

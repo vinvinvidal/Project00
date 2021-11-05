@@ -1024,6 +1024,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				string tan = "";
 				string aan = "";
 				string info = "";
+				string vcn = "";
 				List<Action<GameObject, GameObject>> sa = new List<Action<GameObject, GameObject>>();
 
 				//改行で分割して回す
@@ -1041,6 +1042,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "Info": info = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 						case "UnLock": ul = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "Down": dwn = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "Vcam": vcn = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 					}
 				}
 
@@ -1058,7 +1060,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				}
 
 				//ListにAdd
-				AllSuperArtsList.Add(new SuperClass(cid, aid, ul, tan, aan, nc, nh, info, dwn, sa));
+				AllSuperArtsList.Add(new SuperClass(cid, aid, ul, tan, aan, nc, nh, info, dwn, vcn, sa));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る。
@@ -1067,9 +1069,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				//フラグ管理DicにAdd
 				AllSuperArtsAnimCompleteFlagDic.Add(i.TryAnimName, false);
 				AllSuperArtsAnimCompleteFlagDic.Add(i.ArtsAnimName, false);
+				AllSuperArtsAnimCompleteFlagDic.Add(i.VcamName, false);
 			}
 
-			//特殊攻撃Listを回す
+			//超必殺技Listを回す
 			foreach (SuperClass i in AllSuperArtsList)
 			{
 				//技のアニメーションを読み込む
@@ -1090,6 +1093,16 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 					//読み込んだアニメーションのDicをtrueにする
 					AllSuperArtsAnimCompleteFlagDic[i.ArtsAnimName] = true;
+				}));
+
+				//カメラワークを読み込む
+				StartCoroutine(LoadOBJ("Object/VirtualCamera/Super/", i.VcamName, "prefab", (object O) =>
+				{
+					//ClassのListにAdd
+					i.Vcam = O as GameObject;
+
+					//読み込んだアニメーションのDicをtrueにする
+					AllSuperArtsAnimCompleteFlagDic[i.VcamName] = true;
 				}));
 			}
 		}));
@@ -1257,10 +1270,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		GameObject TempEffect = Instantiate(AllParticleEffectList.Where(a => a.name == "SuperArtsStopTimeEffect").ToArray()[0]);
 
 		//親を設定
-		TempEffect.transform.parent = PlayableCharacterOBJ.transform;
+		TempEffect.transform.position = PlayableCharacterOBJ.transform.position;
 
 		//ローカルポジションリセット
-		TempEffect.transform.localPosition = Vector3.zero;
+		//TempEffect.transform.localPosition = Vector3.zero;
 
 		//ローカルローテーションリセット
 		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
@@ -1308,8 +1321,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		StartCoroutine(SkyBoxOffCoroutine(t));
 
 		//他のライトを消す
-		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 1, () => {}));
-		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 0.5f, () =>{}));
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 1, 0.2f, () => { }));
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 0.5f, 0.2f, () => { }));
 
 		//演出用ライト点灯
 		DeepFind(gameObject, "SuperArtsLight").GetComponent<Light>().enabled = true;

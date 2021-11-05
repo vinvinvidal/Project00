@@ -488,8 +488,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//特殊攻撃成功エフェクト
 	private GameObject SpecialSuccessEffect;
 
+	//超必殺技背景エフェクト
+	private GameObject SuperBackGroundEffect;
+	//↑のインスタンス格納用変数、勝手に消えないのでデストロイに使う
+	private GameObject SuperBackGroundEffectInstace;
+	
 	//スケベエフェクト00
 	private GameObject H_Effect00;
+
+
+
+	//超必殺技用カメラワークオブジェクト
+	private GameObject SuperCameraWorkOBJ;
 
 
 
@@ -514,7 +524,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				OnCameraObject = i.gameObject;
 			}
 		}
-
+		
 		//CharacterSettingScriptからID取得
 		ExecuteEvents.Execute<CharacterSettingScriptInterface>(gameObject, null, (reciever, eventData) => CharacterID = reciever.GetCharacterID());
 
@@ -695,11 +705,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//特殊攻撃成功エフェクト取得
 		SpecialSuccessEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "SpecialSuccessEffect").ToArray()[0];
 
+		//超必殺技背景エフェクト取得
+		SuperBackGroundEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsBackGroundEffect").ToArray()[0];
+
 		//スケベエフェクト00取得
 		H_Effect00 = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "H_Effect00").ToArray()[0];
 
 		//超必殺技装備
 		SuperArts = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray()[0]; 
+
+		//超必殺技用カメラワークオブジェクト生成
+		SuperCameraWorkOBJ = Instantiate(SuperArts.Vcam);
+		SuperCameraWorkOBJ.transform.parent = transform;
+		SuperCameraWorkOBJ.transform.localPosition = Vector3.zero;
+		SuperCameraWorkOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//超必殺技のモーションを仕込む
 		OverRideAnimator["SuperTry_void"] = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.TryAnimClip.name.Contains(CharacterID + "_SuperTry" + a.ArtsIndex)).ToArray()[0].TryAnimClip;
@@ -1965,11 +1984,21 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//超必殺技処理実行、アニメーションクリップから呼ばれる
 	public void SuperArtsAction(int n)
 	{
-		//特殊攻撃処理を実行
+		//超必殺技処理を実行
 		SuperArts.SuperAtcList[SuperCount](gameObject, LockEnemy);
 
-		//特殊攻撃カウントアップ
+		//超必殺技カウントアップ
 		SuperCount++;
+	}
+
+	//超必殺技カメラワーク再生、アニメーションクリップから呼ばれる
+	public void SuperArtsCameraWork(int i)
+	{
+		//初回再生フラグ
+		bool FirstFlag = i == 0;
+
+		//カメラワーク再生
+		SuperCameraWorkOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(i, FirstFlag);
 	}
 
 	//ダメージ時の移動ベクトルを設定する、アニメーションクリップから呼ばれる
@@ -2583,6 +2612,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//超必殺技暗転演出呼び出し
 		GameManagerScript.Instance.EndSuperArtsLightEffect(t);
+
+		//背景エフェクト廃棄
+		Destroy(SuperBackGroundEffectInstace);
 	}
 
 	//超必殺技時間停止演出
@@ -2771,6 +2803,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//敵をプレイヤーキャラクターに向ける
 			e.transform.LookAt(new Vector3(gameObject.transform.position.x, e.transform.position.y, gameObject.transform.position.z));
+
+			//背景エフェクト表示
+			SuperBackGroundEffectInstace = Instantiate(SuperBackGroundEffect);
+
+			SuperBackGroundEffectInstace.transform.position = transform.position;
+
+			SuperBackGroundEffectInstace.transform.rotation = transform.rotation;
 		}
 		else
 		{
@@ -3542,13 +3581,29 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			||
 			s == "Run"
 			||
+			s == "Jump"
+			||
+			s == "Fall"
+			||
 			s == "GroundRolling"
+			||
+			s == "AirRolling"
+			||
+			s == "SpecialSuccess"
+			||
+			s == "SpecialAttack"
 			||
 			s.Contains("-> Idling")
 			||
 			s.Contains("-> Run")
 			||
+			s.Contains("-> Jump")
+			||
+			s.Contains("-> Fall")
+			||
 			s.Contains("-> GroundRolling")
+			||
+			s.Contains("-> AirRolling")
 		);
 
 		//ジャンプ入力許可条件

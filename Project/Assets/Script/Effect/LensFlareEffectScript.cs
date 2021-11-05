@@ -11,6 +11,15 @@ public interface LensFlareEffectScriptInterface : IEventSystemHandler
 }
 public class LensFlareEffectScript : GlobalClass, LensFlareEffectScriptInterface
 {
+	//レンズフレアコンポーネント
+	private LensFlare Lens;
+
+	private void Start()
+	{
+		//レンズフレアコンポーネント取得
+		Lens = gameObject.GetComponent<LensFlare>();
+	}
+
 	public void LensFlareEffect(float t)
 	{
 		StartCoroutine(LensFlareEffectCoroutine(t));
@@ -18,13 +27,19 @@ public class LensFlareEffectScript : GlobalClass, LensFlareEffectScriptInterface
 	private IEnumerator LensFlareEffectCoroutine(float t)
 	{
 		//レンズフレア有効化
-		gameObject.GetComponent<LensFlare>().enabled = true;
+		Lens.enabled = true;
 
+		//レンズフレアの明るさキャッシュ
+		float TempBrightness = Lens.brightness;
+			
 		//時間
 		float EffectTime = 0;
 
 		//係数
 		float EffectNum = 0;
+
+		//サインカーブ生成用変数
+		float SinTime = 0;
 
 		while(EffectTime < t)
 		{
@@ -35,11 +50,20 @@ public class LensFlareEffectScript : GlobalClass, LensFlareEffectScriptInterface
 			EffectNum = EffectTime / t;
 
 			//オブジェクト移動
-			gameObject.transform.localPosition = new Vector3(Mathf.Lerp(-5f , 5f , EffectNum) , Mathf.Lerp(-1, 1, EffectNum) , 10);
+			gameObject.transform.localPosition = new Vector3(0 , Mathf.Lerp(2f, 0f, EffectNum) , 10);
+
+			//サインカーブ生成用変数カウントアップ
+			SinTime += Time.deltaTime;
+
+			//明るさをサインカーブでクロスフェードさせる
+			Lens.brightness = TempBrightness * Mathf.Sin(2 * Mathf.PI * (1 / t) * 0.5f * SinTime);
 
 			//１フレーム待機
 			yield return null;
 		}
+
+		//明るさを戻す
+		Lens.brightness = TempBrightness;
 
 		//レンズフレア無効化
 		gameObject.GetComponent<LensFlare>().enabled = false;

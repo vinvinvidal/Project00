@@ -321,22 +321,42 @@ PrefabInstance:
     - target: {fileID: 2933731386860103672, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: LightColorGradient.key1.r
-      value: 0.13725491
+      value: 0.21960784
       objectReference: {fileID: 0}
     - target: {fileID: 2933731386860103672, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: LightColorGradient.key1.g
-      value: 0.13725491
+      value: 0.21960784
       objectReference: {fileID: 0}
     - target: {fileID: 2933731386860103672, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: LightColorGradient.key3.r
-      value: 0.84705883
+      value: 0.9098039
       objectReference: {fileID: 0}
     - target: {fileID: 2933731386860103672, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: LightColorGradient.key3.g
+      value: 0.9098039
+      objectReference: {fileID: 0}
+    - target: {fileID: 2933731386860103672, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: LightColorGradient.ctime3
+      value: 49151
+      objectReference: {fileID: 0}
+    - target: {fileID: 2933731386860103672, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: LightColorGradient.key3.b
       value: 0.84705883
+      objectReference: {fileID: 0}
+    - target: {fileID: 2933731386860103672, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: LightColorGradient.m_NumColorKeys
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2933731386860103672, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: LightColorGradient.key1.b
+      value: 0.2509804
       objectReference: {fileID: 0}
     - target: {fileID: 3273967767531531658, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
@@ -356,22 +376,32 @@ PrefabInstance:
     - target: {fileID: 4615747352669188964, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: LightColorGradient.key1.g
-      value: 0.13725491
+      value: 0.21960784
       objectReference: {fileID: 0}
     - target: {fileID: 4615747352669188964, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: LightColorGradient.key1.r
-      value: 0.13725491
+      value: 0.21960784
       objectReference: {fileID: 0}
     - target: {fileID: 4615747352669188964, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: LightColorGradient.key3.g
-      value: 0.84705883
+      value: 0.9098039
       objectReference: {fileID: 0}
     - target: {fileID: 4615747352669188964, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: LightColorGradient.key3.r
+      value: 0.9098039
+      objectReference: {fileID: 0}
+    - target: {fileID: 4615747352669188964, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: LightColorGradient.key3.b
       value: 0.84705883
+      objectReference: {fileID: 0}
+    - target: {fileID: 4615747352669188964, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: LightColorGradient.key1.b
+      value: 0.2509804
       objectReference: {fileID: 0}
     - target: {fileID: 4725076101100567875, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}

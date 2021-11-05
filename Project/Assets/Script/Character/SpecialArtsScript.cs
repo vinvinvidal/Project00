@@ -187,28 +187,16 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					(GameObject Player, GameObject Enemy) =>
 					{
 						//エフェクトのインスタンスを生成
-						GameObject TempAttackEffect0 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect02").ToArray()[0]);
+						GameObject TempAttackEffect0 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect00").ToArray()[0]);
 
 						//キャラクターの子にする
 						TempAttackEffect0.transform.parent = Player.transform;
 
 						//位置を設定
-						TempAttackEffect0.transform.localPosition = new Vector3(0,0.8f,1.25f);
+						TempAttackEffect0.transform.localPosition = new Vector3(0,0.8f,1);
 
 						//回転値を設定
 						TempAttackEffect0.transform.localRotation = Quaternion.Euler(Vector3.zero);
-
-						//エフェクトのインスタンスを生成
-						GameObject TempAttackEffect1 = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "AttackEffect00").ToArray()[0]);
-
-						//キャラクターの子にする
-						TempAttackEffect1.transform.parent = Player.transform;
-
-						//位置を設定
-						TempAttackEffect1.transform.localPosition = new Vector3(0, 0.05f, 0);
-
-						//回転値を設定
-						TempAttackEffect1.transform.localRotation = Quaternion.Euler(Vector3.zero);
 					}
 				);
 
