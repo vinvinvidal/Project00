@@ -188,7 +188,10 @@ public class ActionEventScript : GlobalClass
 
 						//メインカメラの遷移をイージングにする
 						MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Style = CinemachineBlendDefinition.Style.EaseInOut;
-					
+
+						//メインカメラのイージングタイムを設定
+						MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time = 1;
+
 						//遷移元のヴァーチャルカメラ有効化
 						GameManagerScript.Instance.GetComponentInChildren<CinemachineVirtualCamera>().enabled = true;
 

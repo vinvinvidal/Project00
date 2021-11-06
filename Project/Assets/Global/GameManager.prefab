@@ -1016,7 +1016,7 @@ GameObject:
   - component: {fileID: 1486789898196611301}
   - component: {fileID: 4910921701053832415}
   m_Layer: 20
-  m_Name: vcam
+  m_Name: MasterVcam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

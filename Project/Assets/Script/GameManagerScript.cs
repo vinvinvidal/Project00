@@ -296,7 +296,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		MainCamera = DeepFind(gameObject, "CameraRoot");
 
 		//バーチャルカメラ取得
-		VCamera = DeepFind(gameObject , "vcam").GetComponent<CinemachineVirtualCamera>();
+		VCamera = DeepFind(gameObject , "MasterVcam").GetComponent<CinemachineVirtualCamera>();
 
 		//FPS測定用変数初期化
 		FPS = 0;

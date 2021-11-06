@@ -19,6 +19,10 @@ public class CameraWorkScript : MonoBehaviour
 	//次のカメラワークモード
 	[Header("次のカメラワークモード"), Tooltip("　0　次のインデックス　\n　1　最初に戻る　\n　2　ランダム　\n　3　インデックス指定　\n　10　ここで終わり")]
 	public int NextCameraWorkMode;
+
+	//持っているVcamの中からランダムで再生する
+	[Header("持っているVcamの中からランダムで再生するフラグ")]
+	public bool RandomFlag;
 	[Space(15)]
 
 	//イージング時間

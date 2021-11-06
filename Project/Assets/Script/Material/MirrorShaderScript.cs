@@ -6,10 +6,14 @@ using UnityEngine.EventSystems;
 
 public interface MirrorShaderScriptInterface : IEventSystemHandler
 {
+	//ミラーの有効無効を切り替える
 	void MirrorSwitch(bool b);
+
+	//狙ったオブジェクトを映すようにムリヤリカメラ位置を移動させる
+	void EnemyFaceMirror(GameObject obj);
 }
 
-public class MirrorShaderScript : GlobalClass , MirrorShaderScriptInterface
+public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 {
 	//変数宣言
 
@@ -43,14 +47,20 @@ public class MirrorShaderScript : GlobalClass , MirrorShaderScriptInterface
 	//ミラー有効bool、インスペクタ
 	public bool OnMirror;
 
+	//敵顔ミラーフラグ
+	private bool EnemyFaceMirrorFlag = false;
+
+	//敵顔ミラーオブジェクト
+	private GameObject EnemyFaceMirrorOBJ;
+
 	void Start()
-    {
+	{
 		//メインカメラ取得
 		MainCamera = GameObject.Find("MainCamera");
 
 		//ミラーカメラ取得
 		MirrorCamera = DeepFind(transform.gameObject, "MirrorCamera").GetComponent<Camera>();
-		
+
 		//ミラーの正面を向いているオブジェクト取得
 		MirrorForwardOBJ = DeepFind(transform.gameObject, "MirrorForward");
 
@@ -73,10 +83,10 @@ public class MirrorShaderScript : GlobalClass , MirrorShaderScriptInterface
 		MirrorSwitch(OnMirror);
 	}
 
-    void Update()
-    {
+	void Update()
+	{
 		//ミラーカメラオン
-		if (OnMirror)
+		if (OnMirror && !EnemyFaceMirrorFlag)
 		{
 			//レンダーテクスチャをシェーダーに送る
 			MirrorOBJ.GetComponent<Renderer>().material.SetTexture("_MainTex", MirrorTexture);
@@ -102,7 +112,52 @@ public class MirrorShaderScript : GlobalClass , MirrorShaderScriptInterface
 			//画角を調整
 			MirrorCamera.fieldOfView = 2 * Mathf.Atan(MirrorSize / (2 * MirrorDistance)) * Mathf.Rad2Deg;
 		}
-    }
+		//敵顔ミラーオン
+		else if(OnMirror && EnemyFaceMirrorFlag)
+		{
+			//レンダーテクスチャをシェーダーに送る
+			MirrorOBJ.GetComponent<Renderer>().material.SetTexture("_MainTex", MirrorTexture);
+
+			//カメラを敵の顔の前に移動
+			MirrorCamera.transform.position = EnemyFaceMirrorOBJ.transform.position + (EnemyFaceMirrorOBJ.transform.up * 0.2f);
+
+			//カメラを注視点に向ける
+			MirrorCamera.transform.LookAt(EnemyFaceMirrorOBJ.transform.position);
+		}
+	}
+
+	//インターフェイス、敵の顔を映す位置にカメラを移動させる
+	public void EnemyFaceMirror(GameObject obj)
+	{
+		//ミラー有効化
+		MirrorSwitch(true);
+
+		//敵顔ミラーフラグを立てる
+		EnemyFaceMirrorFlag = true;
+
+		//敵顔ミラーオブジェクト代入
+		EnemyFaceMirrorOBJ = obj;
+
+		//適当にnearを設定
+		MirrorCamera.nearClipPlane = 0.01f;
+
+		//適当に画角を設定
+		MirrorCamera.fieldOfView = 60;
+
+		//持続コルーチン呼び出し
+		StartCoroutine(ForceShowCoroutine());
+	}
+	private IEnumerator ForceShowCoroutine()
+	{
+		//カメラを切るまでループ
+		while(OnMirror)
+		{
+			yield return null;
+		}
+
+		//敵顔ミラーフラグを下ろす
+		EnemyFaceMirrorFlag = false;
+	}
 
 	//インターフェイス、外部からフラグを切り替える
 	public void MirrorSwitch(bool b)

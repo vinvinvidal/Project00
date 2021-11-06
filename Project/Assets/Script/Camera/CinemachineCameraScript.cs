@@ -33,6 +33,9 @@ public class CinemachineCameraScript : GlobalClass
 	//優先度カウント
 	private int PriorityCount = 0;
 
+	//開始時と終了時に使用するVcam
+	private CinemachineVirtualCamera MasterVcam;
+
 	void Start()
 	{
 		//メインカメラ取得
@@ -40,6 +43,9 @@ public class CinemachineCameraScript : GlobalClass
 
 		//メインカメラのターゲットオブジェクト取得
 		CameraTarget = GameObject.Find("MainCameraTarget");
+
+		//開始時と終了時に使用するVcam
+		MasterVcam = DeepFind(GameManagerScript.Instance.gameObject , "MasterVcam").GetComponent<CinemachineVirtualCamera>();
 
 		//カメラワークオブジェクトを取得
 		CameraWorkList = new List<GameObject>(gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("CameraWorkOBJ")).ToList().Select(b => b.gameObject).ToList());
@@ -71,7 +77,7 @@ public class CinemachineCameraScript : GlobalClass
 			}
 		}
 
-		//メインカメラのシネマシン有効無効切り替え
+		//メインカメラのシネマシン有効化
 		MainCamera.GetComponent<CinemachineBrain>().enabled = true;
 
 		//カメラワーク持続フラグ初期化
@@ -83,7 +89,14 @@ public class CinemachineCameraScript : GlobalClass
 		//優先度カウントアップ
 		PriorityCount++;
 
-		int VcamIndex = Random.Range(0, Vcam.Count);
+		//再生するカメラワークインデックス
+		int VcamIndex = 0;
+
+		//ランダムでカメラワークを決める場合
+		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().RandomFlag)
+		{
+			VcamIndex = Random.Range(0, Vcam.Count);
+		}	
 
 		//カメラ優先度を上げて切り替える
 		Vcam[VcamIndex].Priority += PriorityCount; 
@@ -111,6 +124,7 @@ public class CinemachineCameraScript : GlobalClass
 				//メインカメラの遷移をイージングに設定
 				MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Style = CinemachineBlendDefinition.Style.EaseInOut;
 
+				//メインカメラのイージングタイムを設定
 				MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time = CameraWorkList[Index].GetComponent<CameraWorkScript>().EasingTime;
 
 				break;
@@ -119,8 +133,12 @@ public class CinemachineCameraScript : GlobalClass
 		//ヴァーチャルカメラのパストラッキング取得
 		PathPos = Vcam[VcamIndex].GetCinemachineComponent<CinemachineTrackedDolly>();
 
-		//トラッキング制御コルーチン呼び出し
-		StartCoroutine(TrackingMoveCoroutine(CameraWorkList[Index].GetComponent<CameraWorkScript>().CameraMode, Index));
+		//パストラッキングが存在したら
+		if (PathPos != null)
+		{
+			//トラッキング制御コルーチン呼び出し
+			StartCoroutine(TrackingMoveCoroutine(CameraWorkList[Index].GetComponent<CameraWorkScript>().CameraMode, Index));
+		}
 
 		//持続条件によって呼び出すコルーチンを切り替える
 		switch (CameraWorkList[Index].GetComponent<CameraWorkScript>().KeepMode)
@@ -168,7 +186,7 @@ public class CinemachineCameraScript : GlobalClass
 			{
 				//サインカーブで移動
 				PathPos.m_PathPosition = (Mathf.Sin(CameraWorkList[Index].GetComponent<CameraWorkScript>().MoveSpeed * SinCount) + 1) * 0.5f;
-	
+
 				//サインカーブ生成に使う数カウントアップ
 				SinCount += Time.deltaTime;
 
@@ -189,7 +207,7 @@ public class CinemachineCameraScript : GlobalClass
 		//トラッキングが終わるまで待機
 		while (PathPos.m_PathPosition <= 1)
 		{
-			yield return null;
+			yield return null;			
 		}
 
 		//カメラワーク切り替え関数呼び出し
@@ -237,21 +255,8 @@ public class CinemachineCameraScript : GlobalClass
 		//最後のカメラワークの場合
 		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode == 10)
 		{
-			//メインカメラのシネマシン無効
-			MainCamera.GetComponent<CinemachineBrain>().enabled = false;
-
-			//全てのカメラワークを回す
-			foreach (var i in CameraWorkList)
-			{
-				foreach (var ii in i.GetComponentsInChildren<CinemachineVirtualCamera>())
-				{
-					//ヴァーチャルカメラ無効化
-					ii.enabled = false;
-				}
-			}
-
-			//メインカメラターゲットを現在のカメラの位置に移動させる
-			CameraTarget.transform.position = MainCamera.transform.position;
+			//カメラワーク終了関数呼び出し
+			EndCameraWork();
 		}
 		else
 		{
@@ -285,5 +290,49 @@ public class CinemachineCameraScript : GlobalClass
 			//次のカメラワーク再生
 			PlayCameraWork(NextIndex, false);
 		}
+	}
+
+	//カメラワーク終了関数
+	public void EndCameraWork()
+	{
+		//メインカメラの遷移をイージングに設定
+		MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Style = CinemachineBlendDefinition.Style.EaseInOut;
+
+		//メインカメラのイージングタイムを設定
+		MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time = 1f;
+
+		//終了用Vcamを通常の注視点に向ける、ポジションは開始時のEasingVcamera()で入る
+		MasterVcam.transform.LookAt(GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position + MainCamera.transform.parent.GetComponent<MainCameraScript>().LookAtOffset);
+
+		//終了用Vcam有効化
+		MasterVcam.enabled = true;
+
+		//全てのカメラワークを回す
+		foreach (var i in CameraWorkList)
+		{
+			foreach (var ii in i.GetComponentsInChildren<CinemachineVirtualCamera>())
+			{
+				//ヴァーチャルカメラ無効化
+				ii.enabled = false;
+			}
+		}
+
+		//コルーチン呼び出し
+		StartCoroutine(EndCameraWorkCoroutine());
+	}
+	//この処理をやらないとコリジョンの外にVcamがあった場合カメラがハマる
+	private IEnumerator EndCameraWorkCoroutine()
+	{
+		//イージング時間待機
+		yield return new WaitForSeconds(1);		
+
+		//メインカメラターゲットをキャッシュしてあった位置に移動
+		CameraTarget.transform.position = MainCamera.transform.position;
+
+		//メインカメラのシネマシン無効
+		MainCamera.GetComponent<CinemachineBrain>().enabled = false;
+
+		//終了用Vcam無効化
+		MasterVcam.enabled = false;
 	}
 }

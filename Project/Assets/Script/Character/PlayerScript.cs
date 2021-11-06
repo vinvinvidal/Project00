@@ -2814,7 +2814,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else
 		{
 			//バリバリゲージ増加
-			SetB_Gauge(0.01f);
+			SetB_Gauge(0.1f);
 
 			//巻き込み攻撃でなければ当たった敵をロックする
 			if (UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
@@ -3303,6 +3303,23 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ローカルトランスフォームを設定
 		WeaponOBJ.transform.localPosition *= 0;
 		WeaponOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+	}
+
+	//武器のミラーに敵の顔を映す
+	private void EnemyFaceMirror()
+	{
+		//一応nullチェック
+		if(LockEnemy != null)
+		{
+			//武器ミラーの処理呼び出し
+			WeaponOBJ.GetComponentInChildren<MirrorShaderScript>().EnemyFaceMirror(DeepFind(LockEnemy, "HeadBone"));
+		}		
+	}
+	//武器のミラーを切る
+	private void WeaponMirrorOff()
+	{
+		//武器ミラーの処理呼び出し
+		WeaponOBJ.GetComponentInChildren<MirrorShaderScript>().MirrorSwitch(false);
 	}
 
 	//接地判定用のRayを飛ばす関数
