@@ -856,33 +856,37 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	void LateUpdate()
 	{
-		//ループカウント
-		int count = 0;
-
-		//揺らすポーンListを回す
-		foreach (GameObject i in AnimNoiseBone)
+		//超必殺技中は揺らさない
+		if(!SuperFlag)
 		{
-			//ノイズ生成
-			Vector3 NoiseVec1 = new Vector3
-			(
-				Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].x) - 0.5f,
-				Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].y) - 0.5f,
-				Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].z) - 0.5f
-			);
+			//ループカウント
+			int count = 0;
 
-			//ノイズ生成
-			Vector3 NoiseVec2 = new Vector3
-			(
-				Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].x) - 0.5f,
-				Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].y) - 0.5f,
-				Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].z) - 0.5f
-			);
+			//揺らすポーンListを回す
+			foreach (GameObject i in AnimNoiseBone)
+			{
+				//ノイズ生成
+				Vector3 NoiseVec1 = new Vector3
+				(
+					Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].x) - 0.5f,
+					Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].y) - 0.5f,
+					Mathf.PerlinNoise(Time.time * 0.25f, AnimNoiseSeedList[count].z) - 0.5f
+				);
 
-			//ボーンにパーリンノイズの回転を加えて揺らす
-			i.transform.localRotation *= Quaternion.Euler((NoiseVec1 + NoiseVec2 * 0.25f) * 5f);
+				//ノイズ生成
+				Vector3 NoiseVec2 = new Vector3
+				(
+					Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].x) - 0.5f,
+					Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].y) - 0.5f,
+					Mathf.PerlinNoise(Time.time, AnimNoiseSeedList[count].z) - 0.5f
+				);
 
-			//カウントアップ
-			count++;
+				//ボーンにパーリンノイズの回転を加えて揺らす
+				i.transform.localRotation *= Quaternion.Euler((NoiseVec1 + NoiseVec2 * 0.25f) * 5f);
+
+				//カウントアップ
+				count++;
+			}
 		}
 	}
 
@@ -1992,13 +1996,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//超必殺技カメラワーク再生、アニメーションクリップから呼ばれる
-	public void SuperArtsCameraWork(int i)
+	public void StartSuperArtsCameraWork(int i)
 	{
-		//初回再生フラグ
-		bool FirstFlag = i == 0;
-
 		//カメラワーク再生
-		SuperCameraWorkOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(i, FirstFlag);
+		SuperCameraWorkOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(0, true);
+	}
+	//超必殺技カメラワークを次に進める
+	public void NextSuperArtsCameraWork()
+	{
+		//カメラワークを進める
+		SuperCameraWorkOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;
 	}
 
 	//ダメージ時の移動ベクトルを設定する、アニメーションクリップから呼ばれる
@@ -2804,11 +2811,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//敵をプレイヤーキャラクターに向ける
 			e.transform.LookAt(new Vector3(gameObject.transform.position.x, e.transform.position.y, gameObject.transform.position.z));
 
+			//メインカメラの敵ロックを外す、これをしないと演出時に敵を画角に入れる処理が走ってどんどんカメラを引いてしまう。
+			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(null));
+
 			//背景エフェクト表示
 			SuperBackGroundEffectInstace = Instantiate(SuperBackGroundEffect);
 
+			//背景エフェクトのTRSをキャラクターに合わせる
 			SuperBackGroundEffectInstace.transform.position = transform.position;
-
 			SuperBackGroundEffectInstace.transform.rotation = transform.rotation;
 		}
 		else
@@ -3161,6 +3171,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//視線を直接指定する、アニメーションクリップから呼ばれる
 	public void DirectEye(string i)
 	{
+		//視線ダイレクトモード有効化
+		ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(true));
+
 		//引数をカンマで分割してFloatにキャスト
 		List<float> templist = new List<float>(i.Split(',').ToList().Select(a => float.Parse(a)));
 
@@ -3172,6 +3185,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//オフセット
 		EyeOBJ.GetComponent<CharacterEyeShaderScript>().DirectEyeOffset = new Vector2(templist[2], templist[3]);
+	}
+	//視線を自動にする、アニメーションクリップから呼ばれる
+	public void AutoEye()
+	{
+		//視線ダイレクトモード無効化
+		ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(false));
 	}
 
 	//技格納マトリクス初期化関数
@@ -4024,9 +4043,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Hit", false);
 
-			//視線ダイレクトモード設定
-			ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(true));
-
 			//コライダを非アクティブ化
 			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
 
@@ -4096,7 +4112,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			GameManagerScript.Instance.H_Flag = false;
 
 			//視線ダイレクトモード解除
-			ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetDirectMode(false));
+			AutoEye();
 
 			//口のアニメーションレイヤーの重みをリセット
 			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), 0);

@@ -180,7 +180,16 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//1フレーム待機
 						yield return null;
 					}
-				}				
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy) =>
+					{
+						//スローモーション
+						GameManagerScript.Instance.TimeScaleChange(0.5f, 0.05f);
+					}
+				);
 
 				re.Add
 				(

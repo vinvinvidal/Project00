@@ -68,11 +68,11 @@ public class CinemachineCameraScript : GlobalClass
 			{
 				foreach(var ii in i.GetComponentsInChildren<CinemachineVirtualCamera>())
 				{
-					//優先度をリセット
-					ii.Priority = DefaultPriority;
-
 					//ヴァーチャルカメラ有効化
 					ii.enabled = true;
+
+					//優先度をリセット
+					ii.Priority = DefaultPriority;
 				}
 			}
 		}
@@ -136,6 +136,9 @@ public class CinemachineCameraScript : GlobalClass
 		//パストラッキングが存在したら
 		if (PathPos != null)
 		{
+			//トラッキングポジションを初期位置に移動
+			PathPos.m_PathPosition = 0;
+
 			//トラッキング制御コルーチン呼び出し
 			StartCoroutine(TrackingMoveCoroutine(CameraWorkList[Index].GetComponent<CameraWorkScript>().CameraMode, Index));
 		}
@@ -198,9 +201,6 @@ public class CinemachineCameraScript : GlobalClass
 	//トラッキングが終了するまで持続コルーチン
 	IEnumerator TrackingEndModeCoroutine(int Index)
 	{
-		//トラッキングポジションを初期位置に移動
-		PathPos.m_PathPosition = 0;
-
 		//優先度カウントキャッシュ
 		int TempCount = PriorityCount;
 
@@ -314,6 +314,9 @@ public class CinemachineCameraScript : GlobalClass
 			{
 				//ヴァーチャルカメラ無効化
 				ii.enabled = false;
+
+				//優先度をリセット
+				ii.Priority = DefaultPriority;
 			}
 		}
 
@@ -327,7 +330,7 @@ public class CinemachineCameraScript : GlobalClass
 		yield return new WaitForSeconds(1);		
 
 		//メインカメラターゲットをキャッシュしてあった位置に移動
-		CameraTarget.transform.position = MainCamera.transform.position;
+		CameraTarget.transform.position = MasterVcam.transform.position;
 
 		//メインカメラのシネマシン無効
 		MainCamera.GetComponent<CinemachineBrain>().enabled = false;
