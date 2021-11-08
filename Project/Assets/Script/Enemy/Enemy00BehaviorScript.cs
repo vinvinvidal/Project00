@@ -40,8 +40,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}
 	}
 	*/
-	//キャラクターコントローラ
-	private CharacterController CharaController;
 
 	//自身のアニメーターコントローラ
 	private Animator CurrentAnimator;
@@ -51,27 +49,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 	//自身のEnemySettingScript
 	private EnemySettingScript SettingScript;
-
-	//移動速度
-	private float MoveSpeed;
-
-	//行動移動ベクトル
-	private Vector3 BehaviorMoveVec;
-
-	//仲間避け移動ベクトル
-	private Vector3 AroundMoveVec;
-
-	//モーション依存の移動ベクトル
-	private Vector3 MotionMoveVec;
-
-	//最終的な移動ベクトル
-	private Vector3 MoveVec;
-
-	//体を向ける方向
-	private Vector3 RotateVec;
-
-	//旋回速度
-	private float TurnSpeed;
 
 	//接近距離
 	private float ChaseDistance;
@@ -99,15 +76,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 	//行動List	
 	private List<EnemyBehaviorClass> EnemyBehaviorList = new List<EnemyBehaviorClass>();
-	//private List<BehaviorStruct> BehaviorList = new List<BehaviorStruct>();
-
-
-
-	//現在行っている行動フラグを持つDic
-	private Dictionary<string, bool> NowBehaviorDic = new Dictionary<string, bool>();
-
-	//行動中断List
-	private List<string> BehaviorBreakList = new List<string>();
 
 	//準備完了フラグ
 	private bool AllReadyFlag = false;
@@ -117,9 +85,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 	void Start()
     {
-		//キャラクターコントローラ取得
-		CharaController = gameObject.GetComponent<CharacterController>();
-
 		//アニメーターコントローラ取得
 		CurrentAnimator = GetComponent<Animator>();
 
@@ -128,24 +93,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//自身のEnemySettingScript取得
 		SettingScript = gameObject.GetComponent<EnemySettingScript>();
-
-		//プレイヤーキャラクター、とりあえずnull
-		PlayerCharacter = null;
-
-		//プレイヤーキャラクターをコルーチンで確実に取得する
-		StartCoroutine(SetPlayerCharacterCoroutine());
-
-		//移動速度取得
-		MoveSpeed = EnemyScript.MoveSpeed;
-
-		//行動移動ベクトル初期化
-		BehaviorMoveVec = Vector3.zero;
-
-		//最終的な移動ベクトル初期化
-		MoveVec = Vector3.zero;
-
-		//旋回速度取得
-		TurnSpeed = EnemyScript.TurnSpeed;
 
 		//接近距離
 		ChaseDistance = 2;
@@ -156,21 +103,19 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//仲間避け距離
 		AroundDistance = 3f;
 
-		//モーション依存の移動値初期化
-		MotionMoveVec = Vector3.zero;
-
 		//プレイヤーキャラクターとの距離初期化
 		PlayerDistance = 0f;
+
+		//プレイヤーキャラクター、とりあえずnull
+		PlayerCharacter = null;
+
+		//プレイヤーキャラクターをコルーチンで確実に取得する
+		StartCoroutine(SetPlayerCharacterCoroutine());
 
 		//準備完了待ちコルーチン呼び出し
 		StartCoroutine(AllReadyFlagCoroutine());
 
-		//行動を中断するListに手動でAdd
-		BehaviorBreakList.Add("Damage00");
-		BehaviorBreakList.Add("Damage01");
-		BehaviorBreakList.Add("HoldDamage");
-		BehaviorBreakList.Add("Special");
-		BehaviorBreakList.Add("SuperDamage");
+		///---行動追加---///
 
 		//待機
 		EnemyBehaviorList.Add(new EnemyBehaviorClass("Wait", 10, () =>
@@ -208,7 +153,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			return re;
 
 		}));
-
 
 		//仲間避け
 		EnemyBehaviorList.Add(new EnemyBehaviorClass("Around", 20, () =>
@@ -248,101 +192,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		}));
 
-		//行動Listを回してNowBehaviorDic作成
-		foreach (EnemyBehaviorClass i in EnemyBehaviorList)
-		{
-			NowBehaviorDic.Add(i.Name, false);
-		}
-
-		//全ての行動Listを送る
-		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetBehaviorList(EnemyBehaviorList));
-
-		/*
-		//待機
-		BehaviorList.Add(new BehaviorStruct("Wait", 10, () =>
-		{
-			//待機コルーチン呼び出し
-			StartCoroutine(WaitCoroutine());
-
-		},()=>
-		//待機の条件
-		{
-			//いつでもOK
-			return true;
-
-		} ));
-
-
-
-		//追跡
-		BehaviorList.Add(new BehaviorStruct("Chase", 50, () =>
-		//追跡の処理
-		{
-			//追跡コルーチン呼び出し
-			StartCoroutine(ChaseCoroutine());
-
-		}, () =>
-		//追跡の条件
-		{
-			//出力用変数宣言
-			bool re = false;
-
-			//プレイヤーキャラクターと離れている
-			if(PlayerDistance > ChaseDistance)
-			{
-				re = true;
-			}
-			
-			//出力
-			return re;
-
-		}));
-
-		//仲間避け
-		BehaviorList.Add(new BehaviorStruct("Around", 20, () =>
-		//仲間避けの処理
-		{
-			//仲間避けコルーチン呼び出し
-			StartCoroutine(AroundCoroutine());
-
-		}, () =>
-		//仲間避けの条件
-		{
-			//出力用変数宣言
-			bool re = false;
-
-			//攻撃中じゃない
-			if(!NowBehaviorDic["Attack00"])
-			{
-				//存在する全ての敵を回す
-				foreach (GameObject e in GameManagerScript.Instance.AllActiveEnemyList)
-				{
-					//敵が存在している
-					if (e != null)
-					{
-						//自身は見ない
-						if (GameManagerScript.Instance.AllActiveEnemyList.IndexOf(e) != EnemyScript.ListIndex)
-						{
-							//近くに敵がいるか判定
-							if ((gameObject.transform.position - e.transform.position).sqrMagnitude < Mathf.Pow(AroundDistance, 2))
-							{
-								//居たらフラグを立ててブレイク
-								re = true;
-
-								break;
-							}
-						}
-					}
-				}
-			}
-
-			//出力
-			return re;
-
-		}));
-
 		//攻撃00
-		BehaviorList.Add(new BehaviorStruct("Attack00", 50, () =>
+		EnemyBehaviorList.Add(new EnemyBehaviorClass("Attack00", 50, () =>
 		//攻撃00の処理
 		{
 			//攻撃00コルーチン呼び出し
@@ -358,10 +209,10 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => re = reciever.GetOnCameraBool());
 
 			//画面内に入っていたら処理
-			if(re)
+			if (re)
 			{
-				//射程距離で攻撃中じゃなくて大体正面にいてスケベ中じゃない
-				if (PlayerDistance < AttackDistance && PlayerAngle < 90 && !NowBehaviorDic["Attack00"] && !GameManagerScript.Instance.H_Flag)
+				//射程距離で攻撃中じゃなくてスケベ中じゃない
+				if (PlayerDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
 				{
 					re = true;
 				}
@@ -375,6 +226,13 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			return re;
 
 		}));
+
+		//スクリプトに全ての行動Listを送る
+		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetBehaviorList(EnemyBehaviorList));
+
+		/*
+
+
 
 		//スケベ攻撃
 		BehaviorList.Add(new BehaviorStruct("H_Attack", 5000, () =>
@@ -457,7 +315,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 					EnemyScript.RotateVec = PlayerVec;
 
 					//行動不能になったらブレイク
-					if (BehaviorBreakList.Any(a => a == EnemyScript.CurrentState))
+					if (!EnemyScript.BehaviorFlag)
 					{
 						break;
 					}
@@ -520,9 +378,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 						if ((gameObject.transform.position - e.transform.position).sqrMagnitude < Mathf.Pow(AroundDistance * 0.5f, 2))
 						{
 							//居たら仲間避けコルーチン呼び出してブレイク
-							//StartCoroutine(AroundCoroutine());
+							StartCoroutine(AroundCoroutine());
 
-							//goto ChaseBreak;
+							goto ChaseBreak;
 						}
 					}
 				}
@@ -541,14 +399,14 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//待機コルーチン呼び出し
 		StartCoroutine(WaitCoroutine());
 
-		//多重ループを抜ける先、待機コルーチンを避ける
-		ChaseBreak:;
-
 		//アニメーターのフラグを下ろす
 		CurrentAnimator.SetBool("Walk", false);
 
 		//フラグを下ろす
 		EnemyScript.BehaviorFlag = false;
+
+		//ループを抜ける先、余計な処理を避ける
+		ChaseBreak:;
 	}
 
 	//仲間避けコルーチン
@@ -600,14 +458,14 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//近い敵を避ける移動ベクトル算出
 			EnemyScript.BehaviorMoveVec = HorizontalVector(gameObject, NearEnemy).normalized;
 
-			//ある程度移動を保証
-			yield return new WaitForSeconds(1f);
-
 			//最低値より離れたらブレイク
 			if (!EnemyScript.BehaviorFlag || NearEnemyDistance > Mathf.Pow(AroundDistance, 2))
 			{
 				break;
 			}
+
+			//１フレーム待機
+			yield return null;
 		}
 
 		//アニメーターのフラグを下ろす
@@ -620,160 +478,34 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		StartCoroutine(WaitCoroutine());
 	}
 
-	void Update()
-    {
-		//常にプレイヤーキャラクターとの距離を測定する、高低差は無視
-		PlayerDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
-
-		//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
-		PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
-
-		/*
-		if (!PauseFlag)
-		{
-			//常にプレイヤーキャラクターとの距離を測定する、高低差は無視
-			PlayerDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
-
-			//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
-			PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
-
-			//歩調に合わせるサインカーブ生成に使う数カウントアップ
-			SinCount += Time.deltaTime;
-
-			//行動可能条件
-			if (AllReadyFlag && !EnemyScript.CurrentState.Contains("Down") && !EnemyScript.CurrentState.Contains("Damage") && (EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk") || EnemyScript.CurrentState.Contains("Attack") || EnemyScript.CurrentState.Contains("H_")))
-			{
-				//各移動ベクトルを合成
-				MoveVec = (((BehaviorMoveVec.normalized + AroundMoveVec.normalized * 0.25f).normalized * MoveSpeed) + MotionMoveVec);
-
-				//移動値の有無でアニメーションを切り替える、攻撃中は無視
-				if ((MoveVec != Vector3.zero || RotateVec != Vector3.zero) && !NowBehaviorDic["Attack00"] && !NowBehaviorDic["H_Attack"])
-				{
-					//アニメーターのフラグを立てる
-					CurrentAnimator.SetBool("Walk", true);
-
-					//移動方向と体の向きを比較して歩きモーションをブレンド
-					if (MoveVec != Vector3.zero)
-					{
-						CurrentAnimator.SetFloat("Side_Walk", Mathf.Lerp(CurrentAnimator.GetFloat("Side_Walk"), (Vector3.Angle(transform.right, MoveVec.normalized) - 90) / 90, 0.25f));
-					}
-				}
-				else
-				{
-					//アニメーターのフラグを下す
-					CurrentAnimator.SetBool("Walk", false);
-				}
-
-				//Walk中は歩調に合わせる数値を反映する
-				if(EnemyScript.CurrentState.Contains("Walk"))
-				{
-					//移動
-					CharaController.Move(MoveVec * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount)) * Time.deltaTime);
-	
-				}
-				else
-				{
-					//移動
-					CharaController.Move(MoveVec * Time.deltaTime);
-				}
-
-				//回転値が入っていたら回転
-				if (RotateVec != Vector3.zero)
-				{
-					transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(RotateVec), TurnSpeed * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount) + 0.1f) * Time.deltaTime);
-				}
-
-				//行動抽選
-				if (NowBehaviorDic.All(i => !i.Value) && (EnemyScript.CurrentState == "Idling" || EnemyScript.CurrentState == "Walk"))
-				{	
-					//開始可能行動List
-					List<BehaviorStruct> TempBehavioerList = new List<BehaviorStruct>(BehaviorList.Where(b => b.BehaviorConditions()).ToList());
-
-					//行動比率
-					int BehaviorRatio = 0;
-
-					//抽選番号
-					int BehaviorLottery = 0;
-
-					//開始可能な行動がある
-					if (TempBehavioerList.Count > 0)
-					{
-						//行動比率合計
-						foreach (BehaviorStruct i in TempBehavioerList)
-						{
-							if(i.Name.Contains("H_"))
-							{
-								//スケベ攻撃だったら興奮度を加味して発生比率を加算
-								BehaviorRatio += i.Priority * (int)(gameObject.GetComponent<EnemyCharacterScript>().Excite * 10);
-							}
-							else
-							{
-								//発生比率を加算
-								BehaviorRatio += i.Priority;
-							}
-						}
-
-						//抽選番号設定
-						BehaviorLottery = UnityEngine.Random.Range(1, BehaviorRatio + 1);
-
-						//行動比率初期化
-						BehaviorRatio = 0;
-						
-						//行動判定
-						foreach (BehaviorStruct i in TempBehavioerList)
-						{
-							//比率を合計していく
-							if (i.Name.Contains("H_"))
-							{
-								//スケベ攻撃だったら興奮度を加味して発生比率を加算
-								BehaviorRatio += i.Priority * (int)(gameObject.GetComponent<EnemyCharacterScript>().Excite * 10);
-							}
-							else
-							{
-								//発生比率を加算
-								BehaviorRatio += i.Priority;
-							}
-
-							//乱数がどの範囲にあるか判定
-							if (BehaviorRatio >= BehaviorLottery)
-							{
-								//処理実行
-								i.BehaviorAction();
-
-								//ループをブレイク
-								break;
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				//アニメーターのフラグを下す
-				CurrentAnimator.SetBool("Attack", false);
-
-				//アニメーターのフラグを下す
-				CurrentAnimator.SetBool("H_Try", false);
-
-				//アニメーターのフラグを下す
-				CurrentAnimator.SetBool("Walk", false);
-			}
-		}
-		*/
-	}
-
 	//攻撃00コルーチン
 	IEnumerator Attack00Coroutine()
 	{
 		//フラグを立てる
-		NowBehaviorDic["Attack00"] = true;
+		EnemyScript.BehaviorFlag = true;
 
-		//移動値をリセット
-		MoveVec *= 0;
+		//プレイヤーキャラクターがいる方向測定
+		Vector3 PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
 
-		//プレイヤーキャラクターに向ける
-		RotateVec = HorizontalVector(PlayerCharacter, gameObject);
-		
+		//プレイヤーが正面にくるまでループ
+		while (PlayerAngle > 0.1f)
+		{
+			//プレイヤーキャラクターがいる方向測定
+			PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
+
+			//プレイヤーキャラクターに向ける
+			EnemyScript.RotateVec = PlayerVec;
+
+			//行動不能、もしくは射程外になったらブレイク
+			if (!EnemyScript.BehaviorFlag || PlayerDistance > AttackDistance)
+			{
+				goto Attack00Break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("Attack", true);
 
@@ -793,11 +525,11 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			yield return null;
 		}
 
-		//フラグを下ろす
-		NowBehaviorDic["Attack00"] = false;
+		//ループを抜ける先、余計な処理を避ける
+		Attack00Break:;
 
-		//モーション依存の移動値初期化
-		MotionMoveVec *= 0;
+		//フラグを下ろす
+		EnemyScript.BehaviorFlag = false;
 
 		//待機する
 		StartCoroutine(WaitCoroutine());
@@ -807,13 +539,12 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	IEnumerator H_AttackCoroutine()
 	{
 		//フラグを立てる
-		NowBehaviorDic["H_Attack"] = true;
+		EnemyScript.BehaviorFlag = true;
 
-		//移動値をリセット
-		MoveVec *= 0;
+
 
 		//プレイヤーキャラクターに向ける
-		RotateVec = HorizontalVector(PlayerCharacter, gameObject);
+
 
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("H_Try", true);
@@ -832,36 +563,19 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}
 
 		//フラグを下ろす
-		NowBehaviorDic["H_Attack"] = false;
-
-		//モーション依存の移動値初期化
-		MotionMoveVec *= 0;
+		EnemyScript.BehaviorFlag = false;
 
 		//待機する
 		StartCoroutine(WaitCoroutine());
 	}
 
+	void Update()
+    {
+		//常にプレイヤーキャラクターとの距離を測定する、高低差は無視
+		PlayerDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
 
-
-	//攻撃用移動、プレイヤーを補足する、前後だけ、アニメーションクリップから呼ばれる
-	public void StartAttackMove(float f)
-	{
-		//プレイヤーに向ける
-		RotateVec = HorizontalVector(PlayerCharacter, gameObject);
-
-		//加速度をセット
-		MotionMoveVec = transform.forward * f;
-	}
-
-	//モーション中に移動させる、前後だけ、アニメーションクリップから呼ばれる
-	public void StartBehaviorMove(float f)
-	{
-		MotionMoveVec = transform.forward * f;
-	}
-	//モーション中の移動を終わる、アニメーションクリップから呼ばれる
-	public void EndBehaviorMove()
-	{
-		MotionMoveVec *= 0;
+		//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
+		PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
 	}
 
 	//プレイヤーキャラクター取得コルーチン

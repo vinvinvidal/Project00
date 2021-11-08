@@ -1670,6 +1670,51 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 	}
 
+	//行動中に移動させる、前後だけ、アニメーションクリップから呼ばれる
+	public void StartBehaviorMove(float f)
+	{
+		BehaviorMoveVec = transform.forward * f;
+	}
+	//行動中の移動を終わる、アニメーションクリップから呼ばれる
+	public void EndBehaviorMove()
+	{
+		BehaviorMoveVec *= 0;
+	}
+
+	//プレイヤーを正面に捉える、アニメーションクリップから呼ばれる
+	public void SearchPlayer(float t)
+	{
+		//コルーチン呼び出し
+		StartCoroutine(SearchPlayerCoroutine(t));
+	}
+	private IEnumerator SearchPlayerCoroutine(float t)
+	{
+		//経過時間
+		float WaitTime = 0;
+
+		//待機時間経過までループ
+		while (WaitTime < t)
+		{
+			//経過時間カウントアップ
+			WaitTime += Time.deltaTime;
+
+			//プレイヤーキャラクターに向ける
+			RotateVec = HorizontalVector(PlayerCharacter, gameObject);
+
+			//行動不能になったらブレイク
+			if (!BehaviorFlag)
+			{
+				break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//回転値リセット
+		RotateVec *= 0;
+	}
+
 	//ダメージモーション中に移動させる、前後だけ、アニメーションクリップから呼ばれる
 	public void StartDamageMove(float f)
 	{
