@@ -75,6 +75,9 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 		{
 			//攻撃が当たった時のプレイヤー側の処理を呼び出す
 			ExecuteEvents.Execute<PlayerScriptInterface>(PlayerCharacter, null, (reciever, eventData) => reciever.HitAttack(Hit.gameObject.transform.root.gameObject, 0));
+
+			//コライダを無効化
+			AttackCol.enabled = false;
 		}
 		//通常技が当たった
 		else

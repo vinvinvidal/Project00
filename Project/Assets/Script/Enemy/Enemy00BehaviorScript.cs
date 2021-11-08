@@ -14,6 +14,7 @@ public interface EnemyBehaviorInterface : IEventSystemHandler
 
 public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 {
+	/*
 	//行動構造体
 	private struct BehaviorStruct
 	{
@@ -38,7 +39,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			BehaviorAction = BA;
 		}
 	}
-
+	*/
 	//キャラクターコントローラ
 	private CharacterController CharaController;
 
@@ -87,9 +88,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	//最大待機時間
 	float MaxWaitTime = 2;
 
-	//歩調に合わせるサインカーブ生成に使う数
-	float SinCount = 0;
-
 	//プレイヤーキャラクター
 	private GameObject PlayerCharacter;
 
@@ -99,11 +97,17 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	//プレイヤーキャラクターとの角度
 	private float PlayerAngle;
 
-	//行動構造体List
-	private List<BehaviorStruct> BehaviorList = new List<BehaviorStruct>();
+	//行動List	
+	private List<EnemyBehaviorClass> EnemyBehaviorList = new List<EnemyBehaviorClass>();
+	//private List<BehaviorStruct> BehaviorList = new List<BehaviorStruct>();
+
+
 
 	//現在行っている行動フラグを持つDic
 	private Dictionary<string, bool> NowBehaviorDic = new Dictionary<string, bool>();
+
+	//行動中断List
+	private List<string> BehaviorBreakList = new List<string>();
 
 	//準備完了フラグ
 	private bool AllReadyFlag = false;
@@ -161,6 +165,99 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//準備完了待ちコルーチン呼び出し
 		StartCoroutine(AllReadyFlagCoroutine());
 
+		//行動を中断するListに手動でAdd
+		BehaviorBreakList.Add("Damage00");
+		BehaviorBreakList.Add("Damage01");
+		BehaviorBreakList.Add("HoldDamage");
+		BehaviorBreakList.Add("Special");
+		BehaviorBreakList.Add("SuperDamage");
+
+		//待機
+		EnemyBehaviorList.Add(new EnemyBehaviorClass("Wait", 10, () =>
+		{
+			//待機コルーチン呼び出し
+			StartCoroutine(WaitCoroutine());
+
+		}, () =>
+		//可能条件
+		{
+			//いつでもOK
+			return true;
+
+		}));
+
+		//追跡
+		EnemyBehaviorList.Add(new EnemyBehaviorClass("Chase", 50, () =>
+		{
+			//追跡コルーチン呼び出し
+			StartCoroutine(ChaseCoroutine());
+
+		}, () =>
+		//可能条件
+		{
+			//出力用変数宣言
+			bool re = false;
+
+			//プレイヤーキャラクターと離れている
+			if (PlayerDistance > ChaseDistance)
+			{
+				re = true;
+			}
+
+			//出力
+			return re;
+
+		}));
+
+
+		//仲間避け
+		EnemyBehaviorList.Add(new EnemyBehaviorClass("Around", 20, () =>
+		{
+			//仲間避けコルーチン呼び出し
+			StartCoroutine(AroundCoroutine());
+
+		}, () =>
+		//可能条件
+		{
+			//出力用変数宣言
+			bool re = false;
+
+			//存在する全ての敵を回す
+			foreach (GameObject e in GameManagerScript.Instance.AllActiveEnemyList)
+			{
+				//敵が存在している
+				if (e != null)
+				{
+					//自身は見ない
+					if (GameManagerScript.Instance.AllActiveEnemyList.IndexOf(e) != EnemyScript.ListIndex)
+					{
+						//近くに敵がいるか判定
+						if ((gameObject.transform.position - e.transform.position).sqrMagnitude < Mathf.Pow(AroundDistance, 2))
+						{
+							//居たらフラグを立ててブレイク
+							re = true;
+
+							break;
+						}
+					}
+				}
+			}
+
+			//出力
+			return re;
+
+		}));
+
+		//行動Listを回してNowBehaviorDic作成
+		foreach (EnemyBehaviorClass i in EnemyBehaviorList)
+		{
+			NowBehaviorDic.Add(i.Name, false);
+		}
+
+		//全ての行動Listを送る
+		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetBehaviorList(EnemyBehaviorList));
+
+		/*
 		//待機
 		BehaviorList.Add(new BehaviorStruct("Wait", 10, () =>
 		{
@@ -174,6 +271,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			return true;
 
 		} ));
+
+
 
 		//追跡
 		BehaviorList.Add(new BehaviorStruct("Chase", 50, () =>
@@ -316,15 +415,220 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		}));
 
-		//行動Listを回してNowBehaviorDic作成
-		foreach (BehaviorStruct i in BehaviorList)
+		*/
+
+
+	}
+
+	//待機コルーチン
+	IEnumerator WaitCoroutine()
+	{
+		//フラグを立てる
+		EnemyScript.BehaviorFlag = true;
+
+		//待機時間設定
+		float WaitTime = UnityEngine.Random.Range(MinWaitTime, MaxWaitTime);
+
+		//プレイヤーキャラクターがいる方向
+		Vector3 PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
+
+		//待機時間が終わるまでループ
+		while (WaitTime > 0 && EnemyScript.BehaviorFlag)
 		{
-			NowBehaviorDic.Add(i.Name , false);
+			//待機時間を減らす
+			if (!PauseFlag)
+			{
+				WaitTime -= Time.deltaTime;
+			}
+
+			//プレイヤーが正面に以内
+			if (PlayerAngle > 45)
+			{
+				//アニメーターのフラグを立てる
+				CurrentAnimator.SetBool("Walk", true);
+
+				//プレイヤーが正面にくるまでループ
+				while (PlayerAngle > 5)
+				{
+					//プレイヤーキャラクターがいる方向測定
+					PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
+
+					//プレイヤーキャラクターに向ける
+					EnemyScript.RotateVec = PlayerVec;
+
+					//行動不能になったらブレイク
+					if (BehaviorBreakList.Any(a => a == EnemyScript.CurrentState))
+					{
+						break;
+					}
+
+					//1フレーム待機
+					yield return null;
+				}
+
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Walk", false);
+
+				//回転値初期化
+				EnemyScript.RotateVec *= 0;
+			}
+			else
+			{
+				//回転値初期化
+				EnemyScript.RotateVec *= 0;
+			}
+
+			//1フレーム待機
+			yield return null;
 		}
+
+		//回転値初期化
+		EnemyScript.RotateVec *= 0;
+
+		//フラグを下す
+		EnemyScript.BehaviorFlag = false;
+	}
+
+	//追跡コルーチン
+	IEnumerator ChaseCoroutine()
+	{
+		//フラグを立てる
+		EnemyScript.BehaviorFlag = true;
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Walk", true);
+
+		//プレイヤーキャラクターに接近するまでループ
+		while (PlayerDistance > ChaseDistance)
+		{
+			//プレイヤーキャラクターに向かう移動ベクトル算出
+			EnemyScript.BehaviorMoveVec = HorizontalVector(PlayerCharacter, gameObject).normalized;
+
+			//プレイヤーキャラクターに向ける
+			EnemyScript.RotateVec = HorizontalVector(PlayerCharacter, gameObject);
+
+			//存在する全ての敵を回す
+			foreach (GameObject e in GameManagerScript.Instance.AllActiveEnemyList)
+			{
+				//敵が存在している
+				if (e != null)
+				{
+					//自身は見ない
+					if (GameManagerScript.Instance.AllActiveEnemyList.IndexOf(e) != EnemyScript.ListIndex)
+					{
+						//近くに敵がいるか判定
+						if ((gameObject.transform.position - e.transform.position).sqrMagnitude < Mathf.Pow(AroundDistance * 0.5f, 2))
+						{
+							//居たら仲間避けコルーチン呼び出してブレイク
+							//StartCoroutine(AroundCoroutine());
+
+							//goto ChaseBreak;
+						}
+					}
+				}
+			}
+
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//待機コルーチン呼び出し
+		StartCoroutine(WaitCoroutine());
+
+		//多重ループを抜ける先、待機コルーチンを避ける
+		ChaseBreak:;
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Walk", false);
+
+		//フラグを下ろす
+		EnemyScript.BehaviorFlag = false;
+	}
+
+	//仲間避けコルーチン
+	IEnumerator AroundCoroutine()
+	{
+		//フラグを立てる
+		EnemyScript.BehaviorFlag = true;
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Walk", true);
+
+		//一番近い敵代入変数
+		GameObject NearEnemy = null;
+
+		//敵との距離、とりあえず最低値を入れておく
+		float NearEnemyDistance = Mathf.Pow(AroundDistance, 2);
+
+		//存在する全ての敵を回す
+		foreach (GameObject e in GameManagerScript.Instance.AllActiveEnemyList)
+		{
+			//敵が存在している
+			if (e != null)
+			{
+				//自身は見ない
+				if (GameManagerScript.Instance.AllActiveEnemyList.IndexOf(e) != EnemyScript.ListIndex)
+				{
+					//一番近い敵を探す
+					if ((gameObject.transform.position - e.transform.position).sqrMagnitude < NearEnemyDistance)
+					{
+						//敵との距離更新
+						NearEnemyDistance = (gameObject.transform.position - e.transform.position).sqrMagnitude;
+
+						//一番近い敵更新
+						NearEnemy = e;
+					}
+				}
+			}
+		}
+
+		//近くに仲間がいたら避ける
+		while (NearEnemy != null)
+		{
+			//敵との距離更新
+			NearEnemyDistance = (gameObject.transform.position - NearEnemy.transform.position).sqrMagnitude;
+
+			//プレイヤーキャラクターに向ける
+			EnemyScript.RotateVec = HorizontalVector(PlayerCharacter, gameObject);
+
+			//近い敵を避ける移動ベクトル算出
+			EnemyScript.BehaviorMoveVec = HorizontalVector(gameObject, NearEnemy).normalized;
+
+			//ある程度移動を保証
+			yield return new WaitForSeconds(1f);
+
+			//最低値より離れたらブレイク
+			if (!EnemyScript.BehaviorFlag || NearEnemyDistance > Mathf.Pow(AroundDistance, 2))
+			{
+				break;
+			}
+		}
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Walk", false);
+
+		//フラグを下ろす
+		EnemyScript.BehaviorFlag = false;
+
+		//待機コルーチン呼び出し
+		StartCoroutine(WaitCoroutine());
 	}
 
 	void Update()
     {
+		//常にプレイヤーキャラクターとの距離を測定する、高低差は無視
+		PlayerDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
+
+		//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
+		PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
+
+		/*
 		if (!PauseFlag)
 		{
 			//常にプレイヤーキャラクターとの距離を測定する、高低差は無視
@@ -455,207 +759,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 				CurrentAnimator.SetBool("Walk", false);
 			}
 		}
-	}
-
-	//待機コルーチン
-	IEnumerator WaitCoroutine()
-	{
-		//フラグを立てる
-		NowBehaviorDic["Wait"] = true;
-
-		//待機時間設定
-		float WaitTime = UnityEngine.Random.Range(MinWaitTime , MaxWaitTime);
-
-		//プレイヤーキャラクターがいる方向
-		Vector3 PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
-
-		//待機時間が終わるまでループ
-		while (WaitTime > 0)
-		{
-			//待機時間を減らす
-			if(!PauseFlag)
-			{
-				WaitTime -= Time.deltaTime;
-			}
-
-			if(PlayerAngle > 45)
-			{
-				while (PlayerAngle > 5)
-				{
-					//プレイヤーキャラクターがいる方向測定
-					PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
-
-					//プレイヤーキャラクターに向ける
-					RotateVec = PlayerVec;
-
-					//行動不能になったらブレイク
-					if (!(EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")))
-					{
-						break;
-					}
-
-					//1フレーム待機
-					yield return null;
-				}
-
-				//回転値初期化
-				RotateVec *= 0;
-			}
-			else
-			{
-				//回転値初期化
-				RotateVec *= 0;
-			}
-
-			//行動不能になったらブレイク
-			if (!(EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")))
-			{
-				break;
-			}
-
-			//1フレーム待機
-			yield return null;
-		}
-
-		//回転値初期化
-		RotateVec *= 0;
-
-		//フラグを下す
-		NowBehaviorDic["Wait"] = false;
-
-		//モーション依存の移動値初期化
-		MotionMoveVec *= 0;
-	}
-
-	//追跡コルーチン
-	IEnumerator ChaseCoroutine()
-	{
-		//フラグを立てる
-		NowBehaviorDic["Chase"] = true;
-
-		//プレイヤーキャラクターに接近するまでループ
-		while (PlayerDistance > ChaseDistance)
-		{
-			//プレイヤーキャラクターに向かう移動ベクトル算出
-			BehaviorMoveVec = HorizontalVector(PlayerCharacter, gameObject);
-			
-			//プレイヤーキャラクターに向ける
-			RotateVec = BehaviorMoveVec;
-
-			//存在する全ての敵を回す
-			foreach (GameObject e in GameManagerScript.Instance.AllActiveEnemyList)
-			{
-				//敵が存在している
-				if (e != null)
-				{
-					//自身は見ない
-					if (GameManagerScript.Instance.AllActiveEnemyList.IndexOf(e) != EnemyScript.ListIndex)
-					{
-						//近くに敵がいるか判定
-						if ((gameObject.transform.position - e.transform.position).sqrMagnitude < Mathf.Pow(AroundDistance * 0.5f, 2))
-						{
-							//居たら仲間避けコルーチン呼び出してブレイク
-							StartCoroutine(AroundCoroutine());
-
-							goto ChaseBreak;
-						}
-					}
-				}
-			}
-
-			//行動不能になったらブレイク
-			if (!(EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")))
-			{
-				break;
-			}
-
-			//1フレーム待機
-			yield return null;
-		}
-
-		//待機コルーチン呼び出し
-		StartCoroutine(WaitCoroutine());
-
-		//多重ループを抜ける先、待機コルーチンを避ける
-		ChaseBreak:;
-
-		//フラグを下す
-		NowBehaviorDic["Chase"] = false;
-
-		//移動ベクトル初期化
-		BehaviorMoveVec *= 0;
-
-		//モーション依存の移動値初期化
-		MotionMoveVec *= 0;
-	}
-
-	//仲間避けコルーチン
-	IEnumerator AroundCoroutine()
-	{
-		//フラグを立てる
-		NowBehaviorDic["Around"] = true;
-
-		//一番近い敵代入変数
-		GameObject NearEnemy = null;
-
-		//敵との距離
-		float NearEnemyDistance = Mathf.Pow(AroundDistance, 2);
-
-		//存在する全ての敵を回す
-		foreach (GameObject e in GameManagerScript.Instance.AllActiveEnemyList)
-		{
-			//敵が存在している
-			if (e != null)
-			{
-				//自身は見ない
-				if (GameManagerScript.Instance.AllActiveEnemyList.IndexOf(e) != EnemyScript.ListIndex)
-				{
-					//一番近い敵を探す
-					if ((gameObject.transform.position - e.transform.position).sqrMagnitude < NearEnemyDistance)
-					{
-						//敵との距離更新
-						NearEnemyDistance = (gameObject.transform.position - e.transform.position).sqrMagnitude;
-
-						//一番近い敵更新
-						NearEnemy = e;
-					}
-				}
-			}
-		}
-
-		//近くに仲間がいたら避ける
-		while (NearEnemy != null)
-		{
-			//敵との距離更新
-			NearEnemyDistance = (gameObject.transform.position - NearEnemy.transform.position).sqrMagnitude;
-
-			//プレイヤーキャラクターに向ける
-			RotateVec = HorizontalVector(PlayerCharacter, gameObject);
-
-			//近い敵を避ける移動ベクトル算出
-			AroundMoveVec = HorizontalVector(gameObject, NearEnemy);
-			
-			//行動不能になったらブレイク
-			if (!(EnemyScript.CurrentState.Contains("Idling") || EnemyScript.CurrentState.Contains("Walk")) || NearEnemyDistance > Mathf.Pow(AroundDistance, 2))
-			{
-				break;
-			}
-
-			//チョイ待機
-			yield return null;
-		}
-
-		//フラグを下す
-		NowBehaviorDic["Around"] = false;
-
-		//移動ベクトル初期化
-		AroundMoveVec *= 0;
-
-		//モーション依存の移動値初期化
-		MotionMoveVec *= 0;
-
-		//待機コルーチン呼び出し
-		StartCoroutine(WaitCoroutine());
+		*/
 	}
 
 	//攻撃00コルーチン
@@ -737,11 +841,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		StartCoroutine(WaitCoroutine());
 	}
 
-	//歩調に合わせるサインカーブ生成に使う数リセット、アニメーションクリップから呼ばれる
-	public void SetSinCount()
-	{
-		SinCount = 0;
-	}
+
 
 	//攻撃用移動、プレイヤーを補足する、前後だけ、アニメーションクリップから呼ばれる
 	public void StartAttackMove(float f)

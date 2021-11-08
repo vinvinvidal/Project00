@@ -1255,7 +1255,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//超必殺技時間停止演出
 	public void SuperArtsStopEffect(float t, GameObject e)
 	{
-		//コルーチンＹ呼び出し
+		//コルーチン呼び出し
 		StartCoroutine(SuperArtsStopEffectCoroutine(t, e));
 	}
 	private IEnumerator SuperArtsStopEffectCoroutine(float t, GameObject e)
@@ -1284,6 +1284,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//敵ポーズ処理
 		foreach(GameObject i in AllActiveEnemyList)
 		{
+			//nullチェック
 			if(i != null)
 			{
 				ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
@@ -1302,13 +1303,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//プレイヤーポーズ解除
 		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.Pause(false));
-
-		//攻撃対象ポーズ解除
-		if(e != null)
-		{
-			ExecuteEvents.Execute<EnemyCharacterInterface>(e, null, (reciever, eventData) => reciever.Pause(false));
-			ExecuteEvents.Execute<EnemyBehaviorInterface>(e, null, (reciever, eventData) => reciever.Pause(false));
-		}
 
 		//エフェクト削除
 		Destroy(TempEffect);

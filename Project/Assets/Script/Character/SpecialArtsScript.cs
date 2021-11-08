@@ -36,6 +36,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	bool SuperAction004Flag = false;
 	bool SuperAction005Flag = false;
 
+	//超必殺技背景エフェクト
+	private GameObject SuperBackGroundEffect;
+
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
 	{
@@ -89,7 +92,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 		return re;
 	}
 
-	//超必殺技の処理を返すインターフェイス
+	//超必殺技の処理を返す
 	public List<Action<GameObject, GameObject>> GetSuperAct(int c, int i)
 	{
 		List<Action<GameObject, GameObject>> re = new List<Action<GameObject, GameObject>>();
@@ -104,6 +107,11 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				(
 					(GameObject Player, GameObject Enemy) =>
 					{
+						//背景エフェクトインスタンス生成
+						SuperBackGroundEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsBackGroundEffect").ToArray()[0]);
+						SuperBackGroundEffect.transform.position = Player.transform.position;
+						SuperBackGroundEffect.transform.rotation = Player.transform.rotation;
+
 						//プレイヤーのフラグを立てる
 						Player.GetComponent<PlayerScript>().SuperFlag = true;
 
@@ -296,6 +304,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//回転値を設定
 						TempAttackEffect1.transform.localRotation = Quaternion.Euler(new Vector3(-40, 0, 0));
+
+						//背景エフェクトインスタンスの角度を変える
+						SuperBackGroundEffect.transform.localRotation = Quaternion.Euler(90, 0, 0);
 					}
 				);
 
@@ -355,6 +366,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					{
 						//超必殺技制御フラグを下す
 						SuperAction002Flag = false;
+
+						//背景エフェクトインスタンス削除
+						Destroy(SuperBackGroundEffect);
 
 						//プレイヤーのフラグを下ろす
 						Player.GetComponent<PlayerScript>().SuperFlag = false;

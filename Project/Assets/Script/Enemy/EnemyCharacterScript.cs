@@ -8,6 +8,9 @@ using UnityEngine.EventSystems;
 //メッセージシステムでイベントを受け取るためのインターフェイス
 public interface EnemyCharacterInterface : IEventSystemHandler
 {
+	//行動Listを受け取る
+	void SetBehaviorList(List<EnemyBehaviorClass> i);
+
 	//ダメージモーションListを受け取る、セッティングスクリプトから呼ばれる
 	void SetDamageAnimList(List<AnimationClip> i);
 
@@ -144,6 +147,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//現在のステート
 	public string CurrentState { get; set; }
 
+	//全ての行動List
+	public List<EnemyBehaviorClass> BehaviorList { get; set; }
+
 	//全ての攻撃情報List
 	public List<EnemyAttackClass> AttackClassList { get; set; }
 
@@ -171,6 +177,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//全ての移動値を合算した移動ベクトル
 	private Vector3 MoveMoment;
 
+	//体を向けるベクトル
+	public Vector3 RotateVec { get; set; }
+
 	//ノックバックの移動ベクトル
 	private Vector3 KnockBackVec;
 
@@ -185,6 +194,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//特殊攻撃中の移動ベクトル
 	public Vector3 SpecialMoveVec { get; set; }
+
+	//行動中の移動ベクトル
+	public Vector3 BehaviorMoveVec { get; set; }
 
 	//地面との距離
 	private float GroundDistance;
@@ -206,6 +218,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//強制移動ベクトル
 	private Vector3 ForceMoveVector;
+
+	//歩調に合わせるサインカーブ生成に使う数
+	public float SinCount { get; set; } = 0;
 
 	//接地フラグ
 	public bool OnGround { get; set; }
@@ -251,6 +266,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//壁激突フラグ
 	public bool WallClashFlag { get; set; }
+
+	//行動中フラグ
+	public bool BehaviorFlag { get; set; } = false;
 
 	//ダウン状態で当たってもそのままモーション再生する攻撃List
 	private List<int> DownEnableAttakList;
@@ -389,11 +407,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//特殊攻撃移動ベクトル初期化
 		SpecialMoveVec = Vector3.zero;
 
+		//強制移動ベクトル初期化
+		ForceMoveVector = Vector3.zero;
+
 		//ホールド中の移動ベクトル初期化
 		HoldVec = Vector3.zero;
 
 		//超必殺技中の移動ベクトル初期化
 		SuperMoveVec = Vector3.zero;
+
+		//行動中の移動ベクトル初期化
+		BehaviorMoveVec = Vector3.zero;
 
 		//地面との距離初期化
 		GroundDistance = 0.0f;
@@ -411,9 +435,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//重力補正値初期化
 		GraityCorrect = 0;
-
-		//強制移動ベクトル初期化
-		ForceMoveVector = Vector3.zero;
 
 		//ダウン時間初期化
 		DownTime = 0;
@@ -631,7 +652,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//接地判定用のRayを飛ばす関数呼び出し
 			GroundRayCast();
 
-			//周囲の敵にめり込まないようにする関数
+			//行動抽選関数呼び出し
+			BehaviorFunc();
+
+			//他キャラめり込み防止関数呼び出し
 			EnemyAround();
 
 			//移動制御関数呼び出し
@@ -642,8 +666,179 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 	}
 
-	//敵めり込み防止関数
-	public void EnemyAround()
+	//移動制御関数
+	void MoveFunc()
+	{
+		//歩調に合わせるサインカーブ生成に使う数カウントアップ
+		SinCount += Time.deltaTime;
+
+		//移動値初期化
+		MoveMoment *= 0;
+
+		//ダウン状態
+		if (DownFlag)
+		{
+			MoveMoment *= 0;
+		}
+		//特殊攻撃を受けている
+		else if (SpecialFlag)
+		{
+			MoveMoment = SpecialMoveVec * Time.deltaTime;
+		}
+		//ホールドダメージ状態
+		else if (HoldFlag)
+		{
+			MoveMoment = HoldVec * Time.deltaTime;
+		}
+		//攻撃を喰らった瞬間のノックバック
+		else if (KnockBackFlag)
+		{
+			MoveMoment = KnockBackVec * Time.deltaTime;
+		}
+		//ダメージモーション依存の移動
+		else if (DamageFlag)
+		{
+			MoveMoment = DamageMoveVec * Time.deltaTime;
+		}
+		//超必殺技中の移動
+		else if (SuperFlag)
+		{
+			MoveMoment = SuperMoveVec * Time.deltaTime;
+		}
+		//スケベ中の移動
+		else if (H_Flag)
+		{
+			if (H_Location.Contains("Back"))
+			{
+				//プレイヤーと位置を合わせる
+				MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * 0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
+			}
+			else
+			{
+				//プレイヤーと位置を合わせる
+				MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * -0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
+			}
+
+			//プレイヤーと高さを合わせる
+			MoveMoment.y = (PlayerCharacter.transform.position - gameObject.transform.position).y * Time.deltaTime * 20;
+		}
+		//行動中の移動
+		else if(BehaviorFlag)
+		{
+			MoveMoment = BehaviorMoveVec * MoveSpeed * Time.deltaTime;
+		}
+
+
+		//条件で重力加速度を増減させる
+		if (H_Flag)
+		{
+			//重力を打ち消す
+			GraityCorrect = -Gravity;
+		}
+		else if ((!OnGround && (PlayerCharacter.transform.position - transform.position).sqrMagnitude > Mathf.Pow(3, 2)) || CurrentState.Contains("DownLanding"))
+		{
+			Gravity += Physics.gravity.y * 2 * Time.deltaTime;
+
+			GraityCorrect = 0;
+		}
+		else if (!OnGround && !DownFlag)
+		{
+			Gravity += Physics.gravity.y * Time.deltaTime;
+
+			GraityCorrect = 2;
+		}
+		else
+		{
+			Gravity = Physics.gravity.y * Time.deltaTime;
+
+			GraityCorrect = 0;
+		}
+
+		//強制移動の値を入れる
+		MoveMoment += ForceMoveVector * MoveSpeed * Time.deltaTime;
+
+		//重力加速度を加える
+		MoveMoment.y += (Gravity + GraityCorrect) * Time.deltaTime;
+
+		//回転値が入っていたら回転
+		if (RotateVec != Vector3.zero)
+		{
+			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(RotateVec), TurnSpeed * Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount) + 0.1f) * Time.deltaTime);
+		}
+
+		//移動
+		CharaController.Move(MoveMoment);
+	}
+
+	//行動抽選関数
+	private void BehaviorFunc()
+	{
+		//行動中ではなく、アイドリング中
+		if(!BehaviorFlag && CurrentState == "Idling")
+		{
+			//開始可能な行動を抽出
+			List<EnemyBehaviorClass> TempBehavioerList = new List<EnemyBehaviorClass>(BehaviorList.Where(b => b.BehaviorConditions()).ToList());
+
+			//行動比率
+			int BehaviorRatio = 0;
+
+			//抽選番号
+			int BehaviorLottery = 0;
+
+			//開始可能な行動がある
+			if (TempBehavioerList.Count > 0)
+			{
+				//行動比率合計
+				foreach (EnemyBehaviorClass i in TempBehavioerList)
+				{
+					if (i.Name.Contains("H_"))
+					{
+						//スケベ攻撃だったら興奮度を加味して発生比率を加算
+						BehaviorRatio += i.Priority * ((int)Excite * 10);
+					}
+					else
+					{
+						//発生比率を加算
+						BehaviorRatio += i.Priority;
+					}
+				}
+
+				//比率の合計値から抽選番号設定
+				BehaviorLottery = UnityEngine.Random.Range(1, BehaviorRatio + 1);
+
+				//行動比率初期化
+				BehaviorRatio = 0;
+
+				//行動抽選
+				foreach (EnemyBehaviorClass i in TempBehavioerList)
+				{
+					//比率を合計していく
+					if (i.Name.Contains("H_"))
+					{
+						//スケベ攻撃だったら興奮度を加味して発生比率を加算
+						BehaviorRatio += i.Priority * ((int)Excite * 10);
+					}
+					else
+					{
+						//発生比率を加算
+						BehaviorRatio += i.Priority;
+					}
+
+					//乱数がどの範囲にあるか判定、当選した行動を実行
+					if (BehaviorRatio >= BehaviorLottery)
+					{
+						//処理実行
+						i.BehaviorAction();
+
+						//ループをブレイク
+						break;
+					}
+				}
+			}
+		}
+	}
+	//他キャラめり込み防止関数
+	private void EnemyAround()
 	{
 		//強制移動ベクトル初期化
 		ForceMoveVector *= 0;
@@ -651,7 +846,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//スケベ、もしくは超必殺技中じゃない
 		if (!H_Flag && !SuperFlag)
 		{
-			//他の敵と振れている
+			//他の敵を避ける処理
 			if (HitEnemy != null)
 			{
 				//水平方向に３メートル以上離れている
@@ -667,10 +862,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 					CharaControllerReset("Rise");
 				}
 			}
-
+			//プレイヤーを避ける処理
 			if (!HoldFlag && !SpecialFlag && !DownFlag)
 			{
-				//近くにプレイヤーがいたら処理
 				if (HorizontalVector(gameObject, PlayerCharacter).sqrMagnitude < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y > -0.1f)
 				{
 					//敵と自分までのベクトルで強制移動
@@ -705,96 +899,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//アニメーターに接地フラグを送る
 		CurrentAnimator.SetBool("Ground", OnGround);
-	}
-
-	//移動制御関数
-	void MoveFunc()
-	{
-		//ダウン状態
-		if(DownFlag)
-		{
-			MoveMoment *= 0;
-		}
-		//特殊攻撃を受けている
-		else if(SpecialFlag)
-		{
-			MoveMoment = SpecialMoveVec * Time.deltaTime;
-		}
-		//ホールドダメージ状態
-		else if (HoldFlag)
-		{
-			MoveMoment = HoldVec * Time.deltaTime;
-		}
-		//攻撃を喰らった瞬間のノックバック
-		else if (KnockBackFlag)
-		{
-			MoveMoment = KnockBackVec * Time.deltaTime;
-		}
-		//ダメージモーション依存の移動
-		else if (DamageFlag)
-		{
-			MoveMoment = DamageMoveVec * Time.deltaTime;
-		}
-		//超必殺技中の移動
-		else if(SuperFlag)
-		{
-			MoveMoment = SuperMoveVec * Time.deltaTime;
-		}
-		//スケベ中の移動
-		else if(H_Flag)
-		{
-			if(H_Location.Contains("Back"))
-			{
-				//プレイヤーと位置を合わせる
-				MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * 0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
-			}
-			else
-			{
-				//プレイヤーと位置を合わせる
-				MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * -0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
-			}
-
-			//プレイヤーと高さを合わせる
-			MoveMoment.y = (PlayerCharacter.transform.position - gameObject.transform.position).y * Time.deltaTime * 20;
-		}
-		else
-		{
-			MoveMoment *= 0;
-		}
-
-		//条件で重力加速度を増減させる
-		if(H_Flag)
-		{
-			//重力を打ち消す
-			GraityCorrect = -Gravity;
-		}
-		else if ((!OnGround && (PlayerCharacter.transform.position - transform.position).sqrMagnitude > Mathf.Pow(3, 2)) || CurrentState.Contains("DownLanding"))
-		{
-			Gravity += Physics.gravity.y * 2 * Time.deltaTime;
-
-			GraityCorrect = 0;
-		}
-		else if (!OnGround && !DownFlag)
-		{
-			Gravity += Physics.gravity.y * Time.deltaTime;
-
-			GraityCorrect = 2;
-		}
-		else
-		{
-			Gravity = Physics.gravity.y * Time.deltaTime;
-
-			GraityCorrect = 0;
-		}
-
-		//強制移動の値を入れる
-		MoveMoment += ForceMoveVector * MoveSpeed * Time.deltaTime;
-
-		//重力加速度を加える
-		MoveMoment.y += (Gravity + GraityCorrect) * Time.deltaTime;
-
-		//移動
-		CharaController.Move(MoveMoment);
 	}
 
 	//当たった攻撃が有効かを返す関数
@@ -1267,6 +1371,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//ダメージフラグを立てる
 				DamageFlag = true;
 
+				//行動フラグを下ろす
+				BehaviorFlag = false;
+
 				//ダメージモーション依存の移動値を初期化
 				DamageMoveVec *= 0;
 
@@ -1361,20 +1468,29 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//打ち上げフラグを下ろす
 				RiseFlag = false;
 
+				//行動フラグを下ろす
+				BehaviorFlag = false;
+
 				//ホールドベクトルを初期化
 				HoldVec *= 0;
 			}
 			//特殊攻撃を喰らった瞬間の処理
 			else if (CurrentState == "Special")
 			{
-				//攻撃遷移フラグを下す
-				CurrentAnimator.SetBool("Attack", false);
+				//遷移フラグを下ろす
+				CurrentAnimator.SetBool("Special", false);
+
+				//行動フラグを下ろす
+				BehaviorFlag = false;
 			}
 			//超必殺技を喰らった瞬間の処理
 			else if (CurrentState == "SuperDamage")
 			{
 				//遷移フラグを下ろす
 				CurrentAnimator.SetBool("SuperDamage", false);
+
+				//行動フラグを下ろす
+				BehaviorFlag = false;
 
 				//移動ベクトルを初期化
 				SuperMoveVec *= 0;
@@ -1386,6 +1502,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//スケベフラグを下す
 				H_Flag = false;
 			}
+			//超必殺技から遷移する瞬間の処理
 			else if (CurrentState.Contains("SuperDamage ->"))
 			{
 				//超必殺技フラグを下す
@@ -1398,6 +1515,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			//アニメーション再生速度にノイズを加える
 			CurrentAnimator.SetFloat("H_Speed", Mathf.PerlinNoise(Time.time * 2.5f, -Time.time) + 0.5f);
+		}
+		//歩行中の処理
+		else if(CurrentState.Contains("Walk"))
+		{
+			//サインカーブで歩行アニメーションと移動値を合わせる
+			BehaviorMoveVec *= Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount));
+
+			//移動方向で歩行アニメーションをブレンド
+			if (MoveMoment != Vector3.zero || RotateVec != Vector3.zero)
+			{
+				CurrentAnimator.SetFloat("Side_Walk", Mathf.Lerp(CurrentAnimator.GetFloat("Side_Walk"), (Vector3.Angle(transform.right, MoveMoment.normalized) - 90) / 90, 0.25f));
+			}
 		}
 	}
 
@@ -1693,6 +1822,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//ダメージモーション中の移動ベクトル初期化
 		DamageMoveVec *= 0;
+
+		//行動中の移動ベクトル初期化
+		BehaviorMoveVec *= 0;
 
 		//キャラクターコントローラの大きさを元に戻す
 		CharaControllerReset("Reset");
@@ -2010,6 +2142,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 	}
 
+	//歩調に合わせるサインカーブ生成に使う数リセット、アニメーションクリップから呼ばれる
+	public void SetSinCount()
+	{
+		SinCount = 0;
+	}
+
 	//アニメーターの攻撃モーションを切り替える、ビヘイビアスクリプトから呼ばれる
 	public void SetAttackMotion(string n)
 	{
@@ -2021,6 +2159,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+	}
+
+	//ビヘイビアリストを受け取る
+	public void SetBehaviorList(List<EnemyBehaviorClass> i)
+	{
+		BehaviorList = new List<EnemyBehaviorClass>(i);
 	}
 
 	//スケベヒットモーションListを受け取る、セッティングスクリプトから呼ばれる

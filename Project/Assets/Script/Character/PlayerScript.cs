@@ -487,16 +487,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//特殊攻撃成功エフェクト
 	private GameObject SpecialSuccessEffect;
-
-	//超必殺技背景エフェクト
-	private GameObject SuperBackGroundEffect;
-	//↑のインスタンス格納用変数、勝手に消えないのでデストロイに使う
-	private GameObject SuperBackGroundEffectInstace;
 	
 	//スケベエフェクト00
 	private GameObject H_Effect00;
-
-
 
 	//超必殺技用カメラワークオブジェクト
 	private GameObject SuperCameraWorkOBJ;
@@ -705,8 +698,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//特殊攻撃成功エフェクト取得
 		SpecialSuccessEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "SpecialSuccessEffect").ToArray()[0];
 
-		//超必殺技背景エフェクト取得
-		SuperBackGroundEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsBackGroundEffect").ToArray()[0];
 
 		//スケベエフェクト00取得
 		H_Effect00 = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "H_Effect00").ToArray()[0];
@@ -770,6 +761,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		InvincibleList.Add("H_Damage01");
 		InvincibleList.Add("H_Break");
 		InvincibleList.Add("SuperTry");
+		InvincibleList.Add("SuperArts");
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
 		AllStates.Add("AnyState");
@@ -1429,7 +1421,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else if (CurrentState.Contains("Rolling"))
 		{
 			//ローリングの移動方向に向ける
-			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(RollingRotateVector), TurnSpeed * 0.5f * Time.deltaTime);
+			//transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(RollingRotateVector), TurnSpeed * Time.deltaTime);
+
+			transform.rotation = Quaternion.LookRotation(RollingRotateVector);
 
 			//ローリングの移動値を加える
 			HorizonAcceleration = RollingMoveVector * (RollingSpeed + PlayerDashSpeed * PlayerMoveBlend);
@@ -2619,9 +2613,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//超必殺技暗転演出呼び出し
 		GameManagerScript.Instance.EndSuperArtsLightEffect(t);
-
-		//背景エフェクト廃棄
-		Destroy(SuperBackGroundEffectInstace);
 	}
 
 	//超必殺技時間停止演出
@@ -2805,6 +2796,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//超必殺技遷移フラグを立てる
 			CurrentAnimator.SetBool("SuperArts", true);
 
+			//当たった敵をロックする
+			LockEnemy = e;
+
+			//攻撃対象ポーズ解除
+			if (e != null)
+			{
+				ExecuteEvents.Execute<EnemyCharacterInterface>(e, null, (reciever, eventData) => reciever.Pause(false));
+				ExecuteEvents.Execute<EnemyBehaviorInterface>(e, null, (reciever, eventData) => reciever.Pause(false));
+			}
+
 			//攻撃が当たった時の敵側の処理を呼び出す
 			ExecuteEvents.Execute<EnemyCharacterInterface>(e.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.SuperArtsHit(CharacterID, SuperArts.Down));
 
@@ -2813,13 +2814,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//メインカメラの敵ロックを外す、これをしないと演出時に敵を画角に入れる処理が走ってどんどんカメラを引いてしまう。
 			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(null));
-
-			//背景エフェクト表示
-			SuperBackGroundEffectInstace = Instantiate(SuperBackGroundEffect);
-
-			//背景エフェクトのTRSをキャラクターに合わせる
-			SuperBackGroundEffectInstace.transform.position = transform.position;
-			SuperBackGroundEffectInstace.transform.rotation = transform.rotation;
 		}
 		else
 		{
@@ -3537,12 +3531,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//地上ローリング中の処理
 		else if (CurrentState.Contains("GroundRolling"))
 		{
+			/*
 			//ローリング中に攻撃が入力されたら
 			if (AttackInput && LockEnemy != null)
 			{
 				//ロックしている敵方向のベクトルを得る
 				RollingRotateVector = HorizontalVector(LockEnemy, gameObject);
 			}
+			*/
 
 			//ローリング移動ベクトルを入れる
 			RollingMoveVector = transform.forward;
