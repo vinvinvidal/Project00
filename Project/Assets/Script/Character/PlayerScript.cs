@@ -1689,10 +1689,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public bool AttackEnable(bool H)
 	{
 		//現在が無敵ステートか調べる
-		bool re = !(InvincibleList.Any(t => CurrentState.Contains(t)) || (Time.time - JumpTime < 0.25f));
+		bool re = !(InvincibleList.Any(t => CurrentState.Contains(t)) || (Time.time - JumpTime < 0.25f) || SuperInput);
 
 		//スケベ攻撃だった場合は攻撃コライダが有効なら喰らわない
-		if(re && H)
+		if (re && H)
 		{
 			re = !AttackColOBJ.GetComponent<BoxCollider>().enabled;
 		}
@@ -2576,6 +2576,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//超必殺技移動終了処理、アニメーションクリップのイベントから呼ばれる
 	private void EndSuperMove()
 	{
+		//移動ベクトル初期化
 		SuperMoveVector *= 0;
 	}
 
@@ -4093,6 +4094,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("SuperArts", false);
+
+			//超必殺技モーション同期コルーチン呼び出し
+			StartCoroutine(SuperArtsSyncCoroutine()); 			
 		}
 
 		//スケベブレイクから遷移した瞬間の処理
@@ -4114,7 +4118,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), 0);
 		}
 	}
+	private IEnumerator SuperArtsSyncCoroutine()
+	{
+		//アニメーターを一時停止
+		CurrentAnimator.speed = 0;
 
+		//敵のモーションが超必殺技喰らいになるまで待つ
+		while(!LockEnemy.GetComponent<EnemyCharacterScript>().CurrentState.Contains("-> SuperDamage"))
+		{
+			yield return null;
+		}
+
+		//アニメーター再生
+		CurrentAnimator.speed = 1;
+	}
 	//遷移許可フラグを管理する関数
 	private void TransitionManager()
 	{
@@ -4164,8 +4181,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		PermitInputBoolDic["Attack00"] &&
 		//足を踏み外していない
 		!DropFlag &&
-		//下降中の低空じゃない
-		//(OnGround || (MoveVector.y > 0) || (GroundDistance > 1.0f)) &&
 		//ジャンプしてすぐじゃない
 		(Time.time - JumpTime > 0.2f)
 		;

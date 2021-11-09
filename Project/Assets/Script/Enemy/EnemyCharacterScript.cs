@@ -468,6 +468,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		FootImpactEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "FootImpact").ToArray()[0];
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
+		AllStates.Add("AnyState");
 		AllStates.Add("Idling");
 		AllStates.Add("Walk");
 		AllStates.Add("Attack"); 
@@ -664,6 +665,26 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//死亡監視関数呼び出し
 			DeadFunc();
 		}
+	}
+
+	//状態フラグを全て下す関数
+	private void FlagReset()
+	{
+		DownFlag = false;
+
+		SpecialFlag = false;
+
+		HoldFlag = false;
+
+		KnockBackFlag = false;
+
+		DamageFlag = false;
+
+		SuperFlag = false;
+
+		H_Flag = false;
+
+		BehaviorFlag = false;
 	}
 
 	//移動制御関数
@@ -974,8 +995,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			CurrentAnimator.SetBool("Down_Supine", true);
 		}
 
+		//状態フラグをリセット
+		FlagReset();
+
 		//超必殺技フラグを立てる
-		SuperFlag = true;
+		SuperFlag = true;		
 
 		//使用するモーションに差し替え
 		OverRideAnimator["Super_void"] = DamageAnimList[50 + n];
@@ -1062,14 +1086,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//ホールド攻撃処理
 			if (Arts.AttackType[n] == 30)
 			{
+				//状態フラグをリセット
+				FlagReset();
+
 				//ホールドダメージフラグを立てる
 				HoldFlag = true;
-
-				//ダウンフラグを下ろす
-				DownFlag = false;
-
-				//ノックバックフラグを下ろす
-				KnockBackFlag = false;
 
 				//キャラクターの方を向く
 				transform.rotation = Quaternion.LookRotation(HorizontalVector(PlayerCharacter, gameObject));
@@ -1630,6 +1651,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//開始時刻キャッシュ
 		float BreakTime = Time.time;
 
+		//状態フラグをリセット
+		FlagReset();
+
 		//フラグを立てる
 		DamageFlag = true;
 
@@ -2065,6 +2089,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//スケベ攻撃が当たった時に呼ばれる
 	public void H_AttackHit(string ang , int men , GameObject Player)
 	{
+		//状態フラグをリセット
+		FlagReset();
+
 		//スケベフラグを立てる
 		H_Flag = true;
 

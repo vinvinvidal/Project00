@@ -14,33 +14,6 @@ public interface EnemyBehaviorInterface : IEventSystemHandler
 
 public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 {
-	/*
-	//行動構造体
-	private struct BehaviorStruct
-	{
-		//この行動の名前
-		public string Name;
-
-		//この行動の優先度
-		public int Priority;
-
-		//この行動の実行条件
-		public Func<bool> BehaviorConditions;
-
-		//この行動の処理
-		public Action BehaviorAction;
-
-		//コンストラクタ
-		public BehaviorStruct(string n, int p, Action BA, Func<bool> BC)
-		{
-			Name = n;
-			Priority = p;
-			BehaviorConditions = BC;
-			BehaviorAction = BA;
-		}
-	}
-	*/
-
 	//自身のアニメーターコントローラ
 	private Animator CurrentAnimator;
 
@@ -227,15 +200,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		}));
 
-		//スクリプトに全ての行動Listを送る
-		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetBehaviorList(EnemyBehaviorList));
-
-		/*
-
-
-
 		//スケベ攻撃
-		BehaviorList.Add(new BehaviorStruct("H_Attack", 5000, () =>
+		EnemyBehaviorList.Add(new EnemyBehaviorClass("H_Attack", 50000, () =>
 		//スケベ攻撃の処理
 		{
 			//スケベ攻撃コルーチン呼び出し
@@ -248,7 +214,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			bool re = false;
 
 			//性的表現スイッチ
-			if(GameManagerScript.Instance.SexualSwicth)
+			if (GameManagerScript.Instance.SexualSwicth)
 			{
 				//画面内に入っているかbool取得
 				ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => re = reciever.GetOnCameraBool());
@@ -256,8 +222,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 				//画面内に入っていたら処理
 				if (re)
 				{
-					//射程距離で大体正面にいてスケベ中じゃない
-					if (PlayerDistance < AttackDistance && PlayerAngle < 90 && !GameManagerScript.Instance.H_Flag)
+					//射程距離でスケベ中じゃない
+					if (PlayerDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
 					{
 						re = true;
 					}
@@ -266,16 +232,16 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 						re = false;
 					}
 				}
-			}			
+			}
 
 			//出力
 			return re;
 
 		}));
 
-		*/
-
-
+		//スクリプトに全ての行動Listを送る
+		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetBehaviorList(EnemyBehaviorList));
+		
 	}
 
 	//待機コルーチン
@@ -487,6 +453,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//プレイヤーキャラクターがいる方向測定
 		Vector3 PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
 
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Walk", true);
+
 		//プレイヤーが正面にくるまでループ
 		while (PlayerAngle > 0.1f)
 		{
@@ -499,12 +468,18 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//行動不能、もしくは射程外になったらブレイク
 			if (!EnemyScript.BehaviorFlag || PlayerDistance > AttackDistance)
 			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Walk", false);
+
 				goto Attack00Break;
 			}
 
 			//1フレーム待機
 			yield return null;
 		}
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Walk", false);
 
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("Attack", true);
@@ -541,10 +516,36 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//フラグを立てる
 		EnemyScript.BehaviorFlag = true;
 
+		//プレイヤーキャラクターがいる方向測定
+		Vector3 PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
 
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Walk", true);
 
-		//プレイヤーキャラクターに向ける
+		//プレイヤーが正面にくるまでループ
+		while (PlayerAngle > 0.1f)
+		{
+			//プレイヤーキャラクターがいる方向測定
+			PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
 
+			//プレイヤーキャラクターに向ける
+			EnemyScript.RotateVec = PlayerVec;
+
+			//行動不能、もしくは射程外になったらブレイク
+			if (!EnemyScript.BehaviorFlag || PlayerDistance > AttackDistance)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Walk", false);
+
+				goto H_AttackBreak;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Walk", false);
 
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("H_Try", true);
@@ -556,11 +557,14 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		yield return null;
 
 		//フラグが降りるまで待機
-		while (EnemyScript.CurrentState.Contains("H_Try"))
+		while (EnemyScript.CurrentState.Contains("H_"))
 		{
 			//待機
 			yield return null;
 		}
+
+		//ループを抜ける先、余計な処理を避ける
+		H_AttackBreak:;
 
 		//フラグを下ろす
 		EnemyScript.BehaviorFlag = false;
