@@ -250,12 +250,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//キャラクターのスケベ回転値
 	private Vector3 H_RotateVector;
 
-	//イベント移動ベクトル
-	private Vector3 EventMoveVector;
-
-	//イベント移動速度補正
-	private float EventMoveSpeed;
-
 	//イベント回転ベクトル
 	private Vector3 EventRotateVector;
 
@@ -357,7 +351,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public List<SpecialClass> SpecialArtsList = new List<SpecialClass>();
 
 	//装備している超必殺技
-	private SuperClass SuperArts; 
+	public SuperClass SuperArts { get; set; } 
 
 	//何も技を装備していないフラグ
 	private bool NoEquipFlag = false;
@@ -658,12 +652,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//スケベフラグ初期化
 		H_Flag = false;
-
-		//イベント移動ベクトル初期化
-		EventMoveVector = Vector3.zero;
-
-		//イベント移動速度補正初期化
-		EventMoveSpeed = 1f;
 
 		//イベント回転ベクトル初期化
 		EventRotateVector = Vector3.zero;
@@ -1885,9 +1873,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//特殊攻撃が成功した時の処理
 	IEnumerator SpecialArtsSuccess(GameObject enemy)
 	{
-		//有効な入力bool
-		bool TempInput = false;
-
 		//対象の敵をロック
 		LockEnemy = enemy;
 
@@ -1924,13 +1909,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//待機時間が経過するか入力があるまで待機
 		while (SpecialSuccessFlag)
 		{
-			//有効な入力があったらフラグを立ててブレーク
+			//有効な入力があったらgotoでブレーク
 			foreach (SpecialClass i in SpecialArtsList)
 			{
 				if (i.ArtsIndex == SpecialInputIndex)
 				{
-					TempInput = true;
-
 					goto SpecialLoopBreak;
 				}
 			}

@@ -62,6 +62,9 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	//当たった攻撃が有効かを返す
 	bool AttackEnable(ArtsClass Arts, int n);
 
+	//当たった超必殺技が有効かを返す
+	bool SuperEnable(int n);
+
 	//ホールド解除
 	void HoldBreak(float t);
 }
@@ -179,6 +182,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//体を向けるベクトル
 	public Vector3 RotateVec { get; set; }
+
+	//ビヘイビアから設定される回転値
+	public Vector3 BehaviorRotate { get; set; }
 
 	//ノックバックの移動ベクトル
 	private Vector3 KnockBackVec;
@@ -696,10 +702,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//移動値初期化
 		MoveMoment *= 0;
 
+		//回転値初期化
+		RotateVec *= 0;
+
 		//ダウン状態
 		if (DownFlag)
 		{
-			MoveMoment *= 0;
+			MoveMoment *= 0;	
 		}
 		//特殊攻撃を受けている
 		else if (SpecialFlag)
@@ -746,9 +755,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//行動中の移動
 		else if(BehaviorFlag)
 		{
+			//移動値
 			MoveMoment = BehaviorMoveVec * MoveSpeed * Time.deltaTime;
-		}
 
+			//回転値
+			RotateVec = BehaviorRotate;
+		}
 
 		//条件で重力加速度を増減させる
 		if (H_Flag)
@@ -815,7 +827,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 					if (i.Name.Contains("H_"))
 					{
 						//スケベ攻撃だったら興奮度を加味して発生比率を加算
-						BehaviorRatio += i.Priority * ((int)Excite * 10);
+						BehaviorRatio += i.Priority * (int)(Excite * 10);
 					}
 					else
 					{
@@ -837,7 +849,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 					if (i.Name.Contains("H_"))
 					{
 						//スケベ攻撃だったら興奮度を加味して発生比率を加算
-						BehaviorRatio += i.Priority * ((int)Excite * 10);
+						BehaviorRatio += i.Priority * (int)(Excite * 10);
 					}
 					else
 					{
@@ -922,6 +934,29 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CurrentAnimator.SetBool("Ground", OnGround);
 	}
 
+	//当たった超必殺技が有効かを返す
+	public bool SuperEnable(int n)
+	{
+		//出力用変数宣言
+		bool re = true;
+
+		//状況判定
+		switch(n)
+		{
+			//地上で立ち
+			case 0:
+				re =
+					OnGround &&
+					!DownFlag;
+				break;
+			default:
+				break;
+		}
+
+		//出力
+		return re;
+	}
+
 	//当たった攻撃が有効かを返す関数
 	public bool AttackEnable(ArtsClass Arts, int n)
 	{
@@ -989,11 +1024,16 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		if(dwn == 0)
 		{
 			CurrentAnimator.SetBool("Down_Prone", true);
+			CurrentAnimator.SetBool("Down_Supine", false);
 		}
 		else
 		{
 			CurrentAnimator.SetBool("Down_Supine", true);
+			CurrentAnimator.SetBool("Down_Prone", false);
 		}
+
+		//プレイヤーに向ける
+		transform.LookAt(HorizontalVector(PlayerCharacter, gameObject));
 
 		//状態フラグをリセット
 		FlagReset();
@@ -1477,6 +1517,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//アニメーターのスケベ解除フラグを下ろす
 				CurrentAnimator.SetBool("H_Break", false);
 
+				//行動フラグを下す
+				BehaviorFlag = false;
+
 				//キャラクターコントローラを設定
 				CharaControllerReset("Reset");
 			}
@@ -1723,7 +1766,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			WaitTime += Time.deltaTime;
 
 			//プレイヤーキャラクターに向ける
-			RotateVec = HorizontalVector(PlayerCharacter, gameObject);
+			BehaviorRotate = HorizontalVector(PlayerCharacter, gameObject);
 
 			//行動不能になったらブレイク
 			if (!BehaviorFlag)
@@ -1736,7 +1779,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 
 		//回転値リセット
-		RotateVec *= 0;
+		BehaviorRotate *= 0;
 	}
 
 	//ダメージモーション中に移動させる、前後だけ、アニメーションクリップから呼ばれる

@@ -21,16 +21,7 @@ public class CharacterBodyShaderScript : GlobalClass
 
 	//線画テクスチャ
 	public Texture2D _TexLine;
-	/*
-	//ベーステクスチャのはだけ
-	public Texture2D _TexBaseOff;
 
-	//線画テクスチャのはだけ
-	public Texture2D _TexLineOff;
-
-	//ノーマルマップのはだけ
-	public Texture2D _TexNormalOff;
-	*/
 	//ディレクショナルライトのトランスフォーム
 	private Transform LightTransform;
 

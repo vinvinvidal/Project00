@@ -70,21 +70,28 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 	//攻撃コライダーが敵に当たった時に呼び出される
 	private void OnTriggerEnter(Collider Hit)
 	{
+		//攻撃が有効か判定する変数宣言
+		bool AttackEnable = false;
+
 		//超必殺技が当たった
 		if (SuperArtsFlag)
 		{
-			//攻撃が当たった時のプレイヤー側の処理を呼び出す
-			ExecuteEvents.Execute<PlayerScriptInterface>(PlayerCharacter, null, (reciever, eventData) => reciever.HitAttack(Hit.gameObject.transform.root.gameObject, 0));
+			//有効なシチュエーションか判定
+			ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => AttackEnable = reciever.SuperEnable(PlayerCharacter.GetComponent<PlayerScript>().SuperArts.Location));
+			
+			//有効なら処理
+			if (AttackEnable)
+			{
+				//攻撃が当たった時のプレイヤー側の処理を呼び出す
+				ExecuteEvents.Execute<PlayerScriptInterface>(PlayerCharacter, null, (reciever, eventData) => reciever.HitAttack(Hit.gameObject.transform.root.gameObject, 0));
 
-			//コライダを無効化
-			AttackCol.enabled = false;
+				//コライダを無効化
+				AttackCol.enabled = false;
+			}
 		}
 		//通常技が当たった
 		else
 		{
-			//攻撃が有効か判定する変数宣言
-			bool AttackEnable = false;
-
 			//攻撃が有効か判定
 			ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => AttackEnable = reciever.AttackEnable(HitArts, AttackIndex));
 

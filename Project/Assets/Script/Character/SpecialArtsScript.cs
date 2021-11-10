@@ -32,9 +32,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	bool SuperAction000Flag = false;
 	bool SuperAction001Flag = false;
 	bool SuperAction002Flag = false;
-	bool SuperAction003Flag = false;
-	bool SuperAction004Flag = false;
-	bool SuperAction005Flag = false;
 
 	//超必殺技背景エフェクト
 	private GameObject SuperBackGroundEffect;

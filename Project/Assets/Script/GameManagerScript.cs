@@ -1019,6 +1019,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				int aid = 0;
 				int ul = 0;
 				int dwn = 0;
+				int lc = 0;
 				string nc = "";
 				string nh = "";
 				string tan = "";
@@ -1042,6 +1043,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "Info": info = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 						case "UnLock": ul = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "Down": dwn = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "Location": lc = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "Vcam": vcn = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 					}
 				}
@@ -1060,7 +1062,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				}
 
 				//ListにAdd
-				AllSuperArtsList.Add(new SuperClass(cid, aid, ul, tan, aan, nc, nh, info, dwn, vcn, sa));
+				AllSuperArtsList.Add(new SuperClass(cid, aid, ul, tan, aan, nc, nh, info, dwn, vcn, lc, sa));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る。

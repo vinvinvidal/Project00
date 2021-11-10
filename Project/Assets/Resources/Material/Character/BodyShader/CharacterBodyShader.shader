@@ -118,7 +118,7 @@
 				float2 uv : TEXCOORD0;
 
 				//頂点カラー
-				float4 vertColor : COLOR;
+				//float4 vertColor : COLOR;
 			};
 
 			//頂点シェーダーからフラグメントシェーダーに情報を渡す構造体を宣言

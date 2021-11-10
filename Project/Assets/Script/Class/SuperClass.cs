@@ -39,6 +39,9 @@ public class SuperClass
 	//技後の敵のダウン状態
 	public int Down;
 
+	//当たるロケーション
+	public int Location;
+
 	//使用するカメラワークを持っているオブジェクトの名前
 	public string VcamName;
 
@@ -49,7 +52,7 @@ public class SuperClass
 	public List<Action<GameObject, GameObject>> SuperAtcList;
 
 	//コンストラクタ
-	public SuperClass(int cid, int aid, int ul, string tan, string aan, string nc, string nh, string info, int dwn, string vcn, List<Action<GameObject, GameObject>> sa)
+	public SuperClass(int cid, int aid, int ul, string tan, string aan, string nc, string nh, string info, int dwn, string vcn, int lc, List<Action<GameObject, GameObject>> sa)
 	{
 		UseCharacter = cid;
 		UnLock = ul;
@@ -62,5 +65,6 @@ public class SuperClass
 		ArtsAnimName = aan;
 		Down = dwn;
 		VcamName = vcn;
+		Location = lc;
 	}
 }

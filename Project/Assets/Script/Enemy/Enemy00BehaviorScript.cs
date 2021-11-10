@@ -201,7 +201,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}));
 
 		//スケベ攻撃
-		EnemyBehaviorList.Add(new EnemyBehaviorClass("H_Attack", 50000, () =>
+		EnemyBehaviorList.Add(new EnemyBehaviorClass("H_Attack", 500, () =>
 		//スケベ攻撃の処理
 		{
 			//スケベ攻撃コルーチン呼び出し
@@ -278,7 +278,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 					PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
 
 					//プレイヤーキャラクターに向ける
-					EnemyScript.RotateVec = PlayerVec;
+					EnemyScript.BehaviorRotate = PlayerVec;
 
 					//行動不能になったらブレイク
 					if (!EnemyScript.BehaviorFlag)
@@ -294,12 +294,12 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 				CurrentAnimator.SetBool("Walk", false);
 
 				//回転値初期化
-				EnemyScript.RotateVec *= 0;
+				EnemyScript.BehaviorRotate *= 0;
 			}
 			else
 			{
 				//回転値初期化
-				EnemyScript.RotateVec *= 0;
+				EnemyScript.BehaviorRotate *= 0;
 			}
 
 			//1フレーム待機
@@ -307,7 +307,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}
 
 		//回転値初期化
-		EnemyScript.RotateVec *= 0;
+		EnemyScript.BehaviorRotate *= 0;
 
 		//フラグを下す
 		EnemyScript.BehaviorFlag = false;
@@ -329,7 +329,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			EnemyScript.BehaviorMoveVec = HorizontalVector(PlayerCharacter, gameObject).normalized;
 
 			//プレイヤーキャラクターに向ける
-			EnemyScript.RotateVec = HorizontalVector(PlayerCharacter, gameObject);
+			EnemyScript.BehaviorRotate = HorizontalVector(PlayerCharacter, gameObject);
 
 			//存在する全ての敵を回す
 			foreach (GameObject e in GameManagerScript.Instance.AllActiveEnemyList)
@@ -419,7 +419,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			NearEnemyDistance = (gameObject.transform.position - NearEnemy.transform.position).sqrMagnitude;
 
 			//プレイヤーキャラクターに向ける
-			EnemyScript.RotateVec = HorizontalVector(PlayerCharacter, gameObject);
+			EnemyScript.BehaviorRotate = HorizontalVector(PlayerCharacter, gameObject);
 
 			//近い敵を避ける移動ベクトル算出
 			EnemyScript.BehaviorMoveVec = HorizontalVector(gameObject, NearEnemy).normalized;
@@ -463,7 +463,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
 
 			//プレイヤーキャラクターに向ける
-			EnemyScript.RotateVec = PlayerVec;
+			EnemyScript.BehaviorRotate = PlayerVec;
 
 			//行動不能、もしくは射程外になったらブレイク
 			if (!EnemyScript.BehaviorFlag || PlayerDistance > AttackDistance)
@@ -505,9 +505,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//フラグを下ろす
 		EnemyScript.BehaviorFlag = false;
-
-		//待機する
-		StartCoroutine(WaitCoroutine());
 	}
 
 	//スケベ攻撃コルーチン
@@ -529,7 +526,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
 
 			//プレイヤーキャラクターに向ける
-			EnemyScript.RotateVec = PlayerVec;
+			EnemyScript.BehaviorRotate = PlayerVec;
 
 			//行動不能、もしくは射程外になったらブレイク
 			if (!EnemyScript.BehaviorFlag || PlayerDistance > AttackDistance)
@@ -539,7 +536,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 				goto H_AttackBreak;
 			}
-
+			
 			//1フレーム待機
 			yield return null;
 		}
@@ -568,9 +565,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//フラグを下ろす
 		EnemyScript.BehaviorFlag = false;
-
-		//待機する
-		StartCoroutine(WaitCoroutine());
 	}
 
 	void Update()
