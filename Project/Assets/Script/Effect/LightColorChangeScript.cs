@@ -65,6 +65,9 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 			yield return null;
 		}
 
+		//ライトカラーを目的の位置にする
+		LightComp.color = LightColorGradient.Evaluate(1);
+
 		//匿名関数実行
 		act();
 	}
@@ -92,6 +95,9 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 			//1フレーム待機
 			yield return null;
 		}
+
+		//ライトカラーを目的の位置にする
+		LightComp.color = LightColorGradient.Evaluate(i);
 
 		//匿名関数実行
 		act();

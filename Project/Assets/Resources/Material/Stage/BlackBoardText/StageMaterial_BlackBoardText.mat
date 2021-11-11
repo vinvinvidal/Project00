@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: StageMaterial_BlackBoardText
-  m_Shader: {fileID: 4800000, guid: 9f896765942922542aa228d6f4529343, type: 3}
+  m_Shader: {fileID: 4800000, guid: 0818aadcb768b7b468e2b09f8787ea15, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0

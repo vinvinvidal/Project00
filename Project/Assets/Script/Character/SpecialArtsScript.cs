@@ -35,6 +35,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 	//超必殺技背景エフェクト
 	private GameObject SuperBackGroundEffect;
+	private GameObject SuperFireEffect;
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -302,8 +303,8 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//回転値を設定
 						TempAttackEffect1.transform.localRotation = Quaternion.Euler(new Vector3(-40, 0, 0));
 
-						//背景エフェクトインスタンスの角度を変える
-						SuperBackGroundEffect.transform.localRotation = Quaternion.Euler(90, 0, 0);
+						//背景エフェクトを回転させる
+						SuperBackGroundEffect.transform.localRotation = Quaternion.Euler(new Vector3(90, 0, 0));
 					}
 				);
 
@@ -322,6 +323,15 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//回転値を設定
 						TempAttackEffect0.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
+
+						//背景の炎エフェクトを作成
+						SuperFireEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsFireEffect").ToArray()[0]);
+
+						//フェードインさせる
+						SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeIn(5);
+
+						//揺れ物をバタバタさせる
+						Player.GetComponent<PlayerScript>().StartClothShake(3);
 					}
 				);
 
@@ -344,13 +354,13 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				IEnumerator EnemySuperAction002(GameObject Player, GameObject Enemy)
 				{
 					//移動目的地をキャッシュ
-					Vector3 TargetPos = Player.transform.position + Player.transform.right;
+					Vector3 TargetPos = Player.transform.position + (Player.transform.right * 3f);
 
 					//フラグが降りるまでループ
 					while (SuperAction002Flag)
 					{
 						//目的地まで移動
-						Enemy.GetComponent<EnemyCharacterScript>().SuperMoveVec = (TargetPos - Enemy.transform.position) * 5;
+						Enemy.GetComponent<EnemyCharacterScript>().SuperMoveVec = (TargetPos - Enemy.transform.position);
 
 						//1フレーム待機
 						yield return null;
@@ -364,8 +374,14 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//超必殺技制御フラグを下す
 						SuperAction002Flag = false;
 
+						//揺れ物をバタバタを止める
+						Player.GetComponent<PlayerScript>().EndClothShake();
+
 						//背景エフェクトインスタンス削除
 						Destroy(SuperBackGroundEffect);
+
+						//背景の炎エフェクトをフェードアウト
+						SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeOut(2);
 
 						//プレイヤーのフラグを下ろす
 						Player.GetComponent<PlayerScript>().SuperFlag = false;
@@ -678,7 +694,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						yield return null;
 					}
 				}
-
 
 				re.Add
 				(

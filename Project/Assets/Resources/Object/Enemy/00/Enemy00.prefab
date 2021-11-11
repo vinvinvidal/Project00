@@ -1607,6 +1607,11 @@ PrefabInstance:
       propertyPath: m_AABB.m_Extent.x
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 6251650671649773984, guid: 765c8e90030d80b4181e20a218ad5681,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6379794879032562364, guid: 765c8e90030d80b4181e20a218ad5681,
         type: 3}
       propertyPath: m_Layer

@@ -1793,11 +1793,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					tempList.Add(ii.gameObject.GetComponent<CapsuleCollider>());
 				}
 			}
-			/*
-			tempList.Add(DeepFind(H_MainEnemy, "ClothCol_R").GetComponent<CapsuleCollider>());
-			tempList.Add(DeepFind(H_MainEnemy, "ClothCol_L").GetComponent<CapsuleCollider>());
-			tempList.Add(DeepFind(H_MainEnemy, "ClothCol_H").GetComponent<CapsuleCollider>());
-			*/
 
 			//複数人ならそいつのコライダもAdd
 			if (H_SubEnemy != null)
@@ -2332,37 +2327,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				break;
 			}
 
-			//チャージが1段階以上溜まったら
-			if (ChargeLevel > 0)
-			{
-				//クロスに力を加えてなびかせる
-				foreach (Cloth c in GetComponentsInChildren<Cloth>())
-				{
-					c.randomAcceleration = new Vector3(0, 200, 0);
-
-					c.randomAcceleration *= ChargeLevel;
-				}
-
-				//DynamicBoneに力を加えてなびかせる
-				foreach (DynamicBone ii in transform.GetComponentsInChildren<DynamicBone>())
-				{
-					//乳は揺らさない
-					if (!ii.m_Root.name.Contains("Breast"))
-					{
-						ii.m_Force.x = UnityEngine.Random.Range(-0.002f, 0.002f);
-						ii.m_Force.y = UnityEngine.Random.Range(0, 0.01f);
-						ii.m_Force.z = UnityEngine.Random.Range(-0.002f, 0.002f);
-
-						ii.m_Force *= ChargeLevel;
-					}
-				}
-			}
-
 			//チャージ1段階完了処理
 			if ((Time.time - ChargeTime > 0.5f) && ChargeLevel == 0)
 			{
 				//チャージレベルをあげる
 				ChargeLevel = 1;
+
+				//揺れ物バタバタ関数呼び出し
+				StartClothShake(1);
 
 				//タメループエフェクトをアクティブにする
 				TempChargePowerEffect.SetActive(true);
@@ -2397,6 +2369,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//チャージレベルをあげる
 				ChargeLevel = 2;
 
+				//揺れ物バタバタ関数呼び出し
+				StartClothShake(2);
+
 				//タメループエフェクトの段階をあげる
 				DeepFind(TempChargePowerEffect, "ChargePower2").GetComponent<ParticleSystem>().Play();
 
@@ -2426,6 +2401,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				//チャージレベルをあげる
 				ChargeLevel = 3;
+
+				//揺れ物バタバタ関数呼び出し
+				StartClothShake(3);
 
 				//タメループエフェクトの段階をあげる
 				DeepFind(TempChargePowerEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
@@ -2478,17 +2456,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//画面揺らし止める
 		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.CameraShake(0f));
 
-		//クロスに力を加えるのをやめる
-		foreach (Cloth c in GetComponentsInChildren<Cloth>())
-		{
-			c.randomAcceleration = new Vector3(0, 0, 0);
-		}
-
-		//DynamicBoneに力を加えるのをやめる
-		foreach (DynamicBone ii in transform.root.GetComponentsInChildren<DynamicBone>())
-		{
-			ii.m_Force *= 0;
-		}
+		//揺れ物バタバタを止める
+		EndClothShake();
 
 		//ジャンプかローリングが押されたら攻撃中断
 		if (JumpInput || RollingInput || DamageFlag)
@@ -3000,6 +2969,47 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//エフェクトを再生
 			i.Play();
+		}
+	}
+
+	//揺れ物バタバタ関数
+	public void StartClothShake(int p)
+	{
+		//クロスに力を加えてなびかせる
+		foreach (Cloth c in GetComponentsInChildren<Cloth>())
+		{
+			c.randomAcceleration = new Vector3(0, 200, 0);
+
+			c.randomAcceleration *= p;
+		}
+
+		//DynamicBoneに力を加えてなびかせる
+		foreach (DynamicBone ii in transform.GetComponentsInChildren<DynamicBone>())
+		{
+			//乳は揺らさない
+			if (!ii.m_Root.name.Contains("Breast"))
+			{
+				ii.m_Force.x = UnityEngine.Random.Range(-0.002f, 0.002f);
+				ii.m_Force.y = UnityEngine.Random.Range(0, 0.01f);
+				ii.m_Force.z = UnityEngine.Random.Range(-0.002f, 0.002f);
+
+				ii.m_Force *= p;
+			}
+		}
+	}
+	//揺れ物バタバタ止め関数
+	public void EndClothShake()
+	{
+		//クロスに力を加えるのをやめる
+		foreach (Cloth c in GetComponentsInChildren<Cloth>())
+		{
+			c.randomAcceleration = new Vector3(0, 0, 0);
+		}
+
+		//DynamicBoneに力を加えるのをやめる
+		foreach (DynamicBone ii in transform.root.GetComponentsInChildren<DynamicBone>())
+		{
+			ii.m_Force *= 0;
 		}
 	}
 
@@ -4085,8 +4095,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベブレイクから遷移した瞬間の処理
 		if (s.Contains("H_Break ->"))
 		{
+			//スケベフラグを下ろす
+			H_Flag = false;
+
 			//脱出用レバガチャカウントリセット
 			BreakCount = 0;
+
+			//スケベ攻撃をしてきた敵初期化
+			H_MainEnemy = null;
+
+			//スケベ攻撃をしてきた敵の近くにいた敵初期化
+			H_SubEnemy = null;
 
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("H_Break", false);
@@ -4183,13 +4202,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//メインカメラのロックも外す
 			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 		}
-
-		//スケベ攻撃をしてきた敵初期化
-		H_MainEnemy = null;
-
-		//スケベ攻撃をしてきた敵の近くにいた敵初期化
-		H_SubEnemy = null;
-
+		
 		//入力フラグを全て下す関数呼び出し
 		InputReset();
 
@@ -4204,9 +4217,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//ホールド中フラグを下す
 		HoldFlag = false;
-
-		//スケベフラグを下ろす
-		H_Flag = false;
 
 		//空中ローリング許可フラグを立てる
 		AirRollingFlag = true;

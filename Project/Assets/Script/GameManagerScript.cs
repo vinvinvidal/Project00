@@ -1325,7 +1325,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//キャラクターの顔シェーダーのライト切り替え
 		ExecuteEvents.Execute<CharacterFaceShaderScriptInterface>(PlayableCharacterOBJ.GetComponentInChildren<CharacterFaceShaderScript>().gameObject, null, (reciever, eventData) => reciever.ChangeLight(DeepFind(gameObject, "SuperArtsLight").transform));
-
 	}
 	public void EndSuperArtsLightEffect(float t)
 	{

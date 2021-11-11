@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5256461699625035000}
   m_Layer: 22
-  m_Name: BlacBoard
+  m_Name: BlackBoard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -115,7 +115,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[1]
       value: 
-      objectReference: {fileID: 2100000, guid: d1b01067efbe8a64aa986cd33c2d8829, type: 2}
+      objectReference: {fileID: 2100000, guid: d7f24f80cf5b0e7489e9a28899291215, type: 2}
     - target: {fileID: -7511558181221131132, guid: 04cfc587dba67b6488f7bbb656e825bf,
         type: 3}
       propertyPath: m_CastShadows

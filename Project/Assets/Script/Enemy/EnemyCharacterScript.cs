@@ -1481,7 +1481,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			else if (CurrentState.Contains("-> Idling"))
 			{
 				//フラグ状態をまっさらに戻す関数呼び出し
-				ClearFlag();
+				ClearFlag();				
 			}
 			//攻撃になった瞬間の処理
 			else if (CurrentState.Contains("-> Attack"))
@@ -1571,6 +1571,30 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			{
 				//超必殺技フラグを下す
 				SuperFlag = false;
+			}
+			//ダウン状態から抜けた瞬間の処理
+			else if (CurrentState.Contains("Down_Prone ->"))
+			{
+				//ダウンフラグを下す
+				DownFlag = false;
+
+				//アニメーターのダウンフラグを下す
+				CurrentAnimator.SetBool("Down_Prone", false);
+			}
+			//ダウン状態から抜けた瞬間の処理
+			else if (CurrentState.Contains("Down_Supine ->"))
+			{
+				//ダウンフラグを下す
+				DownFlag = false;
+
+				//アニメーターのダウンフラグを下す
+				CurrentAnimator.SetBool("Down_Supine", false);
+			}
+			//ホールド状態から抜けた瞬間の処理
+			else if(CurrentState.Contains("HoldDamage ->"))
+			{
+				//ホールドダメージ状態を下す
+				HoldFlag = false;
 			}
 		}
 
@@ -1883,20 +1907,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ダウンタイム初期化
 		DownTime = 0;
 
-		//ダウンフラグを下す
-		DownFlag = false;
-
 		//ダメージフラグを下ろす
 		DamageFlag = false;
 
 		//ノックバックフラグを下ろす
 		KnockBackFlag = false;
-
-		//ホールドダメージ状態を下す
-		HoldFlag = false;
-
-		//超必殺技フラグを下す
-		SuperFlag = false;
 
 		//スケベフラグを下す
 		H_Flag = false;
@@ -1918,12 +1933,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//アニメーターのスケベ攻撃攻撃を下ろす
 		CurrentAnimator.SetBool("H_Try", false);
-
-		//アニメーターのダウンフラグを下す
-		CurrentAnimator.SetBool("Down_Prone", false);
-
-		//アニメーターのダウンフラグを下す
-		CurrentAnimator.SetBool("Down_Supine", false);
 
 		//アニメーターのダウン着地フラグを下ろす
 		CurrentAnimator.SetBool("DownLanding", false);
