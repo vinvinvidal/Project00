@@ -13,6 +13,9 @@ public class EffectSubLightScript : MonoBehaviour
 	//減光具合
 	public float DimmingTime;
 
+	//グラデーション
+	public Gradient Grad;
+
 	//開始時間
 	private float StartTime;
 
@@ -29,11 +32,13 @@ public class EffectSubLightScript : MonoBehaviour
 
     void Update()
     {
-		SubLight.range = Mathf.Lerp(SubLight.range, 0, (Time.time - StartTime) / DimmingTime) ;
+		SubLight.range = Mathf.Lerp(SubLight.range, 0, (Time.time - StartTime) / DimmingTime);
 
-		if(SubFlare != null)
+		SubLight.color = Grad.Evaluate((Time.time - StartTime) / DimmingTime);
+
+		if (SubFlare != null)
 		{
-			SubFlare.brightness = Mathf.Lerp(SubFlare.brightness, 0, (Time.time - StartTime) / DimmingTime);
-		}		
+			SubFlare.brightness = Mathf.Lerp(SubFlare.brightness, 0, (Time.time - StartTime) / DimmingTime);	
+		}
 	}
 }

@@ -308,14 +308,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//背景エフェクトを回転させる
 						SuperBackGroundEffect.transform.localRotation = Quaternion.Euler(new Vector3(90, 0, 0));
-
-						//タメエフェクト取得
-						SuperChargeEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargePower").ToArray()[0]);
-
-						//タメエフェクトポジション設定して再生
-						SuperChargeEffect.transform.position = Player.transform.position;
-						DeepFind(SuperChargeEffect, "ChargePower2").GetComponent<ParticleSystem>().Play();
-						DeepFind(SuperChargeEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
 					}
 				);
 
@@ -336,16 +328,24 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						TempAttackEffect0.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
 
 						//背景の炎エフェクトを作成
-						SuperFireEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsFireEffect").ToArray()[0]);
+						//SuperFireEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsFireEffect").ToArray()[0]);
 
 						//フェードインさせる
-						SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeIn(5);
+						//SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeIn(5);
 
 						//タメ完了エフェクト取得
-						SuperBurstEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargeLevel").ToArray()[0]);
-						SuperBurstEffect.transform.parent = Player.transform;
-						SuperBurstEffect.transform.localPosition = new Vector3(0, 1.75f, -0.2f);
-						SuperBurstEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+						//SuperBurstEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargeLevel").ToArray()[0]);
+						//SuperBurstEffect.transform.parent = Player.transform;
+						//SuperBurstEffect.transform.localPosition = new Vector3(0, 1.75f, -0.2f);
+						//SuperBurstEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+						//タメエフェクト取得
+						SuperChargeEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargePower").ToArray()[0]);
+
+						//タメエフェクトポジション設定して再生
+						SuperChargeEffect.transform.position = Player.transform.position;
+						DeepFind(SuperChargeEffect, "ChargePower2").GetComponent<ParticleSystem>().Play();
+						DeepFind(SuperChargeEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
 
 						//揺れ物をバタバタさせる
 						Player.GetComponent<PlayerScript>().StartClothShake(3);
@@ -412,7 +412,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						Destroy(SuperChargeEffect);
 
 						//背景の炎エフェクトをフェードアウト
-						SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeOut(2);
+						//SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeOut(2);
 
 						//プレイヤーのフラグを下ろす
 						Player.GetComponent<PlayerScript>().SuperFlag = false;

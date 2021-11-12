@@ -47,6 +47,7 @@
 			//変数宣言
 			sampler2D _FireMainTex;				//火のメインテクスチャ
 			sampler2D _FireNormalTex;			//火の法線テクスチャ
+			float4 _FireMainTex_ST;				//火のメインテクスチャのタイリングとオフセット
 			float4 _FireNormalTex_ST;			//火の法線テクスチャのタイリングとオフセット
 
 			float _FadeCount;					//フェードに使う数値
@@ -142,8 +143,8 @@
 				float2 MatCapUV = NormalMap.xy * 0.5 + 0.5;
 
 				//Return用変数宣言、MatCapでメインテクスチャを貼る
-				fixed4 re = tex2D(_FireMainTex, MatCapUV);
-
+				fixed4 re = tex2D(_FireMainTex, MatCapUV * _FireMainTex_ST.xy + _FireMainTex_ST.zw);
+				
 				//ライトカラーを乗算
 				re *= lerp(1, _LightColor0, _LightColor0.a);
 
