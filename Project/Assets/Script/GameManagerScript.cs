@@ -1274,20 +1274,17 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//親を設定
 		TempEffect.transform.position = PlayableCharacterOBJ.transform.position;
 
-		//ローカルポジションリセット
-		//TempEffect.transform.localPosition = Vector3.zero;
-
 		//ローカルローテーションリセット
 		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//プレイヤーポーズ処理
 		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.Pause(true));
-		
+
 		//敵ポーズ処理
-		foreach(GameObject i in AllActiveEnemyList)
+		foreach (GameObject i in AllActiveEnemyList)
 		{
 			//nullチェック
-			if(i != null)
+			if (i != null)
 			{
 				ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
 				ExecuteEvents.Execute<EnemyBehaviorInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
@@ -1305,9 +1302,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//プレイヤーポーズ解除
 		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.Pause(false));
-
-		//エフェクト削除
-		Destroy(TempEffect);
 	}
 
 	//超必殺技暗転演出

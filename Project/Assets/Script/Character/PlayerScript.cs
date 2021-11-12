@@ -192,6 +192,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//回転禁止フラグ
 	private bool NoRotateFlag = false;
 
+	//クロスバタバタフラグ
+	private bool ClothShakeFlag = false;
+
 	//アクションイベントフラグ
 	private bool ActionEventFlag = false;
 
@@ -1211,7 +1214,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void OnPlayerSuperArts(InputValue i)
 	{
 		//超必殺技入力許可条件判定
-		if (PermitInputBoolDic["SuperTry"])
+		if (PermitInputBoolDic["SuperTry"] && B_Gauge >= SuperGauge)
 		{
 			//入力フラグを全て下す関数呼び出し
 			InputReset();
@@ -2880,11 +2883,25 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//バリバリゲージセット関数
 	public void SetB_Gauge(float i)
 	{
+		bool EffectFlag = false;
+
+		if(B_Gauge < 1)
+		{
+			EffectFlag = true;
+		}
+
 		B_Gauge += i;
 
 		if (B_Gauge > 1 || B_Gauge < 0)
 		{
 			B_Gauge = Mathf.Round(B_Gauge);
+		}
+
+		if (B_Gauge == 1 && EffectFlag) 
+		{
+			//エフェクト再生
+			GameObject TempEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsStopTimeEffect").ToArray()[0]);
+			TempEffect.transform.position = gameObject.transform.position;
 		}
 	}
 
@@ -2975,42 +2992,70 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//揺れ物バタバタ関数
 	public void StartClothShake(int p)
 	{
-		//クロスに力を加えてなびかせる
-		foreach (Cloth c in GetComponentsInChildren<Cloth>())
-		{
-			c.randomAcceleration = new Vector3(0, 200, 0);
-
-			c.randomAcceleration *= p;
-		}
-
-		//DynamicBoneに力を加えてなびかせる
-		foreach (DynamicBone ii in transform.GetComponentsInChildren<DynamicBone>())
-		{
-			//乳は揺らさない
-			if (!ii.m_Root.name.Contains("Breast"))
-			{
-				ii.m_Force.x = UnityEngine.Random.Range(-0.002f, 0.002f);
-				ii.m_Force.y = UnityEngine.Random.Range(0, 0.01f);
-				ii.m_Force.z = UnityEngine.Random.Range(-0.002f, 0.002f);
-
-				ii.m_Force *= p;
-			}
-		}
+		//コルーチン呼び出し
+		StartCoroutine(ClothShakeCoroutine(p));
 	}
-	//揺れ物バタバタ止め関数
-	public void EndClothShake()
+
+	private IEnumerator ClothShakeCoroutine(int p)
 	{
-		//クロスに力を加えるのをやめる
-		foreach (Cloth c in GetComponentsInChildren<Cloth>())
+		//多重処理を防ぐ為に一度フラグを下す
+		ClothShakeFlag = false;
+
+		//フラグ反映の為に１フレーム待機
+		yield return null;
+
+		//フラグを立てる
+		ClothShakeFlag = true;
+
+		//クロスList
+		List<Cloth> tempClothList = new List<Cloth>(GetComponentsInChildren<Cloth>());
+
+		//ダイナミックボーンList
+		List<DynamicBone> tempBoneList = new List<DynamicBone>(transform.GetComponentsInChildren<DynamicBone>().Where(a => !a.m_Root.name.Contains("Breast")));
+
+		//クロスにベクトルを与える
+		foreach (Cloth i in tempClothList)
 		{
-			c.randomAcceleration = new Vector3(0, 0, 0);
+			i.randomAcceleration = new Vector3(0, 200, 0);
+
+			i.randomAcceleration *= p;
+		}
+
+		//フラグが降りるまで力を与え続ける
+		while (ClothShakeFlag)
+		{
+			//DynamicBoneにベクトルを与える
+			foreach (DynamicBone i in tempBoneList)
+			{
+				i.m_Force.x = UnityEngine.Random.Range(-0.002f, 0.002f);
+				i.m_Force.y = UnityEngine.Random.Range(0, 0.01f);
+				i.m_Force.z = UnityEngine.Random.Range(-0.002f, 0.002f);
+
+				i.m_Force *= p;
+			}
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//クロスに力を加えるのをやめる
+		foreach (Cloth i in tempClothList)
+		{
+			i.randomAcceleration = new Vector3(0, 0, 0);
 		}
 
 		//DynamicBoneに力を加えるのをやめる
-		foreach (DynamicBone ii in transform.root.GetComponentsInChildren<DynamicBone>())
+		foreach (DynamicBone i in tempBoneList)
 		{
-			ii.m_Force *= 0;
+			i.m_Force *= 0;
 		}
+	}
+
+	//揺れ物バタバタ止め関数
+	public void EndClothShake()
+	{
+		//フラグを下す
+		ClothShakeFlag = false;
 	}
 
 	//足元の煙エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
@@ -3597,7 +3642,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		!H_Flag &&
 		OnGroundFlag &&
 		!ActionEventFlag &&
-		B_Gauge >= SuperGauge &&
 		(
 			s.Contains("Attack")
 			||

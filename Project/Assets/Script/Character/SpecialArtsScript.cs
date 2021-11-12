@@ -33,9 +33,12 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	bool SuperAction001Flag = false;
 	bool SuperAction002Flag = false;
 
-	//超必殺技背景エフェクト
+	//超必殺技エフェクト
 	private GameObject SuperBackGroundEffect;
 	private GameObject SuperFireEffect;
+	private GameObject SuperChargeEffect;
+	private GameObject SuperBurstEffect;
+	
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -305,6 +308,14 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//背景エフェクトを回転させる
 						SuperBackGroundEffect.transform.localRotation = Quaternion.Euler(new Vector3(90, 0, 0));
+
+						//タメエフェクト取得
+						SuperChargeEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargePower").ToArray()[0]);
+
+						//タメエフェクトポジション設定して再生
+						SuperChargeEffect.transform.position = Player.transform.position;
+						DeepFind(SuperChargeEffect, "ChargePower2").GetComponent<ParticleSystem>().Play();
+						DeepFind(SuperChargeEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
 					}
 				);
 
@@ -330,6 +341,12 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//フェードインさせる
 						SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeIn(5);
 
+						//タメ完了エフェクト取得
+						SuperBurstEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargeLevel").ToArray()[0]);
+						SuperBurstEffect.transform.parent = Player.transform;
+						SuperBurstEffect.transform.localPosition = new Vector3(0, 1.75f, -0.2f);
+						SuperBurstEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
 						//揺れ物をバタバタさせる
 						Player.GetComponent<PlayerScript>().StartClothShake(3);
 					}
@@ -344,6 +361,19 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//超必殺技制御フラグを立てる
 						SuperAction002Flag = true;
+
+						//タメループエフェクトを止める
+						foreach (ParticleSystem ii in SuperChargeEffect.GetComponentsInChildren<ParticleSystem>())
+						{
+							//タメループエフェクトをアクティブにする、これをしないと以下の処理が走らずオブジェクトが消えない
+							SuperChargeEffect.SetActive(true);
+
+							//アクセサを取り出す
+							ParticleSystem.MainModule tempMain = ii.main;
+
+							//ループを止めてパーティクルの発生を停止
+							tempMain.loop = false;
+						}
 
 						//敵移動コルーチン呼び出し
 						StartCoroutine(EnemySuperAction002(Player, Enemy));
@@ -377,8 +407,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//揺れ物をバタバタを止める
 						Player.GetComponent<PlayerScript>().EndClothShake();
 
-						//背景エフェクトインスタンス削除
+						//エフェクトインスタンス削除
 						Destroy(SuperBackGroundEffect);
+						Destroy(SuperChargeEffect);
 
 						//背景の炎エフェクトをフェードアウト
 						SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeOut(2);
