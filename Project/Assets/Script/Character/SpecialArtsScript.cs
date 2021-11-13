@@ -35,10 +35,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 	//超必殺技エフェクト
 	private GameObject SuperBackGroundEffect;
-	private GameObject SuperFireEffect;
+	private GameObject SuperLightEffect;
 	private GameObject SuperChargeEffect;
-	private GameObject SuperBurstEffect;
-	
+	private GameObject SuperFireWorkEffect;
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -111,7 +110,12 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//背景エフェクトインスタンス生成
 						SuperBackGroundEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsBackGroundEffect").ToArray()[0]);
 						SuperBackGroundEffect.transform.position = Player.transform.position;
-						SuperBackGroundEffect.transform.rotation = Player.transform.rotation;
+						SuperBackGroundEffect.transform.rotation = Quaternion.Euler(Vector3.zero);
+
+						//照明エフェクトインスタンス生成
+						SuperLightEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "PartyLightEffect").ToArray()[0]);
+						SuperLightEffect.transform.position = Player.transform.position;
+						SuperLightEffect.transform.rotation = Quaternion.Euler(Vector3.zero);
 
 						//プレイヤーのフラグを立てる
 						Player.GetComponent<PlayerScript>().SuperFlag = true;
@@ -327,18 +331,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//回転値を設定
 						TempAttackEffect0.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
 
-						//背景の炎エフェクトを作成
-						//SuperFireEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsFireEffect").ToArray()[0]);
-
-						//フェードインさせる
-						//SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeIn(5);
-
-						//タメ完了エフェクト取得
-						//SuperBurstEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargeLevel").ToArray()[0]);
-						//SuperBurstEffect.transform.parent = Player.transform;
-						//SuperBurstEffect.transform.localPosition = new Vector3(0, 1.75f, -0.2f);
-						//SuperBurstEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
-
 						//タメエフェクト取得
 						SuperChargeEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "ChargePower").ToArray()[0]);
 
@@ -346,6 +338,11 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						SuperChargeEffect.transform.position = Player.transform.position;
 						DeepFind(SuperChargeEffect, "ChargePower2").GetComponent<ParticleSystem>().Play();
 						DeepFind(SuperChargeEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
+
+						//花火エフェクトインスタンス生成
+						SuperFireWorkEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsFireWorkEffect").ToArray()[0]);
+						SuperFireWorkEffect.transform.position = Player.transform.position - HorizontalVector(GameObject.Find("MainCamera"), Player) * 2.5f;
+						SuperFireWorkEffect.transform.LookAt(Player.transform);
 
 						//揺れ物をバタバタさせる
 						Player.GetComponent<PlayerScript>().StartClothShake(3);
@@ -409,10 +406,28 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//エフェクトインスタンス削除
 						Destroy(SuperBackGroundEffect);
+						Destroy(SuperLightEffect);
 						Destroy(SuperChargeEffect);
+						//Destroy(SuperFireWorkEffect);
 
-						//背景の炎エフェクトをフェードアウト
-						//SuperFireEffect.GetComponent<SuperArtsFireEffectScript>().FadeOut(2);
+						foreach(var ii in SuperFireWorkEffect.GetComponentsInChildren<ParticleSystem>())
+						{
+							//アクセサを取り出す
+							ParticleSystem.MainModule ChildMain = ii.main;
+
+							//ループを止めてパーティクルの発生を停止
+							ChildMain.loop = false;
+						}
+
+						//アクセサを取り出す
+						ParticleSystem.MainModule tempMain = SuperFireWorkEffect.GetComponent<ParticleSystem>().main;
+
+						//ループを止めてパーティクルの発生を停止
+						tempMain.loop = false;
+
+
+
+
 
 						//プレイヤーのフラグを下ろす
 						Player.GetComponent<PlayerScript>().SuperFlag = false;

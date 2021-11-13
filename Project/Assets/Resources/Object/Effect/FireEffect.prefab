@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2281654277386482220}
   - component: {fileID: 3970485300761863429}
   m_Layer: 20
-  m_Name: SuperArtsFireEffect
+  m_Name: FireEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,7 +41,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4375218729992415420}
-  m_Mesh: {fileID: 4300000, guid: d5f5bae25aecac7469710be6296e5c6d, type: 2}
+  m_Mesh: {fileID: 4300000, guid: 7fbadbb2e8feb6f4791122c4bef63612, type: 2}
 --- !u!23 &7802246547913195862
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -90,11 +90,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4375218729992415420}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d3954465aca07a438ac6caebeabf4fc, type: 3}
+  m_Script: {fileID: 11500000, guid: bc4c1f961a03b71419275cd2bfe38e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Y_Speed: 0.05
-  X_Speed: 1
+  Y_Speed: 1
+  X_Speed: 0.05
 --- !u!114 &3970485300761863429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,7 +102,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4375218729992415420}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4aaa93481a743e4b9a0d17c7ac76eb1, type: 3}
   m_Name: 

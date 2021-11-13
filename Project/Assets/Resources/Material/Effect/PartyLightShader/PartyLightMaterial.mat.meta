@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 75d3b87762e55eb469c167d7f6e20c98
+guid: 19899f355da913144887b7896fc3dda4
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 0
   userData: 
-  assetBundleName: model/effect/attackeffect03
+  assetBundleName: material/effect/partylightshader/partylightmaterial
   assetBundleVariant: 
