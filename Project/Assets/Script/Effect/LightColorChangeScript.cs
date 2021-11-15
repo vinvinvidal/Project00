@@ -21,10 +21,16 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 	//ライトコンポーネント
 	private Light LightComp;
 
+	//元のライトカラー
+	private Color LightColor;
+
 	void Start()
     {
 		//ライトコンポーネント取得
 		LightComp = gameObject.GetComponent<Light>();
+
+		//元のライトカラー取得
+		LightColor = LightComp.color;
 	}
 
 	//ライトを点ける
@@ -59,14 +65,14 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 			LightNum = FadeTime / t;
 
 			//ライトカラーに反映
-			LightComp.color = LightColorGradient.Evaluate(LightNum * n);
+			LightComp.color = LightColorGradient.Evaluate(LightNum * n) * LightColor;
 
 			//1フレーム待機
 			yield return null;
 		}
 
 		//ライトカラーを目的の位置にする
-		LightComp.color = LightColorGradient.Evaluate(1);
+		LightComp.color = LightColor;
 
 		//匿名関数実行
 		act();

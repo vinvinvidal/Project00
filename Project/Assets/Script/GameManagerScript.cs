@@ -100,7 +100,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	private float NextTime;
 
 	//ポーズフラグ
-	private bool PauseFlag = false;
+	public bool PauseFlag { get; set; } = false;
 
 
 	//セーブロードするセーブデータ

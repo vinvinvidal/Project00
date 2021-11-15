@@ -2,41 +2,35 @@
 {
 	Properties
 	{
+		_MainTex("_MainTex", 2D) = "white" {}		//メインテクスチャ
 
+		[Enum(UnityEngine.Rendering.CompareFunction)]_ZTest("_ZTest", Float) = 4
 	}
 
 	SubShader
 	{
-		Tags 
+		Tags
 		{
-			"Queue" = "AlphaTest" 
-			"RenderType" = "TransparentCutout" 
-			//"IgnoreProjector" = "True" 
+			"Queue" = "Transparent"
+			//"Queue" = "AlphaTest"			
+			"RenderType" = "Transparent"
 		}
 
-		//アルファブレンド
-		//Blend SrcAlpha OneMinusSrcAlpha
+		//加算ブレンド
+		Blend One One
+
+		//ライティングしない
+		Lighting Off
+
+		//Zテスト
+		ZTest[_ZTest]
 
 		Pass
 		{
 			Tags
 			{
-				"Queue" = "Transparent" 
-				"RenderType"="Transparent"			
+				"LightMode" = "ForwardBase"
 			}
-
-			//加算ブレンド
-			Blend One One
-
-			//アルファブレンド
-			//Blend SrcAlpha OneMinusSrcAlpha
-
-			//ライティングしない
-			Lighting Off
-
-			//両面表示
-			//Cull off
-
 			//プログラム開始
 			CGPROGRAM
 
@@ -50,7 +44,9 @@
 			#pragma fragment frag					//各ピクセル毎に実行されるフラグメントシェーダ
 
 			//変数宣言
-			fixed4 _LightColor;
+			fixed4 _LightColor;					//ライトカラー
+
+			sampler2D _MainTex;					//メインテクスチャ
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -108,8 +104,14 @@
 			//フラグメントシェーダ
 			fixed4 frag(vertex_output i) : SV_Target
 			{
-				//return用変数を宣言、ベースtextureを貼る
-				fixed4 re = _LightColor * i.vColor;
+				//return用変数を宣言、テクスチャを貼る
+				fixed4 re = tex2D(_MainTex, i.uv);
+				
+				//テクスチャのアルファチャンネルを明るさの補正として加算
+				re += tex2D(_MainTex, i.uv).a;
+
+				//ライトカラーと頂点カラーを乗算
+				re *= _LightColor * i.vColor;
 
 				//出力
 				return re;

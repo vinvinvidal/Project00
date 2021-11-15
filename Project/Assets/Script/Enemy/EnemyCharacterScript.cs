@@ -363,7 +363,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		WallClashFlag = false;
 
 		//ダメージ用ヒットコライダ取得
-		DamageCol = DeepFind(gameObject , "EnemyDamageCol").GetComponent<BoxCollider>();
+		DamageCol = DeepFind(gameObject, "EnemyDamageCol").GetComponent<BoxCollider>();
 
 		//ダメージ用ヒットコライダのセンターをキャッシュ
 		DamageColCenter = DamageCol.center;
@@ -477,9 +477,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		AllStates.Add("AnyState");
 		AllStates.Add("Idling");
 		AllStates.Add("Walk");
-		AllStates.Add("Attack"); 
+		AllStates.Add("Attack");
 		AllStates.Add("H_Try");
-		AllStates.Add("H_Hit");		
+		AllStates.Add("H_Hit");
 		AllStates.Add("H_Attack00");
 		AllStates.Add("H_Attack01");
 		AllStates.Add("H_Break");
@@ -708,7 +708,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ダウン状態
 		if (DownFlag)
 		{
-			MoveMoment *= 0;	
+			MoveMoment *= 0;
 		}
 		//特殊攻撃を受けている
 		else if (SpecialFlag)
@@ -753,7 +753,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			MoveMoment.y = (PlayerCharacter.transform.position - gameObject.transform.position).y * Time.deltaTime * 20;
 		}
 		//行動中の移動
-		else if(BehaviorFlag)
+		else if (BehaviorFlag)
 		{
 			//移動値
 			MoveMoment = BehaviorMoveVec * MoveSpeed * Time.deltaTime;
@@ -807,7 +807,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	private void BehaviorFunc()
 	{
 		//行動中ではなく、アイドリング中
-		if(!BehaviorFlag && CurrentState == "Idling")
+		if (!BehaviorFlag && CurrentState == "Idling")
 		{
 			//開始可能な行動を抽出
 			List<EnemyBehaviorClass> TempBehavioerList = new List<EnemyBehaviorClass>(BehaviorList.Where(b => b.BehaviorConditions()).ToList());
@@ -941,7 +941,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		bool re = true;
 
 		//状況判定
-		switch(n)
+		switch (n)
 		{
 			//地上で立ち
 			case 0:
@@ -1009,7 +1009,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//気絶値を減らす
 		Stun -= Arts.Stun[n];
-	
+
 		//ダメージモーション管理関数呼び出し
 		DamageMotionFunc(Arts, n);
 	}
@@ -1020,8 +1020,30 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//遷移フラグを立てる
 		CurrentAnimator.SetBool("SuperDamage", true);
 
+		//引数で技後のダウンフラグを立てる関数呼び出し
+		SetDownFlag(dwn);
+
+		//プレイヤーに向ける
+		transform.LookAt(HorizontalVector(PlayerCharacter, gameObject));
+
+		//状態フラグをリセット
+		FlagReset();
+
+		//超必殺技フラグを立てる
+		SuperFlag = true;
+
+		//使用するモーションに差し替え
+		OverRideAnimator["Super_void"] = DamageAnimList[50 + n];
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+	}
+
+	//引数で技後のダウンフラグを立てる
+	private void SetDownFlag(int dwn)
+	{
 		//引数で技後のダウンフラグを立てる
-		if(dwn == 0)
+		if (dwn == 0)
 		{
 			CurrentAnimator.SetBool("Down_Prone", true);
 			CurrentAnimator.SetBool("Down_Supine", false);
@@ -1031,22 +1053,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			CurrentAnimator.SetBool("Down_Supine", true);
 			CurrentAnimator.SetBool("Down_Prone", false);
 		}
-
-		//プレイヤーに向ける
-		transform.LookAt(HorizontalVector(PlayerCharacter, gameObject));
-
-		//状態フラグをリセット
-		FlagReset();
-
-		//超必殺技フラグを立てる
-		SuperFlag = true;		
-
-		//使用するモーションに差し替え
-		OverRideAnimator["Super_void"] = DamageAnimList[50 + n];
-
-		//アニメーターを上書きしてアニメーションクリップを切り替える
-		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
-	}
+	}	
 
 	//ダメージモーション管理関数
 	private void DamageMotionFunc(ArtsClass Arts, int n)

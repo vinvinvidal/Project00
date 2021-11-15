@@ -94,27 +94,6 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					}
 				}
 
-				//性器オブジェクトにモザイクエフェクトを仕込む
-				foreach(Transform ii in gameObject.GetComponentsInChildren<Transform>())
-				{
-					//名前で検索
-					if(ii.name.Contains("Genital"))
-					{
-						//モザイクエフェクトインスタンス化
-						GameObject mosaicOBJ = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "Mosaic").ToArray()[0]);
-
-						//性器オブジェクトの子にする
-						mosaicOBJ.transform.parent = ii.gameObject.transform;
-
-						//ローカルTransform設定
-						mosaicOBJ.transform.localPosition *= 0;
-						mosaicOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
-
-						//最初は消しとく
-						mosaicOBJ.SetActive(false);
-					}
-				}
-
 				//武器オブジェクト読み込み
 				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Character/" + ID + "/Weapon/", "Weapon" + i.WeaponID, "prefab", (object O) =>
 				{
@@ -213,8 +192,29 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						CostumeLoadCompleteFlag = true;
 					}
 
+					//モザイクエフェクト宣言
+					GameObject MosaicOBJ = null;
+
+					//性器オブジェクトにモザイクエフェクトを仕込む
+					foreach (Transform ii in gameObject.GetComponentsInChildren<Transform>())
+					{
+						//名前で検索
+						if (ii.name.Contains("Genital"))
+						{
+							//モザイクエフェクトインスタンス化
+							MosaicOBJ = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "Mosaic").ToArray()[0]);
+
+							//性器オブジェクトの子にする
+							MosaicOBJ.transform.parent = ii.gameObject.transform;
+
+							//ローカルTransform設定
+							MosaicOBJ.transform.localPosition *= 0;
+							MosaicOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+						}
+					}
+
 					//スクリプトにデータを渡す
-					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllDamageList[ID], GameManagerScript.Instance.AllH_HitList[ID], GameManagerScript.Instance.AllH_DamageList[ID], GameManagerScript.Instance.AllH_BreakList[ID] , CostumeOBJ));
+					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllDamageList[ID], GameManagerScript.Instance.AllH_HitList[ID], GameManagerScript.Instance.AllH_DamageList[ID], GameManagerScript.Instance.AllH_BreakList[ID], CostumeOBJ, MosaicOBJ));
 
 				}));
 			}

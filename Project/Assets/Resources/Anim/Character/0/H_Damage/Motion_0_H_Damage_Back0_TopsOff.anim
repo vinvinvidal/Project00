@@ -82213,6 +82213,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 1.3333334
+    functionName: NextH_CameraWork
+    data: Back0_Damage
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 1.8333334
     functionName: H_ReturnState
     data: 

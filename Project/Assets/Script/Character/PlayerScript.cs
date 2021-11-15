@@ -44,7 +44,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool GetOnCameraBool();
 
 	//キャラクターのデータセットする
-	void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO);
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA);
 
 	//当たった攻撃が有効か返す
 	bool AttackEnable(bool H);
@@ -91,11 +91,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//コスチュームルートオブジェクト
 	private GameObject CostumeRootOBJ;
 
+	//モザイクオブジェクト
+	private GameObject MosaicOBJ;
+
 
 
 	//--- UI ---//
 
-	
+
 
 
 	//--- 固定パラメータ ---//
@@ -339,6 +342,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//上着はだけフラグ
 	private bool TopsOffFlag = false;
+
+	//パンツ下ろしフラグ
+	private bool PantsOffFlag = false;
 
 
 
@@ -939,11 +945,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//敵の興奮値が上がり、何回かループした
 		else if(H_MainEnemy.GetComponent<EnemyCharacterScript>().Excite > 0.2f && H_Count > 2 && CurrentState.Contains("H_Damage"))
 		{
-			//トップスがはだけていない
-			if (!TopsOffFlag)
+			//スケベカウントリセット
+			H_Count = 0;
+
+			//後ろから
+			if (H_Location.Contains("Back"))
 			{
-				//後ろから
-				if (H_Location.Contains("Back"))
+				//トップスがはだけていない
+				if (!TopsOffFlag)
 				{
 					//レバガチャインプットフラグを下す
 					BreakInputFlag = false;
@@ -954,9 +963,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					//オーバーライドコントローラにアニメーションクリップをセット
 					OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains(H_Location + "_TopsOff")).ToList()[0];
 
-					//敵側の処理を呼び出す
-					ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.H_Transition("_TopsOff"));
-
 					//アニメーターを上書きしてアニメーションクリップを切り替える
 					CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
@@ -966,24 +972,49 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					//スケベカメラワーク再生
 					H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_TopsOff")).ToList()[0]), false);
 
-					//次のカメラワーク設定
-					H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Damage")).ToList()[0]);
+					//敵側の処理を呼び出す
+					ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.H_Transition("_TopsOff"));
 				}
-				/*
-				//アニメーターを上書きしてアニメーションクリップを切り替える
-				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+			}
+			//前から
+			else if (H_Location.Contains("Forward"))
+			{
+				//パンツが降りていない
+				if (!PantsOffFlag)
+				{
+					//レバガチャインプットフラグを下す
+					BreakInputFlag = false;
 
-				//アニメーション遷移フラグを立てる
-				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+					//パンツ下ろしフラグを立てる
+					PantsOffFlag = true;
 
-				//スケベカメラワーク再生
-				H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_TopsOff")).ToList()[0]), false);
+					//オーバーライドコントローラにアニメーションクリップをセット
+					OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains(H_Location + "_PantsOff")).ToList()[0];
 
-				//次のカメラワーク設定
-				H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Damage")).ToList()[0]);
-				*/
+					//アニメーターを上書きしてアニメーションクリップを切り替える
+					CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+					//アニメーション遷移フラグを立てる
+					CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+
+					//敵側の処理を呼び出す
+					ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.H_Transition("_PantsOff"));
+		   					 				  				  				 			   				
+					//スケベカメラワーク再生
+					H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_PantsOff")).ToList()[0]), false);
+				}
 			}
 		}
+	}
+
+	//スケベカメラワークを次に進める
+	public void NextH_CameraWork(string n)
+	{		
+		//次のカメラワーク設定
+		H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(n)).ToList()[0]);
+
+		//カメラワークを進める
+		H_CameraOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;
 	}
 
 	//元のスケベステートに戻る関数、アニメーションクリップから呼ばれる
@@ -1195,6 +1226,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			SpecialInput = true;
 		}
 		
+
+		//スケベフラグを戻す処理、とりあえずなので後で消す
 		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
 			if (ii.name.Contains("TopsOff"))
@@ -1207,7 +1240,24 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 
+		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
+		{
+			if (ii.name.Contains("PantsOff"))
+			{
+				ii.GetComponent<SkinnedMeshRenderer>().enabled = false;
+			}
+			else if (ii.name.Contains("PantsOn"))
+			{
+				ii.GetComponent<SkinnedMeshRenderer>().enabled = true;
+			}
+		}
+
 		TopsOffFlag = false;
+
+		PantsOffFlag = false;
+
+		//モザイク表示
+		MosaicOBJ.SetActive(false);
 	}
 
 	//超必殺技ボタンを押した時の処理
@@ -2883,26 +2933,34 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//バリバリゲージセット関数
 	public void SetB_Gauge(float i)
 	{
+		//満タンエフェクトフラグ
 		bool EffectFlag = false;
 
+		//ゲージが満タンじゃない
 		if(B_Gauge < 1)
 		{
 			EffectFlag = true;
 		}
 
+		//ゲージ増減
 		B_Gauge += i;
 
+		//0~1の範囲に収める
 		if (B_Gauge > 1 || B_Gauge < 0)
 		{
 			B_Gauge = Mathf.Round(B_Gauge);
 		}
 
+		//バリバリゲージが満タンになった
 		if (B_Gauge == 1 && EffectFlag) 
 		{
 			//エフェクト再生
 			GameObject TempEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsStopTimeEffect").ToArray()[0]);
 			TempEffect.transform.position = gameObject.transform.position;
 		}
+
+		//バリバリゲージが下がるほどアソコも緩む
+		CurrentAnimator.SetFloat("Vagina_Blend", 1 - B_Gauge);　
 	}
 
 	//表情を変える、アニメーションクリップのイベントから呼ばれる
@@ -3125,9 +3183,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//トップスをはだける、アニメーションクリップから呼ばれる
 	public void TopsOff()
 	{
-		//テクスチャ差し替え
-		//DeepFind(gameObject, CharacterID + "_Tops" + GameManagerScript.Instance.AllCharacterList[CharacterID].CostumeID + "_Mesh").GetComponent<CharacterBodyShaderScript>().SetOffTexture();
-
+		//モデルの表示切り替え
 		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
 			if (ii.name.Contains("TopsOff"))
@@ -3139,6 +3195,39 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				ii.GetComponent<SkinnedMeshRenderer>().enabled = false;
 			}
 		}
+
+		//スケベエフェクト生成
+		GameObject TempEffect = Instantiate(H_Effect00);
+
+		//親を設定
+		TempEffect.transform.parent = gameObject.transform;
+
+		//ローカルPRSリセット
+		TempEffect.transform.localPosition = Vector3.up;
+		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+		//スローモーション
+		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f);
+	}
+
+	//パンツを下ろす、アニメーションクリップから呼ばれる
+	public void PantsOff()
+	{
+		//モデルの表示切り替え
+		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
+		{
+			if (ii.name.Contains("PantsOff"))
+			{
+				ii.GetComponent<SkinnedMeshRenderer>().enabled = true;
+			}
+			else if (ii.name.Contains("PantsOn"))
+			{
+				ii.GetComponent<SkinnedMeshRenderer>().enabled = false;
+			}
+		}
+
+		//モザイク表示
+		MosaicOBJ.SetActive(true);
 
 		//スケベエフェクト生成
 		GameObject TempEffect = Instantiate(H_Effect00);
@@ -4366,7 +4455,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる
-	public void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO)
+	public void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA)
 	{
 		//ダメージモーションList
 		DamageAnimList = new List<AnimationClip>(DAL);
@@ -4382,6 +4471,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//コスチュームルートオブジェクト
 		CostumeRootOBJ = CRO;
+
+		//モザイクオブジェクト
+		MosaicOBJ = MSA;
 
 		//移動速度
 		PlayerMoveSpeed = CC.PlayerMoveSpeed;

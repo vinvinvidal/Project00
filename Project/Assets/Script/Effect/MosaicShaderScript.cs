@@ -32,6 +32,9 @@ public class MosaicShaderScript : MonoBehaviour
 
 		//親のSkinnedMeshRendererをShapeに反映
 		Accesser.skinnedMeshRenderer = transform.parent.GetComponent<SkinnedMeshRenderer>();
+
+		//最初は消しとくコルーチン呼び出し
+		StartCoroutine(FirstCoroutine());
 	}
 
 	void Update()
@@ -41,5 +44,15 @@ public class MosaicShaderScript : MonoBehaviour
 
 		//カメラとの距離によってモザイクの粗さを変える
 		Mat.SetFloat("_BlockSize", Dist * 2.5f);
+	}
+
+	//最初は消しとくコルーチン
+	private IEnumerator FirstCoroutine()
+	{
+		//1秒待つ、これをしないと使う時に位置が変になってたりする、危険。
+		yield return new WaitForSeconds(1);
+
+		//無効化
+		gameObject.SetActive(false);
 	}
 }

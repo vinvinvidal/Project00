@@ -77,18 +77,6 @@ public class CinemachineCameraScript : GlobalClass
 			}
 		}
 
-		//メインカメラのシネマシン有効化
-		MainCamera.GetComponent<CinemachineBrain>().enabled = true;
-
-		//カメラワーク持続フラグ初期化
-		KeepCameraFlag = true;
-
-		//ヴァーチャルカメラ取得
-		Vcam = new List<CinemachineVirtualCamera>(CameraWorkList[Index].GetComponentsInChildren<CinemachineVirtualCamera>());
-
-		//優先度カウントアップ
-		PriorityCount++;
-
 		//再生するカメラワークインデックス
 		int VcamIndex = 0;
 
@@ -96,13 +84,22 @@ public class CinemachineCameraScript : GlobalClass
 		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().RandomFlag)
 		{
 			VcamIndex = Random.Range(0, Vcam.Count);
-		}	
+		}
 
-		//カメラ優先度を上げて切り替える
-		Vcam[VcamIndex].Priority += PriorityCount; 
+		//ヴァーチャルカメラ取得
+		Vcam = new List<CinemachineVirtualCamera>(CameraWorkList[Index].GetComponentsInChildren<CinemachineVirtualCamera>());
+
+		//ヴァーチャルカメラのパストラッキング取得
+		PathPos = Vcam[VcamIndex].GetCinemachineComponent<CinemachineTrackedDolly>();
+
+		//メインカメラのシネマシン有効化
+		MainCamera.GetComponent<CinemachineBrain>().enabled = true;
+
+		//カメラワーク持続フラグ初期化
+		KeepCameraFlag = true;
 
 		//注視点オブジェクトが指定されていたら設定
-		if(CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJName != "")
+		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJName != "")
 		{
 			Vcam[VcamIndex].LookAt = GameObject.Find(CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJName).transform;
 		}
@@ -130,19 +127,6 @@ public class CinemachineCameraScript : GlobalClass
 				break;
 		}
 
-		//ヴァーチャルカメラのパストラッキング取得
-		PathPos = Vcam[VcamIndex].GetCinemachineComponent<CinemachineTrackedDolly>();
-
-		//パストラッキングが存在したら
-		if (PathPos != null)
-		{
-			//トラッキングポジションを初期位置に移動
-			PathPos.m_PathPosition = 0;
-
-			//トラッキング制御コルーチン呼び出し
-			StartCoroutine(TrackingMoveCoroutine(CameraWorkList[Index].GetComponent<CameraWorkScript>().CameraMode, Index));
-		}
-
 		//持続条件によって呼び出すコルーチンを切り替える
 		switch (CameraWorkList[Index].GetComponent<CameraWorkScript>().KeepMode)
 		{
@@ -161,6 +145,19 @@ public class CinemachineCameraScript : GlobalClass
 				StartCoroutine(TrackingEndModeCoroutine(Index));
 				break;
 		}
+
+		//パストラッキングが存在したら
+		if (PathPos != null)
+		{
+			//トラッキング制御コルーチン呼び出し
+			StartCoroutine(TrackingMoveCoroutine(CameraWorkList[Index].GetComponent<CameraWorkScript>().CameraMode, Index));
+		}
+
+		//優先度カウントアップ
+		PriorityCount++;
+
+		//カメラ優先度を上げて切り替える
+		Vcam[VcamIndex].Priority += PriorityCount;
 	}
 
 	//トラッキング制御コルーチン呼び出し
@@ -172,8 +169,11 @@ public class CinemachineCameraScript : GlobalClass
 			//フラグが降りるまで持続
 			while (KeepCameraFlag)
 			{
-				//トラッキング値加算
-				PathPos.m_PathPosition += CameraWorkList[Index].GetComponent<CameraWorkScript>().MoveSpeed * Time.deltaTime;
+				if(!GameManagerScript.Instance.PauseFlag)
+				{
+					//トラッキング値加算
+					PathPos.m_PathPosition += CameraWorkList[Index].GetComponent<CameraWorkScript>().MoveSpeed * Time.deltaTime;
+				}
 
 				yield return null;
 			}
@@ -196,6 +196,15 @@ public class CinemachineCameraScript : GlobalClass
 				yield return null;
 			}
 		}
+
+		//使用したパストラッキングをキャッシュ
+		CinemachineTrackedDolly TempPathPos = PathPos;
+
+		//ちょっと待つ
+		yield return new WaitForSeconds(1);
+
+		//トラッキングポジションを初期位置に移動、これをしないとパスを再使用した時に終点から始まってしまう
+		TempPathPos.m_PathPosition = 0;
 	}
 
 	//トラッキングが終了するまで持続コルーチン
@@ -204,8 +213,17 @@ public class CinemachineCameraScript : GlobalClass
 		//優先度カウントキャッシュ
 		int TempCount = PriorityCount;
 
+		//終了点
+		float EndPoint = 1;
+
+		//パスユニットならパス数を乗算
+		if (PathPos.m_PositionUnits == CinemachinePathBase.PositionUnits.PathUnits)
+		{
+			EndPoint *= PathPos.m_Path.MaxPos;
+		}
+
 		//トラッキングが終わるまで待機
-		while (PathPos.m_PathPosition <= 1)
+		while (PathPos.m_PathPosition <= EndPoint)
 		{
 			yield return null;			
 		}

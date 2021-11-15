@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PartyLightScript : GlobalClass
 {
+	//テクスチャ
+	public Texture2D Texture;
+
 	//色を抽出するグラデーション
 	public Gradient Grad;
 
@@ -16,28 +19,71 @@ public class PartyLightScript : GlobalClass
 	//サインカーブ用カウント
 	private float SinCount;
 
-    void Start()
+	//照明タイプ
+	public int TypeNum;
+
+	//ZText
+	public int Ztest;
+
+	void Start()
     {
 		//マテリアル取得
 		PartyLightMaterial = transform.GetComponent<Renderer>().material;
 
-		//色を抽出しシェーダーに渡す
+		//テクスチャを渡す
+		PartyLightMaterial.SetTexture("_MainTex", Texture);
+
+		//Z_TESTを渡す
+		PartyLightMaterial.SetFloat("_ZTest", Ztest);
+
+		//グラデーションから色を抽出
 		LightColor = Grad.Evaluate(Random.Range(0f, 1f));
 
-		//初期値をランダムにする
-		SinCount = Random.Range(0f, 100f);
+		switch (TypeNum)
+		{
+			//回転
+			case 0:
 
-		//フェードインコルーチン呼び出し
-		StartCoroutine(FadeInCoroutine());
+				//初期値をランダムにする
+				SinCount = Random.Range(0f, 100f);
+
+				//フェードインコルーチン呼び出し
+				StartCoroutine(FadeInCoroutine());
+
+				break;
+
+			//固定
+			case 1:
+
+				//シェーダーに色を渡す
+				PartyLightMaterial.SetColor("_LightColor", LightColor);
+
+				break;
+
+			default:
+				break;
+		}
+
+
 	}
 
     void Update()
     {
-		//サインカーブカウントアップ
-		SinCount += Time.deltaTime;
+		switch (TypeNum)
+		{
+			case 0:
 
-		//回転
-		transform.localRotation = Quaternion.Euler(new Vector3(Mathf.Sin(SinCount * 5) * 75, Mathf.Sin(SinCount * 3) * 180, 0));
+				//サインカーブカウントアップ
+				SinCount += Time.deltaTime;
+
+				//回転
+				transform.localRotation = Quaternion.Euler(new Vector3(Mathf.Sin(SinCount * 3) * 75, Mathf.Sin(SinCount) * 180, 0));
+
+				break;
+
+			default:
+				break;
+		}
 	}
 
 	//フェードインコルーチン

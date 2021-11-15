@@ -34,7 +34,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	bool SuperAction002Flag = false;
 
 	//超必殺技エフェクト
-	private GameObject SuperBackGroundEffect;
 	private GameObject SuperLightEffect;
 	private GameObject SuperChargeEffect;
 	private GameObject SuperFireWorkEffect;
@@ -107,11 +106,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				(
 					(GameObject Player, GameObject Enemy) =>
 					{
-						//背景エフェクトインスタンス生成
-						SuperBackGroundEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsBackGroundEffect").ToArray()[0]);
-						SuperBackGroundEffect.transform.position = Player.transform.position;
-						SuperBackGroundEffect.transform.rotation = Quaternion.Euler(Vector3.zero);
-
 						//照明エフェクトインスタンス生成
 						SuperLightEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "PartyLightEffect").ToArray()[0]);
 						SuperLightEffect.transform.position = Player.transform.position;
@@ -309,9 +303,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//回転値を設定
 						TempAttackEffect1.transform.localRotation = Quaternion.Euler(new Vector3(-40, 0, 0));
-
-						//背景エフェクトを回転させる
-						SuperBackGroundEffect.transform.localRotation = Quaternion.Euler(new Vector3(90, 0, 0));
 					}
 				);
 
@@ -381,7 +372,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				IEnumerator EnemySuperAction002(GameObject Player, GameObject Enemy)
 				{
 					//移動目的地をキャッシュ
-					Vector3 TargetPos = Player.transform.position + (Player.transform.right * 3f);
+					Vector3 TargetPos = Player.transform.position + (-Player.transform.right * 1.5f);
 
 					//フラグが降りるまでループ
 					while (SuperAction002Flag)
@@ -405,11 +396,10 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						Player.GetComponent<PlayerScript>().EndClothShake();
 
 						//エフェクトインスタンス削除
-						Destroy(SuperBackGroundEffect);
 						Destroy(SuperLightEffect);
 						Destroy(SuperChargeEffect);
-						//Destroy(SuperFireWorkEffect);
 
+						//花火エフェクトはちゃんとパーティクルを止めて消す
 						foreach(var ii in SuperFireWorkEffect.GetComponentsInChildren<ParticleSystem>())
 						{
 							//アクセサを取り出す
@@ -424,10 +414,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//ループを止めてパーティクルの発生を停止
 						tempMain.loop = false;
-
-
-
-
 
 						//プレイヤーのフラグを下ろす
 						Player.GetComponent<PlayerScript>().SuperFlag = false;
