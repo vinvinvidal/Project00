@@ -80,14 +80,14 @@ public class CinemachineCameraScript : GlobalClass
 		//再生するカメラワークインデックス
 		int VcamIndex = 0;
 
+		//ヴァーチャルカメラ取得
+		Vcam = new List<CinemachineVirtualCamera>(CameraWorkList[Index].GetComponentsInChildren<CinemachineVirtualCamera>());
+
 		//ランダムでカメラワークを決める場合
 		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().RandomFlag)
 		{
 			VcamIndex = Random.Range(0, Vcam.Count);
 		}
-
-		//ヴァーチャルカメラ取得
-		Vcam = new List<CinemachineVirtualCamera>(CameraWorkList[Index].GetComponentsInChildren<CinemachineVirtualCamera>());
 
 		//ヴァーチャルカメラのパストラッキング取得
 		PathPos = Vcam[VcamIndex].GetCinemachineComponent<CinemachineTrackedDolly>();

@@ -1522,7 +1522,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			else if (CurrentState.Contains("-> H_Break"))
 			{
 				//アニメーターのスケベ解除フラグを下ろす
-				CurrentAnimator.SetBool("H_Break", false);
+				//CurrentAnimator.SetBool("H_Break", false);
 
 				//行動フラグを下す
 				BehaviorFlag = false;
@@ -1572,6 +1572,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			{
 				//スケベフラグを下す
 				H_Flag = false;
+
+				//アニメーターのスケベ解除フラグを下ろす
+				CurrentAnimator.SetBool("H_Break", false);
 			}
 			//超必殺技から遷移する瞬間の処理
 			else if (CurrentState.Contains("SuperDamage ->"))
