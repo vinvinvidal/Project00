@@ -41,8 +41,11 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	//プレイヤーキャラクター
 	private GameObject PlayerCharacter;
 
-	//プレイヤーキャラクターとの距離
-	private float PlayerDistance;
+	//プレイヤーキャラクターとの水平距離
+	private float PlayerHorizontalDistance;
+
+	//プレイヤーキャラクターとの垂直距離
+	private float PlayerverticalDistance;
 
 	//プレイヤーキャラクターとの角度
 	private float PlayerAngle;
@@ -76,8 +79,11 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//仲間避け距離
 		AroundDistance = 3f;
 
-		//プレイヤーキャラクターとの距離初期化
-		PlayerDistance = 0f;
+		//プレイヤーキャラクターとの水平距離初期化
+		PlayerHorizontalDistance = 0f;
+
+		//プレイヤーキャラクターとの垂直距離初期化
+		PlayerverticalDistance = 0f;
 
 		//プレイヤーキャラクター、とりあえずnull
 		PlayerCharacter = null;
@@ -117,7 +123,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			bool re = false;
 
 			//プレイヤーキャラクターと離れている
-			if (PlayerDistance > ChaseDistance)
+			if (PlayerHorizontalDistance > ChaseDistance)
 			{
 				re = true;
 			}
@@ -184,8 +190,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//画面内に入っていたら処理
 			if (re)
 			{
-				//射程距離で攻撃中じゃなくてスケベ中じゃない
-				if (PlayerDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
+				//高低差が無く射程距離内で攻撃中じゃなくてスケベ中じゃない
+				if (PlayerverticalDistance < 0.25f && PlayerHorizontalDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
 				{
 					re = true;
 				}
@@ -222,8 +228,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 				//画面内に入っていたら処理
 				if (re)
 				{
-					//射程距離でスケベ中じゃない
-					if (PlayerDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
+					//高低差が無く射程距離でスケベ中じゃない
+					if (PlayerverticalDistance < 0.25f && PlayerHorizontalDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
 					{
 						re = true;
 					}
@@ -323,7 +329,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		CurrentAnimator.SetBool("Walk", true);
 
 		//プレイヤーキャラクターに接近するまでループ
-		while (PlayerDistance > ChaseDistance)
+		while (PlayerHorizontalDistance > ChaseDistance)
 		{
 			//プレイヤーキャラクターに向かう移動ベクトル算出
 			EnemyScript.BehaviorMoveVec = HorizontalVector(PlayerCharacter, gameObject).normalized;
@@ -466,7 +472,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			EnemyScript.BehaviorRotate = PlayerVec;
 
 			//行動不能、もしくは射程外になったらブレイク
-			if (!EnemyScript.BehaviorFlag || PlayerDistance > AttackDistance)
+			if (!EnemyScript.BehaviorFlag || PlayerHorizontalDistance > AttackDistance)
 			{
 				//アニメーターのフラグを下ろす
 				CurrentAnimator.SetBool("Walk", false);
@@ -529,7 +535,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			EnemyScript.BehaviorRotate = PlayerVec;
 
 			//行動不能、もしくは射程外になったらブレイク
-			if (!EnemyScript.BehaviorFlag || PlayerDistance > AttackDistance)
+			if (!EnemyScript.BehaviorFlag || PlayerHorizontalDistance > AttackDistance)
 			{
 				//アニメーターのフラグを下ろす
 				CurrentAnimator.SetBool("Walk", false);
@@ -569,8 +575,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 	void Update()
     {
-		//常にプレイヤーキャラクターとの距離を測定する、高低差は無視
-		PlayerDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
+		//常にプレイヤーキャラクターとの距離を測定する
+		PlayerHorizontalDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
+		PlayerverticalDistance = Mathf.Abs(PlayerCharacter.transform.position.y - gameObject.transform.position.y);
 
 		//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
 		PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));

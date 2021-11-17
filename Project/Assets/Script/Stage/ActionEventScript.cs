@@ -248,6 +248,12 @@ public class ActionEventScript : GlobalClass
 		//ウェイポイントの座標
 		Vector3 Waypos = Vector3.zero;
 
+		//キャラクターとカメラが接近した時のオフセット値
+		float PosOffset = 0;
+
+		//キャラクターとカメラの距離
+		float PtoCDistance = 0;
+
 		//初っ端の直近ウェイポイントを探す
 		foreach (var i in WayPoint)
 		{
@@ -311,10 +317,23 @@ public class ActionEventScript : GlobalClass
 			else
 			{
 				PathPoscount += movespeed * Time.deltaTime;
-			}			
+			}
+
+			//プレイヤーとカメラの水平距離を測定
+			PtoCDistance = HorizontalVector(VCamera.gameObject, PlayerCharacter).sqrMagnitude;
+
+			//距離によってオフセット値を入れる、結構デリケートなのでヤバいかも
+			if (PtoCDistance < 1.5f)
+			{
+				PosOffset = 0.025f;
+			}
+			else if (PosOffset > 0 && PtoCDistance > 5)
+			{
+				PosOffset = 0.015f;
+			}
 
 			//トラッキングポジション移動
-			PathPos.m_PathPosition = PathPoscount;
+			PathPos.m_PathPosition = PathPoscount + PosOffset;
 
 			//１フレーム待機
 			yield return null;

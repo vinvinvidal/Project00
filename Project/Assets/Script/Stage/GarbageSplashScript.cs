@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class GarbageSplashScript : MonoBehaviour
+public class GarbageSplashScript : GlobalClass
 {
 	//発生させるガベージオブジェクトList
     public List<GameObject> GarbageList;

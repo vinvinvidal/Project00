@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FireShaderScript : MonoBehaviour
+public class FireShaderScript : GlobalClass
 {
 	//マテリアル
 	private Material FireMaterial;

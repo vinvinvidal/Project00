@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SuperArtsFireEffectScript : MonoBehaviour
+public class SuperArtsFireEffectScript : GlobalClass
 {
 	//メインカメラ
 	GameObject MainCamera;

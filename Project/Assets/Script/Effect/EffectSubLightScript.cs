@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EffectSubLightScript : MonoBehaviour
+public class EffectSubLightScript : GlobalClass
 {
 	//サブライト
 	private Light SubLight;

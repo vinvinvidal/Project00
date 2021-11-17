@@ -78,6 +78,26 @@ public class GlobalClass : MonoBehaviour
 		return temparts;
 	}
 
+	//オブジェクトが削除された時に複製したマテリアルを削除する、これをしないとメモリリークするらしい
+	private void OnDestroy()
+	{
+		foreach (var i in GetComponents<Renderer>())
+		{
+			foreach (var ii in i.materials)
+			{
+				Destroy(ii);
+			}
+		}
+
+		foreach (var i in GetComponentsInChildren<Renderer>())
+		{
+			foreach(var ii in i.materials)
+			{
+				Destroy(ii);;
+			}
+		}
+	}
+
 	/*
 	//引数のフォルダ内のサブフォルダ全てのパスを返す関数
 	public List<string> GetSubFolders(string p)

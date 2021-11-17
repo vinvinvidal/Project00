@@ -345,9 +345,12 @@ public class CinemachineCameraScript : GlobalClass
 	private IEnumerator EndCameraWorkCoroutine()
 	{
 		//イージング時間待機
-		yield return new WaitForSeconds(1);		
+		yield return new WaitForSeconds(1);
 
-		//メインカメラターゲットをキャッシュしてあった位置に移動
+		//超必殺技中の移動を考慮してカメラ距離を更新
+		MainCamera.transform.parent.GetComponent<MainCameraScript>().MainCameraTargetDistance = Vector3.Distance(MasterVcam.transform.position, GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position);
+
+		//メインカメラターゲットをバーチャルカメラの位置に移動
 		CameraTarget.transform.position = MasterVcam.transform.position;
 
 		//メインカメラのシネマシン無効

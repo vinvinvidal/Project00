@@ -9,7 +9,7 @@ public interface MainCameraColScriptInterface : IEventSystemHandler
 	ControllerColliderHit GetColHit();
 }
 
-public class MainCameraColScript : MonoBehaviour, MainCameraColScriptInterface
+public class MainCameraColScript : GlobalClass, MainCameraColScriptInterface
 {
 	//ヒット情報を代入する変数
 	ControllerColliderHit CameraColHit = null;

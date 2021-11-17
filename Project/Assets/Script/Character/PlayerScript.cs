@@ -2818,8 +2818,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//敵をプレイヤーキャラクターに向ける
 			e.transform.LookAt(new Vector3(gameObject.transform.position.x, e.transform.position.y, gameObject.transform.position.z));
 
-			//メインカメラの敵ロックを外す、これをしないと演出時に敵を画角に入れる処理が走ってどんどんカメラを引いてしまう。
+			//メインカメラの敵ロックを外す
 			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(null));
+
+			//メインカメラの超必殺技中フラグを立てる
+			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetSuperArtsFlag(true));
 		}
 		else
 		{
@@ -3483,6 +3486,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				OnGroundFlag = false;
 			}
+
+			print(RayHit.collider.tag);
 		}
 		else
 		{

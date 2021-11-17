@@ -1345,6 +1345,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				}
 			}
 		}));
+
+		//メインカメラの超必殺技フラグを下す
+		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetSuperArtsFlag(false));
 	}
 
 	//スカイボックスを消す

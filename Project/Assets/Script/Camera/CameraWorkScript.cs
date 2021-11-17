@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraWorkScript : MonoBehaviour
+public class CameraWorkScript : GlobalClass
 {
 	//カメラモード
 	[Header("カメラモード"), Tooltip("　0　フィックス　\n　1　パストラッキング、片道　\n　2　パストラッキング、往復")]

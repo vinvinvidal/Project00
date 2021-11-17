@@ -11,7 +11,7 @@ public interface OnCameraScriptInterface : IEventSystemHandler
 }
 
 //レンダラーがあるオブジェクトにつける事
-public class OnCameraScript : MonoBehaviour, OnCameraScriptInterface
+public class OnCameraScript : GlobalClass, OnCameraScriptInterface
 {
 	//カメラに表示されていた時刻
 	public float OnCameraTime { get; set; }

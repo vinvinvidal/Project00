@@ -20,6 +20,9 @@ public interface MainCameraScriptInterface : IEventSystemHandler
 	//引数でプレイヤーがロックしている敵を受け取る
 	void SetLockEnemy(GameObject e);
 
+	//引数で超必殺技演出フラグをを受け取る
+	void SetSuperArtsFlag(bool b);
+
 	//画面を揺らす
 	void CameraShake(float t);
 
@@ -120,6 +123,9 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 	//トレースカメラフラグ
 	private bool TraceCameraFlag;
 
+	//超必殺技フラグ
+	private bool SuperArtsFlag;
+
 	//クローズアップカメラフラグ
 	private bool CloseUpCameraFlag;
 
@@ -170,6 +176,9 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		//クローズアップカメラフラグ初期化
 		CloseUpCameraFlag = false;
 
+		//超必殺技フラグ初期化
+		SuperArtsFlag = false;
+
 		//画面揺らしフラグ初期化
 		CameraShakeFlag = false;
 
@@ -179,53 +188,57 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 
 	private void LateUpdate()
 	{
-		//カメラモード切り替えスイッチ
-		switch(CameraModeSwitch)
+		//超必殺技中は処理しない
+		if(!SuperArtsFlag)
 		{
-			//メニューモード
-			case 0:
-				break;
+			//カメラモード切り替えスイッチ
+			switch (CameraModeSwitch)
+			{
+				//メニューモード
+				case 0:
+					break;
 
-			//ミッションモード
-			case 1:
+				//ミッションモード
+				case 1:
 
-				//コライダ関係処理コルーチン呼び出し
-				StartCoroutine(CameraColProcess());
+					//コライダ関係処理コルーチン呼び出し
+					StartCoroutine(CameraColProcess());
 
-				//注視点設定関数呼び出し
-				LookAtPosSetting();
+					//注視点設定関数呼び出し
+					LookAtPosSetting();
 
-				//キャラクター関連の処理関数呼び出し
-				CharacterProcess();
+					//キャラクター関連の処理関数呼び出し
+					CharacterProcess();
 
-				//ターゲットダミー移動処理関数呼び出し
-				TargetMove();
+					//ターゲットダミー移動処理関数呼び出し
+					TargetMove();
 
-				//カメラ本体処理関数呼び出し
-				CameraMove();
+					//カメラ本体処理関数呼び出し
+					CameraMove();
 
-				//障害物回避処理
-				if(RayHitFlag)
-				{
-					//カメラの速度を変更、トレースポイントが溜まっているほど早くする
-					TraceCameraMoveSpeed = 0.1f * PlayerTraceList.Count;
-
-					//プレイヤーの位置をトレースする関数呼び出し
-					TracePlayer();
-				}
-				else
-				{
-					//カメラの速度を戻す
-					TraceCameraMoveSpeed = 1f;
-
-					//プレイヤーの位置をトレースするList初期化
-					if (PlayerTraceList.Count != 0)
+					//障害物回避処理
+					if (RayHitFlag)
 					{
-						PlayerTraceList = new List<Vector3>();
-					}
-				}
+						//カメラの速度を変更、トレースポイントが溜まっているほど早くする
+						TraceCameraMoveSpeed = 0.1f * PlayerTraceList.Count;
 
-				break;
+						//プレイヤーの位置をトレースする関数呼び出し
+						TracePlayer();
+					}
+					else
+					{
+						//カメラの速度を戻す
+						TraceCameraMoveSpeed = 1f;
+
+						//プレイヤーの位置をトレースするList初期化
+						if (PlayerTraceList.Count != 0)
+						{
+							PlayerTraceList = new List<Vector3>();
+						}
+					}
+
+					break;
+			}
 		}
 	}
 	
@@ -320,7 +333,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 			//プレイヤーインプットから受け取ったズーム値を距離制限に入れる
 			MainCameraTargetDistance -= CameraZoominputValue * CameraMoveSpeed * Time.deltaTime;
 			
-			//コライダがステージ触れている
+			//コライダがステージに触れている
 			if (ColHit != null && LayerMask.LayerToName(ColHit.gameObject.layer) == "TransparentFX")
 			{
 				//カメラの向きと接触面の反射ベクトルにカメラを移動させる
@@ -652,6 +665,12 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 	public void SetPlayerCharacter(GameObject c)
 	{
 		PlayerCharacter = c;
+	}
+
+	//引数で超必殺技演出フラグをを受け取る
+	public void SetSuperArtsFlag(bool b)
+	{
+		SuperArtsFlag = b;
 	}
 
 	//引数でプレイヤーがロックしている敵を受け取る、インターフェイス

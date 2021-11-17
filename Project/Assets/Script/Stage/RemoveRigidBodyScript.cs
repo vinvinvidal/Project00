@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RemoveRigidBodyScript : MonoBehaviour
+public class RemoveRigidBodyScript : GlobalClass
 {
 	//RigidBody
 	private Rigidbody Rbody;
