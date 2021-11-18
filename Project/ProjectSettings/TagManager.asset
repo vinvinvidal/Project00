@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - UserData
+  - Concrete
+  - Soil
+  - Hall
   layers:
   - Default
   - TransparentFX

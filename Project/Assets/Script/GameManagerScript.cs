@@ -60,6 +60,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//開発用スイッチ
 	public bool DevSwicth;
 
+	//無音スイッチ
+	public bool SoundOffSwicth;
+
 	//性的表現スイッチ
 	public bool SexualSwicth;
 	
@@ -137,6 +140,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//バーチャルカメラ
 	private CinemachineVirtualCamera VCamera;
+
+	//ロケーションによって切り替える野外ライト
+	private Light OutDoorLight;
 
 	//スケベフラグ
 	public bool H_Flag { get; set; } = false;
@@ -297,6 +303,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//バーチャルカメラ取得
 		VCamera = DeepFind(gameObject , "MasterVcam").GetComponent<CinemachineVirtualCamera>();
+
+		//野外ライト取得
+		OutDoorLight = DeepFind(gameObject , "OutDoorLight").GetComponent<Light>();
 
 		//FPS測定用変数初期化
 		FPS = 0;
@@ -1398,6 +1407,38 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//正規化
 		SkyBoxMaterial.SetFloat("_Exposure", 1);
+	}
+
+	//ロケーションによってライトを変更する
+	public void ChangeLocationLight(string l)
+	{
+		Color tempcolor = Color.white;
+
+		if (l == "In")
+		{
+			tempcolor = new Color(0.75f, 0.75f, 0.75f,1);
+		}
+
+		//コルーチン呼び出し
+		StartCoroutine(ChangeLocationLightCoroutine(tempcolor));
+	}	
+	private IEnumerator ChangeLocationLightCoroutine(Color c)
+	{
+		float time = Time.time;
+
+		Color tempcolor = OutDoorLight.GetComponent<Light>().color;
+
+		while (Time.time - time < 1)
+		{
+			tempcolor.r = Mathf.Lerp(tempcolor.r, c.r, Time.time - time);
+			tempcolor.g = Mathf.Lerp(tempcolor.g, c.g, Time.time - time);
+			tempcolor.b = Mathf.Lerp(tempcolor.b, c.b, Time.time - time);
+			tempcolor.a = Mathf.Lerp(tempcolor.a, c.a, Time.time - time);
+
+			OutDoorLight.color = tempcolor;
+
+			yield return null;
+		}
 	}
 
 	//プレイヤーの攻撃時にロック対象を検索する関数、boolがfalseならnullを返す。メッセージシステムから呼び出される

@@ -99,8 +99,14 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 	//カメラとキャラクターの間にある障害物をチェックするRayに当たったコライダ情報を格納
 	private RaycastHit CameraRayHit;
 
+	//地面の属性をチェックするRayに当たったコライダ情報を格納
+	private RaycastHit LocationRayHit;
+
 	//ステージだけにRayを当てるためのレイヤーマスク
 	public LayerMask RayMask;
+
+	//屋外などのロケーション情報
+	private string Location;
 
 	//コライダヒット情報
 	private ControllerColliderHit ColHit = null;
@@ -555,6 +561,26 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 			ColHit = null;
 		}
 
+		//レイキャスト関数呼び出し、地面の属性を調べる
+		if (Physics.Raycast(MainCamera.transform.position, Vector3.down, out LocationRayHit, Mathf.Infinity, LayerMask.GetMask("TransparentFX")))
+		{
+			//ロケーションが変わったら処理
+			if(Location != LocationRayHit.collider.name)
+			{
+				//ロケーション更新
+				Location = LocationRayHit.collider.name;
+
+				if(Location.Contains("InDoor"))
+				{
+					GameManagerScript.Instance.ChangeLocationLight("In");
+				}
+				else if (Location.Contains("OutDoor"))
+				{
+					GameManagerScript.Instance.ChangeLocationLight("Out");
+				}
+			}
+		}
+
 		//レイキャスト関数呼び出し、キャラクターからカメラに向かって撃つ
 		if (CameraRaycast(PlayerCharacter.transform.position + new Vector3(0, 0.8f, 0) , MainCamera.transform.position - (PlayerCharacter.transform.position + new Vector3(0, 0.8f, 0)) , Vector3.Distance(PlayerCharacter.transform.position + new Vector3(0, 0.8f, 0), MainCamera.transform.position)))
 		{
@@ -565,7 +591,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		{
 			//Rayのヒットフラグを降ろす
 			RayHitFlag = false;
-		}
+		}	
 
 		//毎フレーム呼ばなくてもよいかな
 		yield return null;

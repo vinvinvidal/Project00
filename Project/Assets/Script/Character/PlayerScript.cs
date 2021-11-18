@@ -94,6 +94,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//モザイクオブジェクト
 	private GameObject MosaicOBJ;
 
+	//足音オブジェクト
+	private GameObject FootStepOBJ;
+
 
 
 	//--- UI ---//
@@ -270,6 +273,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 
 
+
+
 	//--- レイキャスト関連 ---//
 
 	//キャラクターの接地判定をするレイが当たったオブジェクトの情報を格納
@@ -312,6 +317,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//現在のステート
 	private string CurrentState = "";
+
+	//現在の地面属性
+	private string GroundSurface = "";
 
 	//キャラクターと地面との距離
 	private float GroundDistance;
@@ -695,9 +703,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//特殊攻撃成功エフェクト取得
 		SpecialSuccessEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "SpecialSuccessEffect").ToArray()[0];
 
-
 		//スケベエフェクト00取得
 		H_Effect00 = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "H_Effect00").ToArray()[0];
+
+		//足音オブジェクト取得
+		FootStepOBJ = DeepFind(gameObject, "FootStep");
 
 		//超必殺技装備
 		SuperArts = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray()[0]; 
@@ -3487,7 +3497,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				OnGroundFlag = false;
 			}
 
-			print(RayHit.collider.tag);
+			//地面属性を取る
+			if (GroundSurface != RayHit.collider.tag)
+			{
+				GroundSurface = RayHit.collider.tag;
+			}
 		}
 		else
 		{
@@ -4457,6 +4471,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//敵接触フラグを下ろす、ホールド解除と同時にTrueになっている時がある
 		EnemyContactFlag = false;
+	}
+
+	//足音を鳴らす
+	public void PlayFootSetp()
+	{
+		foreach(var i in FootStepOBJ.GetComponents<SoundEffectScript>())
+		{
+			if(i.AudioName.Contains(GroundSurface))
+			{
+				i.PlayRandomList();
+			}
+		}
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RemoveRigidBodyScript : GlobalClass
+public class RemoveRigidBodyScript : MonoBehaviour
 {
 	//RigidBody
 	private Rigidbody Rbody;
@@ -21,12 +21,12 @@ public class RemoveRigidBodyScript : GlobalClass
 
     void Update()
     {
-		//速度を測定し、停止したらコンポーネント削除処理
+		//速度を測定し、停止したらコンポーネント停止処理
 		if (Rbody.velocity.magnitude == 0 && Time.time - CreateTime > 1.0f)
 		{
 			//Rigidbody削除
 			Destroy(Rbody);
-
+			
 			//コライダ削除
 			Destroy(GetComponent<MeshCollider>());
 

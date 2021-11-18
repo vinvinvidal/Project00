@@ -656,6 +656,7 @@ GameObject:
   - component: {fileID: 3273967767531531658}
   - component: {fileID: 4814971460305671921}
   - component: {fileID: 8838451802390127160}
+  - component: {fileID: 7168596685129421649}
   m_Layer: 15
   m_Name: MainCamera
   m_TagString: Untagged
@@ -807,6 +808,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa8fcedb8d3604d469679fe47e8ef43c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!81 &7168596685129421649
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4746529839733997480}
+  m_Enabled: 1
 --- !u!1 &5829314537072703937
 GameObject:
   m_ObjectHideFlags: 0
@@ -846,7 +855,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 887460396248877759}
-  - component: {fileID: 2840074186015283641}
   - component: {fileID: 1903125799160465643}
   - component: {fileID: 1338258338725903517}
   m_Layer: 0
@@ -875,14 +883,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!81 &2840074186015283641
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6033379619502515415}
-  m_Enabled: 1
 --- !u!114 &1903125799160465643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -896,6 +896,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DevSwicth: 1
+  SoundOffSwicth: 0
   SexualSwicth: 0
   ScreenAspect: {x: 16, y: 9}
   ScreenResolution: 64

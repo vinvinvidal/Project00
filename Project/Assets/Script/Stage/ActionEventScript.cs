@@ -205,11 +205,7 @@ public class ActionEventScript : GlobalClass
 				}
 				else if (HitOBJ == "MainCamera")
 				{
-					//ライトカラーを変更する
-					if (ActionEventList[Count] == "LightColorChange" && OutDoorLight.GetComponent<Light>().color != ColorList[Count])
-					{
-						StartCoroutine(ChangeLightCoroutine(ColorList[Count]));
-					}
+
 				}
 			}
 		}
@@ -323,13 +319,13 @@ public class ActionEventScript : GlobalClass
 			PtoCDistance = HorizontalVector(VCamera.gameObject, PlayerCharacter).sqrMagnitude;
 
 			//距離によってオフセット値を入れる、結構デリケートなのでヤバいかも
-			if (PtoCDistance < 1.5f)
+			if (PtoCDistance < 2.5f)
 			{
-				PosOffset = 0.025f;
+				PosOffset = (PtoCDistance - 2.5f) * 0.05f;
 			}
-			else if (PosOffset > 0 && PtoCDistance > 5)
+			else
 			{
-				PosOffset = 0.015f;
+				PosOffset = 0;
 			}
 
 			//トラッキングポジション移動
@@ -341,26 +337,6 @@ public class ActionEventScript : GlobalClass
 
 		//ループが終わったらメインカメラのターゲットダミーの位置をメインカメラと同じにする
 		GameObject.Find("MainCameraTarget").transform.position = MainCamera.transform.position;
-	}
-
-	//ライト変更コルーチン
-	private IEnumerator ChangeLightCoroutine(Color c)
-	{
-		float time = Time.time;
-
-		Color tempcolor = OutDoorLight.GetComponent<Light>().color;
-
-		while (Time.time - time < 1)
-		{
-			tempcolor.r = Mathf.Lerp(tempcolor.r, c.r, Time.time - time);
-			tempcolor.g = Mathf.Lerp(tempcolor.g, c.g, Time.time - time);
-			tempcolor.b = Mathf.Lerp(tempcolor.b, c.b, Time.time - time);
-			tempcolor.a = Mathf.Lerp(tempcolor.a, c.a, Time.time - time);
-
-			OutDoorLight.GetComponent<Light>().color = tempcolor;
-			//InDoorLight.GetComponent<Light>().color = tempcolor;
-			yield return null;
-		}		
 	}
 
 	//アニメーション再生、↑で呼んだプレイヤーのイベントアクション関数から呼ばれる

@@ -69,7 +69,6 @@ public class GarbageSplashScript : GlobalClass
 			}
 
 			//1フレーム待機
-			//yield return new WaitForSeconds(0.1f);
 			yield return null;
 		}
 	}

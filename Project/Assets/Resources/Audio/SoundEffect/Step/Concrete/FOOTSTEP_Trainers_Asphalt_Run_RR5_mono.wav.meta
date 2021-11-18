@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 69e2364e78bf98f418fc1d7ca9355ed2
+AudioImporter:
+  externalObjects: {}
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 2
+    quality: 1
+    conversionMode: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  ambisonic: 0
+  3D: 1
+  userData: 
+  assetBundleName: audio/soundeffect/step/concrete/footstep_trainers_asphalt_run_rr5_mono
+  assetBundleVariant: 

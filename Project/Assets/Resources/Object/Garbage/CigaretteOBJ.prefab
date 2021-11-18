@@ -167,11 +167,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cigarette
       objectReference: {fileID: 0}
-    - target: {fileID: 5948113818341533431, guid: 2186fa5b2c6b73b4e90f8cd14d665b12,
-        type: 3}
-      propertyPath: m_Layer
-      value: 21
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2186fa5b2c6b73b4e90f8cd14d665b12, type: 3}
 --- !u!4 &6086708942074657737 stripped
