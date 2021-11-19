@@ -58,12 +58,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//キャラクターのID
 	private int CharacterID;
 
-	//バリバリゲージ
-	public float B_Gauge { get; set; }
-
-	//超必殺技を発動できるバリバリゲージしきい値
-	public float SuperGauge;
-
 	//GameManagerのAllActiveCharacterListに登録されているインデックス
 	private int AllActiveCharacterListListIndex;
 
@@ -123,6 +117,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//遠近攻撃を切り替えるしきい値
 	private float AttackDistance;
+
+	//超必殺技を発動できるバリバリゲージしきい値
+	public float SuperGauge;
+
+
+	//--- 変動パラメータ ---//
+
+	//ライフゲージ
+	public float L_Gauge { get; set; }
+
+	//バリバリゲージ
+	public float B_Gauge { get; set; }
 
 
 
@@ -368,7 +374,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public List<SpecialClass> SpecialArtsList = new List<SpecialClass>();
 
 	//装備している超必殺技
-	public SuperClass SuperArts { get; set; } 
+	public SuperClass SuperArts { get; set; } = null;
 
 	//何も技を装備していないフラグ
 	private bool NoEquipFlag = false;
@@ -568,6 +574,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベ用カメラワークオブジェクト取得
 		H_CameraOBJ = DeepFind(gameObject , "H_Camera");
 
+		//ライフゲージ初期化
+		L_Gauge = 10f;
+
 		//バリバリゲージ初期化
 		B_Gauge = 1f;
 
@@ -710,20 +719,24 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		FootStepOBJ = DeepFind(gameObject, "FootStep");
 
 		//超必殺技装備
-		SuperArts = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray()[0]; 
+		foreach (var i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
+		{
+			//超必殺技代入
+			SuperArts = i;
 
-		//超必殺技用カメラワークオブジェクト生成
-		SuperCameraWorkOBJ = Instantiate(SuperArts.Vcam);
-		SuperCameraWorkOBJ.transform.parent = transform;
-		SuperCameraWorkOBJ.transform.localPosition = Vector3.zero;
-		SuperCameraWorkOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//超必殺技用カメラワークオブジェクト生成
+			SuperCameraWorkOBJ = Instantiate(SuperArts.Vcam);
+			SuperCameraWorkOBJ.transform.parent = transform;
+			SuperCameraWorkOBJ.transform.localPosition = Vector3.zero;
+			SuperCameraWorkOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
-		//超必殺技のモーションを仕込む
-		OverRideAnimator["SuperTry_void"] = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.TryAnimClip.name.Contains(CharacterID + "_SuperTry" + a.ArtsIndex)).ToArray()[0].TryAnimClip;
-		OverRideAnimator["SuperArts_void"] = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.ArtsAnimClip.name.Contains(CharacterID + "_SuperArts" + a.ArtsIndex)).ToArray()[0].ArtsAnimClip;
+			//超必殺技のモーションを仕込む
+			OverRideAnimator["SuperTry_void"] = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.TryAnimClip.name.Contains(CharacterID + "_SuperTry" + a.ArtsIndex)).ToArray()[0].TryAnimClip;
+			OverRideAnimator["SuperArts_void"] = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.ArtsAnimClip.name.Contains(CharacterID + "_SuperArts" + a.ArtsIndex)).ToArray()[0].ArtsAnimClip;
 
-		//アニメーターを上書きしてアニメーションクリップを切り替える
-		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		}
 
 		//とりあえずなんでもいいから技を入れる、これが無いと最初の攻撃の時に一瞬Ｔスタンスが見える
 		foreach (List<List<ArtsClass>> i in ArtsMatrix)
@@ -760,6 +773,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//無敵状態になるステートListに手動でAdd
 		InvincibleList.Add("Rolling");
 		InvincibleList.Add("Damage");
+		InvincibleList.Add("Down");
 		InvincibleList.Add("-> Jump");
 		InvincibleList.Add("SpecialAttack");
 		InvincibleList.Add("SpecialSuccess");
@@ -786,6 +800,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AllStates.Add("Stop");
 		AllStates.Add("EventAction");
 		AllStates.Add("Damage");
+		AllStates.Add("Down");
 		AllStates.Add("SpecialTry");
 		AllStates.Add("SpecialSuccess");		
 		AllStates.Add("SpecialAttack");
@@ -1770,6 +1785,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//普通に喰らった
 		else
 		{
+			if(L_Gauge <= 0)
+			{
+				//アニメーターの遷移フラグを立てる
+				CurrentAnimator.SetBool("Down", true);
+			}
+
 			//攻撃用コライダ無効化
 			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
 
@@ -2024,7 +2045,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void SuperArtsAction(int n)
 	{
 		//超必殺技処理を実行
-		SuperArts.SuperAtcList[SuperCount](gameObject, LockEnemy);
+		SuperArts.SuperActList[SuperCount](gameObject, LockEnemy);
 
 		//超必殺技カウントアップ
 		SuperCount++;
@@ -3747,6 +3768,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//超必殺技入力許可条件
 		PermitInputBoolDic["SuperTry"]
 		= !PauseFlag &&
+		SuperArts != null &&
 		!H_Flag &&
 		OnGroundFlag &&
 		!ActionEventFlag &&
@@ -4499,6 +4521,36 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//スケベブレイクモーションList
 		H_BreakAnimList = new List<AnimationClip>(HBL);
+
+		//特殊攻撃処理取得
+		foreach(var i in SpecialArtsList)
+		{
+			//アンロック状況を判定
+			if(i.UnLock == 1)
+			{
+				//代入用変数宣言
+				List<Action<GameObject, GameObject, SpecialClass>> TempSpecialAct = null;
+
+				//スクリプトから処理を受け取る
+				ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => TempSpecialAct = new List<Action<GameObject, GameObject, SpecialClass>>(reciever.GetSpecialAct(i.UseCharacter, i.ArtsIndex)));
+
+				//処理を代入
+				i.SpecialAtcList = new List<Action<GameObject, GameObject, SpecialClass>>(TempSpecialAct);
+			}
+		}
+
+		//超必殺技処理取得
+		if(SuperArts != null)
+		{
+			//超必殺技処理代入用変数宣言
+			List<Action<GameObject, GameObject>> TempSuperAct = null;
+
+			//超必殺技処理のListを受け取る
+			ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => TempSuperAct = new List<Action<GameObject, GameObject>>(reciever.GetSuperAct(SuperArts.UseCharacter, SuperArts.ArtsIndex)));
+
+			//超必殺技処理を代入
+			SuperArts.SuperActList = new List<Action<GameObject, GameObject>>(TempSuperAct);
+		}
 
 		//コスチュームルートオブジェクト
 		CostumeRootOBJ = CRO;

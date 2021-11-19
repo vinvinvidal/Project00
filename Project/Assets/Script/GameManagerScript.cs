@@ -975,7 +975,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				}
 
 				//特殊攻撃処理のListを受け取る
-				ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => sa = new List<Action<GameObject, GameObject, SpecialClass>>(reciever.GetSpecialAct(cid, aid)));
+				//ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => sa = new List<Action<GameObject, GameObject, SpecialClass>>(reciever.GetSpecialAct(cid, aid)));
 
 				//セーブデータからアンロック状況を読み込む
 				foreach(string ii in UserData.SpecialUnLock)
@@ -1056,9 +1056,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "Vcam": vcn = LineFeedCodeClear(ii.Split(',').ToList().ElementAt(1)); break;
 					}
 				}
-
-				//超必殺技処理のListを受け取る
-				ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => sa = new List<Action<GameObject, GameObject>>(reciever.GetSuperAct(cid, aid)));
 
 				//セーブデータからアンロック状況を読み込む
 				foreach (string ii in UserData.SuperUnLock)
@@ -2354,7 +2351,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//レバー入れ攻撃アンロック状況を追加
 			re.ArrowKeyInputAttackUnLock.Add(false);
 
-			//超必殺技装備を追加
+			//装備中の超必殺技を追加、最初は何も装備していないので適当な数字を入れておく
+			//re.EquipSuperArts.Add(100);
+
+			//超必殺技デバッグ用
 			re.EquipSuperArts.Add(0);
 		}
 

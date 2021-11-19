@@ -49,7 +49,7 @@ public class SuperClass
 	public GameObject Vcam;
 
 	//技の処理List
-	public List<Action<GameObject, GameObject>> SuperAtcList;
+	public List<Action<GameObject, GameObject>> SuperActList;
 
 	//コンストラクタ
 	public SuperClass(int cid, int aid, int ul, string tan, string aan, string nc, string nh, string info, int dwn, string vcn, int lc, List<Action<GameObject, GameObject>> sa)
@@ -60,7 +60,7 @@ public class SuperClass
 		NameH = nh;
 		Introduction = info;
 		ArtsIndex = aid;
-		SuperAtcList = new List<Action<GameObject, GameObject>>(sa);
+		SuperActList = new List<Action<GameObject, GameObject>>(sa);
 		TryAnimName = tan;
 		ArtsAnimName = aan;
 		Down = dwn;
