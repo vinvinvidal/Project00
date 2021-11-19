@@ -72,7 +72,8 @@ public class GlobalClass : MonoBehaviour
 			new List<float>(),
 			new List<int>() { 0 },
 			new List<Vector3>(),
-			0
+			0,
+			new List<string>()
 		);
 
 		return temparts;

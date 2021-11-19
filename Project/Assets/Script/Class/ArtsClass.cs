@@ -22,6 +22,9 @@ public class ArtsClass
 	//実際に使用するアニメーションクリップ実体
 	public AnimationClip AnimClip;
 
+	//ヒット時に鳴らすSE
+	public List<string> HitSE;
+
 	//威力
 	public List<int> Damage;
 
@@ -208,7 +211,9 @@ public class ArtsClass
 
 		List<Vector3> hl,
 
-		int lf
+		int lf,
+
+		List<string> hse
 	)
 	{
 
@@ -264,5 +269,7 @@ public class ArtsClass
 		HoldPosList = new List<Vector3>(hl);
 
 		LocationFlag = lf;
+
+		HitSE = new List<string>(hse);
 	}
 }

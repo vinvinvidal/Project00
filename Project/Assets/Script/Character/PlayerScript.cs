@@ -91,6 +91,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//足音オブジェクト
 	private GameObject FootStepOBJ;
 
+	//攻撃ヒット音オブジェクト
+	private GameObject AttackImpactOBJ;
+
 
 
 	//--- UI ---//
@@ -717,6 +720,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//足音オブジェクト取得
 		FootStepOBJ = DeepFind(gameObject, "FootStep");
+
+		//攻撃ヒット音オブジェクト取得
+		AttackImpactOBJ = DeepFind(gameObject, "AttackImpact");
 
 		//超必殺技装備
 		foreach (var i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
@@ -1785,7 +1791,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//普通に喰らった
 		else
 		{
-			if(L_Gauge <= 0)
+			//ライフを減らす
+			L_Gauge -= arts.Damage;
+
+			if (L_Gauge <= 0)
 			{
 				//アニメーターの遷移フラグを立てる
 				CurrentAnimator.SetBool("Down", true);
@@ -2859,6 +2868,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//バリバリゲージ増加
 			SetB_Gauge(0.1f);
+
+			//ヒットSEを鳴らす
+			{
+				foreach (var i in AttackImpactOBJ.GetComponents<SoundEffectScript>())
+				{
+					if (i.AudioName.Contains(UseArts.HitSE[AttackIndex]))
+					{
+						i.PlayRandomList();
+					}
+				}
+			}
 
 			//巻き込み攻撃でなければ当たった敵をロックする
 			if (UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)

@@ -707,6 +707,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				List<int> cg = new List<int>();
 				List<Vector3> hl = new List<Vector3>();
 				int lf = 0;
+				List<string> hse = new List<string>();
 
 				//改行で分割して回す
 				foreach (string ii in i.Split('\n').ToList())
@@ -903,11 +904,20 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 							lf = int.Parse(ii.Split(',').ToList().ElementAt(1));
 
 							break;
+
+						case "HitSE":
+
+							foreach (var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
+							{
+								hse.Add(LineFeedCodeClear(iii));
+							}
+
+							break;
 					}
 				}
 
 				//ListにAdd
-				AllArtsList.Add(new ArtsClass(nc, nh, uc, an, mv, dm, st, cv, kb, intro, lk, mt, at, de, ct, tt, ch, he, hp, ha, hs, cg, hl, lf));
+				AllArtsList.Add(new ArtsClass(nc, nh, uc, an, mv, dm, st, cv, kb, intro, lk, mt, at, de, ct, tt, ch, he, hp, ha, hs, cg, hl, lf, hse));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る

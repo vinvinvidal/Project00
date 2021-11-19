@@ -22,3 +22,4 @@ HitStop,0|0|0|0|0|0
 Charge,0|0|0|0|0|0
 HoldPos,0*0*0|0*0*0|0*0*0|0*0*0|0*0*0.65
 LocationFlag,0
+HitSE,_M|_M|_L|_M|_L|_H
