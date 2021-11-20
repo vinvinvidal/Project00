@@ -34,9 +34,6 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	//ロック対象の敵を返す
 	GameObject SearchLockEnemy(bool b, Vector3 Vec);
 
-	//特殊攻撃の対象を返す
-	GameObject SearchSpecialTarget(int i);
-
 	//カメラワークの遷移でイージングをするためヴァーチャルカメラを制御する
 	void EasingVcamera();
 
@@ -1255,19 +1252,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//バーチャルカメラ無効化
 		VCamera.enabled = false;
-	}
-
-	//特殊攻撃の対象を探すインターフェイス
-	public GameObject SearchSpecialTarget(int i)
-	{
-		//出力用変数宣言
-		GameObject re = null;
-
-		//特殊攻撃対象を探す関数呼び出し
-		ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => re = reciever.SearchSpecialTarget(i));
-
-		//出力
-		return re;
 	}
 
 	//超必殺技時間停止演出
