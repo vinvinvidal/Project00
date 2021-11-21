@@ -4200,8 +4200,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//特殊攻撃対象オブジェクト
 			GameObject tempOBJ = null;
 
-			//特殊攻撃の対象を探す関数呼び出し
-			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => tempOBJ = reciever.SearchSpecialTarget(CharacterID));
+			//特殊攻撃対象を探す関数呼び出し
+			ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => tempOBJ = reciever.SearchSpecialTarget(CharacterID));
 
 			//特殊攻撃対象オブジェクトがいたらロック
 			if (tempOBJ != null)
