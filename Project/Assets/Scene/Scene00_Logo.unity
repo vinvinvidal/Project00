@@ -151,7 +151,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 688622498}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &54401171
 MonoBehaviour:
@@ -188,10 +188,15 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 482571525814869968, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 621081001137553151, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 794280783220138341, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
@@ -368,6 +373,21 @@ PrefabInstance:
       propertyPath: DevSwicth
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4282787557355960835, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4282787557355960835, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4282787557355960835, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4545136377900932651, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_RootOrder
@@ -472,6 +492,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6065078150629694251, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7626457775024535815, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}

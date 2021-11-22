@@ -64,6 +64,18 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -3550609744362574427, guid: c5efb6582cfb8e344a06046fbb8bcde6, type: 3}
+--- !u!114 &8360568189214861633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7248295505970151923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d168f4f17743fc142819b8d224d7ea01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1523541002494343159
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -374,13 +386,23 @@ PrefabInstance:
     - target: {fileID: -9162488201340133154, guid: c5efb6582cfb8e344a06046fbb8bcde6,
         type: 3}
       propertyPath: m_Materials.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -9162488201340133154, guid: c5efb6582cfb8e344a06046fbb8bcde6,
         type: 3}
       propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -9162488201340133154, guid: c5efb6582cfb8e344a06046fbb8bcde6,
+        type: 3}
+      propertyPath: m_CastShadows
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -9162488201340133154, guid: c5efb6582cfb8e344a06046fbb8bcde6,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d49c9681bc9291a4fb3679cba9626d29, type: 2}
     - target: {fileID: -8679921383154817045, guid: c5efb6582cfb8e344a06046fbb8bcde6,
         type: 3}
       propertyPath: m_LocalPosition.x

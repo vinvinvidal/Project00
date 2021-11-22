@@ -135,6 +135,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//メインカメラ
 	private GameObject MainCamera;
 
+	//ミニマップカメラ
+	private GameObject MiniMapCamera;
+
 	//バーチャルカメラ
 	private CinemachineVirtualCamera VCamera;
 
@@ -152,7 +155,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//使用中のスカイボックス
 	private Material SkyBoxMaterial;
-
 
 
 	//存在している全てのキャラクターリスト
@@ -297,6 +299,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//メインカメラ取得
 		MainCamera = DeepFind(gameObject, "CameraRoot");
+
+		//ミニマップカメラ取得
+		MiniMapCamera = DeepFind(gameObject, "MiniMapCamera");
+
+		//ミニマップのレンダーテクスチャを設定
+		MiniMapCamera.GetComponent<Camera>().targetTexture = new RenderTexture(100, 100, 24, RenderTextureFormat.ARGB32);
 
 		//バーチャルカメラ取得
 		VCamera = DeepFind(gameObject , "MasterVcam").GetComponent<CinemachineVirtualCamera>();
@@ -1523,6 +1531,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//プレイアブルキャラクターをセットするインターフェイス
 	public void SetPlayableCharacterOBJ(GameObject obj)
 	{
+		//プレイアブルキャラクターを代入
 		PlayableCharacterOBJ = obj;
 	}
 

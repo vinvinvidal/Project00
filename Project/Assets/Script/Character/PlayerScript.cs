@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 using System;
 using Cinemachine;
+using UnityEngine.UI;
 
 /*
 +	//角度がきつい坂で滑り落ちる処理
@@ -588,6 +589,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//UIのパネルディタンス設定
 		DeepFind(gameObject, "UI").GetComponent<Canvas>().planeDistance = 0.15f;
+
+		//UIのパネルディタンス設定
+		DeepFind(gameObject, "MiniMap").GetComponent<RawImage>().texture = GameObject.Find("MiniMapCamera").GetComponent<Camera>().targetTexture;
 
 		//移動ベクトル用ダミー取得
 		PlayerMoveAxis = DeepFind(transform.gameObject, "PlayerMoveAxis");
