@@ -443,6 +443,21 @@ PrefabInstance:
       propertyPath: m_BackGroundColor.a
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5381003608052221966, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5381003608052221966, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5381003608052221966, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5431692923833097757, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_Color.b

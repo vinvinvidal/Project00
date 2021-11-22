@@ -1,12 +1,9 @@
-﻿Shader "Custom/MiniMapShader"
+﻿Shader "Custom/MiniMapOBJShader"
 {
 	Properties
 	{
-		//高所の色
-		_MiniMapHighColor("_MiniMapHighColor", Color) = (0, 0, 0, 1)
-
-		//低所の色
-		_MiniMapLowColor("_MiniMapLowColor", Color) = (0, 0, 0, 1)
+		//オブジェクトの色
+		_OBJColor("_OBJColor", Color) = (0, 0, 0, 1)
 
 		[Enum(UnityEngine.Rendering.CompareFunction)]_ZTest("_ZTest", Float) = 8
 	}
@@ -16,11 +13,11 @@
 		Tags
 		{
 			"Queue" = "Transparent"
-			"RenderType"="Transparent"
+			"RenderType" = "Transparent"
 		}
 
 		//アルファブレンド
-		Blend SrcAlpha OneMinusSrcAlpha 
+		//Blend SrcAlpha OneMinusSrcAlpha
 
 		//ライティングしない
 		Lighting Off
@@ -51,13 +48,7 @@
 			#pragma fragment frag				//各ピクセル毎に実行されるフラグメントシェーダ
 
 			//変数宣言
-
-			fixed4 _MiniMapHighColor;				//ミニマップの色
-
-			fixed4 _MiniMapLowColor;
-
-			float _PlayerCharacterPos;			//プレイヤーキャラクターのY位置
-
+			fixed4 _OBJColor;					//オブジェクトの色
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -83,9 +74,6 @@
 
 				// テクスチャ座標
 				float2 uv : TEXCOORD0;
-
-				//ワールド座標
-				float3 worldPos : TEXCOORD1;
 			};
 
 			//頂点シェーダ
@@ -103,9 +91,6 @@
 				//法線をワールド座標系に変換
 				re.normal = UnityObjectToWorldNormal(v.normal);
 
-				//描画ピクセルのワールド座標
-                re.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-                
 				//出力　
 				return re;
 			}
@@ -114,17 +99,7 @@
 			fixed4 frag(vertex_output i) : SV_Target
 			{
 				//出力用変数宣言、色を反映
-				fixed4 re = 1;
-
-				//プレイヤーキャラクターとの高低差で色を付ける
-				re.rgb *= lerp(1, _MiniMapHighColor, saturate((i.worldPos.y - _PlayerCharacterPos) * 0.25f));
-				re.rgb *= lerp(1, _MiniMapLowColor, saturate((_PlayerCharacterPos - i.worldPos.y) * 0.25f));
-
-				//プレイヤーキャラクターとの高低差で透明度を変える
-				re.a -= abs(_PlayerCharacterPos - i.worldPos.y) * 0.3f;
-				
-				//透明部分をクリップ
-				clip(re.a - 0.01);
+				fixed4 re = _OBJColor;
 
 				//出力
 				return re;

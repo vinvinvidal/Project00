@@ -1,9 +1,9 @@
 fileFormatVersion: 2
-guid: e79f96d5172bbc54197e75991522aa15
+guid: 517d8814765f2e64d840a84857c7ef8d
 ShaderImporter:
   externalObjects: {}
   defaultTextures: []
   nonModifiableTextures: []
   userData: 
-  assetBundleName: material/stage/minimap/minimapshader
+  assetBundleName: material/stage/minimap/minimapobjshader
   assetBundleVariant: 

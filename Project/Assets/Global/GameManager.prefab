@@ -249,6 +249,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6065078150629694251}
   - component: {fileID: 4282787557355960835}
+  - component: {fileID: 5959949660902134173}
+  - component: {fileID: 996121744369958491}
   m_Layer: 0
   m_Name: MiniMapCamera
   m_TagString: Untagged
@@ -313,6 +315,37 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &5959949660902134173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672649703732267810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8282cfb60ce9db74a80aa64532cff7a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1818360609 &996121744369958491
+RotationConstraint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672649703732267810}
+  m_Enabled: 1
+  m_Weight: 1
+  m_RotationAtRest: {x: 0, y: 0, z: 0}
+  m_RotationOffset: {x: 0, y: 0, z: 0}
+  m_AffectRotationX: 0
+  m_AffectRotationY: 1
+  m_AffectRotationZ: 1
+  m_IsContraintActive: 0
+  m_IsLocked: 0
+  m_Sources:
+  - sourceTransform: {fileID: 8924161950721340865}
+    weight: 1
 --- !u!1 &1283561799206440820
 GameObject:
   m_ObjectHideFlags: 0
@@ -746,8 +779,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4746529839733997480}
-  m_LocalRotation: {x: 0.084679164, y: 0.45396766, z: -0.04339157, w: 0.8859232}
-  m_LocalPosition: {x: -11.873751, y: -14.029637, z: -1.9190379}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3656975654689240531}
