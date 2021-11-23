@@ -95,6 +95,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//攻撃ヒット音オブジェクト
 	private GameObject AttackImpactOBJ;
 
+	//攻撃スイング音オブジェクト
+	private GameObject AttackSwingOBJ;
+
+	//汎用SEオブジェクト
+	private GameObject GenericSEOBJ;
+
 
 
 	//--- UI ---//
@@ -732,6 +738,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//攻撃ヒット音オブジェクト取得
 		AttackImpactOBJ = DeepFind(gameObject, "AttackImpact");
+
+		//攻撃スイング音オブジェクト取得
+		AttackSwingOBJ = DeepFind(gameObject, "AttackSwing");
+
+		//汎用SEオブジェクト取得
+		GenericSEOBJ = DeepFind(gameObject, "GenericSE");
 
 		//超必殺技装備
 		foreach (var i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
@@ -3073,6 +3085,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//引数で受け取った番号のエフェクトを再生
 		DeepFind(AttackTrail, "AttackTrail" + n).GetComponent<ParticleSystem>().Play();
+
+		//スイング音を再生
+		AttackSwingOBJ.GetComponent<SoundEffectScript>().PlayRandomList();
 	}
 
 	//足元の衝撃エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
@@ -3108,6 +3123,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//エフェクトを再生
 			i.Play();
 		}
+
+		//SEを再生
+		PlayGenericSE(2);
 	}
 
 	//揺れ物バタバタ関数
@@ -4534,6 +4552,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				i.PlayRandomList();
 			}
 		}
+	}
+
+	//汎用SEを鳴らす
+	public void PlayGenericSE(int i)
+	{
+		GenericSEOBJ.GetComponent<SoundEffectScript>().PlaySoundEffect(i);
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる

@@ -170,6 +170,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//↑の読み込み完了フラグ
 	private bool AllEnemyListCompleteFlag = false;
 
+	//全ての敵ウェーブ情報を持ったList
+	public List<EnemyWaveClass> AllEnemyWaveList { get; set; }
+	//↑の読み込み完了フラグ
+	private bool AllEnemyWaveListCompleteFlag = false;
+
 	//全ての敵攻撃情報を持ったList
 	public List<EnemyAttackClass> AllEnemyAttackList { get; set; }
 	//↑の読み込み完了フラグ全ての技のアニメーションクリップ読み込み完了Dic
@@ -243,6 +248,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		(!(
 			AllCharacterListCompleteFlag &&
 			AllEnemyListCompleteFlag &&
+			AllEnemyWaveListCompleteFlag &&
 			AllEnemyAttackAnimCompleteFlagDic.Any() &&
 			AllEnemyAttackAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllSpecialArtsAnimCompleteFlagDic.Any() &&
@@ -593,6 +599,42 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			AllEnemyListCompleteFlag = true;
 
 		}));
+
+		//敵ウェーブCSV読み込み
+		StartCoroutine(AllFileLoadCoroutine("csv/EnemyWave/", "csv", (List<object> list) =>
+		{
+			//全ての敵ウェーブ情報を持ったList初期化
+			AllEnemyWaveList = new List<EnemyWaveClass>();
+
+			//読み込んだCSVを回す
+			foreach (string i in list.Select(t => t as TextAsset).Select(t => t.text))
+			{
+				//EnemyWaveClassコンストラクタ代入用変数
+				int id = 0;
+				string info = "";
+				List<int> el = null;
+
+				//改行で分割して回す
+				foreach (string ii in i.Split('\n').ToList())
+				{
+					//カンマで分割した最初の要素で条件分岐、続く値を変数に代入
+					switch (ii.Split(',').ToList().First())
+					{
+						case "ID": id = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "Info": info = ii.Split(',').ToList().ElementAt(1); break;
+						case "Enemy": el = new List<int>(ii.Split(',').ToList().ElementAt(1).Split('|').ToList().Select(t => int.Parse(t))); break;
+					}
+				}
+
+				//ListにAdd
+				AllEnemyWaveList.Add(new EnemyWaveClass(id, LineFeedCodeClear(info), el));
+			}
+
+			//読み込み完了フラグを立てる
+			AllEnemyWaveListCompleteFlag = true;
+
+		}));
+
 
 		//ミッションCSV読み込み
 		StartCoroutine(AllFileLoadCoroutine("csv/Mission/", "csv", (List<object> list) =>
