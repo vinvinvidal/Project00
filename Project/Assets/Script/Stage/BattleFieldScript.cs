@@ -57,11 +57,8 @@ public class BattleFieldScript : GlobalClass
 		//フィールドコライダ有効化
 		gameObject.GetComponentInChildren<MeshCollider>().enabled = true;
 
-		//ガベージを撒いて壁を作る
-		foreach(var i in GetComponentsInChildren<GarbageSplashScript>())
-		{
-			i.enabled = true;
-		}
+		//ガベージを撒いて壁を作るスクリプト有効化
+		DeepFind(gameObject, "GenerateWall").GetComponent<GenerateWallScript>().enabled = true;
 
 		//敵出現関数呼び出し
 		EnemySpawn();
