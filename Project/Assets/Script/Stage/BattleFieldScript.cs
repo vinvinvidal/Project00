@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Cinemachine;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,6 +21,9 @@ public class BattleFieldScript : GlobalClass
 	//全滅チェックフラグ
 	private bool EnemyCheckFlag = false;
 
+	//壁生成スクリプトリスト
+	private List<GenerateWallScript> WallGanerateScriptList;
+
 	private void Start()
 	{
 		//出現位置List初期化
@@ -27,6 +31,9 @@ public class BattleFieldScript : GlobalClass
 
 		//出現させた敵List初期化
 		EnemyList = new List<GameObject>();
+
+		//壁生成完了スクリプト取得
+		WallGanerateScriptList = new List<GenerateWallScript>(gameObject.GetComponentsInChildren<GenerateWallScript>());
 	}
 
 	private void Update()
@@ -34,18 +41,40 @@ public class BattleFieldScript : GlobalClass
 		//敵全滅チェック
 		if(EnemyCheckFlag)
 		{
+			//敵を全て倒したら処理
 			if(EnemyList.All(a => a == null))
 			{
+				//最終ウェーブだったらフィールド解除処理
 				if(EnemyWaveList.Count == WaveCount)
 				{
-					Destroy(gameObject);
+					//全滅チェックフラグを下す
+					EnemyCheckFlag = false;
+
+					//フィールド解除コルーチン呼び出し
+					StartCoroutine(ReleaseBattleFieldCoroutine());
 				}
+				//次のウェーブ出現処理
 				else
 				{
 					EnemySpawn();
 				}				
 			}
 		}
+	}
+
+	//フィールド解放コルーチン
+	private IEnumerator ReleaseBattleFieldCoroutine()
+	{
+		//壁オブジェクトにリジッドボディ追加
+		foreach(var i in DeepFind(gameObject, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")))
+		{
+			i.gameObject.AddComponent<Rigidbody>();
+			i.GetComponent<Rigidbody>().AddForce((i.transform.position - gameObject.transform.position), ForceMode.Impulse);
+		}
+
+		yield return new WaitForSeconds(5);
+
+		Destroy(gameObject);
 	}
 
 	//プレイヤーがエリアに進入したら呼ばれる関数
@@ -57,9 +86,33 @@ public class BattleFieldScript : GlobalClass
 		//フィールドコライダ有効化
 		gameObject.GetComponentInChildren<MeshCollider>().enabled = true;
 
-		//ガベージを撒いて壁を作るスクリプト有効化
-		DeepFind(gameObject, "GenerateWall").GetComponent<GenerateWallScript>().enabled = true;
+		//ガベージを撒いて壁を作るスクリプトの関数呼び出し
+		WallGanerateScriptList.Select(a => StartCoroutine(a.GenerateWallCoroutine())).ToArray();
 
+		//壁生成完了待ちコルーチン呼び出し
+		StartCoroutine(WaitWallGenerateCoroutine());
+
+	}
+
+	//壁生成完了待ちコルーチン
+	private IEnumerator WaitWallGenerateCoroutine()
+	{
+		//完了フラグが全て立つまで待機
+		while(!WallGanerateScriptList.All(a => a.CompleteFlag))
+		{
+			//１フレーム待機
+			yield return null;
+		}
+
+		//壁が落ち着くまでちょっと待つ
+		yield return new WaitForSeconds(2.5f);
+
+		//壁のリジッドボディを削除
+		foreach(var i in gameObject.GetComponentsInChildren<Rigidbody>())
+		{
+			Destroy(i);
+		}
+		
 		//敵出現関数呼び出し
 		EnemySpawn();
 	}

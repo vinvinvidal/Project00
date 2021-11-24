@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Cinemachine;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,15 +14,22 @@ public class GenerateWallScript : GlobalClass
 	//終了時間
 	private float EndTime = 0;
 
-    void Start()
+	//完了フラグ
+	public bool CompleteFlag { get; set; } = false;
+
+	void Start()
     {
-		//壁生成コルーチン呼び出し
-		StartCoroutine(GenerateWallCoroutine());
+		
+		//StartCoroutine(GenerateWallCoroutine());
     }
 
-	private IEnumerator GenerateWallCoroutine()
+	//壁生成コルーチン
+	public IEnumerator GenerateWallCoroutine()
 	{
-		while(EndTime < GanerateTime)
+		//ドーリーで移動開始
+		gameObject.GetComponent<CinemachineDollyCart>().enabled = true;
+
+		while (EndTime < GanerateTime)
 		{
 			//生成時間カウントアップ
 			EndTime += Time.deltaTime;
@@ -36,14 +44,22 @@ public class GenerateWallScript : GlobalClass
 			TempGarbage.transform.position = transform.position;
 
 			//移動を制限
-			TempGarbage.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+			//TempGarbage.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
 
-			//ルートオブジェクトの子にする
-			TempGarbage.transform.parent = gameObject.transform.parent;
+			//壁オブジェクトをまとめるオブジェクトの子にする
+			TempGarbage.transform.parent = DeepFind(gameObject.transform.parent.gameObject, "WallOBJ").transform;
 
+			//下方向に力を加える
+			TempGarbage.GetComponent<Rigidbody>().AddForce(Vector3.down * 10, ForceMode.Impulse);
 
-			//１フレーム待機
-			yield return null;
-		}		
+			//ちょっとランダム性を持たせて待機
+			yield return new WaitForSeconds(Random.Range(Time.deltaTime, 0.05f));
+		}
+
+		//ドーリーで移動停止
+		gameObject.GetComponent<CinemachineDollyCart>().enabled = false;
+
+		//完了フラグを立てる
+		CompleteFlag = true;
 	}
 }
