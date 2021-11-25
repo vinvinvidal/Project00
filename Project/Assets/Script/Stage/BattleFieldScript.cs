@@ -68,8 +68,11 @@ public class BattleFieldScript : GlobalClass
 		//壁オブジェクトにリジッドボディ追加
 		foreach(var i in DeepFind(gameObject, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")))
 		{
+			//リジッドボディ追加
 			i.gameObject.AddComponent<Rigidbody>();
-			i.GetComponent<Rigidbody>().AddForce((i.transform.position - gameObject.transform.position), ForceMode.Impulse);
+
+			//外側に力を与えて壁を崩す
+			i.GetComponent<Rigidbody>().AddForce((i.transform.position - gameObject.transform.position) * 2.5f, ForceMode.Impulse);
 		}
 
 		yield return new WaitForSeconds(5);
