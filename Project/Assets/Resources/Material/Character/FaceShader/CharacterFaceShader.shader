@@ -52,8 +52,10 @@
 		_TexFaceShadowBottom("_TexFaceShadowBottom", 2D) = "white" {}
 
 		//背景からの影色
-		_DropShadowColor("_DropShadowColor", Color) = (1, 1, 1, 1)				
-
+		_DropShadowColor("_DropShadowColor", Color) = (1, 1, 1, 1)
+		
+		//消滅用係数
+		_VanishNum("_VanishNum",float) = 0								
 	}
 
 	SubShader
@@ -129,6 +131,8 @@
 
 			fixed4 _LightColor0;				//ライトカラー
 
+			float _VanishNum;				//消滅用係数
+
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
 			{
@@ -190,10 +194,7 @@
 			fixed4 frag(vertex_output i) : SV_Target
 			{
 				//return用変数を宣言
-				fixed4 re = 0;				
-
-				//肌色を塗る
-				re = _SkinColor;
+				fixed4 re = _SkinColor;	
 
 				//各軸テクスチャから描画するカラーを取得
 				colorXX = tex2D(texXX, i.uv);
@@ -236,9 +237,8 @@
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);		
 
-				//re = tex2D(_TexFaceBase, i.uv);
-
-
+				//透明部分をクリップ、消滅用の乱数精製
+				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum) + 0.01) * _VanishNum));
 
 				//出力
 				return re;

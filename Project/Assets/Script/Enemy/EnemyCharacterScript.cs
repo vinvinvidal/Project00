@@ -276,6 +276,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//行動中フラグ
 	public bool BehaviorFlag { get; set; } = false;
 
+	//ダウンしない攻撃List
+	private List<int> NotDownAttackList;
+
 	//ダウン状態で当たってもそのままモーション再生する攻撃List
 	private List<int> DownEnableAttakList;
 
@@ -444,6 +447,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//ダウン時間初期化
 		DownTime = 0;
+
+		//ダウンしない攻撃List初期化
+		NotDownAttackList = new List<int>();
+
+		NotDownAttackList.Add(0);
+		NotDownAttackList.Add(3);
+		NotDownAttackList.Add(9);
 
 		//ダウン状態で当たってもそのままモーション再生する攻撃List初期化
 		DownEnableAttakList = new List<int>();
@@ -669,7 +679,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			MoveFunc();
 
 			//死亡監視関数呼び出し
-			DeadFunc();
+			//DeadFunc();
 		}
 	}
 
@@ -987,10 +997,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public void PlayerAttackHit(ArtsClass Arts, int n)
 	{
 		//ライフを減らす
-		Life -= Arts.Damage[n];
+		Life -= Arts.Damage[n] * 10;
 
 		//タメ攻撃の係数を掛ける
 		Life -= Arts.ChargeDamage[n] * PlayerCharacter.GetComponent<PlayerScript>().ChargeLevel;
+
+		//死んだら
+		if (Life <= 0)
+		{
+			//死亡フラグを立てる
+			DestroyFlag = true;
+		}
 
 		//攻撃用コライダを無効化
 		EndAttackCol();
@@ -1079,14 +1096,20 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//再生するモーションを食らった技や状況で切り替えるインデックスをキャッシュ
 			int UseIndex = Arts.AttackType[n];
 
+			//死んでるけどダウンしない攻撃を喰らった
+			if(DestroyFlag && NotDownAttackList.Any(a => a == Arts.AttackType[n]))
+			{
+				//ダウンモーションに切り替え
+				UseIndex = 1;
+			}
 			//打ち上げられている状態で食らった
-			if (RiseFlag && !RiseEnableAttakList.Any(a => a == Arts.AttackType[n]))
+			else if (RiseFlag && !RiseEnableAttakList.Any(a => a == Arts.AttackType[n]))
 			{
 				//打ち上げモーションに切り替え
 				UseIndex = 11;
 			}
 			//ダウンしている状態でダウンに当たる攻撃が当たった
-			if (DownFlag && !DownEnableAttakList.Any(a => a == Arts.AttackType[n]))
+			else if (DownFlag && !DownEnableAttakList.Any(a => a == Arts.AttackType[n]))
 			{
 				//ダウンタイム更新
 				DownTime = 2;
@@ -1413,13 +1436,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ノックバックの移動ベクトル初期化
 		KnockBackVec *= 0;
 
-		//死んだら
-		if (Life <= 0)
-		{
-			//死亡フラグを立てる
-			DestroyFlag = true;
-		}
-
 		//コルーチンを抜ける
 		yield break;
 	}
@@ -1476,6 +1492,19 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				{
 					//ダウン制御コルーチン呼び出し
 					StartCoroutine(DownCoroutine());
+				}
+
+				//死んでる
+				if(DestroyFlag)
+				{
+					//コライダ無効化
+					DamageCol.enabled = false;
+
+					//ゲームマネージャーのListから自身を削除
+					ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
+
+					//オブジェクト削除コルーチン呼び出し
+					StartCoroutine(VanishCoroutine());
 				}
 			}
 			//起き上がりになった瞬間の処理
@@ -1644,7 +1673,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		while (DownFlag  && !RiseFlag && !HoldFlag && DownTime > 0)
 		{
 			//ダウン時間カウントダウン
-			if(!PauseFlag)
+			if(!PauseFlag && !DestroyFlag)
 			{
 				DownTime -= Time.deltaTime;
 			}
@@ -1757,18 +1786,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		DamageMoveVec *= 0;
 	}
 
-	//死亡監視関数
+	//死亡監視関数使わない？
 	private void DeadFunc()
 	{
-		//死んだらノックアウト処理
-		if (DestroyFlag)
-		{
-			//ゲームマネージャーのListから自身を削除
-			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
 
-			//オブジェクト削除
-			Destroy(gameObject);
-		}
 	}
 
 	//行動中に移動させる、前後だけ、アニメーションクリップから呼ばれる
@@ -2358,6 +2379,53 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//アニメーション再生速度を戻す
 			CurrentAnimator.speed = 1;
 		}
+	}
+
+	//オブジェクト削除コルーチン
+	private IEnumerator VanishCoroutine()
+	{
+		//チョイ待機
+		yield return new WaitForSeconds(1);
+
+		//消滅用カウント
+		float VanishCount = 0;
+
+		//Enemyレイヤーのレンダラー取得
+		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Enemy")).ToList());
+
+		//レンダラーを回す
+		foreach (var i in RendList)
+		{
+			//アウトラインを切る為にレイヤーを変更
+			i.gameObject.layer = LayerMask.NameToLayer("UI");
+	
+			//レンダラーのシャドウを切る
+			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+			i.receiveShadows = false;
+		}
+
+		while (VanishCount < 100)
+		{
+			//マテリアルを回して消滅用数値を入れる
+			foreach (var i in RendList)
+			{
+				foreach (var ii in i.materials)
+				{
+					ii.SetFloat("_VanishNum", VanishCount);
+
+					ii.SetTextureOffset("_VanishTex", new Vector2(0, VanishCount * 10));			
+				}
+			}
+
+			//消滅用カウントアップ
+			VanishCount += Time.deltaTime * 50;
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//自身を削除
+		Destroy(gameObject);
 	}
 
 	//プレイヤーキャラクターをセットする、キャラ交代した時にMissionManagerから呼ばれる

@@ -1031,7 +1031,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1472e57bf028d984a8423ffbe8d0f990, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SkinColor: {r: 1, g: 0.92156863, b: 0.8627451, a: 0}
+  _SkinColor: {r: 1, g: 0.92156863, b: 0.8627451, a: 1}
   _TexFaceBase: {fileID: 2800000, guid: ac17eea194a1f3c4eaa21b4d23fcb91b, type: 3}
   _TexFaceHiLight: {fileID: 2800000, guid: 00376caeb5da45f4591c77245f25e8a9, type: 3}
   _TexFaceHiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729,

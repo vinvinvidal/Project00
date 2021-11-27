@@ -29,6 +29,8 @@
 		_TexNormal("_TexNormal", 2D) = "bump" {}						//ノーマルマップ
 		_TexHiLight("_TexHiLight", 2D) = "white" {}						//ハイライトのテクスチャ
 		_HiLightMatCap("_HiLightMatCap", 2D) = "black" {}				//ハイライトのmatcap
+
+		_VanishNum("_VanishNum",float) = 0								//消滅用係数	
 	}
 
 	SubShader
@@ -104,6 +106,8 @@
 			fixed4 _LightColor0;			//ライトカラー	
 
 			float4x4 _LightMatrix;			//スクリプトから受け取るディレクショナルライトのマトリクス、ハイライトのmatcapに使用
+
+			float _VanishNum;				//消滅用係数
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -204,11 +208,12 @@
 				//ハイライトを加算
 				re.rgb += lerp(0, tex2D(_TexHiLight, i.uv), tex2D(_HiLightMatCap, i.hilightuv)) * saturate(dot(i.normal, _WorldSpaceLightPos0));
 
-				//透明部分をクリップ
-				clip(re.a - 0.01);
-
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);
+
+				//透明部分をクリップ、消滅用の乱数精製
+				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum) + 0.01) * _VanishNum));
+				
 
 				//出力
 				return re;

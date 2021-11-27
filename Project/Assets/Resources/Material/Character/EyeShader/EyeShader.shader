@@ -6,6 +6,8 @@
 		_EyeHiLight("_EyeHiLight", 2D) = "white" {}					//目のハイライトのテクスチャ
 		_EyeShadow("_EyeShadow", 2D) = "white" {}					//目の影のテクスチャ
 		_EyeShadowColor("_EyeShadowColor", Color) = (0, 0, 0, 0)	//ドロップシャドウのカラー
+
+		_VanishNum("_VanishNum",float) = 0							//消滅用係数
     }
 
     SubShader
@@ -49,6 +51,8 @@
 			float Eye_HiLightRotationSin;		//スクリプトから受け取るハイライト回転用Sin
 			float Eye_HiLightRotationCos;		//スクリプトから受け取るハイライト回転用Cos
 			float2x2 Eye_HiLightRotation;		//ハイライト回転行列、光源位置によって回転させる
+
+			float _VanishNum;					//消滅用係数
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -141,6 +145,9 @@
 
 				//ライトカラーを乗算
 				re *= lerp(1, _LightColor0, _LightColor0.a);
+
+				//透明部分をクリップ、消滅用の乱数精製
+				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum) + 0.01) * _VanishNum));
 
 				//出力
 				return re;

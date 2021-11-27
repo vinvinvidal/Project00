@@ -41,7 +41,7 @@
 	}
 
 	//‹^——”¸»ŠÖ”
-	float random(float2 value)
+	float Random(float2 value)
 	{
 		return frac(sin(dot(value.xy, float2(12.9898, 78.233))) * 43758.5453);
 	}
