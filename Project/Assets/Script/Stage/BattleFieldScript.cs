@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class BattleFieldScript : GlobalClass
 {
@@ -24,6 +25,9 @@ public class BattleFieldScript : GlobalClass
 	//壁生成スクリプトリスト
 	private List<GenerateWallScript> WallGanerateScriptList;
 
+	//バーチャルカメラ
+	private CinemachineCameraScript Vcam;
+
 	private void Start()
 	{
 		//出現位置List初期化
@@ -34,6 +38,9 @@ public class BattleFieldScript : GlobalClass
 
 		//壁生成完了スクリプト取得
 		WallGanerateScriptList = new List<GenerateWallScript>(gameObject.GetComponentsInChildren<GenerateWallScript>());
+
+		//バーチャルカメラ取得
+		Vcam = DeepFind(gameObject, "BattleFieldCamera").GetComponent<CinemachineCameraScript>();
 	}
 
 	private void Update()
@@ -65,18 +72,32 @@ public class BattleFieldScript : GlobalClass
 	//フィールド解放コルーチン
 	private IEnumerator ReleaseBattleFieldCoroutine()
 	{
-		//壁オブジェクトにリジッドボディ追加
-		foreach(var i in DeepFind(gameObject, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")))
+		//コライダ無効化
+		DeepFind(gameObject, "FieldCol").GetComponent<MeshCollider>().enabled = false;
+
+		//壁オブジェクト取得
+		List<GameObject> OBJList = new List<GameObject>(DeepFind(gameObject, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")).Select(b => b.gameObject).ToList());
+
+		//壁オブジェクトのRigitBodyを回す
+		foreach(Rigidbody i in OBJList.Select(a => a.GetComponent<Rigidbody>()))
 		{
-			//リジッドボディ追加
-			i.gameObject.AddComponent<Rigidbody>();
+			//オブジェクトに壁消失用スクリプト追加
+			i.gameObject.AddComponent<WallVanishScript>();
+
+			//物理挙動有効化
+			i.isKinematic = false;
 
 			//外側に力を与えて壁を崩す
-			i.GetComponent<Rigidbody>().AddForce((i.transform.position - gameObject.transform.position) * 2.5f, ForceMode.Impulse);
+			i.AddForce((i.transform.position - gameObject.transform.position + Vector3.up) * 2.5f, ForceMode.Impulse);
 		}
 
-		yield return new WaitForSeconds(5);
+		//壁オブジェクトが全部消えるまでループ
+		while(!OBJList.All(a => a == null))
+		{
+			yield return null;
+		}
 
+		//フィールド削除
 		Destroy(gameObject);
 	}
 
@@ -89,19 +110,37 @@ public class BattleFieldScript : GlobalClass
 		//フィールドコライダ有効化
 		gameObject.GetComponentInChildren<MeshCollider>().enabled = true;
 
+		//イベント中フラグを立てる
+		GameManagerScript.Instance.EventFlag = true;
+
+		//バーチャルカメラをキャラクターの子にする
+		Vcam.gameObject.transform.parent = GameManagerScript.Instance.GetPlayableCharacterOBJ().transform;
+
+		//位置合わせ
+		Vcam.gameObject.transform.localPosition *= 0;
+		Vcam.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+		//バーチャルカメラ再生
+		Vcam.PlayCameraWork(0, true);
+
 		//ガベージを撒いて壁を作るスクリプトの関数呼び出し
 		WallGanerateScriptList.Select(a => StartCoroutine(a.GenerateWallCoroutine())).ToArray();
 
 		//壁生成完了待ちコルーチン呼び出し
 		StartCoroutine(WaitWallGenerateCoroutine());
 
+		//プレイアブルキャラクターの戦闘戦闘開始処理関数呼び出し
+		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleStart(gameObject));
 	}
 
 	//壁生成完了待ちコルーチン
 	private IEnumerator WaitWallGenerateCoroutine()
 	{
+		//敵出現関数呼び出し
+		EnemySpawn();
+
 		//完了フラグが全て立つまで待機
-		while(!WallGanerateScriptList.All(a => a.CompleteFlag))
+		while (!WallGanerateScriptList.All(a => a.CompleteFlag))
 		{
 			//１フレーム待機
 			yield return null;
@@ -110,14 +149,23 @@ public class BattleFieldScript : GlobalClass
 		//壁が落ち着くまでちょっと待つ
 		yield return new WaitForSeconds(2.5f);
 
-		//壁のリジッドボディを削除
+		//物理挙動を止める
 		foreach(var i in gameObject.GetComponentsInChildren<Rigidbody>())
-		{
-			Destroy(i);
+		{			
+			i.isKinematic = true;
 		}
-		
-		//敵出現関数呼び出し
-		EnemySpawn();
+
+		//バーチャルカメラ停止
+		Vcam.KeepCameraFlag = false;
+
+		//カメラが移動するまでちょっと待つ
+		yield return new WaitForSeconds(1);
+
+		//イベント中フラグを下す
+		GameManagerScript.Instance.EventFlag = false;
+
+		//プレイヤーキャラクターのイベントフラグを下す
+		GameManagerScript.Instance.GetPlayableCharacterOBJ().GetComponent<PlayerScript>().ActionEventFlag = false;
 	}
 
 	//敵出現

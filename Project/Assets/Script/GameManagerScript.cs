@@ -144,6 +144,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//スケベフラグ
 	public bool H_Flag { get; set; } = false;
 
+	//イベント中フラグ
+	public bool EventFlag { get; set; } = false;
+
 	//ロック対象になる敵を入れるList
 	private List<GameObject> LockEnemyList;
 
@@ -1598,7 +1601,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		AllActiveEnemyList.Add(i);
 
 		//プレイアブルキャラクターの戦闘中フラグを立てる
-		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.SetFightingFlag(true));
+		//ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.SetFightingFlag(true));
 
 		//呼び出してきたエネミーにリストのインデックスを送る
 		return AllActiveEnemyList.Count - 1;
@@ -1614,7 +1617,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		if(AllActiveEnemyList.All(a => a == null))
 		{
 			//プレイアブルキャラクターの戦闘中フラグを下ろす
-			ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.SetFightingFlag(false));
+			//ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.SetFightingFlag(false));
 		}
 	}
 

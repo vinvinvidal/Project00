@@ -274,7 +274,7 @@ public class CinemachineCameraScript : GlobalClass
 		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode == 10)
 		{
 			//カメラワーク終了関数呼び出し
-			EndCameraWork();
+			EndCameraWork(Index);
 		}
 		else
 		{
@@ -311,20 +311,8 @@ public class CinemachineCameraScript : GlobalClass
 	}
 
 	//カメラワーク終了関数
-	public void EndCameraWork()
+	public void EndCameraWork(int Index)
 	{
-		//メインカメラの遷移をイージングに設定
-		MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Style = CinemachineBlendDefinition.Style.EaseInOut;
-
-		//メインカメラのイージングタイムを設定
-		MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time = 1f;
-
-		//終了用Vcamを通常の注視点に向ける、ポジションは開始時のEasingVcamera()で入る
-		MasterVcam.transform.LookAt(GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position + MainCamera.transform.parent.GetComponent<MainCameraScript>().LookAtOffset);
-
-		//終了用Vcam有効化
-		MasterVcam.enabled = true;
-
 		//全てのカメラワークを回す
 		foreach (var i in CameraWorkList)
 		{
@@ -337,6 +325,29 @@ public class CinemachineCameraScript : GlobalClass
 				ii.Priority = DefaultPriority;
 			}
 		}
+
+		//メインカメラの遷移をイージングに設定
+		MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Style = CinemachineBlendDefinition.Style.EaseInOut;
+
+		//メインカメラのイージングタイムを設定
+		MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time = 1f;
+
+		//カメラ位置をカメラワーク開始時のポジションに戻す場合
+		if(CameraWorkList[Index].GetComponent<CameraWorkScript>().ReturnPositionFlag)
+		{
+			//終了用Vcamを通常の注視点に向ける、ポジションは開始時のEasingVcamera()で入る
+			MasterVcam.transform.LookAt(GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position + MainCamera.transform.parent.GetComponent<MainCameraScript>().LookAtOffset);
+		}
+		//カメラ位置をそのままにする場合
+		else
+		{
+			//終了用Vcamを現在のカメラに合わせる
+			MasterVcam.transform.position = MainCamera.transform.position;
+			MasterVcam.transform.rotation = MainCamera.transform.rotation;
+		}
+
+		//終了用Vcam有効化
+		MasterVcam.enabled = true;
 
 		//コルーチン呼び出し
 		StartCoroutine(EndCameraWorkCoroutine());

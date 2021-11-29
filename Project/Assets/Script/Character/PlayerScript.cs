@@ -35,8 +35,8 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	//武器をセットする
 	void SetWeapon(GameObject w);
 
-	//戦闘フラグをセットする
-	void SetFightingFlag(bool b);
+	//戦闘開始処理
+	void BattleStart(GameObject LooKAtOBJ);
 
 	//ポーズ処理
 	void Pause(bool b);
@@ -220,7 +220,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private bool ClothShakeFlag = false;
 
 	//アクションイベントフラグ
-	private bool ActionEventFlag = false;
+	public bool ActionEventFlag { get; set; } = false;
 
 	//ポーズフラグ
 	private bool PauseFlag = false;
@@ -1100,13 +1100,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_Count++;
 	}
 
-	//移動キーを押した時
-	private void OnPlayerMove(InputValue inputValue)
-	{
-		//入力をキャッシュ
-		PlayerMoveInputVecter = inputValue.Get<Vector2>();
-	}
-
 	//バリバリゲージによってスケベ表情を切り替える関数
 	private void ChangeH_Face()
 	{
@@ -1137,6 +1130,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//表情変え関数呼び出し
 		ChangeFace("Motion_" + CharacterID + "_H_Face0" + Level + ",0.5");
+	}
+
+	//移動キーを押した時
+	private void OnPlayerMove(InputValue inputValue)
+	{
+		if (!ActionEventFlag)
+		{
+			//入力をキャッシュ
+			PlayerMoveInputVecter = inputValue.Get<Vector2>();
+		}
+		else
+		{
+			PlayerMoveInputVecter *= 0;
+		}
 	}
 
 	//ジャンプキーを押した時
@@ -1592,6 +1599,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(JumpRotateVector), TurnSpeed * 2 * Time.deltaTime);
 			}
 		}
+		//イベント中の移動
+		else if (ActionEventFlag)
+		{
+			if (EventRotateVector != Vector3.zero)
+			{
+				//回転
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(EventRotateVector), TurnSpeed * Time.deltaTime);
+			}
+		}
 		//何もしていなければその場に止まる
 		else
 		{
@@ -1734,46 +1750,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				{
 					break;
 				}
-			}
-		}
-	}
-
-	//立ち構え切り替えコルーチン
-	IEnumerator IdlingChangeCoroutine()
-	{
-		//現在のブレンド比率をキャッシュ
-		float BlendRatio = CurrentAnimator.GetFloat("Idling_Blend");
-
-		//構えと立ち切り替え、敵がいる時は構え
-		if (FightingFlag)
-		{
-			//ブレンド比率が1になるまで繰り返し
-			while (BlendRatio < 1)
-			{
-				//ブレンド比率をチョイ上げ
-				BlendRatio += 0.05f;
-
-				//ブレンド比率を適応
-				CurrentAnimator.SetFloat("Idling_Blend", BlendRatio);
-
-				//1フレーム待機
-				yield return null;
-			}
-		}
-		//敵がいない時は立ち
-		else
-		{
-			//ブレンド比率が0になるまで繰り返し
-			while (BlendRatio > 0)
-			{
-				//ブレンド比率をチョイ下げ
-				BlendRatio -= 0.1f;
-
-				//ブレンド比率を適応
-				CurrentAnimator.SetFloat("Idling_Blend", BlendRatio);
-
-				//1フレーム待機
-				yield return null;
 			}
 		}
 	}
@@ -4630,14 +4606,90 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AttackDistance = CC.AttackDistance;
 	}
 
-	//戦闘フラグをセットする
-	public void SetFightingFlag(bool b)
+	////戦闘開始処理
+	public void BattleStart(GameObject LooKAtOBJ)
 	{
-		//引数で受け取ったフラグをセットする
-		FightingFlag = b;
+		//フラグリセット
+		//ClearFlag();
+
+		//イベントフラグを立てる
+		ActionEventFlag = true;
+
+		//回転値を入れる
+		EventRotateVector = HorizontalVector(LooKAtOBJ, gameObject);
 
 		//構え切り替えコルーチン呼び出し
-		StartCoroutine(IdlingChangeCoroutine());
+		StartCoroutine(IdlingChangeCoroutine(2, 1));
+	}
+
+	//立ち構え切り替えコルーチン
+	IEnumerator IdlingChangeCoroutine(int Change ,int Affter)
+	{
+		//モーション切り替え
+		CurrentAnimator.SetFloat("Idling_Blend", Change);
+
+		//完全にアイドリングモーションになるまで待つ
+		while(CurrentState != "Idling")
+		{
+			//入力移動値をリセット
+			PlayerMoveInputVecter *= 0;
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//切り替えモーションが終わるまで待つ
+		while (CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+		{
+			//1フレーム待機
+			yield return null;
+		}
+
+		//モーション切り替え
+		CurrentAnimator.SetFloat("Idling_Blend", Affter);
+
+		//回転値リセット
+		EventRotateVector *= 0;
+
+
+
+		/*
+		//現在のブレンド比率をキャッシュ
+		float BlendRatio = CurrentAnimator.GetFloat("Idling_Blend");
+
+		//構えと立ち切り替え、敵がいる時は構え
+		if (FightingFlag)
+		{
+			//ブレンド比率が1になるまで繰り返し
+			while (BlendRatio < 1)
+			{
+				//ブレンド比率をチョイ上げ
+				BlendRatio += 0.05f;
+
+				//ブレンド比率を適応
+				CurrentAnimator.SetFloat("Idling_Blend", BlendRatio);
+
+				//1フレーム待機
+				yield return null;
+			}
+		}
+		//敵がいない時は立ち
+		else
+		{
+			//ブレンド比率が0になるまで繰り返し
+			while (BlendRatio > 0)
+			{
+				//ブレンド比率をチョイ下げ
+				BlendRatio -= 0.1f;
+
+				//ブレンド比率を適応
+				CurrentAnimator.SetFloat("Idling_Blend", BlendRatio);
+
+				//1フレーム待機
+				yield return null;
+			}
+		}
+		*/
 	}
 
 	//ポーズ処理、ゲームマネージャーから呼び出されるインターフェイス

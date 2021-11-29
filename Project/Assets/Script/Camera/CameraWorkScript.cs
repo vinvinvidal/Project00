@@ -23,6 +23,10 @@ public class CameraWorkScript : GlobalClass
 	//持っているVcamの中からランダムで再生する
 	[Header("持っているVcamの中からランダムで再生するフラグ")]
 	public bool RandomFlag;
+
+	//カメラワーク開始時のポジションにカメラを戻すフラグ
+	[Header("カメラワーク開始時のポジションにカメラを戻すフラグ")]
+	public bool ReturnPositionFlag = true;
 	[Space(15)]
 
 	//イージング時間

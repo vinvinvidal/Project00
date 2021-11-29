@@ -28,7 +28,7 @@ Shader "Unlit/PublicShadowCaster"
 			ZTest LEqual
 
 			//両面表示
-			Cull off
+			//Cull off
 			
 			//プログラム開始
 			CGPROGRAM
@@ -54,7 +54,7 @@ Shader "Unlit/PublicShadowCaster"
 
 			float4 frag(vertex_output i) : SV_Target
 			{
-				SHADOW_CASTER_FRAGMENT(i)
+				SHADOW_CASTER_FRAGMENT(i);
 			}
 
 			ENDCG

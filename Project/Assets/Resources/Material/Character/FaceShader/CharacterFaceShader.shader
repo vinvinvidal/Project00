@@ -238,7 +238,7 @@
 				re *= lerp(1, _LightColor0, _LightColor0.a);		
 
 				//透明部分をクリップ、消滅用の乱数精製
-				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum) + 0.01) * _VanishNum));
+				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum, round(_VanishNum)) + 0.05) * _VanishNum));
 
 				//出力
 				return re;

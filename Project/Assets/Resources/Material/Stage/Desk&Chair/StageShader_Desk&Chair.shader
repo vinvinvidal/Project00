@@ -7,13 +7,16 @@
 
 		//法線テクスチャ
 		_TexNormal("_TexNormal", 2D) = "white" {}
+
+		//消滅用係数
+		_VanishNum("_VanishNum",float) = 0									
 	}
 
 	SubShader
 	{
 		Tags
 		{
-			"RenderType" = "Opaque"
+			"Queue" = "AlphaTest" 
 		}
 
 		Pass
@@ -47,6 +50,8 @@
 			float4 _TexNormal_ST;				//法線テクスチャのタイリングとオフセット
 
 			fixed4 _LightColor0;				//ライトカラー
+
+			float _VanishNum;					//消滅用係数
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -113,6 +118,9 @@
 
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);
+
+				//透明部分をクリップ、消滅用の乱数精製
+				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum, round(_VanishNum)) + 0.05) * _VanishNum));
 
 				//出力
 				return re;

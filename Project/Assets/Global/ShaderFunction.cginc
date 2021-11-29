@@ -41,9 +41,9 @@
 	}
 
 	//‹^——”¸»ŠÖ”
-	float Random(float2 value)
+	float Random(float2 texCoord, int Seed)
 	{
-		return frac(sin(dot(value.xy, float2(12.9898, 78.233))) * 43758.5453);
+		return frac(sin(dot(texCoord.xy, float2(12.9898, 78.233)) + Seed) * 43758.5453);
 	}
 
 #endif

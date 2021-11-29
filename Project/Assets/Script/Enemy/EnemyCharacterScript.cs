@@ -274,7 +274,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public bool WallClashFlag { get; set; }
 
 	//行動中フラグ
-	public bool BehaviorFlag { get; set; } = false;
+	public bool BehaviorFlag { get; set; } = true;
 
 	//ダウンしない攻撃List
 	private List<int> NotDownAttackList;
@@ -307,6 +307,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	{
 		//プレイヤーキャラクター取得
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => PlayerCharacter = reciever.GetPlayableCharacterOBJ());
+
+		//プレイヤーに向ける
+		transform.LookAt(HorizontalVector(PlayerCharacter, gameObject));
 
 		//OnCamera判定用スクリプトを持っているオブジェクトを検索して取得
 		foreach (Transform i in GetComponentsInChildren<Transform>())
@@ -564,6 +567,23 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				RiseAnimNoiseSeedList.Add(new Vector3(UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f)));
 			}
 		}
+
+		//行動開始許可待ちコルーチン呼び出し
+		StartCoroutine(BehaviorReadyCoroutine());
+	}
+
+	//行動開始許可待ちコルーチン
+	private IEnumerator BehaviorReadyCoroutine()
+	{
+		//イベント中は待つ
+		while(GameManagerScript.Instance.EventFlag)
+		{
+			//１フレーム待機
+			yield return null;
+		}
+
+		//行動開始
+		BehaviorFlag = false;
 	}
 
 	void LateUpdate()
@@ -2397,28 +2417,28 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		foreach (var i in RendList)
 		{
 			//アウトラインを切る為にレイヤーを変更
-			i.gameObject.layer = LayerMask.NameToLayer("UI");
+			//i.gameObject.layer = LayerMask.NameToLayer("InDoor");
 	
 			//レンダラーのシャドウを切る
-			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-			i.receiveShadows = false;
+			//i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+			//描画順を変更
+			i.material.renderQueue = 3000;
 		}
 
-		while (VanishCount < 100)
+		while (VanishCount < 20)
 		{
 			//マテリアルを回して消滅用数値を入れる
 			foreach (var i in RendList)
 			{
 				foreach (var ii in i.materials)
 				{
-					ii.SetFloat("_VanishNum", VanishCount);
-
-					ii.SetTextureOffset("_VanishTex", new Vector2(0, VanishCount * 10));			
+					ii.SetFloat("_VanishNum", VanishCount);			
 				}
 			}
 
 			//消滅用カウントアップ
-			VanishCount += Time.deltaTime * 50;
+			VanishCount += Time.deltaTime * 10;
 
 			//１フレーム待機
 			yield return null;
