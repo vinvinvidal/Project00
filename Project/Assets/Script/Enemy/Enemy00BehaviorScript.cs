@@ -10,6 +10,9 @@ public interface EnemyBehaviorInterface : IEventSystemHandler
 {
 	//ポーズ処理
 	void Pause(bool b);
+
+	//戦闘開始フラグを受け取る
+	void SetBattleFlag();
 }
 
 public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
@@ -56,11 +59,14 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	//準備完了フラグ
 	private bool AllReadyFlag = false;
 
+	//戦闘開始フラグ
+	private bool BattleFlag = false;
+
 	//ポーズフラグ
 	private bool PauseFlag = false;
 
 	void Start()
-    {
+	{
 		//アニメーターコントローラ取得
 		CurrentAnimator = GetComponent<Animator>();
 
@@ -247,7 +253,34 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//スクリプトに全ての行動Listを送る
 		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetBehaviorList(EnemyBehaviorList));
-		
+
+		//ビヘイビア用Updateコルーチン呼び出し
+		StartCoroutine(BehaviourUpdateCoroutine());
+	}
+
+	//ビヘイビア用Updateコルーチン
+	private IEnumerator BehaviourUpdateCoroutine()
+	{
+		//戦闘開始待ち
+		while(!BattleFlag)
+		{
+			//１フレーム待機
+			yield return null;
+		}
+
+		//後はずっとループ
+		while (Time.time > 0)
+		{
+			//常にプレイヤーキャラクターとの距離を測定する
+			PlayerHorizontalDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
+			PlayerverticalDistance = Mathf.Abs(PlayerCharacter.transform.position.y - gameObject.transform.position.y);
+
+			//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
+			PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
+
+			//１フレーム待機
+			yield return null;
+		}
 	}
 
 	//待機コルーチン
@@ -572,7 +605,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//フラグを下ろす
 		EnemyScript.BehaviorFlag = false;
 	}
-
+	/*
 	void Update()
     {
 		//常にプレイヤーキャラクターとの距離を測定する
@@ -582,6 +615,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
 		PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
 	}
+	*/
 
 	//プレイヤーキャラクター取得コルーチン
 	IEnumerator SetPlayerCharacterCoroutine()
@@ -609,6 +643,12 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//1フレーム待機
 			yield return null;
 		}
+	}
+
+	//戦闘開始フラグを受け取る
+	public void SetBattleFlag()
+	{
+		BattleFlag = true;
 	}
 
 	//ポーズ処理

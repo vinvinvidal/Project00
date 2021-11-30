@@ -29,6 +29,9 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	//アニメーターの攻撃モーションを切り替える、ビヘイビアスクリプトから呼ばれる
 	void SetAttackMotion(string n);
 
+	//戦闘開始処理
+	void BattleStart();
+
 	//プレイヤーからの攻撃を受けた時の処理
 	void PlayerAttackHit(ArtsClass i, int c);
 
@@ -274,7 +277,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public bool WallClashFlag { get; set; }
 
 	//行動中フラグ
-	public bool BehaviorFlag { get; set; } = true;
+	public bool BehaviorFlag { get; set; } = false;
+
+	//戦闘状態フラグ
+	private bool BattleFlag = false;
 
 	//ダウンしない攻撃List
 	private List<int> NotDownAttackList;
@@ -307,9 +313,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	{
 		//プレイヤーキャラクター取得
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => PlayerCharacter = reciever.GetPlayableCharacterOBJ());
-
-		//プレイヤーに向ける
-		transform.LookAt(HorizontalVector(PlayerCharacter, gameObject));
 
 		//OnCamera判定用スクリプトを持っているオブジェクトを検索して取得
 		foreach (Transform i in GetComponentsInChildren<Transform>())
@@ -568,22 +571,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			}
 		}
 
-		//行動開始許可待ちコルーチン呼び出し
-		StartCoroutine(BehaviorReadyCoroutine());
-	}
+		//アイドリングモーションを変更
+		CurrentAnimator.SetFloat("IdlingBlend", Random.Range(2, 4));
 
-	//行動開始許可待ちコルーチン
-	private IEnumerator BehaviorReadyCoroutine()
-	{
-		//イベント中は待つ
-		while(GameManagerScript.Instance.EventFlag)
-		{
-			//１フレーム待機
-			yield return null;
-		}
-
-		//行動開始
-		BehaviorFlag = false;
+		//アニメーター停止
+		CurrentAnimator.speed = 0;
 	}
 
 	void LateUpdate()
@@ -681,7 +673,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void Update()
 	{
-		if (!PauseFlag)
+		if (!PauseFlag && BattleFlag && !GameManagerScript.Instance.EventFlag)
 		{
 			//アニメーションステートを監視する関数呼び出し
 			StateMonitor();
@@ -1090,7 +1082,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			CurrentAnimator.SetBool("Down_Supine", true);
 			CurrentAnimator.SetBool("Down_Prone", false);
 		}
-	}	
+	}
 
 	//ダメージモーション管理関数
 	private void DamageMotionFunc(ArtsClass Arts, int n)
@@ -1117,7 +1109,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			int UseIndex = Arts.AttackType[n];
 
 			//死んでるけどダウンしない攻撃を喰らった
-			if(DestroyFlag && NotDownAttackList.Any(a => a == Arts.AttackType[n]))
+			if (DestroyFlag && NotDownAttackList.Any(a => a == Arts.AttackType[n]))
 			{
 				//ダウンモーションに切り替え
 				UseIndex = 1;
@@ -1244,7 +1236,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 			//アニメーターのダウンフラグを下す
 			CurrentAnimator.SetBool("Down_Supine", false);
-		}		
+		}
 	}
 
 	//ダメージ状態のフラグを切り替える、アニメーションクリップから呼ばれる
@@ -1338,7 +1330,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//チョイ待つ
 		while (Time.time - temptime < 0.25f)
 		{
-			if(PauseFlag)
+			if (PauseFlag)
 			{
 				//ポーズ中はキャッシュを更新
 				temptime += Time.deltaTime;
@@ -1351,7 +1343,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//アニメーターのダウン着地フラグを立てる
 		CurrentAnimator.SetBool("DownLanding", true);
 	}
-	
+
 	//ノックバック処理
 	IEnumerator DamageKnockBack(ArtsClass Arts, int n)
 	{
@@ -1413,7 +1405,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			t += Time.deltaTime;
 
 			//ポーズ中は持続時間更新
-			if(PauseFlag)
+			if (PauseFlag)
 			{
 				tempTime += Time.deltaTime;
 			}
@@ -1427,7 +1419,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//ループを抜ける
 				break;
 			}
-			else if(t > tempTime && OnGround)
+			else if (t > tempTime && OnGround)
 			{
 				//ループを抜ける
 				break;
@@ -1508,14 +1500,14 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				RiseFlag = false;
 
 				//ダウン継続中じゃない
-				if(!DownFlag)
+				if (!DownFlag)
 				{
 					//ダウン制御コルーチン呼び出し
 					StartCoroutine(DownCoroutine());
 				}
 
 				//死んでる
-				if(DestroyFlag)
+				if (DestroyFlag)
 				{
 					//コライダ無効化
 					DamageCol.enabled = false;
@@ -1537,7 +1529,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			else if (CurrentState.Contains("-> Idling"))
 			{
 				//フラグ状態をまっさらに戻す関数呼び出し
-				ClearFlag();				
+				ClearFlag();
 			}
 			//攻撃になった瞬間の処理
 			else if (CurrentState.Contains("-> Attack"))
@@ -1650,7 +1642,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				CurrentAnimator.SetBool("Down_Supine", false);
 			}
 			//ホールド状態から抜けた瞬間の処理
-			else if(CurrentState.Contains("HoldDamage ->"))
+			else if (CurrentState.Contains("HoldDamage ->"))
 			{
 				//ホールドダメージ状態を下す
 				HoldFlag = false;
@@ -1658,13 +1650,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 
 		//スケベ攻撃中の処理
-		if(CurrentState.Contains("H_Attack"))
+		if (CurrentState.Contains("H_Attack"))
 		{
 			//アニメーション再生速度にノイズを加える
 			CurrentAnimator.SetFloat("H_Speed", Mathf.PerlinNoise(Time.time * 2.5f, -Time.time) + 0.5f);
 		}
 		//歩行中の処理
-		else if(CurrentState.Contains("Walk"))
+		else if (CurrentState.Contains("Walk"))
 		{
 			//サインカーブで歩行アニメーションと移動値を合わせる
 			BehaviorMoveVec *= Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * SinCount));
@@ -1690,10 +1682,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CharaControllerReset("Down");
 
 		//ダウンしている、打ち上げられてない、ホールドされてない、ダウンタイムがある
-		while (DownFlag  && !RiseFlag && !HoldFlag && DownTime > 0)
+		while (DownFlag && !RiseFlag && !HoldFlag && DownTime > 0)
 		{
 			//ダウン時間カウントダウン
-			if(!PauseFlag && !DestroyFlag)
+			if (!PauseFlag && !DestroyFlag)
 			{
 				DownTime -= Time.deltaTime;
 			}
@@ -1706,7 +1698,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		DownFlag = false;
 
 		//ダウンから打ち上げならダウンフラグは下さない
-		if(!RiseFlag)
+		if (!RiseFlag)
 		{
 			//アニメーターのダウンフラグを下す
 			CurrentAnimator.SetBool("Down_Prone", false);
@@ -1738,7 +1730,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			yield return null;
 		}
 
-		if(CurrentState == "HoldDamage")
+		if (CurrentState == "HoldDamage")
 		{
 			//ループ終わりまでジャンプ、決め打ちは良くないかも
 			CurrentAnimator.Play("HoldDamage", 0, 0.6f);
@@ -1758,7 +1750,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public void HoldBreak(float t)
 	{
 		//ホールドされていたら
-		if(HoldFlag)
+		if (HoldFlag)
 		{
 			//ループ終わりまでジャンプ、決め打ちは良くないかも
 			CurrentAnimator.Play("HoldDamage", 0, 0.6f);
@@ -1787,7 +1779,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		while (BreakTime + t > Time.time)
 		{
 			//ポーズ中は待機時間更新
-			if(PauseFlag)
+			if (PauseFlag)
 			{
 				BreakTime += Time.deltaTime;
 			}
@@ -1907,7 +1899,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			//壁に合わせて回転、水平を保つ為にyは回さない
 			transform.LookAt(new Vector3(hit.normal.x, 0, hit.normal.z) + transform.position);
-			
+
 			//モーションを再生スピードをリセット
 			CurrentAnimator.SetFloat("DamageMotionSpeed0", 1);
 			CurrentAnimator.SetFloat("DamageMotionSpeed1", 1);
@@ -1915,7 +1907,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//壁当たりモーション再生
 			DamageMotionFunc(null, 0);
 		}
-		else if(LayerMask.LayerToName(hit.gameObject.layer) == "Enemy" && gameObject.transform.position.y > hit.gameObject.transform.position.y)
+		else if (LayerMask.LayerToName(hit.gameObject.layer) == "Enemy" && gameObject.transform.position.y > hit.gameObject.transform.position.y)
 		{
 			HitEnemy = hit.gameObject;
 		}
@@ -2008,7 +2000,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//キャラクターコントローラの設定を変える関数
 	public void CharaControllerReset(string FlagName)
 	{
-		switch(FlagName)
+		switch (FlagName)
 		{
 			case "Reset":
 
@@ -2115,7 +2107,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public void StunStart()
 	{
 		//スタン中は再度入らないようにする
-		if(!StunFlag)
+		if (!StunFlag)
 		{
 			//スタン持続コルーチン呼び出し
 			StartCoroutine(StunStartCoroutine());
@@ -2142,7 +2134,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 
 		//モーションをアイドリングに戻す
-		if(StunFlag)
+		if (StunFlag)
 		{
 			float stunblend = 1;
 
@@ -2175,7 +2167,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		DamageMoveVec *= 0;
 
 		//スタンドモーションを再生
-		CurrentAnimator.SetFloat("StunBlend" , 0f);
+		CurrentAnimator.SetFloat("StunBlend", 0f);
 	}
 
 	//興奮値セット関数
@@ -2190,7 +2182,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	}
 
 	//スケベ攻撃が当たった時に呼ばれる
-	public void H_AttackHit(string ang , int men , GameObject Player)
+	public void H_AttackHit(string ang, int men, GameObject Player)
 	{
 		//状態フラグをリセット
 		FlagReset();
@@ -2205,7 +2197,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CharaControllerReset("H");
 
 		//アニメーターのフラグを立てる
-		CurrentAnimator.SetBool("H_Hit" , true);
+		CurrentAnimator.SetBool("H_Hit", true);
 
 		//スケベ攻撃フラグを立てる
 		CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
@@ -2277,7 +2269,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//攻撃フラグを下ろす、アニメーションクリップから呼ばれる
 	public void AttackEnd()
 	{
-		CurrentAnimator.SetBool("Attack" , false);
+		CurrentAnimator.SetBool("Attack", false);
 
 		CurrentAnimator.SetBool("H_Try", false);
 	}
@@ -2389,7 +2381,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ポーズフラグ引数で受け取ったboolをフラグに代入
 		PauseFlag = b;
 
-		if(b)
+		if (b)
 		{
 			//アニメーション一時停止
 			CurrentAnimator.speed = 0;
@@ -2418,7 +2410,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			//アウトラインを切る為にレイヤーを変更
 			//i.gameObject.layer = LayerMask.NameToLayer("InDoor");
-	
+
 			//レンダラーのシャドウを切る
 			//i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
@@ -2433,7 +2425,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			{
 				foreach (var ii in i.materials)
 				{
-					ii.SetFloat("_VanishNum", VanishCount);			
+					ii.SetFloat("_VanishNum", VanishCount);
 				}
 			}
 
@@ -2452,6 +2444,43 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public void SetPlayerCharacter(GameObject c)
 	{
 		PlayerCharacter = c;
+	}
+
+	//戦闘開始処理
+	public void BattleStart()
+	{
+		StartCoroutine(BattleStartCoroutine());
+	}
+	private IEnumerator BattleStartCoroutine()
+	{
+		//アニメーター再生
+		CurrentAnimator.speed = 1;
+
+		//たむろモーションが終わるまで待つ
+		while(CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+		{
+			//１フレーム待機
+			yield return null;
+		}
+
+		//アイドリングモーションを変更
+		CurrentAnimator.SetFloat("IdlingBlend", 0);
+
+		//アングルを測定、プレイヤーに向くまでループ
+		while (Vector3.Angle(gameObject.transform.forward,HorizontalVector(PlayerCharacter , gameObject)) > 1)
+		{
+			//プレイヤーに向けて回転
+			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(PlayerCharacter, gameObject)), TurnSpeed * Time.deltaTime);
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//戦闘開始フラグを立てる
+		BattleFlag = true;
+
+		//ビヘイビアに戦闘開始フラグを送る
+		ExecuteEvents.Execute<EnemyBehaviorInterface>(gameObject, null, (reciever, eventData) => reciever.SetBattleFlag());
 	}
 }
 

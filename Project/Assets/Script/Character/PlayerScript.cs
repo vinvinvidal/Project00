@@ -4651,8 +4651,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//回転値リセット
 		EventRotateVector *= 0;
 
-
-
 		/*
 		//現在のブレンド比率をキャッシュ
 		float BlendRatio = CurrentAnimator.GetFloat("Idling_Blend");

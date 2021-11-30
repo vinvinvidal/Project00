@@ -13,6 +13,12 @@ public class BattleFieldScript : GlobalClass
 	//出現位置List
 	private List<GameObject> SpawnPosList;
 
+	//敵オブジェクトリスト
+	private List<GameObject> EnemyOBJList;
+
+	//敵読み込み完了フラグ
+	private bool LoadCompleteFlag = false;
+
 	//ウェーブカウント
 	private int WaveCount = 0;
 
@@ -41,6 +47,123 @@ public class BattleFieldScript : GlobalClass
 
 		//バーチャルカメラ取得
 		Vcam = DeepFind(gameObject, "BattleFieldCamera").GetComponent<CinemachineCameraScript>();
+		
+		//敵オブジェクトリスト初期化
+		EnemyOBJList = new List<GameObject>();
+
+		//使用する敵オブジェクト読み込み
+		StartCoroutine(LoadEnemyCoroutine());
+
+		//初期配置コルーチン呼び出し
+		StartCoroutine(StandByCoroutine());
+	}
+
+	//初期配置コルーチン
+	private IEnumerator StandByCoroutine()
+	{
+		//読み込み完了まで待機
+		while (!LoadCompleteFlag)
+		{
+			//待機
+			yield return null;
+		}
+
+		//敵出現カウント
+		int EnemyCount = 0;
+
+		//配置用変数
+		float PlacementPoint = 0;
+
+		//出現する敵Listを回す
+		foreach (var i in GameManagerScript.Instance.AllEnemyWaveList[WaveCount].EnemyList)
+		{
+			//インスタンス生成
+			GameObject TempEnemy = Instantiate(EnemyOBJList.Where(a => int.Parse(a.GetComponent<EnemySettingScript>().ID) == i).ToArray()[0]);
+
+			//親をバトルフィールドにする
+			TempEnemy.transform.parent = gameObject.transform;
+
+			//座標を直で変更するためキャラクターコントローラを無効化
+			TempEnemy.GetComponent<CharacterController>().enabled = false;
+
+			//配置用変数さんしゅつ
+			PlacementPoint = (float)EnemyCount / GameManagerScript.Instance.AllEnemyWaveList[0].EnemyList.Count * (2.0f * Mathf.PI);
+
+			//ポジション設定
+			TempEnemy.transform.localPosition = new Vector3(Mathf.Cos(PlacementPoint) * 1.5f, 0, Mathf.Sin(PlacementPoint) * 1.5f);
+
+			//ローテンション設定
+			TempEnemy.transform.LookAt(gameObject.transform.position - TempEnemy.transform.localPosition);
+
+			//親を解除
+			TempEnemy.transform.parent = null;
+
+			//キャラクターコントローラを有効化
+			TempEnemy.GetComponent<CharacterController>().enabled = true;
+
+			//出現させた敵Listに追加
+			EnemyList.Add(TempEnemy);
+
+			//敵出現カウントアップ
+			EnemyCount ++;
+		}
+
+		//ウェーブカウントアップ
+		WaveCount++;
+	}
+
+	//敵読み込みコルーチン
+	private IEnumerator LoadEnemyCoroutine()
+	{
+		//敵IDList宣言
+		List<int> EnemyIDList = new List<int>();
+
+		//読み込み完了Dic宣言
+		Dictionary<int, bool> LoadDic = new Dictionary<int, bool>();
+
+		//ウェーブリストを回す
+		foreach (var i in EnemyWaveList)
+		{
+			//出現する敵リストを回す
+			foreach(var ii in GameManagerScript.Instance.AllEnemyWaveList[i].EnemyList)
+			{
+				//被った要素が無ければリストに追加
+				if(!EnemyIDList.Any(a => a == ii))
+				{
+					EnemyIDList.Add(ii);
+
+					LoadDic.Add(ii, false);
+				}				
+			}
+		}
+
+		//敵IDListを回す
+		foreach (var i in EnemyIDList)
+		{
+			//全ての敵リストからIDで検索
+			EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => int.Parse(e.EnemyID) == i).ToList()[0];
+
+			//敵オブジェクトを読み込む
+			StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Enemy/" + tempclass.EnemyID + "/", tempclass.OBJname, "prefab", (object O) =>
+			{
+				//リストにAdd
+				EnemyOBJList.Add(O as GameObject);
+
+				//読み込み完了フラグを立てる
+				LoadDic[i] = true;
+
+			}));
+		}
+
+		//読み込み完了まで待機
+		while(!LoadDic.Values.All(a => a))
+		{
+			//待機
+			yield return null;
+		}
+
+		//読み込み完了フラグを立てる
+		LoadCompleteFlag = true;
 	}
 
 	private void Update()
@@ -63,7 +186,7 @@ public class BattleFieldScript : GlobalClass
 				//次のウェーブ出現処理
 				else
 				{
-					EnemySpawn();
+					//EnemySpawn();
 				}				
 			}
 		}
@@ -129,6 +252,15 @@ public class BattleFieldScript : GlobalClass
 		//壁生成完了待ちコルーチン呼び出し
 		StartCoroutine(WaitWallGenerateCoroutine());
 
+		//敵に戦闘開始フラグを送る
+		foreach(var i in EnemyList.Where(a => a != null).ToList())
+		{
+			i.GetComponent<EnemyCharacterScript>().BattleStart();
+		}
+
+		//全滅チェックフラグを立てる
+		EnemyCheckFlag = true;
+
 		//プレイアブルキャラクターの戦闘戦闘開始処理関数呼び出し
 		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleStart(gameObject));
 	}
@@ -137,7 +269,7 @@ public class BattleFieldScript : GlobalClass
 	private IEnumerator WaitWallGenerateCoroutine()
 	{
 		//敵出現関数呼び出し
-		EnemySpawn();
+		//EnemySpawn();
 
 		//完了フラグが全て立つまで待機
 		while (!WallGanerateScriptList.All(a => a.CompleteFlag))
