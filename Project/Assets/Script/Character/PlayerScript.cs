@@ -35,8 +35,14 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	//武器をセットする
 	void SetWeapon(GameObject w);
 
-	//戦闘開始処理
-	void BattleStart(GameObject LooKAtOBJ);
+	//戦闘演出開始処理
+	void BattleEventStart(GameObject LooKAtOBJ);
+
+	//戦闘継続演出処理
+	void BattleEventNext(GameObject LooKAtOBJ);
+
+	//戦闘演出終了処理
+	void BattleEventEnd();
 
 	//ポーズ処理
 	void Pause(bool b);
@@ -391,8 +397,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//何も技を装備していないフラグ
 	private bool NoEquipFlag = false;
 
-	//攻撃用コライダを持っているオブジェクト
-	private GameObject AttackColOBJ;
+	//攻撃用コライダ
+	private BoxCollider AttackCol;
+
+	//ダメージ用コライダ
+	private BoxCollider DamageCol;
 
 	//強制移動コライダを持っているオブジェクト
 	private GameObject ForceMoveColOBJ;
@@ -556,8 +565,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//キャラクターのアニメーターコントローラ取得
 		CurrentAnimator = GetComponentInChildren<Animator>();
 
-		//攻撃用コライダを持っているオブジェクト取得
-		AttackColOBJ = DeepFind(gameObject, "PlayerAttackColl");
+		//攻撃用コライダ取得
+		AttackCol = DeepFind(gameObject, "PlayerAttackColl").GetComponent<BoxCollider>();
+
+		//ダメージ用コライダ取得
+		DamageCol = DeepFind(gameObject, "PlayerDamageCol").GetComponent<BoxCollider>();
 
 		//目オブジェクト取得、視線を操作するために使う
 		EyeOBJ = gameObject.GetComponentsInChildren<Renderer>().Where(i => i.name.Contains("Eye")).ToArray()[0].gameObject;
@@ -572,7 +584,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		FaceMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Face")).ToArray()[0].material;
 
 		//攻撃コライダを非アクティブ化しておく
-		AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+		AttackCol.enabled = false;
 
 		//オーバーライドアニメーターコントローラ初期化
 		OverRideAnimator = new AnimatorOverrideController();
@@ -1763,7 +1775,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベ攻撃だった場合は攻撃コライダが有効なら喰らわない
 		if (re && H)
 		{
-			re = !AttackColOBJ.GetComponent<BoxCollider>().enabled;
+			re = !AttackCol.enabled;
 		}
 
 		//出力
@@ -1778,6 +1790,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//特殊攻撃待機フラグを下す
 			SpecialTryFlag = false;
+
+			//ダメージ用コライダを無効化
+			DamageCol.enabled = false;
 
 			//アニメーターの遷移フラグを立てる
 			CurrentAnimator.SetBool("SpecialSuccess", true);
@@ -1798,7 +1813,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//攻撃用コライダ無効化
-			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+			AttackCol.enabled = false;
 
 			//接地を判別、ongroundじゃなくアニメーターのフラグを使う
 			if (CurrentAnimator.GetBool("Fall"))
@@ -1867,7 +1882,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
 
 		//攻撃用コライダ無効化
-		AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+		AttackCol.enabled = false;
 
 		//敵のクロス用コライダを自身のクロスオブジェクトに設定
 		foreach (var i in gameObject.GetComponentsInChildren<Cloth>())
@@ -2032,6 +2047,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//アニメーターの遷移フラグを立てる
 		CurrentAnimator.SetBool("SpecialAttack", true);
+	}
+
+	//特殊攻撃フラグを立てる、アニメーションクリップから呼ばれる
+	public void StartSpecialTry()
+	{
+		SpecialTryFlag = true;
 	}
 
 	//特殊攻撃待機フラグを下す、アニメーションクリップから呼ばれる
@@ -2626,14 +2647,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void StartAttackCol(int n)
 	{
 		//攻撃用コライダーのコライダ移動関数呼び出し、インデックスとコライダ移動タイプを渡す
-		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.ColStart(n, UseArts));
+		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackCol.gameObject, null, (reciever, eventData) => reciever.ColStart(n, UseArts));
 	}
 
 	//攻撃コライダ終了処理、アニメーションクリップのイベントから呼ばれる
 	private void EndAttackCol()
 	{
 		//コライダ移動終了処理関数呼び出し
-		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.ColEnd());
+		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackCol.gameObject, null, (reciever, eventData) => reciever.ColEnd());
 	}
 
 	//超必殺技コライダ出現処理、アニメーションクリップのイベントから呼ばれる
@@ -2643,7 +2664,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		List<float> PosList = new List<float>(pos.Split(',').Select(a => float.Parse(a)));
 
 		//超必殺技コライダ処理関数呼び出し
-		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.StartSuperCol(new Vector3(PosList[0], PosList[1], PosList[2]), new Vector3(PosList[3], PosList[4], PosList[5])));
+		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackCol.gameObject, null, (reciever, eventData) => reciever.StartSuperCol(new Vector3(PosList[0], PosList[1], PosList[2]), new Vector3(PosList[3], PosList[4], PosList[5])));
 	}
 
 	//超必殺技暗転演出、アニメーションクリップのイベントから呼ばれる
@@ -4000,7 +4021,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
 
 			//コライダを非アクティブ化
-			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+			AttackCol.enabled = false;
 
 			//表情を普通に戻す
 			ChangeFace("Reset");
@@ -4145,7 +4166,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				CurrentAnimator.SetBool("Chain", UseArts.Chain);
 
 				//コライダを非アクティブ化
-				AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+				AttackCol.enabled = false;
 
 				//回転制御フラグを下す
 				NoRotateFlag = false;
@@ -4197,9 +4218,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//特殊攻撃入力フラグを下す
 			SpecialInput = false;
 
-			//特殊攻撃待機フラグを立てる
-			SpecialTryFlag = true;
-
 			//特殊攻撃対象オブジェクト
 			GameObject tempOBJ = null;
 
@@ -4220,7 +4238,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 		//SpecialAttackになった瞬間の処理
 		else if (s.Contains("-> SpecialAttack"))
-		{		
+		{
+			//ダメージ用コライダを有効化
+			DamageCol.enabled = true;
+
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("SpecialAttack", false);
 		}
@@ -4231,7 +4252,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetBool("H_Hit", false);
 
 			//コライダを非アクティブ化
-			AttackColOBJ.GetComponent<BoxCollider>().enabled = false;
+			AttackCol.enabled = false;
 
 			//入力フラグを全て下す関数呼び出し
 			InputReset();
@@ -4606,12 +4627,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AttackDistance = CC.AttackDistance;
 	}
 
-	////戦闘開始処理
-	public void BattleStart(GameObject LooKAtOBJ)
+	//戦闘演出開始処理
+	public void BattleEventStart(GameObject LooKAtOBJ)
 	{
-		//フラグリセット
-		//ClearFlag();
-
 		//イベントフラグを立てる
 		ActionEventFlag = true;
 
@@ -4622,11 +4640,37 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		StartCoroutine(IdlingChangeCoroutine(2, 1));
 	}
 
+	//戦闘継続演出処理
+	public void BattleEventNext(GameObject LooKAtOBJ)
+	{
+		//イベントフラグを立てる
+		ActionEventFlag = true;
+
+		//回転値を入れる
+		EventRotateVector = HorizontalVector(LooKAtOBJ, gameObject);
+
+		//構え切り替えコルーチン呼び出し
+		StartCoroutine(IdlingChangeCoroutine(3, 1));
+	}
+
+	//戦闘演出終了処理
+	public void BattleEventEnd()
+	{
+		//イベントフラグを下す
+		ActionEventFlag = false;
+
+		//入力許可フラグを更新
+		FlagManager(CurrentState);
+	}
+
 	//立ち構え切り替えコルーチン
 	IEnumerator IdlingChangeCoroutine(int Change ,int Affter)
 	{
 		//モーション切り替え
 		CurrentAnimator.SetFloat("Idling_Blend", Change);
+
+		//モーションを再生
+		CurrentAnimator.Play("Idling", 0, 0);
 
 		//完全にアイドリングモーションになるまで待つ
 		while(CurrentState != "Idling")
@@ -4650,44 +4694,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//回転値リセット
 		EventRotateVector *= 0;
-
-		/*
-		//現在のブレンド比率をキャッシュ
-		float BlendRatio = CurrentAnimator.GetFloat("Idling_Blend");
-
-		//構えと立ち切り替え、敵がいる時は構え
-		if (FightingFlag)
-		{
-			//ブレンド比率が1になるまで繰り返し
-			while (BlendRatio < 1)
-			{
-				//ブレンド比率をチョイ上げ
-				BlendRatio += 0.05f;
-
-				//ブレンド比率を適応
-				CurrentAnimator.SetFloat("Idling_Blend", BlendRatio);
-
-				//1フレーム待機
-				yield return null;
-			}
-		}
-		//敵がいない時は立ち
-		else
-		{
-			//ブレンド比率が0になるまで繰り返し
-			while (BlendRatio > 0)
-			{
-				//ブレンド比率をチョイ下げ
-				BlendRatio -= 0.1f;
-
-				//ブレンド比率を適応
-				CurrentAnimator.SetFloat("Idling_Blend", BlendRatio);
-
-				//1フレーム待機
-				yield return null;
-			}
-		}
-		*/
 	}
 
 	//ポーズ処理、ゲームマネージャーから呼び出されるインターフェイス
@@ -4696,8 +4702,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ポーズフラグ引数で受け取ったboolをフラグに代入
 		PauseFlag = b;
 
-		//アタックコライダにフラグを送る
-		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackColOBJ, null, (reciever, eventData) => reciever.SetPauseFlag(PauseFlag));
+		//攻撃コライダにフラグを送る
+		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackCol.gameObject, null, (reciever, eventData) => reciever.SetPauseFlag(PauseFlag));
 
 		//ポーズオン
 		if (PauseFlag)

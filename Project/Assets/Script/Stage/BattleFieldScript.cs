@@ -13,12 +13,6 @@ public class BattleFieldScript : GlobalClass
 	//出現位置List
 	private List<GameObject> SpawnPosList;
 
-	//敵オブジェクトリスト
-	private List<GameObject> EnemyOBJList;
-
-	//敵読み込み完了フラグ
-	private bool LoadCompleteFlag = false;
-
 	//ウェーブカウント
 	private int WaveCount = 0;
 
@@ -34,6 +28,9 @@ public class BattleFieldScript : GlobalClass
 	//バーチャルカメラ
 	private CinemachineCameraScript Vcam;
 
+	//プレイヤーキャラクター
+	private GameObject PlayerCharacter = null;
+
 	private void Start()
 	{
 		//出現位置List初期化
@@ -47,25 +44,27 @@ public class BattleFieldScript : GlobalClass
 
 		//バーチャルカメラ取得
 		Vcam = DeepFind(gameObject, "BattleFieldCamera").GetComponent<CinemachineCameraScript>();
-		
-		//敵オブジェクトリスト初期化
-		EnemyOBJList = new List<GameObject>();
 
-		//使用する敵オブジェクト読み込み
-		StartCoroutine(LoadEnemyCoroutine());
-
-		//初期配置コルーチン呼び出し
+		//敵配置コルーチン呼び出し
 		StartCoroutine(StandByCoroutine());
 	}
 
-	//初期配置コルーチン
+	//敵配置コルーチン
 	private IEnumerator StandByCoroutine()
 	{
-		//読み込み完了まで待機
-		while (!LoadCompleteFlag)
+		//プレイヤーキャラクターが入るまで待つ
+		while(PlayerCharacter == null)
 		{
-			//待機
+			PlayerCharacter = GameManagerScript.Instance.GetPlayableCharacterOBJ();
+
 			yield return null;
+		}
+
+		//最初のウェーブじゃなければウェーブ進行演出
+		if (WaveCount != 0)
+		{
+			//プレイアブルキャラクターの戦闘継続処理関数呼び出し
+			ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventNext(gameObject));
 		}
 
 		//敵出現カウント
@@ -74,11 +73,40 @@ public class BattleFieldScript : GlobalClass
 		//配置用変数
 		float PlacementPoint = 0;
 
+		//読み込んだ敵List
+		List<GameObject> EnemyOBJList = new List<GameObject>();
+
 		//出現する敵Listを回す
-		foreach (var i in GameManagerScript.Instance.AllEnemyWaveList[WaveCount].EnemyList)
+		foreach (var i in GameManagerScript.Instance.AllEnemyWaveList[EnemyWaveList[WaveCount]].EnemyList)
 		{
 			//インスタンス生成
-			GameObject TempEnemy = Instantiate(EnemyOBJList.Where(a => int.Parse(a.GetComponent<EnemySettingScript>().ID) == i).ToArray()[0]);
+			GameObject TempEnemy = null;
+
+			//全ての敵リストからIDで検索
+			EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => int.Parse(e.EnemyID) == i).ToList()[0];
+
+			//敵オブジェクトを読み込む
+			StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Enemy/" + tempclass.EnemyID + "/", tempclass.OBJname, "prefab", (object O) =>
+			{
+				//読み込んだ敵をインスタンス化
+				TempEnemy = O as GameObject;
+			}));
+
+			//読み込み完了を待つ
+			while (TempEnemy == null)
+			{
+				yield return null;
+			}
+
+			//読み込み
+			EnemyOBJList.Add(TempEnemy);
+		}
+
+		//読み込んだ敵オブジェクトをインスタンス化
+		foreach(GameObject i in EnemyOBJList)
+		{
+			//インスタンス生成
+			GameObject TempEnemy = Instantiate(i);
 
 			//親をバトルフィールドにする
 			TempEnemy.transform.parent = gameObject.transform;
@@ -86,8 +114,8 @@ public class BattleFieldScript : GlobalClass
 			//座標を直で変更するためキャラクターコントローラを無効化
 			TempEnemy.GetComponent<CharacterController>().enabled = false;
 
-			//配置用変数さんしゅつ
-			PlacementPoint = (float)EnemyCount / GameManagerScript.Instance.AllEnemyWaveList[0].EnemyList.Count * (2.0f * Mathf.PI);
+			//配置用変数算出
+			PlacementPoint = (float)EnemyCount / GameManagerScript.Instance.AllEnemyWaveList[EnemyWaveList[WaveCount]].EnemyList.Count * (2.0f * Mathf.PI);
 
 			//ポジション設定
 			TempEnemy.transform.localPosition = new Vector3(Mathf.Cos(PlacementPoint) * 1.5f, 0, Mathf.Sin(PlacementPoint) * 1.5f);
@@ -105,88 +133,60 @@ public class BattleFieldScript : GlobalClass
 			EnemyList.Add(TempEnemy);
 
 			//敵出現カウントアップ
-			EnemyCount ++;
-		}
+			EnemyCount++;
 
-		//ウェーブカウントアップ
-		WaveCount++;
-	}
-
-	//敵読み込みコルーチン
-	private IEnumerator LoadEnemyCoroutine()
-	{
-		//敵IDList宣言
-		List<int> EnemyIDList = new List<int>();
-
-		//読み込み完了Dic宣言
-		Dictionary<int, bool> LoadDic = new Dictionary<int, bool>();
-
-		//ウェーブリストを回す
-		foreach (var i in EnemyWaveList)
-		{
-			//出現する敵リストを回す
-			foreach(var ii in GameManagerScript.Instance.AllEnemyWaveList[i].EnemyList)
+			//同じ敵を同時に出現させるとSettingで読み込み重複が起こるので終わるまで待機
+			while (!TempEnemy.GetComponent<EnemySettingScript>().AllReadyFlag)
 			{
-				//被った要素が無ければリストに追加
-				if(!EnemyIDList.Any(a => a == ii))
-				{
-					EnemyIDList.Add(ii);
-
-					LoadDic.Add(ii, false);
-				}				
+				//１フレーム待機
+				yield return null;
 			}
 		}
 
-		//敵IDListを回す
-		foreach (var i in EnemyIDList)
+		/*
+		//最初のウェーブじゃ無ければすぐに行動開始
+		if(WaveCount != 0)
 		{
-			//全ての敵リストからIDで検索
-			EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => int.Parse(e.EnemyID) == i).ToList()[0];
-
-			//敵オブジェクトを読み込む
-			StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Enemy/" + tempclass.EnemyID + "/", tempclass.OBJname, "prefab", (object O) =>
+			//敵に戦闘開始フラグを送る
+			foreach (var i in EnemyList.Where(a => a != null).ToList())
 			{
-				//リストにAdd
-				EnemyOBJList.Add(O as GameObject);
+				i.GetComponent<EnemyCharacterScript>().BattleStart();
 
-				//読み込み完了フラグを立てる
-				LoadDic[i] = true;
-
-			}));
+				//プレイヤーキャラクターの戦闘演出終了処理呼び出し
+				ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
+			}
 		}
+		*/
 
-		//読み込み完了まで待機
-		while(!LoadDic.Values.All(a => a))
-		{
-			//待機
-			yield return null;
-		}
+		//ウェーブカウントアップ
+		WaveCount++;
 
-		//読み込み完了フラグを立てる
-		LoadCompleteFlag = true;
+		//敵全滅チェック開始
+		EnemyCheckFlag = true;
 	}
 
 	private void Update()
 	{
 		//敵全滅チェック
 		if(EnemyCheckFlag)
-		{
+		{			
 			//敵を全て倒したら処理
 			if(EnemyList.All(a => a == null))
 			{
-				//最終ウェーブだったらフィールド解除処理
-				if(EnemyWaveList.Count == WaveCount)
-				{
-					//全滅チェックフラグを下す
-					EnemyCheckFlag = false;
+				//敵全滅チェック停止
+				EnemyCheckFlag = false;
 
+				//最終ウェーブだったらフィールド解除処理
+				if (EnemyWaveList.Count == WaveCount)
+				{
 					//フィールド解除コルーチン呼び出し
 					StartCoroutine(ReleaseBattleFieldCoroutine());
 				}
 				//次のウェーブ出現処理
 				else
 				{
-					//EnemySpawn();
+					//敵配置コルーチン呼び出し
+					StartCoroutine(StandByCoroutine());
 				}				
 			}
 		}
@@ -261,16 +261,13 @@ public class BattleFieldScript : GlobalClass
 		//全滅チェックフラグを立てる
 		EnemyCheckFlag = true;
 
-		//プレイアブルキャラクターの戦闘戦闘開始処理関数呼び出し
-		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleStart(gameObject));
+		//プレイアブルキャラクターの戦闘演出開始処理関数呼び出し
+		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventStart(gameObject));
 	}
 
 	//壁生成完了待ちコルーチン
 	private IEnumerator WaitWallGenerateCoroutine()
 	{
-		//敵出現関数呼び出し
-		//EnemySpawn();
-
 		//完了フラグが全て立つまで待機
 		while (!WallGanerateScriptList.All(a => a.CompleteFlag))
 		{
@@ -296,55 +293,7 @@ public class BattleFieldScript : GlobalClass
 		//イベント中フラグを下す
 		GameManagerScript.Instance.EventFlag = false;
 
-		//プレイヤーキャラクターのイベントフラグを下す
-		GameManagerScript.Instance.GetPlayableCharacterOBJ().GetComponent<PlayerScript>().ActionEventFlag = false;
-	}
-
-	//敵出現
-	public void EnemySpawn()
-	{
-		//コルーチン呼び出し
-		StartCoroutine(EnemySpawnCoroutine());
-	}
-	private IEnumerator EnemySpawnCoroutine()
-	{
-		//敵全滅チェック停止
-		EnemyCheckFlag = false;
-
-		//出現する敵ウェーブリストを回す
-		foreach (var i in GameManagerScript.Instance.AllEnemyWaveList[EnemyWaveList[WaveCount]].EnemyList)
-		{
-			//全ての敵リストからIDで検索
-			EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => int.Parse(e.EnemyID) == i).ToList()[0];
-
-			//敵オブジェクトを読み込む
-			StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Enemy/" + tempclass.EnemyID + "/", tempclass.OBJname, "prefab", (object O) =>
-			{
-				//インスタンス生成
-				GameObject tempenemy = Instantiate(O as GameObject);
-
-				//座標を直で変更するためキャラクターコントローラを無効化
-				tempenemy.GetComponent<CharacterController>().enabled = false;
-
-				//座標をランダムにする
-				tempenemy.transform.position = gameObject.transform.position + new Vector3(UnityEngine.Random.Range(-5.0f, 5.0f), 0.1f, UnityEngine.Random.Range(-5.0f, 5.0f));
-
-				//キャラクターコントローラを有効化
-				tempenemy.GetComponent<CharacterController>().enabled = true;
-
-				//リストにAdd
-				EnemyList.Add(tempenemy);
-
-			}));
-
-			//待機
-			yield return new WaitForSeconds(1);
-		}
-
-		//ウェーブカウントアップ
-		WaveCount ++;
-		
-		//敵全滅チェック開始
-		EnemyCheckFlag = true;
+		//プレイヤーキャラクターの戦闘演出終了処理呼び出し
+		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
 	}
 }
