@@ -36,10 +36,10 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	void SetWeapon(GameObject w);
 
 	//戦闘演出開始処理
-	void BattleEventStart(GameObject LooKAtOBJ);
+	void BattleEventStart(GameObject LooKAtOBJ, GameObject PosOBJ);
 
 	//戦闘継続演出処理
-	void BattleEventNext(GameObject LooKAtOBJ);
+	void BattleEventNext(GameObject LooKAtOBJ, GameObject PosOBJ);
 
 	//戦闘演出終了処理
 	void BattleEventEnd();
@@ -225,9 +225,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//クロスバタバタフラグ
 	private bool ClothShakeFlag = false;
 
-	//アクションイベントフラグ
-	public bool ActionEventFlag { get; set; } = false;
-
 	//ポーズフラグ
 	private bool PauseFlag = false;
 
@@ -285,6 +282,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//イベント回転ベクトル
 	private Vector3 EventRotateVector;
+
+	//イベント移動ベクトル
+	private Vector3 EventMoveVector;
 
 	//強制移動ベクトル
 	private Vector3 ForceMoveVector;
@@ -711,6 +711,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//イベント回転ベクトル初期化
 		EventRotateVector = Vector3.zero;
+
+		//イベント移動ベクトル初期化
+		EventMoveVector = Vector3.zero;
 
 		//強制移動ベクトル初期化
 		ForceMoveVector = Vector3.zero;
@@ -1147,7 +1150,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//移動キーを押した時
 	private void OnPlayerMove(InputValue inputValue)
 	{
-		if (!ActionEventFlag)
+		if (!GameManagerScript.Instance.EventFlag)
 		{
 			//入力をキャッシュ
 			PlayerMoveInputVecter = inputValue.Get<Vector2>();
@@ -1612,12 +1615,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 		//イベント中の移動
-		else if (ActionEventFlag)
+		else if (GameManagerScript.Instance.EventFlag)
 		{
+			//イベント中の移動値を反映
+			HorizonAcceleration = EventMoveVector;
+
 			if (EventRotateVector != Vector3.zero)
 			{
 				//回転
-				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(EventRotateVector), TurnSpeed * Time.deltaTime);
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(EventRotateVector), TurnSpeed * 10 * Time.deltaTime);
 			}
 		}
 		//何もしていなければその場に止まる
@@ -3790,7 +3796,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		= !PauseFlag &&
 		!H_Flag &&
 		OnGroundFlag &&
-		!ActionEventFlag &&
+		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -3815,7 +3821,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		SuperArts != null &&
 		!H_Flag &&
 		OnGroundFlag &&
-		!ActionEventFlag &&
+		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -3854,7 +3860,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		PermitInputBoolDic["Jump"]
 		= !PauseFlag &&
 		!H_Flag &&
-		!ActionEventFlag &&
+		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -3875,7 +3881,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		PermitInputBoolDic["GroundRolling"]
 		= !PauseFlag &&
 		!H_Flag &&
-		!ActionEventFlag &&
+		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -3908,7 +3914,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		= !PauseFlag &&
 		!H_Flag &&
 		!NoEquipFlag &&
-		!ActionEventFlag &&
+		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -4628,10 +4634,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//戦闘演出開始処理
-	public void BattleEventStart(GameObject LooKAtOBJ)
+	public void BattleEventStart(GameObject LooKAtOBJ, GameObject PosOBJ)
 	{
-		//イベントフラグを立てる
-		ActionEventFlag = true;
+		//移動値をリセット
+		EventMoveVector *= 0;
+
+		//表情を普通に戻す
+		ChangeFace("Reset");
+
+		//キャラクターコントローラ無効化
+		Controller.enabled = false;
+
+		//ポジションを移動
+		gameObject.transform.position = PosOBJ.transform.position;
+
+		//キャラクターコントローラ有効化
+		Controller.enabled = true;
 
 		//回転値を入れる
 		EventRotateVector = HorizontalVector(LooKAtOBJ, gameObject);
@@ -4641,10 +4659,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//戦闘継続演出処理
-	public void BattleEventNext(GameObject LooKAtOBJ)
+	public void BattleEventNext(GameObject LooKAtOBJ, GameObject PosOBJ)
 	{
-		//イベントフラグを立てる
-		ActionEventFlag = true;
+		//移動値をリセット
+		EventMoveVector *= 0;
+
+		//表情を普通に戻す
+		ChangeFace("Reset");
+
+		//キャラクターコントローラ無効化
+		Controller.enabled = false;
+
+		//ポジションを移動
+		gameObject.transform.position = PosOBJ.transform.position;
+
+		//キャラクターコントローラ有効化
+		Controller.enabled = true;
 
 		//回転値を入れる
 		EventRotateVector = HorizontalVector(LooKAtOBJ, gameObject);
@@ -4656,9 +4686,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//戦闘演出終了処理
 	public void BattleEventEnd()
 	{
-		//イベントフラグを下す
-		ActionEventFlag = false;
-
 		//入力許可フラグを更新
 		FlagManager(CurrentState);
 	}

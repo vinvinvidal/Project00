@@ -17,12 +17,6 @@ public class GenerateWallScript : GlobalClass
 	//完了フラグ
 	public bool CompleteFlag { get; set; } = false;
 
-	void Start()
-    {
-		
-		//StartCoroutine(GenerateWallCoroutine());
-    }
-
 	//壁生成コルーチン
 	public IEnumerator GenerateWallCoroutine()
 	{
@@ -42,9 +36,6 @@ public class GenerateWallScript : GlobalClass
 			
 			//自身と同じ位置にする
 			TempGarbage.transform.position = transform.position;
-
-			//移動を制限
-			//TempGarbage.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
 
 			//壁オブジェクトをまとめるオブジェクトの子にする
 			TempGarbage.transform.parent = DeepFind(gameObject.transform.parent.gameObject, "WallOBJ").transform;

@@ -189,6 +189,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//ビヘイビアから設定される回転値
 	public Vector3 BehaviorRotate { get; set; }
 
+	//イベント中の回転値
+	private Vector3 EventRotate = Vector3.zero;
+
 	//ノックバックの移動ベクトル
 	private Vector3 KnockBackVec;
 
@@ -279,8 +282,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//行動中フラグ
 	public bool BehaviorFlag { get; set; } = false;
 
-	//戦闘状態フラグ
-	private bool BattleFlag = false;
+	//戦闘中フラグ
+	public bool BattleFlag { get; set; } = false;
 
 	//ダウンしない攻撃List
 	private List<int> NotDownAttackList;
@@ -673,7 +676,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void Update()
 	{
-		if (!PauseFlag && BattleFlag && !GameManagerScript.Instance.EventFlag)
+		if (!PauseFlag)
 		{
 			//アニメーションステートを監視する関数呼び出し
 			StateMonitor();
@@ -681,14 +684,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//接地判定用のRayを飛ばす関数呼び出し
 			GroundRayCast();
 
-			//行動抽選関数呼び出し
-			BehaviorFunc();
-
 			//他キャラめり込み防止関数呼び出し
 			EnemyAround();
 
 			//移動制御関数呼び出し
 			MoveFunc();
+
+			//戦闘中だけ行動抽選
+			if (BattleFlag)
+			{
+				//行動抽選関数呼び出し
+				BehaviorFunc();
+			}
 
 			//死亡監視関数呼び出し
 			//DeadFunc();
@@ -727,8 +734,14 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//回転値初期化
 		RotateVec *= 0;
 
+		//イベント中
+		if(GameManagerScript.Instance.EventFlag)
+		{
+			//回転値
+			RotateVec = EventRotate;
+		}
 		//ダウン状態
-		if (DownFlag)
+		else if (DownFlag)
 		{
 			MoveMoment *= 0;
 		}
@@ -783,7 +796,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//回転値
 			RotateVec = BehaviorRotate;
 		}
-
+		
 		//条件で重力加速度を増減させる
 		if (H_Flag)
 		{
@@ -2360,6 +2373,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	{
 		//受け取ったListを変数に格納
 		DamageAnimList = new List<AnimationClip>(i);
+
+		//オーバーライドコントローラにアニメーションクリップをセット、これをしないとTスタンスが見える
+		OverRideAnimator["Damage_Void_0"] = DamageAnimList[0];
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 	}
 
 	//攻撃モーションListを受け取る、セッティングスクリプトから呼ばれる
@@ -2446,6 +2465,37 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		PlayerCharacter = c;
 	}
 
+	//戦闘継続処理
+	public void BattleNext()
+	{
+		StartCoroutine(BattleNextCoroutine());
+	}
+	private IEnumerator BattleNextCoroutine()
+	{
+		//アニメーター再生
+		CurrentAnimator.speed = 1;
+
+		//アングルを測定、プレイヤーに向くまでループ
+		while (Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject)) > 1)
+		{
+			//プレイヤーに向けて回転
+			EventRotate = HorizontalVector(PlayerCharacter, gameObject);
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//たむろモーションが終わるまで待つ
+		while (CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+		{
+			//１フレーム待機
+			yield return null;
+		}
+
+		//アイドリングモーションを変更
+		CurrentAnimator.SetFloat("IdlingBlend", 0);
+	}
+
 	//戦闘開始処理
 	public void BattleStart()
 	{
@@ -2466,22 +2516,20 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//アイドリングモーションを変更
 		CurrentAnimator.SetFloat("IdlingBlend", 0);
 
+		//歩きモーションフラグを立てる
+		CurrentAnimator.SetBool("Walk", true);
+
 		//アングルを測定、プレイヤーに向くまでループ
 		while (Vector3.Angle(gameObject.transform.forward,HorizontalVector(PlayerCharacter , gameObject)) > 1)
 		{
 			//プレイヤーに向けて回転
-			transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(PlayerCharacter, gameObject)), TurnSpeed * Time.deltaTime);
+			EventRotate = HorizontalVector(PlayerCharacter, gameObject);
 
 			//１フレーム待機
 			yield return null;
 		}
 
-		//戦闘開始フラグを立てる
-		BattleFlag = true;
-
-		//ビヘイビアに戦闘開始フラグを送る
-		ExecuteEvents.Execute<EnemyBehaviorInterface>(gameObject, null, (reciever, eventData) => reciever.SetBattleFlag());
+		//歩きモーションフラグを下ろす
+		CurrentAnimator.SetBool("Walk", false);
 	}
 }
-
-

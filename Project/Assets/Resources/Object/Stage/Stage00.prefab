@@ -3093,10 +3093,15 @@ PrefabInstance:
       propertyPath: EnemyWaveList.Array.data[0]
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4181123511349073362, guid: 5af24504515112c4ba1d0b60e4315011,
+        type: 3}
+      propertyPath: EnemyWaveList.Array.data[1]
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5617224011838289723, guid: 5af24504515112c4ba1d0b60e4315011,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5617224011838289723, guid: 5af24504515112c4ba1d0b60e4315011,
         type: 3}

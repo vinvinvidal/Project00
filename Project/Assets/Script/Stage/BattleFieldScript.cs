@@ -1,9 +1,11 @@
 ﻿using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 public class BattleFieldScript : GlobalClass
 {
@@ -25,11 +27,17 @@ public class BattleFieldScript : GlobalClass
 	//壁生成スクリプトリスト
 	private List<GenerateWallScript> WallGanerateScriptList;
 
-	//バーチャルカメラ
-	private CinemachineCameraScript Vcam;
+	//戦闘開始用バーチャルカメラスクリプト
+	private CinemachineCameraScript BattleStartVcam;
+
+	//次のウェーブ移行用バーチャルカメラスクリプト
+	private CinemachineCameraScript BattleNextVcam;
 
 	//プレイヤーキャラクター
 	private GameObject PlayerCharacter = null;
+
+	//バーチャルカメラで映す敵、ウェーブリストの最初のヤツ
+	private GameObject LookAtEnemy = null;	
 
 	private void Start()
 	{
@@ -42,39 +50,105 @@ public class BattleFieldScript : GlobalClass
 		//壁生成完了スクリプト取得
 		WallGanerateScriptList = new List<GenerateWallScript>(gameObject.GetComponentsInChildren<GenerateWallScript>());
 
-		//バーチャルカメラ取得
-		Vcam = DeepFind(gameObject, "BattleFieldCamera").GetComponent<CinemachineCameraScript>();
+		//戦闘開始用バーチャルカメラスクリプト取得
+		BattleStartVcam = DeepFind(gameObject, "BattleFieldCamera_Start").GetComponent<CinemachineCameraScript>();
 
-		//敵配置コルーチン呼び出し
+		//次のウェーブ移行用バーチャルカメラスクリプト
+		BattleNextVcam = DeepFind(gameObject, "BattleFieldCamera_Next").GetComponent<CinemachineCameraScript>();
+
+		//敵出現位置List取得
+		foreach(Transform i in DeepFind(gameObject, "SpawnPosOBJ").GetComponentsInChildren<Transform>())
+		{
+			if(i.gameObject != DeepFind(gameObject, "SpawnPosOBJ"))
+			{
+				SpawnPosList.Add(i.gameObject);
+			}			
+		}
+
+		//敵初期配置コルーチン呼び出し
 		StartCoroutine(StandByCoroutine());
 	}
 
-	//敵配置コルーチン
-	private IEnumerator StandByCoroutine()
+	private void Update()
 	{
-		//プレイヤーキャラクターが入るまで待つ
-		while(PlayerCharacter == null)
+		//敵全滅チェック
+		if (EnemyCheckFlag)
 		{
-			PlayerCharacter = GameManagerScript.Instance.GetPlayableCharacterOBJ();
+			//敵を全て倒したら処理
+			if (EnemyList.All(a => a == null))
+			{
+				//敵全滅チェック停止
+				EnemyCheckFlag = false;
 
-			yield return null;
+				//最終ウェーブだったらフィールド解除処理
+				if (EnemyWaveList.Count == WaveCount)
+				{
+					//フィールド解除コルーチン呼び出し
+					StartCoroutine(ReleaseBattleFieldCoroutine());
+				}
+				//次のウェーブ出現処理
+				else
+				{
+					//次のウェーブ移行関数呼び出し
+					NextWaveCoroutine();
+				}
+			}
 		}
+	}
 
-		//最初のウェーブじゃなければウェーブ進行演出
-		if (WaveCount != 0)
+	//次のウェーブ移行コルーチン
+	private void NextWaveCoroutine()
+	{
+		//イベント中フラグを立てる
+		GameManagerScript.Instance.EventFlag = true;
+
+		//プレイヤーの次のウェーブ移行関数呼び出し
+		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventNext(gameObject, DeepFind(gameObject, "PlayerPosOBJ")));
+
+		//最初のカメラワークの注視点にプレイヤーキャラクターを入れる
+		BattleNextVcam.CameraWorkList[0].GetComponentInChildren<CinemachineVirtualCamera>().LookAt = DeepFind(PlayerCharacter, "HeadBone").transform;
+
+		//バーチャルカメラ再生
+		BattleNextVcam.PlayCameraWork(0, true);
+
+		//敵配置コルーチン呼び出し
+		StartCoroutine(EnemySpawnCoroutine(()=> 
 		{
-			//プレイアブルキャラクターの戦闘継続処理関数呼び出し
-			ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventNext(gameObject));
-		}
+			//敵に戦闘開始フラグを送る
+			foreach (var i in EnemyList.Where(a => a != null).ToList())
+			{
+				i.GetComponent<EnemyCharacterScript>().BattleNext();
+			}
 
+			//カメラ演出待ちコルーチン呼び出し
+			StartCoroutine(WaitCameraCoroutine(BattleNextVcam, () =>
+			{
+				//イベント中フラグを下ろす
+				GameManagerScript.Instance.EventFlag = false;
+
+				//プレイヤーキャラクターの戦闘演出終了処理呼び出し
+				ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
+
+				//敵の戦闘フラグを立てる
+				foreach (var i in EnemyList.Where(a => a != null).ToList())
+				{
+					i.GetComponent<EnemyCharacterScript>().BattleFlag = true;
+				}
+
+				//全滅チェックフラグを立てる
+				EnemyCheckFlag = true;
+			}));
+		}));
+	}
+
+	//敵配置コルーチン
+	private IEnumerator EnemySpawnCoroutine(Action act)
+	{
 		//敵出現カウント
 		int EnemyCount = 0;
 
-		//配置用変数
-		float PlacementPoint = 0;
-
 		//読み込んだ敵List
-		List<GameObject> EnemyOBJList = new List<GameObject>();
+		List<GameObject> TempEnemyOBJList = new List<GameObject>();
 
 		//出現する敵Listを回す
 		foreach (var i in GameManagerScript.Instance.AllEnemyWaveList[EnemyWaveList[WaveCount]].EnemyList)
@@ -98,12 +172,103 @@ public class BattleFieldScript : GlobalClass
 				yield return null;
 			}
 
-			//読み込み
-			EnemyOBJList.Add(TempEnemy);
+			//ListにAdd
+			TempEnemyOBJList.Add(TempEnemy);
 		}
 
 		//読み込んだ敵オブジェクトをインスタンス化
-		foreach(GameObject i in EnemyOBJList)
+		foreach (GameObject i in TempEnemyOBJList)
+		{
+			//インスタンス生成
+			GameObject TempEnemy = Instantiate(i);
+
+			//座標を直で変更するためキャラクターコントローラを無効化
+			TempEnemy.GetComponent<CharacterController>().enabled = false;
+
+			//ポジション設定、ある程度ランダムに配置
+			TempEnemy.transform.position = gameObject.transform.position + SpawnPosList[Random.Range(0, SpawnPosList.Count)].transform.localPosition + new Vector3(Random.Range(-2f, 2f), 0, Random.Range(-2f, 2f));
+
+			//キャラクターコントローラを有効化
+			TempEnemy.GetComponent<CharacterController>().enabled = true;
+
+			//出現させた敵Listに追加
+			EnemyList.Add(TempEnemy);
+
+			//敵出現カウントアップ
+			EnemyCount++;
+
+			//同じ敵を同時に出現させるとSettingで読み込み重複が起こるので終わるまで待機
+			while (!TempEnemy.GetComponent<EnemySettingScript>().AllReadyFlag)
+			{
+				//１フレーム待機
+				yield return null;
+			}
+		}
+
+		//全ての敵が読み込み終わるまで待機
+		while(!EnemyList.Where(a => a != null).All(b => b.GetComponent<EnemySettingScript>().AllReadyFlag))
+		{
+			//１フレーム待機
+			yield return null;
+		}
+
+		//ウェーブカウントアップ
+		WaveCount++;
+
+		//匿名関数実行
+		act();
+	}
+
+	//敵初期配置コルーチン
+	private IEnumerator StandByCoroutine()
+	{
+		//プレイヤーキャラクターが入るまで待つ
+		while (PlayerCharacter == null)
+		{
+			//プレイヤーキャラクター取得
+			PlayerCharacter = GameManagerScript.Instance.GetPlayableCharacterOBJ();
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//敵出現カウント
+		int EnemyCount = 0;
+
+		//配置用変数
+		float PlacementPoint = 0;
+
+		//読み込んだ敵List
+		List<GameObject> TempEnemyOBJList = new List<GameObject>();
+
+		//出現する敵Listを回す
+		foreach (var i in GameManagerScript.Instance.AllEnemyWaveList[EnemyWaveList[WaveCount]].EnemyList)
+		{
+			//インスタンス生成
+			GameObject TempEnemy = null;
+
+			//全ての敵リストからIDで検索
+			EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => int.Parse(e.EnemyID) == i).ToList()[0];
+
+			//敵オブジェクトを読み込む
+			StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Enemy/" + tempclass.EnemyID + "/", tempclass.OBJname, "prefab", (object O) =>
+			{
+				//読み込んだ敵をインスタンス化
+				TempEnemy = O as GameObject;
+			}));
+
+			//読み込み完了を待つ
+			while (TempEnemy == null)
+			{
+				yield return null;
+			}
+
+			//ListにAdd
+			TempEnemyOBJList.Add(TempEnemy);
+		}
+
+		//読み込んだ敵オブジェクトをインスタンス化
+		foreach (GameObject i in TempEnemyOBJList)
 		{
 			//インスタンス生成
 			GameObject TempEnemy = Instantiate(i);
@@ -132,6 +297,12 @@ public class BattleFieldScript : GlobalClass
 			//出現させた敵Listに追加
 			EnemyList.Add(TempEnemy);
 
+			//カメラに映す敵がnullなら入れる
+			if(LookAtEnemy == null)
+			{
+				LookAtEnemy = TempEnemy;
+			}
+
 			//敵出現カウントアップ
 			EnemyCount++;
 
@@ -143,108 +314,21 @@ public class BattleFieldScript : GlobalClass
 			}
 		}
 
-		/*
-		//最初のウェーブじゃ無ければすぐに行動開始
-		if(WaveCount != 0)
-		{
-			//敵に戦闘開始フラグを送る
-			foreach (var i in EnemyList.Where(a => a != null).ToList())
-			{
-				i.GetComponent<EnemyCharacterScript>().BattleStart();
-
-				//プレイヤーキャラクターの戦闘演出終了処理呼び出し
-				ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
-			}
-		}
-		*/
-
 		//ウェーブカウントアップ
 		WaveCount++;
-
-		//敵全滅チェック開始
-		EnemyCheckFlag = true;
-	}
-
-	private void Update()
-	{
-		//敵全滅チェック
-		if(EnemyCheckFlag)
-		{			
-			//敵を全て倒したら処理
-			if(EnemyList.All(a => a == null))
-			{
-				//敵全滅チェック停止
-				EnemyCheckFlag = false;
-
-				//最終ウェーブだったらフィールド解除処理
-				if (EnemyWaveList.Count == WaveCount)
-				{
-					//フィールド解除コルーチン呼び出し
-					StartCoroutine(ReleaseBattleFieldCoroutine());
-				}
-				//次のウェーブ出現処理
-				else
-				{
-					//敵配置コルーチン呼び出し
-					StartCoroutine(StandByCoroutine());
-				}				
-			}
-		}
-	}
-
-	//フィールド解放コルーチン
-	private IEnumerator ReleaseBattleFieldCoroutine()
-	{
-		//コライダ無効化
-		DeepFind(gameObject, "FieldCol").GetComponent<MeshCollider>().enabled = false;
-
-		//壁オブジェクト取得
-		List<GameObject> OBJList = new List<GameObject>(DeepFind(gameObject, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")).Select(b => b.gameObject).ToList());
-
-		//壁オブジェクトのRigitBodyを回す
-		foreach(Rigidbody i in OBJList.Select(a => a.GetComponent<Rigidbody>()))
-		{
-			//オブジェクトに壁消失用スクリプト追加
-			i.gameObject.AddComponent<WallVanishScript>();
-
-			//物理挙動有効化
-			i.isKinematic = false;
-
-			//外側に力を与えて壁を崩す
-			i.AddForce((i.transform.position - gameObject.transform.position + Vector3.up) * 2.5f, ForceMode.Impulse);
-		}
-
-		//壁オブジェクトが全部消えるまでループ
-		while(!OBJList.All(a => a == null))
-		{
-			yield return null;
-		}
-
-		//フィールド削除
-		Destroy(gameObject);
 	}
 
 	//プレイヤーがエリアに進入したら呼ばれる関数
 	private void OnTriggerEnter(Collider ColHit)
 	{
-		//ヒットコライダを無効化
+		//コライダを無効化
 		gameObject.GetComponent<SphereCollider>().enabled = false;
 
-		//フィールドコライダ有効化
+		//バトルフィールドコライダ有効化
 		gameObject.GetComponentInChildren<MeshCollider>().enabled = true;
 
 		//イベント中フラグを立てる
 		GameManagerScript.Instance.EventFlag = true;
-
-		//バーチャルカメラをキャラクターの子にする
-		Vcam.gameObject.transform.parent = GameManagerScript.Instance.GetPlayableCharacterOBJ().transform;
-
-		//位置合わせ
-		Vcam.gameObject.transform.localPosition *= 0;
-		Vcam.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
-
-		//バーチャルカメラ再生
-		Vcam.PlayCameraWork(0, true);
 
 		//ガベージを撒いて壁を作るスクリプトの関数呼び出し
 		WallGanerateScriptList.Select(a => StartCoroutine(a.GenerateWallCoroutine())).ToArray();
@@ -252,17 +336,70 @@ public class BattleFieldScript : GlobalClass
 		//壁生成完了待ちコルーチン呼び出し
 		StartCoroutine(WaitWallGenerateCoroutine());
 
+		//最初のカメラワークの注視点に敵キャラクターを入れる
+		BattleStartVcam.CameraWorkList[0].GetComponentInChildren<CinemachineVirtualCamera>().LookAt = DeepFind(LookAtEnemy , "HeadBone").transform;
+
+		//次のカメラワークの注視点にプレイヤーキャラクターを入れる
+		BattleStartVcam.CameraWorkList[1].GetComponentInChildren<CinemachineVirtualCamera>().LookAt = DeepFind(PlayerCharacter, "HeadBone").transform;
+
+		//バーチャルカメラ再生
+		BattleStartVcam.PlayCameraWork(0, true);
+
+		//プレイアブルキャラクターの戦闘演出開始処理関数呼び出し
+		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventStart(gameObject, DeepFind(gameObject, "PlayerPosOBJ")));
+
 		//敵に戦闘開始フラグを送る
-		foreach(var i in EnemyList.Where(a => a != null).ToList())
+		foreach (var i in EnemyList.Where(a => a != null).ToList())
 		{
 			i.GetComponent<EnemyCharacterScript>().BattleStart();
 		}
 
-		//全滅チェックフラグを立てる
-		EnemyCheckFlag = true;
+		//カメラ演出待ちコルーチン呼び出し
+		StartCoroutine(WaitCameraCoroutine(BattleStartVcam , () =>
+		{
+			//イベント中フラグを下ろす
+			GameManagerScript.Instance.EventFlag = false;
 
-		//プレイアブルキャラクターの戦闘演出開始処理関数呼び出し
-		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventStart(gameObject));
+			//プレイヤーキャラクターの戦闘演出終了処理呼び出し
+			ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
+
+			//敵の戦闘フラグを立てる
+			foreach (var i in EnemyList.Where(a => a != null).ToList())
+			{
+				i.GetComponent<EnemyCharacterScript>().BattleFlag = true;
+			}
+
+			//全滅チェックフラグを立てる
+			EnemyCheckFlag = true;
+		}));
+	}
+
+	//カメラ演出待ちコルーチン
+	private IEnumerator WaitCameraCoroutine(CinemachineCameraScript Vcam, Action Act)
+	{
+		//パストラッキング片道
+		if(Vcam.CameraWorkList[Vcam.CameraWorkList.Count - 1].GetComponent<CameraWorkScript>().CameraMode == 1)
+		{
+			//カメラワーク終了値宣言
+			float EndNum = 0;
+				
+			//終了がパスユニット
+			if(Vcam.CameraWorkList[Vcam.CameraWorkList.Count - 1].GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PositionUnits == CinemachinePathBase.PositionUnits.PathUnits)
+			{
+				//終了値をパス数に設定
+				EndNum = Vcam.CameraWorkList[Vcam.CameraWorkList.Count - 1].GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_Path.MaxPos;
+			}
+
+			//ポジションが終了値に達するまでループ
+			while (EndNum > Vcam.CameraWorkList[Vcam.CameraWorkList.Count - 1].GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition)
+			{
+				//1フレーム待機
+				yield return null;
+			}
+		}
+
+		//匿名関数実行
+		Act();
 	}
 
 	//壁生成完了待ちコルーチン
@@ -279,21 +416,41 @@ public class BattleFieldScript : GlobalClass
 		yield return new WaitForSeconds(2.5f);
 
 		//物理挙動を止める
-		foreach(var i in gameObject.GetComponentsInChildren<Rigidbody>())
-		{			
+		foreach (var i in gameObject.GetComponentsInChildren<Rigidbody>())
+		{
 			i.isKinematic = true;
 		}
+	}
 
-		//バーチャルカメラ停止
-		Vcam.KeepCameraFlag = false;
+	//フィールド解放コルーチン
+	private IEnumerator ReleaseBattleFieldCoroutine()
+	{
+		//コライダ無効化
+		DeepFind(gameObject, "FieldCol").GetComponent<MeshCollider>().enabled = false;
 
-		//カメラが移動するまでちょっと待つ
-		yield return new WaitForSeconds(1);
+		//壁オブジェクト取得
+		List<GameObject> OBJList = new List<GameObject>(DeepFind(gameObject, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")).Select(b => b.gameObject).ToList());
 
-		//イベント中フラグを下す
-		GameManagerScript.Instance.EventFlag = false;
+		//壁オブジェクトのRigitBodyを回す
+		foreach (Rigidbody i in OBJList.Select(a => a.GetComponent<Rigidbody>()))
+		{
+			//オブジェクトに壁消失用スクリプト追加
+			i.gameObject.AddComponent<WallVanishScript>();
 
-		//プレイヤーキャラクターの戦闘演出終了処理呼び出し
-		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
+			//物理挙動有効化
+			i.isKinematic = false;
+
+			//外側に力を与えて壁を崩す
+			i.AddForce((i.transform.position - gameObject.transform.position + Vector3.up) * 2.5f, ForceMode.Impulse);
+		}
+
+		//壁オブジェクトが全部消えるまでループ
+		while (!OBJList.All(a => a == null))
+		{
+			yield return null;
+		}
+
+		//フィールド削除
+		Destroy(gameObject);
 	}
 }
