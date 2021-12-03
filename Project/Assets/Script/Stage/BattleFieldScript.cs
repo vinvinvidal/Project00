@@ -33,6 +33,9 @@ public class BattleFieldScript : GlobalClass
 	//次のウェーブ移行用バーチャルカメラスクリプト
 	private CinemachineCameraScript BattleNextVcam;
 
+	//勝利演出用バーチャルカメラスクリプト
+	private CinemachineCameraScript BattleEndVcam;
+
 	//プレイヤーキャラクター
 	private GameObject PlayerCharacter = null;
 
@@ -56,8 +59,11 @@ public class BattleFieldScript : GlobalClass
 		//次のウェーブ移行用バーチャルカメラスクリプト
 		BattleNextVcam = DeepFind(gameObject, "BattleFieldCamera_Next").GetComponent<CinemachineCameraScript>();
 
+		//勝利演出用バーチャルカメラスクリプト
+		BattleEndVcam = DeepFind(gameObject, "BattleFieldCamera_End").GetComponent<CinemachineCameraScript>();
+
 		//敵出現位置List取得
-		foreach(Transform i in DeepFind(gameObject, "SpawnPosOBJ").GetComponentsInChildren<Transform>())
+		foreach (Transform i in DeepFind(gameObject, "SpawnPosOBJ").GetComponentsInChildren<Transform>())
 		{
 			if(i.gameObject != DeepFind(gameObject, "SpawnPosOBJ"))
 			{
@@ -83,8 +89,8 @@ public class BattleFieldScript : GlobalClass
 				//最終ウェーブだったらフィールド解除処理
 				if (EnemyWaveList.Count == WaveCount)
 				{
-					//フィールド解除コルーチン呼び出し
-					StartCoroutine(ReleaseBattleFieldCoroutine());
+					//勝利演出関数呼び出し
+					VictoryCoroutine();
 				}
 				//次のウェーブ出現処理
 				else
@@ -94,6 +100,35 @@ public class BattleFieldScript : GlobalClass
 				}
 			}
 		}
+	}
+
+	//勝利演出関数
+	private void VictoryCoroutine()
+	{
+		//フィールド解放コルーチン呼び出し
+		StartCoroutine(ReleaseBattleFieldCoroutine());
+
+		//イベント中フラグを立てる
+		GameManagerScript.Instance.EventFlag = true;
+
+		//プレイヤーの次のウェーブ移行関数呼び出し
+		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventVictory(gameObject, DeepFind(gameObject, "PlayerPosOBJ")));
+
+		//勝利用のカメラワークの注視点にプレイヤーキャラクターを入れる
+		BattleEndVcam.CameraWorkList[0].GetComponentInChildren<CinemachineVirtualCamera>().LookAt = DeepFind(PlayerCharacter, "HeadBone").transform;
+
+		//バーチャルカメラ再生
+		BattleEndVcam.PlayCameraWork(0, true);
+
+		//カメラ演出待ちコルーチン呼び出し
+		StartCoroutine(WaitCameraCoroutine(BattleEndVcam.CameraWorkList[0], () =>
+		{
+			//イベント中フラグを下ろす
+			GameManagerScript.Instance.EventFlag = false;
+
+			//プレイヤーキャラクターの戦闘演出終了処理呼び出し
+			ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
+		}));
 	}
 
 	//次のウェーブ移行コルーチン
@@ -425,6 +460,7 @@ public class BattleFieldScript : GlobalClass
 			//ポジションが終了値に達するまでループ
 			while (EndNum > Vcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition)
 			{
+				print(Vcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition);
 				//1フレーム待機
 				yield return null;
 			}

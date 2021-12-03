@@ -41,6 +41,9 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	//戦闘継続演出処理
 	void BattleEventNext(GameObject LooKAtOBJ, GameObject PosOBJ);
 
+	//戦闘勝利演出処理
+	void BattleEventVictory(GameObject LooKAtOBJ, GameObject PosOBJ);
+
 	//戦闘演出終了処理
 	void BattleEventEnd();
 
@@ -4691,6 +4694,31 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//構え切り替えコルーチン呼び出し
 		StartCoroutine(IdlingChangeCoroutine(3, 1));
+	}
+
+	//戦闘勝利演出処理
+	public void BattleEventVictory(GameObject LooKAtOBJ, GameObject PosOBJ)
+	{
+		//移動値をリセット
+		EventMoveVector *= 0;
+
+		//表情を普通に戻す
+		ChangeFace("Reset");
+
+		//キャラクターコントローラ無効化
+		Controller.enabled = false;
+
+		//ポジションを移動
+		gameObject.transform.position = PosOBJ.transform.position;
+
+		//キャラクターコントローラ有効化
+		Controller.enabled = true;
+
+		//回転値を入れる
+		EventRotateVector = HorizontalVector(LooKAtOBJ, gameObject);
+
+		//構え切り替えコルーチン呼び出し
+		StartCoroutine(IdlingChangeCoroutine(4, 0));
 	}
 
 	//戦闘演出終了処理
