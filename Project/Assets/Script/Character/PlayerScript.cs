@@ -2098,7 +2098,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//ダメージ時の移動ベクトルを設定する、アニメーションクリップから呼ばれる
-	public void StartDamageMove(float s)
+	public void StartDamageMove(string i)
 	{
 		//攻撃移動加速度をリセット
 		AttackMoveVector *= 0;
@@ -2106,12 +2106,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ローリング移動加速度をリセット
 		RollingMoveVector *= 0;
 
-		//引数が0なら空中ダメージなので上に浮かす
-		if (s == 0)
+		//地上ダメージモーションの場合
+		if (float.Parse(i.Split(',').ToList().ElementAt(1)) == 0)
 		{
 			//垂直方向の加速度をリセット
 			VerticalAcceleration = 0f;
+		}
 
+		//0なら空中ダメージ開始なので上に浮かす
+		if (float.Parse(i.Split(',').ToList().ElementAt(0)) == 0)
+		{
 			//重力加速度をリセット
 			GravityAcceleration = 0;
 
@@ -2121,7 +2125,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else
 		{
 			//水平方向の加速度を反映
-			DamageMoveVector = transform.forward * s;
+			DamageMoveVector = transform.forward * float.Parse(i.Split(',').ToList().ElementAt(0));
 		}
 	}
 
@@ -2623,6 +2627,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//使用中の技から移動タイプを求める、引数で使用する移動値リストのインデックスが入ってくる
 			AttackMoveType = UseArts.MoveType[n];
+
+			//地上から飛び上がる技の場合、すぐに空中フラグを立てる
+			if(AttackMoveType == 2)
+			{
+				CurrentAnimator.SetBool("Fall" , true);
+			}
 		}
 	}
 

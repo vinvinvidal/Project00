@@ -121,7 +121,7 @@ public class BattleFieldScript : GlobalClass
 			}
 
 			//カメラ演出待ちコルーチン呼び出し
-			StartCoroutine(WaitCameraCoroutine(BattleNextVcam, () =>
+			StartCoroutine(WaitCameraCoroutine(BattleNextVcam.CameraWorkList[0], () =>
 			{
 				//イベント中フラグを下ろす
 				GameManagerScript.Instance.EventFlag = false;
@@ -321,77 +321,109 @@ public class BattleFieldScript : GlobalClass
 	//プレイヤーがエリアに進入したら呼ばれる関数
 	private void OnTriggerEnter(Collider ColHit)
 	{
-		//コライダを無効化
-		gameObject.GetComponent<SphereCollider>().enabled = false;
+		if(ColHit.gameObject.layer == LayerMask.NameToLayer("Player"))
+		{		
+			//コライダを無効化
+			gameObject.GetComponent<SphereCollider>().enabled = false;
 
-		//バトルフィールドコライダ有効化
-		gameObject.GetComponentInChildren<MeshCollider>().enabled = true;
+			//バトルフィールドコライダ有効化
+			gameObject.GetComponentInChildren<MeshCollider>().enabled = true;
 
-		//イベント中フラグを立てる
-		GameManagerScript.Instance.EventFlag = true;
+			//イベント中フラグを立てる
+			GameManagerScript.Instance.EventFlag = true;
 
-		//ガベージを撒いて壁を作るスクリプトの関数呼び出し
-		WallGanerateScriptList.Select(a => StartCoroutine(a.GenerateWallCoroutine())).ToArray();
+			//ガベージを撒いて壁を作るスクリプトの関数呼び出し
+			WallGanerateScriptList.Select(a => StartCoroutine(a.GenerateWallCoroutine())).ToArray();
 
-		//壁生成完了待ちコルーチン呼び出し
-		StartCoroutine(WaitWallGenerateCoroutine());
+			//壁生成完了待ちコルーチン呼び出し
+			StartCoroutine(WaitWallGenerateCoroutine());
 
-		//最初のカメラワークの注視点に敵キャラクターを入れる
-		BattleStartVcam.CameraWorkList[0].GetComponentInChildren<CinemachineVirtualCamera>().LookAt = DeepFind(LookAtEnemy , "HeadBone").transform;
+			//最初のカメラワークの注視点にプレイヤーキャラクターを入れる
+			BattleStartVcam.CameraWorkList[0].GetComponentInChildren<CinemachineVirtualCamera>().LookAt = DeepFind(PlayerCharacter, "HeadBone").transform;
 
-		//次のカメラワークの注視点にプレイヤーキャラクターを入れる
-		BattleStartVcam.CameraWorkList[1].GetComponentInChildren<CinemachineVirtualCamera>().LookAt = DeepFind(PlayerCharacter, "HeadBone").transform;
+			//次のカメラワークの注視点に敵キャラクターを入れる
+			BattleStartVcam.CameraWorkList[1].GetComponentInChildren<CinemachineVirtualCamera>().LookAt = DeepFind(LookAtEnemy, "HeadBone").transform;
 
-		//バーチャルカメラ再生
-		BattleStartVcam.PlayCameraWork(0, true);
+			//次のカメラワークの注視点に敵キャラクターを入れる
+			BattleStartVcam.CameraWorkList[2].GetComponentInChildren<CinemachineVirtualCamera>().LookAt = DeepFind(LookAtEnemy, "HeadBone").transform;
 
-		//プレイアブルキャラクターの戦闘演出開始処理関数呼び出し
-		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventStart(gameObject, DeepFind(gameObject, "PlayerPosOBJ")));
+			//バーチャルカメラ再生
+			BattleStartVcam.PlayCameraWork(0, true);
 
-		//敵に戦闘開始フラグを送る
-		foreach (var i in EnemyList.Where(a => a != null).ToList())
-		{
-			i.GetComponent<EnemyCharacterScript>().BattleStart();
-		}
+			//プレイアブルキャラクターの戦闘演出開始処理関数呼び出し
+			ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventStart(gameObject, DeepFind(gameObject, "PlayerPosOBJ")));
 
-		//カメラ演出待ちコルーチン呼び出し
-		StartCoroutine(WaitCameraCoroutine(BattleStartVcam , () =>
-		{
-			//イベント中フラグを下ろす
-			GameManagerScript.Instance.EventFlag = false;
-
-			//プレイヤーキャラクターの戦闘演出終了処理呼び出し
-			ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
-
-			//敵の戦闘フラグを立てる
-			foreach (var i in EnemyList.Where(a => a != null).ToList())
+			//カメラ演出待ちコルーチン呼び出し
+			StartCoroutine(WaitCameraCoroutine(BattleStartVcam.CameraWorkList[0], () =>
 			{
-				i.GetComponent<EnemyCharacterScript>().BattleFlag = true;
-			}
+				//敵に戦闘開始フラグを送る
+				foreach (var i in EnemyList.Where(a => a != null).ToList())
+				{
+					i.GetComponent<EnemyCharacterScript>().BattleStart();
+				}
 
-			//全滅チェックフラグを立てる
-			EnemyCheckFlag = true;
-		}));
+				//カメラ演出待ちコルーチン呼び出し
+				StartCoroutine(WaitCameraCoroutine(BattleStartVcam.CameraWorkList[1], () =>
+				{
+					//カメラ演出待ちコルーチン呼び出し
+					StartCoroutine(WaitCameraCoroutine(BattleStartVcam.CameraWorkList[2], () =>
+					{
+						//イベント中フラグを下ろす
+						GameManagerScript.Instance.EventFlag = false;
+
+						//プレイヤーキャラクターの戦闘演出終了処理呼び出し
+						ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
+
+						//敵の戦闘フラグを立てる
+						foreach (var i in EnemyList.Where(a => a != null).ToList())
+						{
+							i.GetComponent<EnemyCharacterScript>().BattleFlag = true;
+						}
+
+						//全滅チェックフラグを立てる
+						EnemyCheckFlag = true;
+
+					}));
+				}));
+			}));
+		}
 	}
 
 	//カメラ演出待ちコルーチン
-	private IEnumerator WaitCameraCoroutine(CinemachineCameraScript Vcam, Action Act)
+	private IEnumerator WaitCameraCoroutine(GameObject Vcam, Action Act)
 	{
-		//パストラッキング片道
-		if(Vcam.CameraWorkList[Vcam.CameraWorkList.Count - 1].GetComponent<CameraWorkScript>().CameraMode == 1)
+		//カメラワーク終了値宣言
+		float EndNum = 0;
+
+		//フィックス
+		if (Vcam.GetComponent<CameraWorkScript>().CameraMode == 0)
 		{
-			//カメラワーク終了値宣言
-			float EndNum = 0;
-				
+			//終了が経過時間
+			if(Vcam.GetComponent<CameraWorkScript>().KeepMode == 1)
+			{
+				//経過時間が過ぎるまでループ
+				while (EndNum < Vcam.GetComponent<CameraWorkScript>().KeepTime)
+				{
+					//経過時間カウントアップ
+					EndNum += Time.deltaTime;
+
+					//1フレーム待機
+					yield return null;
+				}
+			}
+		}
+		//パストラッキング片道
+		else if(Vcam.GetComponent<CameraWorkScript>().CameraMode == 1)
+		{				
 			//終了がパスユニット
-			if(Vcam.CameraWorkList[Vcam.CameraWorkList.Count - 1].GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PositionUnits == CinemachinePathBase.PositionUnits.PathUnits)
+			if(Vcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PositionUnits == CinemachinePathBase.PositionUnits.PathUnits)
 			{
 				//終了値をパス数に設定
-				EndNum = Vcam.CameraWorkList[Vcam.CameraWorkList.Count - 1].GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_Path.MaxPos;
+				EndNum = Vcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_Path.MaxPos;
 			}
 
 			//ポジションが終了値に達するまでループ
-			while (EndNum > Vcam.CameraWorkList[Vcam.CameraWorkList.Count - 1].GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition)
+			while (EndNum > Vcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition)
 			{
 				//1フレーム待機
 				yield return null;

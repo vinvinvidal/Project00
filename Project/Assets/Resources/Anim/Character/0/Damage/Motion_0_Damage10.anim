@@ -108702,16 +108702,16 @@ AnimationClip:
   m_Events:
   - time: 0
     functionName: StartDamageMove
-    data: 
+    data: 0,1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.016666668
     functionName: StartDamageMove
-    data: 
+    data: -10,1
     objectReferenceParameter: {fileID: 0}
-    floatParameter: -10
+    floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.033333335
@@ -108723,23 +108723,23 @@ AnimationClip:
     messageOptions: 0
   - time: 0.05
     functionName: StartDamageMove
-    data: 
+    data: -8,1
     objectReferenceParameter: {fileID: 0}
-    floatParameter: -8
+    floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.083333336
     functionName: StartDamageMove
-    data: 
+    data: -6,1
     objectReferenceParameter: {fileID: 0}
-    floatParameter: -6
+    floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.16666667
     functionName: StartDamageMove
-    data: 
+    data: -5,1
     objectReferenceParameter: {fileID: 0}
-    floatParameter: -5
+    floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.25
@@ -108751,16 +108751,16 @@ AnimationClip:
     messageOptions: 0
   - time: 0.33333334
     functionName: StartDamageMove
-    data: 
+    data: -2.5,1
     objectReferenceParameter: {fileID: 0}
-    floatParameter: -2.5
+    floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.5
     functionName: StartDamageMove
-    data: 
+    data: -1,1
     objectReferenceParameter: {fileID: 0}
-    floatParameter: -1
+    floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.6666667

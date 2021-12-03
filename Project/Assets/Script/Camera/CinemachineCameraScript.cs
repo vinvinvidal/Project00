@@ -332,11 +332,17 @@ public class CinemachineCameraScript : GlobalClass
 		//メインカメラのイージングタイムを設定
 		MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time = 1f;
 
+		//終了用Vcam有効化
+		MasterVcam.enabled = true;
+
 		//カメラ位置をカメラワーク開始時のポジションに戻す場合
-		if(CameraWorkList[Index].GetComponent<CameraWorkScript>().ReturnPositionFlag)
+		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().ReturnPositionFlag)
 		{
 			//終了用Vcamを通常の注視点に向ける、ポジションは開始時のEasingVcamera()で入る
 			MasterVcam.transform.LookAt(GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position + MainCamera.transform.parent.GetComponent<MainCameraScript>().LookAtOffset);
+
+			//コルーチン呼び出し
+			StartCoroutine(EndCameraWorkCoroutine(1));
 		}
 		//カメラ位置をそのままにする場合
 		else
@@ -344,19 +350,16 @@ public class CinemachineCameraScript : GlobalClass
 			//終了用Vcamを現在のカメラに合わせる
 			MasterVcam.transform.position = MainCamera.transform.position;
 			MasterVcam.transform.rotation = MainCamera.transform.rotation;
+
+			//コルーチン呼び出し
+			StartCoroutine(EndCameraWorkCoroutine(0.1f));
 		}
-
-		//終了用Vcam有効化
-		MasterVcam.enabled = true;
-
-		//コルーチン呼び出し
-		StartCoroutine(EndCameraWorkCoroutine());
 	}
 	//この処理をやらないとコリジョンの外にVcamがあった場合カメラがハマる
-	private IEnumerator EndCameraWorkCoroutine()
+	private IEnumerator EndCameraWorkCoroutine(float s)
 	{
 		//イージング時間待機
-		yield return new WaitForSeconds(1);
+		yield return new WaitForSeconds(s);
 
 		//超必殺技中の移動を考慮してカメラ距離を更新
 		MainCamera.transform.parent.GetComponent<MainCameraScript>().MainCameraTargetDistance = Vector3.Distance(MasterVcam.transform.position, GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position);
