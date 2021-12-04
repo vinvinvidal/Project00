@@ -325,7 +325,7 @@ public class CinemachineCameraScript : GlobalClass
 				ii.Priority = DefaultPriority;
 			}
 		}
-
+		
 		//メインカメラの遷移をイージングに設定
 		MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Style = CinemachineBlendDefinition.Style.EaseInOut;
 

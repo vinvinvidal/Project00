@@ -4731,14 +4731,24 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//立ち構え切り替えコルーチン
 	IEnumerator IdlingChangeCoroutine(int Change ,int Affter)
 	{
+		//入力許可フラグを更新
+		FlagManager(CurrentState);
+
+		//入力フラグをリセット
+		InputReset();
+
+		//攻撃遷移フラグを下す
+		CurrentAnimator.SetBool("Attack00", false);
+		CurrentAnimator.SetBool("Attack01", false);
+
 		//モーション切り替え
 		CurrentAnimator.SetFloat("Idling_Blend", Change);
-
+		
 		//モーションを再生
 		CurrentAnimator.Play("Idling", 0, 0);
 
 		//完全にアイドリングモーションになるまで待つ
-		while(CurrentState != "Idling")
+		while (CurrentState != "Idling")
 		{
 			//入力移動値をリセット
 			PlayerMoveInputVecter *= 0;

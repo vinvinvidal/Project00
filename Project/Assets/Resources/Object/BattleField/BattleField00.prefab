@@ -69,7 +69,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 464119308997002672}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7, y: 0, z: 0}
+  m_LocalPosition: {x: 6, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 5617224011838289723}
@@ -1067,7 +1067,7 @@ MonoBehaviour:
     width: 0.2
   m_Looped: 0
   m_Waypoints:
-  - position: {x: 6, y: 0.5, z: 0}
+  - position: {x: 5, y: 0.5, z: 0}
     tangent: {x: -1, y: 0, z: 0}
     roll: 20
   - position: {x: 3, y: 1.25, z: 0}
@@ -1311,10 +1311,10 @@ MonoBehaviour:
     width: 0.2
   m_Looped: 0
   m_Waypoints:
-  - position: {x: 4, y: 0.25, z: 0}
+  - position: {x: 3.5, y: 0.25, z: 0}
     tangent: {x: 0.5, y: 0, z: 0}
     roll: 0
-  - position: {x: 4.5, y: 0.5, z: 0}
+  - position: {x: 4, y: 0.5, z: 0}
     tangent: {x: 0.01, y: 0.01, z: 0}
     roll: 0
 --- !u!114 &7158470590230922854
@@ -1559,7 +1559,7 @@ MonoBehaviour:
     tangent: {x: 0.5, y: 0, z: 0}
     roll: 0
   - position: {x: 5.5, y: 1.25, z: 0.25}
-    tangent: {x: 0.01, y: 0.01, z: 0}
+    tangent: {x: 0.2, y: 0.01, z: 0}
     roll: 0
 --- !u!114 &2285620187004785830
 MonoBehaviour:

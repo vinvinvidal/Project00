@@ -90,20 +90,20 @@ public class BattleFieldScript : GlobalClass
 				if (EnemyWaveList.Count == WaveCount)
 				{
 					//勝利演出関数呼び出し
-					VictoryCoroutine();
+					Victory();
 				}
 				//次のウェーブ出現処理
 				else
 				{
 					//次のウェーブ移行関数呼び出し
-					NextWaveCoroutine();
+					NextWave();
 				}
 			}
 		}
 	}
 
 	//勝利演出関数
-	private void VictoryCoroutine()
+	private void Victory()
 	{
 		//フィールド解放コルーチン呼び出し
 		StartCoroutine(ReleaseBattleFieldCoroutine());
@@ -111,7 +111,7 @@ public class BattleFieldScript : GlobalClass
 		//イベント中フラグを立てる
 		GameManagerScript.Instance.EventFlag = true;
 
-		//プレイヤーの次のウェーブ移行関数呼び出し
+		//プレイヤーの次のウェーブ勝利用関数呼び出し
 		ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventVictory(gameObject, DeepFind(gameObject, "PlayerPosOBJ")));
 
 		//勝利用のカメラワークの注視点にプレイヤーキャラクターを入れる
@@ -128,11 +128,23 @@ public class BattleFieldScript : GlobalClass
 
 			//プレイヤーキャラクターの戦闘演出終了処理呼び出し
 			ExecuteEvents.Execute<PlayerScriptInterface>(GameManagerScript.Instance.GetPlayableCharacterOBJ(), null, (reciever, eventData) => reciever.BattleEventEnd());
+
+			//フィールド削除コルーチン呼び出し
+			StartCoroutine(FieldDestroyCoroutine());
 		}));
 	}
 
+	private IEnumerator FieldDestroyCoroutine()
+	{
+		//カメラワークが終わるのに十分な時間待機する
+		yield return new WaitForSeconds(5);
+
+		//フィールド削除
+		Destroy(gameObject);
+	}
+
 	//次のウェーブ移行コルーチン
-	private void NextWaveCoroutine()
+	private void NextWave()
 	{
 		//イベント中フラグを立てる
 		GameManagerScript.Instance.EventFlag = true;
@@ -460,7 +472,6 @@ public class BattleFieldScript : GlobalClass
 			//ポジションが終了値に達するまでループ
 			while (EndNum > Vcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition)
 			{
-				print(Vcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition);
 				//1フレーム待機
 				yield return null;
 			}
@@ -517,8 +528,5 @@ public class BattleFieldScript : GlobalClass
 		{
 			yield return null;
 		}
-
-		//フィールド削除
-		Destroy(gameObject);
 	}
 }
