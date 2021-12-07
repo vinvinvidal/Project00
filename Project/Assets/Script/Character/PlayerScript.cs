@@ -181,7 +181,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private bool OnGroundFlag = false;
 
 	//戦闘フラグ
-	private bool FightingFlag = false;
+	private bool BattleFlag = false;
 
 	//攻撃ボタン押しっぱなしフラグ
 	private bool HoldButtonFlag = false;
@@ -2191,7 +2191,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
-			if (LockEnemy == null)
+			if (LockEnemy == null && BattleFlag)
 			{
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(true, HorizonAcceleration));
 			}
@@ -3736,7 +3736,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetBool("SuperTry", true);
 
 			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
-			if (LockEnemy == null)
+			if (LockEnemy == null && BattleFlag)
 			{
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(true, HorizonAcceleration));
 			}
@@ -4669,6 +4669,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//構え切り替えコルーチン呼び出し
 		StartCoroutine(IdlingChangeCoroutine(2, 1));
+
+		//戦闘フラグを立てる
+		BattleFlag = true;
 	}
 
 	//戦闘継続演出処理
@@ -4719,6 +4722,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//構え切り替えコルーチン呼び出し
 		StartCoroutine(IdlingChangeCoroutine(4, 0));
+
+		//戦闘フラグを下す
+		BattleFlag = false;
 	}
 
 	//戦闘演出終了処理
