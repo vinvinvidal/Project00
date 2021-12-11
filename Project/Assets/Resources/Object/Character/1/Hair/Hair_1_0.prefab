@@ -594,11 +594,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad78444138c2d644bdffde9c3a1af5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _TexBase: {fileID: 2800000, guid: 0ecc5500d2517ec4b99d5160d31768a5, type: 3}
-  _TexNormal: {fileID: 2800000, guid: 567456c1a7d26324495a9cc984cb9ea9, type: 3}
-  _TexHiLight: {fileID: 2800000, guid: 3f7316863a7ab9d4b920f6ec5ab8ae2a, type: 3}
+  _TexBase: {fileID: 2800000, guid: 5cc51fefcadd2274caed8693d86b8c44, type: 3}
+  _TexNormal: {fileID: 2800000, guid: a485a44b0c717f94bbc1a9928f6c2421, type: 3}
+  _TexHiLight: {fileID: 2800000, guid: 343ef26a589c9ee41ba6398e3878a226, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: 678fb45eb7629344b89362704513e579, type: 3}
-  _TexLine: {fileID: 2800000, guid: eb1f7646f39022b42816478c0c42e93f, type: 3}
+  _TexLine: {fileID: 2800000, guid: e2aa13dc384a2f74a85aa7ed7b0befa4, type: 3}
 --- !u!1 &7335075639117892252
 GameObject:
   m_ObjectHideFlags: 0
