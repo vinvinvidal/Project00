@@ -1,0 +1,12 @@
+L_NameC,誣祓
+L_NameH,そしりばら
+F_NameC,桃花
+F_NameH,とうか
+CharacterID,1
+OBJname,Character01
+PlayerMoveSpeed,5
+PlayerDashSpeed,8
+RollingSpeed,10
+JumpPower,10
+TurnSpeed,800
+AttackDistance,3

@@ -187,10 +187,10 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						//相対位置と回転をゼロにする
 						ii.transform.localPosition = new Vector3(0, 0, 0);
 						ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
-
-						//読み込み完了フラグを立てる
-						CostumeLoadCompleteFlag = true;
 					}
+
+					//読み込み完了フラグを立てる
+					CostumeLoadCompleteFlag = true;
 
 					//モザイクエフェクト宣言
 					GameObject MosaicOBJ = null;

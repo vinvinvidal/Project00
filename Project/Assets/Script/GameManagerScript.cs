@@ -2219,7 +2219,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	private void AddContentCheck()
 	{
 		//全てのキャラクターを回す
-		foreach (var i in AllCharacterList)
+		foreach (CharacterClass i in AllCharacterList)
 		{
 			//技マトリクスが存在するかチェック、無ければ新規作成
 			if(UserData.ArtsMatrix[i.CharacterID] == null)
@@ -2348,12 +2348,65 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		re.EquipWeaponList = new List<int>();
 
+		//髪と衣装と武器に初期装備を入れる、適当に10人分、多分そんなに使わない
+		re.EquipHairList.Add(0);
+		re.EquipHairList.Add(0);
+		re.EquipHairList.Add(0);
+		re.EquipHairList.Add(0);
+		re.EquipHairList.Add(0);
+		re.EquipHairList.Add(0);
+		re.EquipHairList.Add(0);
+		re.EquipHairList.Add(0);
+		re.EquipHairList.Add(0);
+		re.EquipHairList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipCostumeList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.EquipWeaponList.Add(0);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.ArtsMatrix.Add(null);
+		re.EquipSuperArts.Add(0);
+		re.EquipSuperArts.Add(0);
+		re.EquipSuperArts.Add(0);
+		re.EquipSuperArts.Add(0);
+		re.EquipSuperArts.Add(0);
+		re.EquipSuperArts.Add(0);
+		re.EquipSuperArts.Add(0);
+		re.EquipSuperArts.Add(0);
+		re.EquipSuperArts.Add(0);
+		re.EquipSuperArts.Add(0);
+
+
+		/*
 		//キャラクターの数を求める為のfileinfo配列
 		FileInfo[] tempfileinfolist;
 
 		//キャラクター数
 		int Num = 0;
-
 		//開発用
 		if (DevSwicth)
 		{
@@ -2364,7 +2417,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		{
 			tempfileinfolist = new DirectoryInfo(Application.streamingAssetsPath + GenerateBundlePath("/csv/Character/")).GetFiles();
 		}
-
+		 
 		//キャラクターCSVの数を数える
 		foreach(var i in tempfileinfolist)
 		{
@@ -2379,7 +2432,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//キャラクターの数だけ回す
 		for (int i = 0; i <= Num - 1; i++)
 		{
-			//髪と衣装と武器に初期装備を入れる
+			//髪と衣装と武器に初期装備を入れる、適当に10人分、多分そんなに使わない
 			re.EquipHairList.Add(0);
 			re.EquipCostumeList.Add(0);
 			re.EquipWeaponList.Add(0);
@@ -2396,7 +2449,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//超必殺技デバッグ用
 			re.EquipSuperArts.Add(0);
 		}
-
+		*/
 		//出力
 		return re;	
 	}
