@@ -76,10 +76,10 @@ public class WeaponSettingScript : GlobalClass
 		}
 
 		//クロスがあればコリジョンを処理
-		if(DeepFind(transform.root.gameObject, "WeaponClothCol") != null)
+		if(WeaponClothCol != null)
 		{
 			//武器のクロス用コリジョン取得、代入用に配列に入れる
-			CapsuleCollider[] ColArray = { DeepFind(transform.root.gameObject, "WeaponClothCol").GetComponent<CapsuleCollider>() , null ,null};
+			CapsuleCollider[] ColArray = { WeaponClothCol.GetComponent<CapsuleCollider>() , null ,null};
 
 			//武器のクロス用コリジョンを設定する
 			gameObject.GetComponentInChildren<Cloth>().capsuleColliders = ColArray;
