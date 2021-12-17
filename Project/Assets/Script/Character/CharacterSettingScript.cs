@@ -123,6 +123,24 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					HairOBJ.transform.localPosition *= 0;
 					HairOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
+					//髪のクロスに使うSphereColliderを全て取得
+					foreach (SphereCollider ii in HairOBJ.GetComponentsInChildren<SphereCollider>())
+					{
+						//名前で判別してキャラクターのボーンの子にする
+						if (ii.name.Contains("Spine") && ii.name.Contains("Spine02"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "SpineBone.002").transform;
+						}
+						else if (ii.name.Contains("Neck"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "NeckBone").transform;
+						}
+
+						//相対位置と回転をゼロにする
+						ii.transform.localPosition = new Vector3(0, 0, 0);
+						ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
+					}
+
 					//読み込み完了フラグを立てる
 					HairLoadCompleteFlag = true;
 
