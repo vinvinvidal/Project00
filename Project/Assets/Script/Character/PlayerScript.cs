@@ -389,7 +389,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 
 	//装備している武器のオブジェクト
-	private GameObject WeaponOBJ;
+	private List<GameObject> WeaponOBJList;
 
 	//装備している特殊技
 	public List<SpecialClass> SpecialArtsList = new List<SpecialClass>();
@@ -730,6 +730,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//超必殺技移動ベクトル初期化
 		SuperMoveVector = Vector3.zero;
 
+		//装備している武器のオブジェクト初期化
+		WeaponOBJList = new List<GameObject>();
+
 		//攻撃時のTrailエフェクト取得
 		AttackTrail = DeepFind(gameObject, "AttackTrail");
 
@@ -884,7 +887,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					i.name.Contains("Arm") ||
 					i.name.Contains("Elbow") ||
 					i.name.Contains("Wrist") ||
-					i.name.Contains("Hand") ||
+					//i.name.Contains("Hand") ||
 					i.name.Contains("Neck") ||
 					i.name.Contains("Head")
 				)
@@ -3529,18 +3532,26 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//武器をセットする
 	public void SetWeapon(GameObject w)
 	{
-		WeaponOBJ = w;
+		//武器セッティングスクリプトがついているオブジェクトをAddする
+		foreach(WeaponSettingScript i in w.GetComponentsInChildren<WeaponSettingScript>())
+		{
+			WeaponOBJList.Add(i.gameObject);
+		}		
 	}
 
 	//攻撃時に武器のアタッチ先を変更する
-	private void AttackAttachWeapon(string s)
+	private void AttackAttachWeapon(int n)
 	{
-		//アタッチ先を変更
-		WeaponOBJ.transform.parent = DeepFind(gameObject, s).transform;
+		//武器オブジェクトを回す
+		foreach(var i in WeaponOBJList)
+		{
+			//アタッチ先を変更
+			i.transform.parent = i.GetComponent<WeaponSettingScript>().WeaponAttachAttackOBJList[n].transform;
 
-		//ローカルトランスフォームを設定
-		WeaponOBJ.transform.localPosition *= 0;
-		WeaponOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//ローカルトランスフォームを設定
+			i.transform.localPosition *= 0;
+			i.transform.localRotation = Quaternion.Euler(Vector3.zero);
+		}
 	}
 
 	//武器のミラーに敵の顔を映す
@@ -3549,15 +3560,21 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//一応nullチェック
 		if(LockEnemy != null)
 		{
-			//武器ミラーの処理呼び出し
-			WeaponOBJ.GetComponentInChildren<MirrorShaderScript>().EnemyFaceMirror(DeepFind(LockEnemy, "HeadBone"));
+			foreach(var i in WeaponOBJList)
+			{
+				//武器ミラーの処理呼び出し
+				i.GetComponentInChildren<MirrorShaderScript>().EnemyFaceMirror(DeepFind(LockEnemy, "HeadBone"));
+			}
 		}		
 	}
 	//武器のミラーを切る
 	private void WeaponMirrorOff()
 	{
-		//武器ミラーの処理呼び出し
-		WeaponOBJ.GetComponentInChildren<MirrorShaderScript>().MirrorSwitch(false);
+		foreach (var i in WeaponOBJList)
+		{
+			//武器ミラーの処理呼び出し
+			i.GetComponentInChildren<MirrorShaderScript>().MirrorSwitch(false);
+		}
 	}
 
 	//接地判定用のRayを飛ばす関数

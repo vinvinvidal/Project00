@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 901258189418486335}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.55454373, y: -0.4823688, z: 1.7206911}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9074121332275549937}
@@ -61,7 +61,6 @@ Transform:
   - {fileID: 7687391731572528426}
   - {fileID: 2038969105319066745}
   - {fileID: 8177738964838881050}
-  - {fileID: 8958599658877915456}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -159,11 +158,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad78444138c2d644bdffde9c3a1af5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _TexBase: {fileID: 2800000, guid: af229cadd68401c4fb730994cdd5b8c0, type: 3}
-  _TexNormal: {fileID: 2800000, guid: f294a6eafbf54864998fe27d58e1055f, type: 3}
-  _TexHiLight: {fileID: 2800000, guid: baa31ef7e79617a42aabb3d856a27adf, type: 3}
+  _TexBase: {fileID: 2800000, guid: ed22539db6277f14d8310d26effb0ef0, type: 3}
+  _TexNormal: {fileID: 2800000, guid: d196d39bb6d0dd14aa4e60374e8a4ff4, type: 3}
+  _TexHiLight: {fileID: 2800000, guid: 00d37b16a5e3a324989d1f28eac6e843, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
-  _TexLine: {fileID: 2800000, guid: 90ff4c6afaa29b44fa90666e9a8bcf5b, type: 3}
+  _TexLine: {fileID: 2800000, guid: 1192a89eb518cbc459cdc758eb81db89, type: 3}
 --- !u!114 &2367650557823495328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,14 +181,15 @@ MonoBehaviour:
   WeaponAttachOBJRotate: {x: 5, y: 90, z: 0}
   WeaponAttachAttackOBJList:
   - {fileID: 5129748309721189674}
+  - {fileID: 5129748309721189674}
   WeaponAttachAttackNameList:
   - L_HandBone
   WeaponAttachAttackPosList:
   - {x: 0, y: 0.045, z: -0.0175}
   WeaponAttachAttackRotateList:
   - {x: 5, y: 90, z: 0}
-  WeaponClothCol: {fileID: 6624843861476390713}
-  WeaponClothColName: L_HandBone
+  WeaponClothCol: {fileID: 0}
+  WeaponClothColName: 
   WeaponClothColPos: {x: 0, y: 0, z: 0}
   WeaponClothColRotate: {x: 0, y: 0, z: 0}
 --- !u!1 &5129748309721189674
@@ -252,7 +252,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 8958599658877915456}
   m_Father: {fileID: 7687391731572528426}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -312,8 +313,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 0}
   m_AABB:
-    m_Center: {x: -7.617317e-18, y: 0.058500003, z: -0.01000002}
-    m_Extent: {x: 7.617317e-18, y: 0.036000002, z: 0.077499986}
+    m_Center: {x: -0.00000016391277, y: 0.056402363, z: 0.21625}
+    m_Extent: {x: 0.015730906, y: 0.06859764, z: 0.30374998}
   m_DirtyAABB: 0
 --- !u!114 &5172713957034945546
 MonoBehaviour:
@@ -327,11 +328,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad78444138c2d644bdffde9c3a1af5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _TexBase: {fileID: 2800000, guid: af229cadd68401c4fb730994cdd5b8c0, type: 3}
-  _TexNormal: {fileID: 2800000, guid: f294a6eafbf54864998fe27d58e1055f, type: 3}
-  _TexHiLight: {fileID: 2800000, guid: baa31ef7e79617a42aabb3d856a27adf, type: 3}
+  _TexBase: {fileID: 2800000, guid: ed22539db6277f14d8310d26effb0ef0, type: 3}
+  _TexNormal: {fileID: 2800000, guid: d196d39bb6d0dd14aa4e60374e8a4ff4, type: 3}
+  _TexHiLight: {fileID: 2800000, guid: 00d37b16a5e3a324989d1f28eac6e843, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
-  _TexLine: {fileID: 2800000, guid: 90ff4c6afaa29b44fa90666e9a8bcf5b, type: 3}
+  _TexLine: {fileID: 2800000, guid: 1192a89eb518cbc459cdc758eb81db89, type: 3}
 --- !u!183 &5222773716185067502
 Cloth:
   m_ObjectHideFlags: 0
@@ -348,8 +349,8 @@ Cloth:
   m_ExternalAcceleration: {x: 0, y: 0, z: 0}
   m_RandomAcceleration: {x: 0, y: 0, z: 0}
   m_WorldVelocityScale: 0.5
-  m_WorldAccelerationScale: 1
-  m_Friction: 0.5
+  m_WorldAccelerationScale: 0.5
+  m_Friction: 0
   m_CollisionMassScale: 0
   m_UseContinuousCollision: 1
   m_UseVirtualParticles: 1
@@ -404,7 +405,192 @@ Cloth:
     collisionSphereDistance: 3.4028235e+38
   - maxDistance: 1
     collisionSphereDistance: 3.4028235e+38
-  m_CapsuleColliders: []
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0.025
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 0
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  - maxDistance: 1
+    collisionSphereDistance: 3.4028235e+38
+  m_CapsuleColliders:
+  - {fileID: 761974902581295543}
   m_SphereColliders: []
   m_SelfCollisionDistance: 0
   m_SelfCollisionStiffness: 0.2
@@ -439,11 +625,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6624843861476390713}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.3500001, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 9074121332275549937}
-  m_RootOrder: 4
+  m_Father: {fileID: 362562479936095073}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &761974902581295543
 CapsuleCollider:
@@ -453,12 +639,12 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6624843861476390713}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 0.04
-  m_Height: 0.05
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0.1}
+  m_Radius: 0.05
+  m_Height: 0.5
+  m_Direction: 2
+  m_Center: {x: 0.03, y: 0, z: 0.35}
 --- !u!1 &7080894655623705271
 GameObject:
   m_ObjectHideFlags: 0
@@ -552,11 +738,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad78444138c2d644bdffde9c3a1af5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _TexBase: {fileID: 2800000, guid: af229cadd68401c4fb730994cdd5b8c0, type: 3}
-  _TexNormal: {fileID: 2800000, guid: f294a6eafbf54864998fe27d58e1055f, type: 3}
-  _TexHiLight: {fileID: 2800000, guid: baa31ef7e79617a42aabb3d856a27adf, type: 3}
+  _TexBase: {fileID: 2800000, guid: ed22539db6277f14d8310d26effb0ef0, type: 3}
+  _TexNormal: {fileID: 2800000, guid: d196d39bb6d0dd14aa4e60374e8a4ff4, type: 3}
+  _TexHiLight: {fileID: 2800000, guid: 00d37b16a5e3a324989d1f28eac6e843, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
-  _TexLine: {fileID: 2800000, guid: 90ff4c6afaa29b44fa90666e9a8bcf5b, type: 3}
+  _TexLine: {fileID: 2800000, guid: 1192a89eb518cbc459cdc758eb81db89, type: 3}
 --- !u!114 &7056530918825579390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -574,6 +760,7 @@ MonoBehaviour:
   WeaponAttachOBJPos: {x: 0, y: 0.045, z: -0.0175}
   WeaponAttachOBJRotate: {x: 5, y: 90, z: 0}
   WeaponAttachAttackOBJList:
+  - {fileID: 5129748309721189674}
   - {fileID: 901258189418486335}
   WeaponAttachAttackNameList:
   - R_HandBone
