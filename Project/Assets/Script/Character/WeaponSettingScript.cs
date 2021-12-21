@@ -6,29 +6,20 @@ using UnityEngine.EventSystems;
 
 public class WeaponSettingScript : GlobalClass
 {
-	//武器をアタッチするオブジェクト
-	public GameObject WeaponAttachOBJ;
+	//武器をアタッチするオブジェクトList
+	public List<GameObject> WeaponAttachOBJList;
 
-	//武器をアタッチするオブジェクトをアタッチするオブジェクトの名前
-	public string WeaponAttachOBJName;
+	//↑をアタッチするオブジェクトの名前List
+	public List<string> WeaponAttachOBJNameList;
 
 	//武器をアタッチするオブジェクトの相対位置
-	public Vector3 WeaponAttachOBJPos;
+	public List<Vector3> WeaponAttachOBJPosList;
+
+	//武器オブジェクトの移動相対位置
+	public List<Vector3> WeaponAttachOBJMoveList;
 
 	//武器をアタッチするオブジェクトの相対回転
-	public Vector3 WeaponAttachOBJRotate;
-
-	//攻撃時に武器をアタッチするオブジェクトList
-	public List<GameObject> WeaponAttachAttackOBJList;
-
-	//攻撃時に武器をアタッチするオブジェクトをアタッチするオブジェクトの名前List
-	public List<string> WeaponAttachAttackNameList;
-
-	//攻撃時に武器をアタッチするオブジェクトの相対位置List
-	public List<Vector3> WeaponAttachAttackPosList;
-
-	//攻撃時に武器をアタッチするオブジェクトの相対回転List
-	public List<Vector3> WeaponAttachAttackRotateList;
+	public List<Vector3> WeaponAttachOBJRotateList;
 
 	//武器のクロス用コリジョンオブジェクト
 	public GameObject WeaponClothCol;
@@ -44,39 +35,34 @@ public class WeaponSettingScript : GlobalClass
 
 	void Start()
     {
-		//武器をアタッチするオブジェクトをBodyのBoneの子にする
-		WeaponAttachOBJ.transform.parent = DeepFind(gameObject.transform.root.gameObject, WeaponAttachOBJName).transform;
+		//ループカウント
+		int count = 0;
 
-		//ローカルTransformを設定
-		WeaponAttachOBJ.transform.localPosition = WeaponAttachOBJPos;
-		WeaponAttachOBJ.transform.localRotation = Quaternion.Euler(WeaponAttachOBJRotate);
+		//武器をアタッチするオブジェクトListを回す
+		foreach(GameObject i in WeaponAttachOBJList)
+		{
+			//武器をアタッチするオブジェクトをBodyのBoneの子にする
+			i.transform.parent = DeepFind(gameObject.transform.root.gameObject, WeaponAttachOBJNameList[count]).transform;
 
-		//武器本体をアタッチするオブジェクトにアタッチ
-		transform.parent = WeaponAttachOBJ.transform;
+			//ローカルTransformを設定
+			i.transform.localPosition = WeaponAttachOBJPosList[count];
+			i.transform.localRotation = Quaternion.Euler(WeaponAttachOBJRotateList[count]);
+			i.transform.localScale = Vector3.one;
+
+			//カウントアップ
+			count++;
+		}
+
+		//武器本体を初期アタッチするオブジェクトにアタッチ
+		transform.parent = WeaponAttachOBJList[0].transform;
 
 		//ローカルTransformを設定
 		transform.localPosition = Vector3.zero;
 		transform.localRotation = Quaternion.Euler(Vector3.zero);
-
-		//ループインデックス用int
-		int count = 0;
-
-		//攻撃時のアタッチオブジェクトを各ボーンにアタッチ
-		foreach(GameObject i in WeaponAttachAttackOBJList)
-		{
-			//攻撃時用アタッチオブジェクトをBoneの子にする
-			i.transform.parent = DeepFind(gameObject.transform.root.gameObject, WeaponAttachAttackNameList[count]).transform;
-			
-			//ローカルTransformを設定
-			i.transform.localPosition = WeaponAttachAttackPosList[count];
-			i.transform.localRotation = Quaternion.Euler(WeaponAttachAttackRotateList[count]);
-
-			//インデックス用intカウントアップ
-			count++;
-		}
+		transform.localScale = Vector3.one;
 
 		//クロスがあればコリジョンを処理
-		if(WeaponClothCol != null)
+		if (WeaponClothCol != null)
 		{
 			//武器のクロス用コリジョン取得、代入用に配列に入れる
 			CapsuleCollider[] ColArray = { WeaponClothCol.GetComponent<CapsuleCollider>() , null ,null};

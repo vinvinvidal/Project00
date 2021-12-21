@@ -116571,10 +116571,10 @@ AnimationClip:
     messageOptions: 0
   - time: 0.25
     functionName: AttackAttachWeapon
-    data: WeaponAttachAttack0OBJ
+    data: 0
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 0
+    intParameter: 1
     messageOptions: 0
   - time: 0.5
     functionName: AttackCharge
@@ -116641,7 +116641,7 @@ AnimationClip:
     messageOptions: 0
   - time: 1.65
     functionName: AttackAttachWeapon
-    data: WeaponAttachOBJ
+    data: 0
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

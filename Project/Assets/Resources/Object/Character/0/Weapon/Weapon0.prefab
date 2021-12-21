@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8293974993472811359}
   m_Layer: 0
-  m_Name: WeaponAttachAttack0OBJ
+  m_Name: WeaponAttachOBJ1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,7 +28,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9074121332275549937}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1607221565166411733
 GameObject:
@@ -59,7 +59,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9074121332275549937}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &1132423613038142098
 Camera:
@@ -133,13 +133,13 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 619061383099402790}
   - {fileID: 330205011927143137}
   - {fileID: 461658375149274006}
-  - {fileID: 619061383099402790}
   - {fileID: 6886114011023491528}
-  - {fileID: 6840072480453630304}
   - {fileID: 8293974993472811359}
   - {fileID: 853065888414294392}
+  - {fileID: 6840072480453630304}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -169,20 +169,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5588206f2f93e134abb71cd58d48af56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WeaponAttachOBJ: {fileID: 7994335189447809448}
-  WeaponAttachOBJName: HeadBone
-  WeaponAttachOBJPos: {x: 0.07, y: -0.01, z: 0.22}
-  WeaponAttachOBJRotate: {x: -56, y: -2, z: 230}
-  WeaponAttachAttackOBJList:
+  WeaponAttachOBJList:
+  - {fileID: 7994335189447809448}
   - {fileID: 364341059597733971}
   - {fileID: 4039385837747198377}
-  WeaponAttachAttackNameList:
+  WeaponAttachOBJNameList:
+  - HeadBone
   - R_HandBone
   - L_HandBone
-  WeaponAttachAttackPosList:
+  WeaponAttachOBJPosList:
+  - {x: 0.07, y: -0.01, z: 0.22}
   - {x: 0, y: 0.04, z: -0.03}
   - {x: 0, y: 0.04, z: -0.03}
-  WeaponAttachAttackRotateList:
+  WeaponAttachOBJRotateList:
+  - {x: -56, y: -2, z: 230}
   - {x: 0, y: 180, z: 0}
   - {x: 0, y: 180, z: 0}
   WeaponClothCol: {fileID: 9059807308993659841}
@@ -216,7 +216,7 @@ GameObject:
   m_Component:
   - component: {fileID: 853065888414294392}
   m_Layer: 0
-  m_Name: WeaponAttachAttack1OBJ
+  m_Name: WeaponAttachOBJ2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -234,7 +234,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9074121332275549937}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!183 &2174074294670664135
 Cloth:
@@ -517,7 +517,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9074121332275549937}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &7994335189447809448
 GameObject:
@@ -529,7 +529,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6886114011023491528}
   m_Layer: 0
-  m_Name: WeaponAttachOBJ
+  m_Name: WeaponAttachOBJ0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -578,7 +578,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 9074121332275549937}
-  m_RootOrder: 4
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &7599965841961682511
 CapsuleCollider:
@@ -609,7 +609,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: bd8fd7943061471499bbd7c6346305ed,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bd8fd7943061471499bbd7c6346305ed,
         type: 3}
@@ -644,7 +644,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: bd8fd7943061471499bbd7c6346305ed,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bd8fd7943061471499bbd7c6346305ed,
         type: 3}

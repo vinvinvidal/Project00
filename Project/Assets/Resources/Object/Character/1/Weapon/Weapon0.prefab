@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8177738964838881050}
   m_Layer: 0
-  m_Name: WeaponAttachAttack0OBJ
+  m_Name: WeaponAttachOBJ1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -175,19 +175,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5588206f2f93e134abb71cd58d48af56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WeaponAttachOBJ: {fileID: 5129748309721189674}
-  WeaponAttachOBJName: L_HandBone
-  WeaponAttachOBJPos: {x: 0, y: 0.045, z: -0.0175}
-  WeaponAttachOBJRotate: {x: 5, y: 90, z: 0}
-  WeaponAttachAttackOBJList:
+  WeaponAttachOBJList:
   - {fileID: 5129748309721189674}
   - {fileID: 5129748309721189674}
-  WeaponAttachAttackNameList:
+  WeaponAttachOBJNameList:
   - L_HandBone
-  WeaponAttachAttackPosList:
-  - {x: 0, y: 0.045, z: -0.0175}
-  WeaponAttachAttackRotateList:
-  - {x: 5, y: 90, z: 0}
+  - L_HandBone
+  WeaponAttachOBJPosList:
+  - {x: 0, y: 0.035, z: -0.015}
+  - {x: 0, y: 0.035, z: -0.015}
+  WeaponAttachOBJMoveList: []
+  WeaponAttachOBJRotateList:
+  - {x: 20, y: 90, z: 0}
+  - {x: 20, y: 90, z: 0}
   WeaponClothCol: {fileID: 0}
   WeaponClothColName: 
   WeaponClothColPos: {x: 0, y: 0, z: 0}
@@ -202,7 +202,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2038969105319066745}
   m_Layer: 0
-  m_Name: WeaponAttachOBJ
+  m_Name: WeaponAttachOBJ0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -755,19 +755,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5588206f2f93e134abb71cd58d48af56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WeaponAttachOBJ: {fileID: 5129748309721189674}
-  WeaponAttachOBJName: L_HandBone
-  WeaponAttachOBJPos: {x: 0, y: 0.045, z: -0.0175}
-  WeaponAttachOBJRotate: {x: 5, y: 90, z: 0}
-  WeaponAttachAttackOBJList:
+  WeaponAttachOBJList:
   - {fileID: 5129748309721189674}
   - {fileID: 901258189418486335}
-  WeaponAttachAttackNameList:
+  WeaponAttachOBJNameList:
+  - L_HandBone
   - R_HandBone
-  WeaponAttachAttackPosList:
+  WeaponAttachOBJPosList:
+  - {x: 0, y: 0.035, z: -0.015}
+  - {x: 0.15, y: 0.09, z: -0.015}
+  WeaponAttachOBJMoveList:
   - {x: 0, y: 0, z: 0}
-  WeaponAttachAttackRotateList:
-  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: -0.65}
+  WeaponAttachOBJRotateList:
+  - {x: 20, y: 90, z: 0}
+  - {x: -20, y: 90, z: 0}
   WeaponClothCol: {fileID: 0}
   WeaponClothColName: 
   WeaponClothColPos: {x: 0, y: 0, z: 0}

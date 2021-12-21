@@ -3546,11 +3546,38 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		foreach(var i in WeaponOBJList)
 		{
 			//アタッチ先を変更
-			i.transform.parent = i.GetComponent<WeaponSettingScript>().WeaponAttachAttackOBJList[n].transform;
+			i.transform.parent = i.GetComponent<WeaponSettingScript>().WeaponAttachOBJList[n].transform;
 
 			//ローカルトランスフォームを設定
 			i.transform.localPosition *= 0;
 			i.transform.localRotation = Quaternion.Euler(Vector3.zero);
+		}
+	}
+
+	//攻撃時に武器を移動させる
+	private void WeaponMove(String s)
+	{
+		//引数をカンマで分割
+		List<string> templist = new List<string>(s.Split(',').ToList());
+
+		//コルーチン呼び出し
+		StartCoroutine(WeaponMoveCoroutine(WeaponOBJList[int.Parse(templist[0])], WeaponOBJList[int.Parse(templist[0])].GetComponent<WeaponSettingScript>().WeaponAttachOBJMoveList[int.Parse(templist[1])], WeaponOBJList[int.Parse(templist[0])].GetComponent<WeaponSettingScript>().WeaponAttachOBJMoveList[int.Parse(templist[2])], float.Parse(templist[3])));
+	}
+	private IEnumerator WeaponMoveCoroutine(GameObject o, Vector3 bp, Vector3 ap, float t)
+	{
+		//経過時間
+		float time = 0;
+
+		while(time < t)
+		{
+			//オブジェクト移動
+			o.transform.localPosition = Vector3.Lerp(bp, ap, time / t);
+
+			//経過時間カウントアップ
+			time += Time.deltaTime;
+
+			//1フレーム待機
+			yield return null;
 		}
 	}
 
