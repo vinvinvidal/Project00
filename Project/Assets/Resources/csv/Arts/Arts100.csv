@@ -2,7 +2,7 @@ NameC,膚断
 NameH,はだだち
 UseCharacter,1
 Anim,Motion_1_GroundAttack00
-MoveVec,0*0*1*10
+MoveVec,0*0*1*5|0*0*1*1.75|0*0*1*3
 Damage,1
 Stun,1
 ColVec,0*0.25*0.75*1.25
@@ -10,7 +10,7 @@ KnockBackVec,0*10*0*0.1
 Introduction,基本の連打攻撃
 UnLock,0|0|0
 Chain,0
-MoveType,0
+MoveType,0|0|0
 AttackType,11
 DownEnable,1
 ColType,1

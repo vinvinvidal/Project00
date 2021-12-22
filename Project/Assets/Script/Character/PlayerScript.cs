@@ -734,7 +734,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		WeaponOBJList = new List<GameObject>();
 
 		//攻撃時のTrailエフェクト取得
-		AttackTrail = DeepFind(gameObject, "AttackTrail");
+		AttackTrail = gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("AttackTrail")).ToList()[0].gameObject;
 
 		//足元の衝撃エフェクト取得
 		FootImpactEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "FootImpact").ToArray()[0];
@@ -3103,7 +3103,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void StartAttackTrail(int n)
 	{
 		//引数で受け取った番号のエフェクトを再生
-		DeepFind(AttackTrail, "AttackTrail" + n).GetComponent<ParticleSystem>().Play();
+		DeepFind(AttackTrail, "Trail" + n).GetComponent<ParticleSystem>().Play();
 
 		//スイング音を再生
 		AttackSwingOBJ.GetComponent<SoundEffectScript>().PlayRandomList();
@@ -3560,8 +3560,30 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//引数をカンマで分割
 		List<string> templist = new List<string>(s.Split(',').ToList());
 
+		//操作する武器オブジェクト
+		GameObject WeaponOBJ = WeaponOBJList[int.Parse(templist[0])];
+
+		//アタッチオブジェクト
+		GameObject AttachOBJ = WeaponOBJ.GetComponent<WeaponSettingScript>().WeaponAttachOBJList[int.Parse(templist[1])];
+
+		//移動前座標
+		Vector3 BPos = WeaponOBJ.GetComponent<WeaponSettingScript>().WeaponAttachOBJMoveList[int.Parse(templist[2])];
+
+		//移動後座標
+		Vector3 APos = WeaponOBJ.GetComponent<WeaponSettingScript>().WeaponAttachOBJMoveList[int.Parse(templist[3])];
+
+		//移動時間
+		float MoveTime = float.Parse(templist[4]);
+
+		//アタッチ先を変更
+		WeaponOBJ.transform.parent = AttachOBJ.transform;
+
+		//ローカルトランスフォームを設定
+		WeaponOBJ.transform.localPosition = BPos;
+		WeaponOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
 		//コルーチン呼び出し
-		StartCoroutine(WeaponMoveCoroutine(WeaponOBJList[int.Parse(templist[0])], WeaponOBJList[int.Parse(templist[0])].GetComponent<WeaponSettingScript>().WeaponAttachOBJMoveList[int.Parse(templist[1])], WeaponOBJList[int.Parse(templist[0])].GetComponent<WeaponSettingScript>().WeaponAttachOBJMoveList[int.Parse(templist[2])], float.Parse(templist[3])));
+		StartCoroutine(WeaponMoveCoroutine(WeaponOBJ, BPos, APos, MoveTime));
 	}
 	private IEnumerator WeaponMoveCoroutine(GameObject o, Vector3 bp, Vector3 ap, float t)
 	{
@@ -3579,6 +3601,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//1フレーム待機
 			yield return null;
 		}
+
+		//オブジェクトを最終位置に移動
+		o.transform.localPosition = ap;
 	}
 
 	//武器のミラーに敵の顔を映す
