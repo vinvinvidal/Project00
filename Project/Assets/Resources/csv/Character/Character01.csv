@@ -4,9 +4,9 @@ F_NameC,桃花
 F_NameH,とうか
 CharacterID,1
 OBJname,Character01
-PlayerMoveSpeed,5
-PlayerDashSpeed,8
-RollingSpeed,10
+PlayerMoveSpeed,4.5
+PlayerDashSpeed,7
+RollingSpeed,8
 JumpPower,10
 TurnSpeed,800
-AttackDistance,3
+AttackDistance,5
