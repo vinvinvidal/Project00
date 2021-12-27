@@ -511,8 +511,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 
 
-	//攻撃時のTrailエフェクト
-	private GameObject AttackTrail;
+	//攻撃時のTrailエフェクトList
+	private List<GameObject> AttackTrailList;
 
 	//足元の衝撃エフェクト
 	private GameObject FootImpactEffect;
@@ -734,7 +734,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		WeaponOBJList = new List<GameObject>();
 
 		//攻撃時のTrailエフェクト取得
-		AttackTrail = gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("AttackTrail")).ToList()[0].gameObject;
+		AttackTrailList = new List<GameObject>(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name.Contains("AttackTrail_" + CharacterID)).ToList()[0].GetComponentsInChildren<Transform>().Select(b => b.gameObject).ToList());
+
+		//最初のオブジェクトはルートオブジェクトなので消す
+		AttackTrailList.RemoveAt(0);
 
 		//足元の衝撃エフェクト取得
 		FootImpactEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "FootImpact").ToArray()[0];
@@ -3102,8 +3105,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//攻撃時のTrailを表示する、アニメーションクリップのイベントから呼ばれる
 	private void StartAttackTrail(int n)
 	{
-		//引数で受け取った番号のエフェクトを再生
-		DeepFind(AttackTrail, "Trail" + n).GetComponent<ParticleSystem>().Play();
+		//引数で受け取った番号のエフェクトをインスタンス化
+		GameObject TrailEffect = Instantiate(AttackTrailList[n]);
+
+		//自身の子にして位置回転設定
+		TrailEffect.transform.parent = gameObject.transform;
+
+		TrailEffect.transform.localPosition = TrailEffect.transform.position;
+		TrailEffect.transform.localRotation = TrailEffect.transform.rotation;
 
 		//スイング音を再生
 		AttackSwingOBJ.GetComponent<SoundEffectScript>().PlayRandomList();

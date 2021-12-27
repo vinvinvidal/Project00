@@ -61,8 +61,39 @@ Transform:
   - {fileID: 7687391731572528426}
   - {fileID: 2038969105319066745}
   - {fileID: 8177738964838881050}
+  - {fileID: 219420149245696828}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1902593265801471154
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 219420149245696828}
+  m_Layer: 0
+  m_Name: WeaponAttachOBJ2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &219420149245696828
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902593265801471154}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 9074121332275549937}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3219367560359532684
 GameObject:
@@ -179,14 +210,17 @@ MonoBehaviour:
   - {fileID: 5129748309721189674}
   - {fileID: 5129748309721189674}
   - {fileID: 901258189418486335}
+  - {fileID: 5129748309721189674}
   WeaponAttachOBJNameList:
   - L_HandBone
   - L_HandBone
   - R_HandBone
+  - L_HandBone
   WeaponAttachOBJPosList:
   - {x: 0.035, y: 0.02, z: -0.015}
   - {x: 0.035, y: 0.02, z: -0.015}
   - {x: 0.15, y: 0.09, z: -0.015}
+  - {x: 0.035, y: 0.02, z: -0.015}
   WeaponAttachOBJMoveList:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0.65}
@@ -194,6 +228,7 @@ MonoBehaviour:
   - {x: 20, y: 90, z: 0}
   - {x: 20, y: 90, z: 0}
   - {x: -20, y: 90, z: 0}
+  - {x: 20, y: 90, z: 0}
   WeaponClothCol: {fileID: 0}
   WeaponClothColName: 
   WeaponClothColPos: {x: 0, y: 0, z: 0}
@@ -559,7 +594,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7080894655623705271}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -646,14 +681,17 @@ MonoBehaviour:
   - {fileID: 5129748309721189674}
   - {fileID: 901258189418486335}
   - {fileID: 901258189418486335}
+  - {fileID: 1902593265801471154}
   WeaponAttachOBJNameList:
   - L_HandBone
+  - R_HandBone
   - R_HandBone
   - R_HandBone
   WeaponAttachOBJPosList:
   - {x: 0.035, y: 0.02, z: -0.015}
   - {x: 0.15, y: 0.09, z: -0.015}
   - {x: 0.15, y: 0.09, z: -0.015}
+  - {x: -0.15, y: -0.02, z: -0.015}
   WeaponAttachOBJMoveList:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: -0.65}
@@ -661,6 +699,7 @@ MonoBehaviour:
   - {x: 20, y: 90, z: 0}
   - {x: -20, y: 90, z: 0}
   - {x: -20, y: 90, z: 0}
+  - {x: 20, y: -90, z: 0}
   WeaponClothCol: {fileID: 0}
   WeaponClothColName: 
   WeaponClothColPos: {x: 0, y: 0, z: 0}
