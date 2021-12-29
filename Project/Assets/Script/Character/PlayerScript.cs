@@ -54,7 +54,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool GetOnCameraBool();
 
 	//キャラクターのデータセットする
-	void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA);
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA);
 
 	//当たった攻撃が有効か返す
 	bool AttackEnable(bool H);
@@ -485,6 +485,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//攻撃制御用マトリクス
 	private List<List<List<int>>> ArtsStateMatrix = new List<List<List<int>>>();
 
+	//表情モーションList
+	private List<AnimationClip> FaceAnimList = new List<AnimationClip>();
+
 	//ダメージモーションList
 	private List<AnimationClip> DamageAnimList = new List<AnimationClip>();
 
@@ -861,6 +864,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AllStates.Add("H_Break");
 		AllStates.Add("SuperTry");
 		AllStates.Add("SuperArts");
+		AllStates.Add("CharacterChange");
+		
 
 		//全てのステートとトランジションをListにAdd
 		foreach (string i in AllStates)
@@ -903,6 +908,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				}
 			}
 
+			/*
 			//指
 			if (i.name.Contains("Thumb") ||
 					i.name.Contains("First") ||
@@ -916,6 +922,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//同じ数だけランダムシードを作成
 				AnimNoiseSeedList.Add(new Vector3(UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f)));
 			}
+			*/
 		}
 	}
 
@@ -1338,9 +1345,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TopsOffFlag = false;
 
 		PantsOffFlag = false;
-
+		
 		//モザイク表示
-		MosaicOBJ.SetActive(false);
+		MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(false);
 	}
 
 	//超必殺技ボタンを押した時の処理
@@ -1357,6 +1364,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//入力フラグを立てる
 			SuperInput = true;
+		}
+	}
+
+	//キャラチェンジを押した時
+	private void OnCharacterChange(InputValue i)
+	{
+		//キャラチェンジ入力許可条件判定
+		if (PermitInputBoolDic["CharacterChange"])
+		{
+			GameManagerScript.Instance.ChangePlayableCharacter(CharacterID ,  (int)i.Get<float>());
 		}
 	}
 
@@ -3082,7 +3099,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			float DurationTime = float.Parse(n.Split(',').ToList()[1]);
 
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["Face_Void_" + FaceState % 2] = GameManagerScript.Instance.AllFaceList.Where(a => a.name == AnimName).ToArray()[0];
+			OverRideAnimator["Face_Void_" + FaceState % 2] = FaceAnimList.Where(a => a.name == AnimName).ToArray()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -3336,7 +3353,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//モザイク表示
-		MosaicOBJ.SetActive(true);
+		MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(true);
 
 		//スケベエフェクト生成
 		GameObject TempEffect = Instantiate(H_Effect00);
@@ -3548,11 +3565,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}		
 	}
 
-	//攻撃時に武器のアタッチ先を変更する
+	//武器のアタッチ先を変更する
 	private void AttackAttachWeapon(int n)
 	{
 		//武器オブジェクトを回す
-		foreach(var i in WeaponOBJList)
+		foreach (var i in WeaponOBJList)
 		{
 			//アタッチ先を変更
 			i.transform.parent = i.GetComponent<WeaponSettingScript>().WeaponAttachOBJList[n].transform;
@@ -3882,6 +3899,44 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//入力許可フラグを管理する関数、ステートが変化しないと更新されない事に注意
 	private void FlagManager(string s)
 	{
+		//キャラ交代入力許可条件
+		PermitInputBoolDic["CharacterChange"]
+		= !PauseFlag &&
+		!GameManagerScript.Instance.EventFlag &&
+		(
+			s.Contains("Attack")
+			||
+			s.Contains("Stop")
+			||
+			s == "Idling"
+			||
+			s == "Run"
+			||
+			s == "Jump"
+			||
+			s == "Fall"
+			||
+			s == "GroundRolling"
+			||
+			s == "AirRolling"
+			||
+			s == "SpecialSuccess"
+			||
+			s == "SpecialAttack"
+			||
+			s.Contains("-> Idling")
+			||
+			s.Contains("-> Run")
+			||
+			s.Contains("-> Jump")
+			||
+			s.Contains("-> Fall")
+			||
+			s.Contains("-> GroundRolling")
+			||
+			s.Contains("-> AirRolling")
+		);
+
 		//特殊攻撃入力許可条件
 		PermitInputBoolDic["SpecialTry"]
 		= !PauseFlag &&
@@ -4655,8 +4710,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる
-	public void SetCharacterData(CharacterClass CC, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA)
+	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA)
 	{
+		//表情アニメーションList
+		FaceAnimList = new List<AnimationClip>(FAL);
+
 		//ダメージモーションList
 		DamageAnimList = new List<AnimationClip>(DAL);
 

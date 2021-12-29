@@ -16,8 +16,14 @@ public class MissionClass
 	//ミッションの説明文
 	public String Introduction;
 
-	//ミッションのチャプター開始時にプレイヤーが操作するキャラクターID、100なら変更なし
-	public List<int> PlayableCharacterList;
+	//ミッションに参加するキャラクターList
+	public List<int> MissionCharacterList;
+
+	//チャプターに参加するプレイアブルキャラクターList
+	public List<List<int>> ChapterCharacterList;
+
+	//チャプター開始時にプレイヤーが操作するキャラクターList、100なら変更なし
+	public List<int> FirstCharacterList;
 
 	//ミッションのチャプター毎の初期表示ステージ
 	public List<string> ChapterStageList;
@@ -34,7 +40,9 @@ public class MissionClass
 		float n,
 		string title,
 		string intro,
-		List<int> CL,
+		List<int> MCL,
+		List<List<int>> CCL,
+		List<int> FCL,
 		List<string> ST,
 		List<Vector3> PPOS,
 		List<Vector3> CPOS
@@ -43,7 +51,9 @@ public class MissionClass
 		Num = n;
 		MissionTitle = title;
 		Introduction = intro;
-		PlayableCharacterList = new List<int>(CL);
+		MissionCharacterList = new List<int>(MCL);
+		ChapterCharacterList = new List<List<int>>(CCL);
+		FirstCharacterList = new List<int>(FCL);
 		ChapterStageList = new List<string>(ST);
 		PlayableCharacterPosList = new List<Vector3>(PPOS);
 		CameraPosList = new List<Vector3>(CPOS);

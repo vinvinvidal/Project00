@@ -10,6 +10,9 @@ public class MosaicShaderScript : GlobalClass
 	//メインカメラオブジェクト
 	GameObject MainCamera;
 
+	//パーティクルシステム
+	ParticleSystem MosaicParticle;
+
 	//カメラとの距離
 	float Dist;
 
@@ -27,32 +30,38 @@ public class MosaicShaderScript : GlobalClass
 		//メインカメラ取得
 		MainCamera = GameObject.Find("MainCamera");
 
+		//パーティクルシステム取得
+		MosaicParticle = GetComponent<ParticleSystem>();
+
 		//パーティクルのアクセサを取り出す
-		ParticleSystem.ShapeModule Accesser = GetComponent<ParticleSystem>().shape;
+		ParticleSystem.ShapeModule Accesser = MosaicParticle.shape;
 
 		//親のSkinnedMeshRendererをShapeに反映
 		Accesser.skinnedMeshRenderer = transform.parent.GetComponent<SkinnedMeshRenderer>();
-
-		//最初は消しとくコルーチン呼び出し
-		StartCoroutine(FirstCoroutine());
 	}
 
 	void Update()
 	{
-		//カメラとの距離を測定
-		Dist = Mathf.Ceil((MainCamera.transform.position - transform.position).sqrMagnitude);		
+		if(MosaicParticle.isPlaying)
+		{
+			//カメラとの距離を測定
+			Dist = Mathf.Ceil((MainCamera.transform.position - transform.position).sqrMagnitude);
 
-		//カメラとの距離によってモザイクの粗さを変える
-		Mat.SetFloat("_BlockSize", Dist * 2.5f);
+			//カメラとの距離によってモザイクの粗さを変える
+			Mat.SetFloat("_BlockSize", Dist * 2.5f);
+		}
 	}
 
-	//最初は消しとくコルーチン
-	private IEnumerator FirstCoroutine()
+	//モザイク表示切り替え関数
+	public void SwitchMozaic(bool s)
 	{
-		//1秒待つ、これをしないと使う時に位置が変になってたりする、危険。
-		yield return new WaitForSeconds(1);
-
-		//無効化
-		gameObject.SetActive(false);
+		if(s)
+		{
+			MosaicParticle.Play();
+		}
+		else
+		{
+			MosaicParticle.Stop();
+		}		
 	}
 }

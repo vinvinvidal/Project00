@@ -254,7 +254,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					}
 
 					//スクリプトにデータを渡す
-					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllDamageList[ID], GameManagerScript.Instance.AllH_HitList[ID], GameManagerScript.Instance.AllH_DamageList[ID], GameManagerScript.Instance.AllH_BreakList[ID], CostumeOBJ, MosaicOBJ));
+					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllFaceDic[ID], GameManagerScript.Instance.AllDamageDic[ID], GameManagerScript.Instance.AllH_HitDic[ID], GameManagerScript.Instance.AllH_DamageDic[ID], GameManagerScript.Instance.AllH_BreakDic[ID], CostumeOBJ, MosaicOBJ));
 
 				}));
 			}
@@ -276,8 +276,10 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 			yield return null;
 		}
 
-		//読み込み完了したらMissionSettingにフラグを送る
-		ExecuteEvents.Execute<MissionSettingScriptInterface>(GameObject.Find("MIssionSetting"), null, (reciever, eventData) => reciever.GetCharacterCompleteFlag(true));
+		//自身を消しておく
+		gameObject.SetActive(false);
 
+		//読み込み完了したらMissionSettingにフラグを送る
+		ExecuteEvents.Execute<MissionSettingScriptInterface>(GameObject.Find("MIssionSetting"), null, (reciever, eventData) => reciever.GetCharacterCompleteFlag(ID, true));
 	}
 }

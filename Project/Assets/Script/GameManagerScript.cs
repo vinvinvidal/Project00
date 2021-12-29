@@ -28,6 +28,9 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	//プレイアブルキャラクターをセットするインターフェイス
 	void SetPlayableCharacterOBJ(GameObject obj);
 
+	//交代可能な参加メンバーをセットするインターフェイス
+	void SetMissionCharacterDic(Dictionary<int, GameObject> MCD);
+
 	//現在のプレイアブルキャラクターを返すインターフェイス
 	GameObject GetPlayableCharacterOBJ();
 
@@ -123,14 +126,17 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 
 
-	//選択中のミッションナンバー
-	public float SelectedMissionNum { get; set; } = 0;
+	//選択中のミッションID
+	public int SelectedMissionNum { get; set; } = 0;
 
-	//選択中のチャプターナンバー
+	//選択中のチャプターID
 	public int SelectedMissionChapter { get; set; } = 0;
 
 	//現在のプレイアブルキャラクター
 	private GameObject PlayableCharacterOBJ;
+
+	//ミッションに参加していて交代可能なキャラクター
+	private Dictionary<int, GameObject> MissionCharacterDic;
 
 	//メインカメラ
 	private GameObject MainCamera;
@@ -203,28 +209,28 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllSuperArtsAnimCompleteFlagDic = new Dictionary<string, bool>();
 
-	//全ての表情アニメーションを持ったList
-	public List<AnimationClip> AllFaceList { get; set; }
+	//全ての表情アニメーションを持ったDic
+	public Dictionary<int, List<AnimationClip>> AllFaceDic { get; set; }
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllFaceAnimCompleteFlagDic = new Dictionary<string, bool>();
 
-	//全てのダメージアニメーションを持ったList
-	public List<List<AnimationClip>> AllDamageList { get; set; }
+	//全てのダメージアニメーションを持ったDic
+	public Dictionary<int, List<AnimationClip>> AllDamageDic { get; set; }
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllDamageAnimCompleteFlagDic = new Dictionary<string, bool>();
 
-	//全てのスケベヒットアニメーションを持ったList
-	public List<List<AnimationClip>> AllH_HitList { get; set; }
+	//全てのスケベヒットアニメーションを持ったDic
+	public Dictionary<int, List<AnimationClip>> AllH_HitDic { get; set; }
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllH_HitAnimCompleteFlagDic = new Dictionary<string, bool>();
 
-	//全てのスケベダメージアニメーションを持ったList
-	public List<List<AnimationClip>> AllH_DamageList { get; set; }
+	//全てのスケベダメージアニメーションを持ったDic
+	public Dictionary<int, List<AnimationClip>> AllH_DamageDic { get; set; }
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllH_DamageAnimCompleteFlagDic = new Dictionary<string, bool>();
 
-	//全てのスケベブレイクアニメーションを持ったList
-	public List<List<AnimationClip>> AllH_BreakList { get; set; }
+	//全てのスケベブレイクアニメーションを持ったDic
+	public Dictionary<int, List<AnimationClip>> AllH_BreakDic { get; set; }
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllH_BreakAnimCompleteFlagDic = new Dictionary<string, bool>();
 
@@ -277,7 +283,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		))
 		{
 			yield return null;
-		}
+		}		
 
 		//追加要素チェック関数呼び出し
 		AddContentCheck();
@@ -416,19 +422,19 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			AllDamageAnimCompleteFlagDic = new Dictionary<string, bool>();
 
 			//全ての表情アニメーションクリップを持ったList初期化
-			AllFaceList = new List<AnimationClip>();
+			AllFaceDic = new Dictionary<int, List<AnimationClip>>();
 
 			//全てのダメージモーションを持ったList初期化
-			AllDamageList = new List<List<AnimationClip>>();
+			AllDamageDic = new Dictionary<int, List<AnimationClip>>();
 
 			//全てのスケベヒットモーションを持ったList初期化
-			AllH_HitList = new List<List<AnimationClip>>();
+			AllH_HitDic = new Dictionary<int, List<AnimationClip>>();
 
-			//全てのスケベダメージモーションを持ったList初期化
-			AllH_DamageList = new List<List<AnimationClip>>();
+			//全てのスケベダメージモーションを持ったDic初期化
+			AllH_DamageDic = new Dictionary<int, List<AnimationClip>>();
 
 			//全てのスケベブレイクモーションを持ったList初期化
-			AllH_BreakList = new List<List<AnimationClip>>();
+			AllH_BreakDic = new Dictionary<int, List<AnimationClip>>();
 
 			//キャラクターリストを回す
 			foreach (CharacterClass i in AllCharacterList)
@@ -442,12 +448,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				//表情アニメーションクリップ読み込み
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/Face/", "anim", (List<object> FaceOBJList) =>
 				{
-					//読み込んだオブジェクトListを回す
-					foreach (object ii in FaceOBJList)
-					{
-						//ListにAdd
-						AllFaceList.Add(ii as AnimationClip);
-					}
+					//読み込んだアニメーションをListにしてAdd
+					AllFaceDic.Add(i.CharacterID, FaceOBJList.Select(o => o as AnimationClip).ToList());
 
 					//読み込んだ表情アニメーションのDicをtrueにする
 					AllFaceAnimCompleteFlagDic[i.F_NameC] = true;
@@ -457,7 +459,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/Damage/", "anim", (List<object> DamageOBJList) =>
 				{
 					//読み込んだアニメーションをListにしてAdd
-					AllDamageList.Add(DamageOBJList.Select(o => o as AnimationClip).ToList());
+					AllDamageDic.Add(i.CharacterID, DamageOBJList.Select(o => o as AnimationClip).ToList());
 
 					//読み込んだダメージアニメーションのDicをtrueにする
 					AllDamageAnimCompleteFlagDic[i.F_NameC] = true;
@@ -468,7 +470,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/H_Hit/", "anim", (List<object> H_HitOBJList) =>
 				{
 					//読み込んだアニメーションをListにしてAdd
-					AllH_HitList.Add(H_HitOBJList.Select(o => o as AnimationClip).ToList());
+					AllH_HitDic.Add(i.CharacterID, H_HitOBJList.Select(o => o as AnimationClip).ToList());
 
 					//読み込んだスケベヒットアニメーションのDicをtrueにする
 					AllH_HitAnimCompleteFlagDic[i.F_NameC] = true;
@@ -479,7 +481,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/H_Damage/", "anim", (List<object> H_DamageOBJList) =>
 				{
 					//読み込んだアニメーションをListにしてAdd
-					AllH_DamageList.Add(H_DamageOBJList.Select(o => o as AnimationClip).ToList());
+					AllH_DamageDic.Add(i.CharacterID, H_DamageOBJList.Select(o => o as AnimationClip).ToList());
 
 					//読み込んだスケベダメージアニメーションのDicをtrueにする
 					AllH_DamageAnimCompleteFlagDic[i.F_NameC] = true;
@@ -490,11 +492,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/H_Break/", "anim", (List<object> H_BreakOBJList) =>
 				{
 					//読み込んだアニメーションをListにしてAdd
-					AllH_BreakList.Add(H_BreakOBJList.Select(o => o as AnimationClip).ToList());
+					AllH_BreakDic.Add(i.CharacterID, H_BreakOBJList.Select(o => o as AnimationClip).ToList());
 
 					//読み込んだスケベブレイクアニメーションのDicをtrueにする
 					AllH_BreakAnimCompleteFlagDic[i.F_NameC] = true;
-
 				}));
 			}
 		}));
@@ -638,7 +639,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		}));
 
-
 		//ミッションCSV読み込み
 		StartCoroutine(AllFileLoadCoroutine("csv/Mission/", "csv", (List<object> list) =>
 		{
@@ -652,7 +652,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				float Num = 0;
 				string MissionTitle = "";
 				string Introduction = "";
-				List<int> PlayableCharacter = null;
+				List<int> MissionCharacter = null;
+				List<List<int>> ChapterCharacter = new List<List<int>>();
+				List<int> FirstCharacter = null;
 				List<string> ChapterStage = null;
 				List<Vector3> CharacterPosListt = new List<Vector3>();
 				List<Vector3> CameraPosList = new List<Vector3>();
@@ -675,8 +677,21 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 							Introduction = ii.Split(',').ToList().ElementAt(1);
 							break;
 
-						case "PlayableCharacter":
-							PlayableCharacter = new List<int>(ii.Split(',').ToList().ElementAt(1).Split('|').ToList().Select(t => int.Parse(t)));
+						case "MissionCharacter":
+							MissionCharacter = new List<int>(ii.Split(',').ToList().ElementAt(1).Split('|').ToList().Select(t => int.Parse(t)));
+							break;
+
+						case "ChapterCharacter":
+
+							foreach(string iii in ii.Split(',').ToList().ElementAt(1).Split('|').ToList())
+							{
+								ChapterCharacter.Add(iii.Split('*').Select(t => int.Parse(t)).ToList());
+							}
+
+							break;
+
+						case "FirstCharacter":
+							FirstCharacter = new List<int>(ii.Split(',').ToList().ElementAt(1).Split('|').ToList().Select(t => int.Parse(t)));
 							break;
 
 						case "ChapterStage":
@@ -706,7 +721,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				}
 
 				//ListにAdd
-				AllMissionList.Add(new MissionClass(Num, MissionTitle, Introduction, PlayableCharacter, ChapterStage, CharacterPosListt, CameraPosList));
+				AllMissionList.Add(new MissionClass(Num, MissionTitle, Introduction, MissionCharacter, ChapterCharacter, FirstCharacter, ChapterStage, CharacterPosListt, CameraPosList));
 			}
 
 			//読み込み完了フラグを立てる
@@ -1571,10 +1586,56 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		PlayableCharacterOBJ = obj;
 	}
 
+	//交代可能な参加メンバーをセットするインターフェイス
+	public void SetMissionCharacterDic(Dictionary<int, GameObject> MCD)
+	{
+		MissionCharacterDic = new Dictionary<int, GameObject>(MCD);
+	}
+
 	//現在のプレイアブルキャラクターを返すインターフェイス
 	public GameObject GetPlayableCharacterOBJ()
 	{
 		return PlayableCharacterOBJ;
+	}
+
+	//操作キャラクターを交代する
+	public void ChangePlayableCharacter(int c , int n)
+	{
+		//現在のキャラクターのインデックスを取得
+		int CurrentIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].IndexOf(c);
+
+		//交代するキャラクターのインデックス宣言
+		int NextIndex = CurrentIndex + n;
+
+		//条件分け
+		if(NextIndex < 0)
+		{
+			NextIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].Count - 1;
+		}
+		else if(AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].Count <= NextIndex)
+		{
+			NextIndex = 0;
+		}
+
+		//交代するキャラクターのインデックスを取得
+		NextIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter][NextIndex];
+
+		//交代するキャラクター有効化
+		MissionCharacterDic[1].SetActive(true);
+
+		//キャラクターのTransformをコピー
+		MissionCharacterDic[1].GetComponent<CharacterController>().enabled = false;
+		MissionCharacterDic[1].transform.position = MissionCharacterDic[CurrentIndex].transform.position;
+		MissionCharacterDic[1].transform.rotation = MissionCharacterDic[CurrentIndex].transform.rotation;
+		MissionCharacterDic[1].GetComponent<CharacterController>().enabled = true;
+
+		//現在のキャラクターを無効化
+		MissionCharacterDic[0].SetActive(false);
+
+		//プレイヤーキャラクターを更新
+		//SetPlayableCharacterOBJ(MissionCharacterDic[NextIndex]);
+
+
 	}
 
 	//追加されたキャラクターをリストに追加

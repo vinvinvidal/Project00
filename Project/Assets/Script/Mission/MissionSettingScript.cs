@@ -11,7 +11,7 @@ public interface MissionSettingScriptInterface : IEventSystemHandler
 	void MissionSetting(int MissionChapterNum);
 
 	//プレイヤー読み込みフラグを受け取る、衣装なんかも読み込むで向こうから受け取る必要がある
-	void GetCharacterCompleteFlag(bool b);
+	void GetCharacterCompleteFlag(int i, bool b);
 }
 
 public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
@@ -22,24 +22,14 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 	//ステージ読み込み完了フラグ
 	private bool StageCompleteFlag;
 
-	//キャラクター読み込み完了フラグ
-	private bool CharacterCompleteFlag;
+	//キャラクター読み込み完了フラグDic
+	private Dictionary<int, bool> CharacterCompleteFlagDic = new Dictionary<int, bool>();
 
-	//操作キャラクター
-	private GameObject PlayableCharacter;
+	//ミッション参加キャラクター
+	private Dictionary<int, GameObject> MissionCharacterDic = new Dictionary<int, GameObject>();
 
 	void Start()
     {
-		//ミッション開始時のセッティング、以降のチャプターはGameManagerから呼ぶ
-		MissionSetting(0);
-
-		//処理が終わるまで時間を止める
-		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0,0));
-	}
-
-	//モデルを読み込んだりしてミッションの準備をするインターフェイス
-	public void MissionSetting(int MissionChapterNum)
-	{
 		//全てのミッションリストを回す
 		foreach (MissionClass i in GameManagerScript.Instance.AllMissionList)
 		{
@@ -51,6 +41,36 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 			}
 		}
 
+		//ミッションに参加するキャラクターを全て読み込む
+		foreach (int i in UseMissionClass.MissionCharacterList)
+		{
+			//キャラクターモデル読み込み
+			StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Character/" + i + "/", GameManagerScript.Instance.AllCharacterList[i].OBJname, "prefab", (object OBJ) =>
+			{
+				//読み込んだオブジェクトをListに追加
+				MissionCharacterDic.Add(i, Instantiate(OBJ as GameObject));
+
+				//名前から(Clone)を消す
+				MissionCharacterDic[i].name = (OBJ as GameObject).name;
+			}));
+		}
+
+		//キャラクター読み込み完了フラグDicを作る
+		foreach (int i in UseMissionClass.MissionCharacterList)
+		{
+			CharacterCompleteFlagDic.Add(i, false);
+		}
+
+		//ミッション開始時のセッティング、以降のチャプターはGameManagerから呼ぶ
+		MissionSetting(0);
+
+		//処理が終わるまで時間を止める
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0,0));
+	}
+
+	//モデルを読み込んだりしてミッションの準備をするインターフェイス
+	public void MissionSetting(int MissionChapterNum)
+	{
 		//ステージモデル読み込み
 		StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Stage/", UseMissionClass.ChapterStageList[MissionChapterNum], "prefab", (object OBJ) =>
 		{
@@ -61,43 +81,38 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 			StageCompleteFlag = true;
 		}));
 
-		//キャラクターモデル読み込み
-		StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Character/" + UseMissionClass.PlayableCharacterList[MissionChapterNum] + "/", GameManagerScript.Instance.AllCharacterList[UseMissionClass.PlayableCharacterList[MissionChapterNum]].OBJname, "prefab", (object OBJ) =>
-		{
-			//読み込んだオブジェクトをインスタンス化、プレイアブルキャラクターに代入
-			PlayableCharacter = Instantiate(OBJ as GameObject);
-
-			//名前から(Clone)を消す
-			PlayableCharacter.name = (OBJ as GameObject).name;
-
-			//キャラクターを初期位置に移動、キャラクターコントローラを切らないと直接position指定できない
-			PlayableCharacter.GetComponent<CharacterController>().enabled = false;
-			PlayableCharacter.transform.position = UseMissionClass.PlayableCharacterPosList[MissionChapterNum];
-			PlayableCharacter.GetComponent<CharacterController>().enabled = true;
-
-		}));
-
 		//読み込み完了チェックコルーチン呼び出し
-		StartCoroutine(CompleteCheck());
+		StartCoroutine(CompleteCheck(MissionChapterNum));
 	}
 
 	//読み込み完了チェックコルーチン
-	IEnumerator CompleteCheck()
+	IEnumerator CompleteCheck(int MissionChapterNum)
 	{
 		//外部データの読み込みが完了するまで回る
-		while (!(StageCompleteFlag && CharacterCompleteFlag))
+		while (!(StageCompleteFlag && CharacterCompleteFlagDic.Values.All(a => a)))
 		{
 			yield return null;
 		}
 
+		//初期操作キャラクターを有効化
+		MissionCharacterDic[UseMissionClass.FirstCharacterList[MissionChapterNum]].SetActive(true);
+
+		//キャラクターを初期位置に移動、キャラクターコントローラを切らないと直接position指定できない
+		MissionCharacterDic[UseMissionClass.FirstCharacterList[MissionChapterNum]].GetComponent<CharacterController>().enabled = false;
+		MissionCharacterDic[UseMissionClass.FirstCharacterList[MissionChapterNum]].transform.position = UseMissionClass.PlayableCharacterPosList[MissionChapterNum];
+		MissionCharacterDic[UseMissionClass.FirstCharacterList[MissionChapterNum]].GetComponent<CharacterController>().enabled = true;
+
 		//GameManagerにプレイアブルキャラクターを送る
-		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetPlayableCharacterOBJ(PlayableCharacter));
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetPlayableCharacterOBJ(MissionCharacterDic[UseMissionClass.FirstCharacterList[MissionChapterNum]]));
+
+		//GameManagerにミッションキャラクターを送る
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetMissionCharacterDic(MissionCharacterDic));
 
 		//GameManagerにスカイボックスを取得させる
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetSkyBox());
 
 		//メインカメラにプレイアブルキャラクターを送る
-		ExecuteEvents.Execute<MainCameraScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot"), null, (reciever, eventData) => reciever.SetPlayerCharacter(PlayableCharacter));
+		ExecuteEvents.Execute<MainCameraScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot"), null, (reciever, eventData) => reciever.SetPlayerCharacter(MissionCharacterDic[UseMissionClass.FirstCharacterList[MissionChapterNum]]));
 
 		//メインカメラの初期設定関数呼び出し
 		ExecuteEvents.Execute<MainCameraScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot"), null, (reciever, eventData) => reciever.MissionCameraSetting());
@@ -110,8 +125,8 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 	}
 
 	//プレイヤー読み込みフラグを受け取る、衣装なんかも読み込むので向こうの処理から受け取る
-	public void GetCharacterCompleteFlag(bool b)
+	public void GetCharacterCompleteFlag(int i, bool b)
 	{
-		CharacterCompleteFlag = b;
+		CharacterCompleteFlagDic[i] = b;
 	}
 }

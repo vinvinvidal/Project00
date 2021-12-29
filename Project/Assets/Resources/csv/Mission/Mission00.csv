@@ -1,7 +1,9 @@
 Nam,0
 Title,ようこそ明羅漢学園
 Introduction,乗り込むぞ
-PlayableCharacter,1
+MissionCharacter,0|1
+ChapterCharacter,1*0|0
+FirstCharacter,0|0
 ChapterStage,Stage00
 PlayerPos,13*0.1*0
 CameraPos,5*2*0
