@@ -2462,7 +2462,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//プレイヤーキャラクターをセットする、キャラ交代した時にMissionManagerから呼ばれる
 	public void SetPlayerCharacter(GameObject c)
 	{
+		//プレイヤーキャラクター更新
 		PlayerCharacter = c;
+
+		//ビヘイビアにも渡す
+		ExecuteEvents.Execute<EnemyBehaviorInterface>(gameObject, null, (reciever, eventData) => reciever.SetPlayerCharacter(c));
 	}
 
 	//戦闘継続処理

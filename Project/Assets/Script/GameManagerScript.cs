@@ -1599,7 +1599,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//操作キャラクターを交代する
-	public void ChangePlayableCharacter(int c , int n)
+	public void ChangePlayableCharacter(int c , int n, GameObject e, bool f)
 	{
 		//現在のキャラクターのインデックスを取得
 		int CurrentIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].IndexOf(c);
@@ -1617,25 +1617,36 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			NextIndex = 0;
 		}
 
-		//交代するキャラクターのインデックスを取得
-		NextIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter][NextIndex];
+		//交代するキャラクター取得
+		GameObject NextCharacter = MissionCharacterDic[AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter][NextIndex]];
+
+		//位置を合わせる
+		NextCharacter.transform.position = PlayableCharacterOBJ.transform.position;
+		NextCharacter.transform.rotation = PlayableCharacterOBJ.transform.rotation;
 
 		//交代するキャラクター有効化
-		MissionCharacterDic[1].SetActive(true);
+		NextCharacter.SetActive(true);
 
-		//キャラクターのTransformをコピー
-		MissionCharacterDic[1].GetComponent<CharacterController>().enabled = false;
-		MissionCharacterDic[1].transform.position = MissionCharacterDic[CurrentIndex].transform.position;
-		MissionCharacterDic[1].transform.rotation = MissionCharacterDic[CurrentIndex].transform.rotation;
-		MissionCharacterDic[1].GetComponent<CharacterController>().enabled = true;
+		//状況を引き継ぐ
+		ExecuteEvents.Execute<PlayerScriptInterface>(NextCharacter, null, (reciever, eventData) => reciever.ContinueSituation(e, f));
+
+		//メインカメラにもプレイヤーキャラクターを渡す
+		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));
+
+		//メインカメラにもロック中の敵を引き継ぐ
+		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetLockEnemy(e));
+
+		//敵にもプレイヤーキャラクターを渡す
+		foreach (var i in AllActiveEnemyList)
+		{
+			ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));
+		}
 
 		//現在のキャラクターを無効化
-		MissionCharacterDic[0].SetActive(false);
+		PlayableCharacterOBJ.SetActive(false);
 
 		//プレイヤーキャラクターを更新
-		//SetPlayableCharacterOBJ(MissionCharacterDic[NextIndex]);
-
-
+		SetPlayableCharacterOBJ(NextCharacter);
 	}
 
 	//追加されたキャラクターをリストに追加

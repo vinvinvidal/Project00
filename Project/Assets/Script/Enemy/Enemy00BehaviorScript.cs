@@ -10,6 +10,9 @@ public interface EnemyBehaviorInterface : IEventSystemHandler
 {
 	//ポーズ処理
 	void Pause(bool b);
+
+	//プレイヤーキャラクターを更新する
+	void SetPlayerCharacter(GameObject c);
 }
 
 public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
@@ -594,6 +597,12 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//1フレーム待機
 			yield return null;
 		}
+	}
+
+	//プレイヤーキャラクターを更新する
+	public void SetPlayerCharacter(GameObject c)
+	{
+		PlayerCharacter = c;
 	}
 
 	//準備完了待ちコルーチン

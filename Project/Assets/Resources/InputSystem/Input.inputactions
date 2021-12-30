@@ -580,6 +580,39 @@
                     "action": "CharacterChange",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "1D Axis",
+                    "id": "755f40c3-fdf7-4c09-990e-2d86ae4974b9",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CharacterChange",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "433c2ca8-e9d9-4e7d-9896-6b4f46faafc1",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CharacterChange",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "ddbf685a-36b6-4691-8eb1-66e3f22fd317",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CharacterChange",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         },

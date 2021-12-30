@@ -58,6 +58,9 @@ public interface PlayerScriptInterface : IEventSystemHandler
 
 	//当たった攻撃が有効か返す
 	bool AttackEnable(bool H);
+
+	//キャラクター交代時に状況を引き継ぐ
+	void ContinueSituation(GameObject e, bool f);
 }
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
@@ -1373,8 +1376,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//キャラチェンジ入力許可条件判定
 		if (PermitInputBoolDic["CharacterChange"])
 		{
-			GameManagerScript.Instance.ChangePlayableCharacter(CharacterID ,  (int)i.Get<float>());
+			GameManagerScript.Instance.ChangePlayableCharacter(CharacterID ,  (int)i.Get<float>(), LockEnemy, BattleFlag);
 		}
+	}
+
+	//キャラクター交代時に状況を引き継ぐ
+	public void ContinueSituation(GameObject e, bool f)
+	{
+		LockEnemy = e;
+
+		BattleFlag = f;
 	}
 
 	//入力フラグを全て下す関数
