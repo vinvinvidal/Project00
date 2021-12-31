@@ -54,7 +54,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool GetOnCameraBool();
 
 	//キャラクターのデータセットする
-	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA);
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA);
 
 	//当たった攻撃が有効か返す
 	bool AttackEnable(bool H);
@@ -172,6 +172,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//超必殺技入力フラグ
 	private bool SuperInput = false;
+
+	//キャラクター交代入力フラグ
+	private bool ChangeInput = false;
 
 	//オートコンボ入力フラグ
 	private bool AutoComboInput = false;
@@ -372,6 +375,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//超必殺技制御カウント
 	private int SuperCount = 0;
 
+	//キャラ交代入力値
+	private int ChangeInputNum = 0;
+
 	//脱出用レバガチャカウント
 	public int BreakCount { get; set; } = 0;
 
@@ -493,6 +499,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//ダメージモーションList
 	private List<AnimationClip> DamageAnimList = new List<AnimationClip>();
+
+	//キャラ交代モーションList
+	private List<AnimationClip> ChangeAnimList = new List<AnimationClip>();
 
 	//スケベヒットモーションList
 	private List<AnimationClip> H_HitAnimList = new List<AnimationClip>();
@@ -840,6 +849,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		InvincibleList.Add("H_Break");
 		InvincibleList.Add("SuperTry");
 		InvincibleList.Add("SuperArts");
+		InvincibleList.Add("ChangeBefore");
+		InvincibleList.Add("ChangeAfter");
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
 		AllStates.Add("AnyState");
@@ -867,8 +878,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AllStates.Add("H_Break");
 		AllStates.Add("SuperTry");
 		AllStates.Add("SuperArts");
-		AllStates.Add("CharacterChange");
-		
+		AllStates.Add("ChangeBefore");
+		AllStates.Add("ChangeAfter");
 
 		//全てのステートとトランジションをListにAdd
 		foreach (string i in AllStates)
@@ -1374,9 +1385,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void OnCharacterChange(InputValue i)
 	{
 		//キャラチェンジ入力許可条件判定
-		if (PermitInputBoolDic["CharacterChange"])
+		if (PermitInputBoolDic["ChangeBefore"])
 		{
-			GameManagerScript.Instance.ChangePlayableCharacter(CharacterID ,  (int)i.Get<float>(), LockEnemy, BattleFlag);
+			//入力フラグを立てる
+			ChangeInput = true;
+
+			//入力をキャストしてキャッシュ
+			ChangeInputNum = (int)i.Get<float>();
 		}
 	}
 
@@ -1400,6 +1415,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		JumpInput = false;
 
 		RollingInput = false;
+
+		ChangeInput = false;
 	}
 
 	//入力系遷移フラグを全て下す関数
@@ -3848,6 +3865,23 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 
+		//ChangeBefore遷移判定
+		if (PermitTransitionBoolDic["ChangeBefore"])
+		{
+			//アニメーション遷移フラグを立てる
+			CurrentAnimator.SetBool("ChangeBefore", true);
+
+			//接地判定
+			if(OnGroundFlag)
+			{
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["ChangeBefore_void"] = ChangeAnimList.Where(a => a.name.Contains("_B_G")).ToList()[0];
+			}
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		}
+
 		//Attack遷移判定
 		if (PermitTransitionBoolDic["Attack00"] || PermitTransitionBoolDic["Attack01"])
 		{
@@ -3911,7 +3945,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void FlagManager(string s)
 	{
 		//キャラ交代入力許可条件
-		PermitInputBoolDic["CharacterChange"]
+		PermitInputBoolDic["ChangeBefore"]
 		= !PauseFlag &&
 		!GameManagerScript.Instance.EventFlag &&
 		(
@@ -4124,12 +4158,23 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//入力時間を記録
 			DashInputTime = Time.time;
 		}
-
 		//Crouchになった瞬間の処理
 		else if (s.Contains("-> Crouch"))
 		{
 			//フラグ状態をまっさらに戻す関数呼び出し
 			ClearFlag();
+		}
+		//ChangeBeforeになった瞬間の処理
+		else if (s.Contains("-> ChangeBefore"))
+		{
+			//フラグ状態をまっさらに戻す関数呼び出し
+			ClearFlag();
+
+			//Change遷移フラグを下す
+			CurrentAnimator.SetBool("ChangeBefore", false);
+
+			//キャラ交代処理を呼び出す
+			GameManagerScript.Instance.ChangePlayableCharacter(CharacterID, ChangeInputNum, LockEnemy, BattleFlag, OnGroundFlag);
 		}
 		//Jumpになった瞬間の処理
 		else if (s.Contains("-> Jump"))
@@ -4518,6 +4563,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//遷移許可フラグを管理する関数
 	private void TransitionManager()
 	{
+		//キャラクター交代遷移許可条件
+		PermitTransitionBoolDic["ChangeBefore"] =
+		ChangeInput &&
+		PermitInputBoolDic["ChangeBefore"] &&
+		CurrentAnimator.GetBool("Transition")
+		;
+
 		//超必殺技遷移許可条件
 		PermitTransitionBoolDic["SuperTry"] =
 		OnGroundFlag &&
@@ -4721,13 +4773,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる
-	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA)
+	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA)
 	{
 		//表情アニメーションList
 		FaceAnimList = new List<AnimationClip>(FAL);
 
 		//ダメージモーションList
 		DamageAnimList = new List<AnimationClip>(DAL);
+
+		//キャラ交代モーションList
+		ChangeAnimList = new List<AnimationClip>(CAL);
 
 		//スケベヒットモーションList
 		H_HitAnimList = new List<AnimationClip>(HHL);
@@ -4922,6 +4977,150 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//回転値リセット
 		EventRotateVector *= 0;
+	}
+
+	//キャラ交代時にキャラを出現させる関数
+	public void ChangeAppear(float t , bool G)
+	{
+		//自身を有効化
+		gameObject.SetActive(true);
+
+		//接地判定
+		if(G)
+		{
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["ChangeAfter_void"] = ChangeAnimList.Where(a => a.name.Contains("_A_G")).ToList()[0];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		}
+
+		//モーションを再生
+		CurrentAnimator.Play("ChangeAfter", 0, 0);
+
+		//コルーチン呼び出し
+		StartCoroutine(ChangeAppearCoroutine(t));
+	}
+	private IEnumerator ChangeAppearCoroutine(float t)
+	{
+		//経過時間
+		float AppearTime = 0;
+
+		//レンダラー取得
+		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Player")).ToList());
+
+		//レンダラーを回してキャラクターを透明にする
+		foreach (Renderer i in RendList)
+		{
+			foreach (var ii in i.materials)
+			{
+				//マテリアルの描画順を変更
+				ii.renderQueue = 3000;
+
+				ii.SetFloat("_VanishNum", 1000);
+			}
+		}
+
+		//経過時間まで回す
+		while (AppearTime < t)
+		{
+			//マテリアルを回して消滅用数値を入れる
+			foreach (Renderer i in RendList)
+			{
+				foreach (var ii in i.materials)
+				{
+					ii.SetFloat("_VanishNum", 25 - (AppearTime * 25 / t));
+				}
+			}
+
+			//出現用カウントアップ
+			AppearTime += Time.deltaTime;
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//レンダラーを回して描画順と透明度を戻す
+		foreach (Renderer i in RendList)
+		{
+			foreach (var ii in i.materials)
+			{
+				ii.SetFloat("_VanishNum", 0);
+				ii.renderQueue = 2450;
+			}
+		}
+	}
+
+	//キャラ交代時にキャラを消す関数
+	public void ChangeVanish(float t)
+	{
+		//コルーチン呼び出し
+		StartCoroutine(ChangeVanishCoroutine(t));
+	}
+	private IEnumerator ChangeVanishCoroutine(float t)
+	{
+		//経過時間
+		float VanishTime = 0;
+
+		//レンダラー取得
+		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Player")).ToList());
+
+		//レンダラーを回す
+		foreach (Renderer i in RendList)
+		{
+			//レンダラーのシャドウを切る
+			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+			foreach (var ii in i.materials)
+			{
+				//マテリアルの描画順を変更
+				ii.renderQueue = 3000;
+			}
+		}
+
+		//経過時間まで回す
+		while (VanishTime < t)
+		{
+			//マテリアルを回して消滅用数値を入れる
+			foreach (Renderer i in RendList)
+			{
+				foreach (var ii in i.materials)
+				{
+					ii.SetFloat("_VanishNum", VanishTime * 25 / t);
+				}
+			}
+
+			//消滅用カウントアップ
+			VanishTime += Time.deltaTime;
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//マテリアルを回して完全に消す
+		foreach (Renderer i in RendList)
+		{
+			foreach (var ii in i.materials)
+			{
+				ii.SetFloat("_VanishNum", 1000);
+			}
+		}
+
+		//オブジェクトを無効化
+		gameObject.SetActive(false);
+
+		//レンダラーを回して描画順と透明度を戻す
+		foreach (Renderer i in RendList)
+		{
+			//レンダラーのシャドウを入れる
+			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+
+			foreach (var ii in i.materials)
+			{
+				ii.SetFloat("_VanishNum", 0);
+				ii.renderQueue = 2450;
+			}
+		}
 	}
 
 	//ポーズ処理、ゲームマネージャーから呼び出されるインターフェイス

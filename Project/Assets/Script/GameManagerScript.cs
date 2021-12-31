@@ -219,6 +219,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllDamageAnimCompleteFlagDic = new Dictionary<string, bool>();
 
+	//全てのキャラ交代アニメーションを持ったDic
+	public Dictionary<int, List<AnimationClip>> AllChangeDic { get; set; }
+	//↑の全てのアニメーションクリップ読み込み完了Dic
+	private Dictionary<string, bool> AllChangeAnimCompleteFlagDic = new Dictionary<string, bool>();
+
 	//全てのスケベヒットアニメーションを持ったDic
 	public Dictionary<int, List<AnimationClip>> AllH_HitDic { get; set; }
 	//↑の全てのアニメーションクリップ読み込み完了Dic
@@ -273,6 +278,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			AllFaceAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllDamageAnimCompleteFlagDic.Any() &&
 			AllDamageAnimCompleteFlagDic.All(a => a.Value == true) &&
+			AllChangeAnimCompleteFlagDic.Any() &&
+			AllChangeAnimCompleteFlagDic.All(a => a.Value == true) &&			
 			AllH_HitAnimCompleteFlagDic.Any() &&
 			AllH_HitAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllH_DamageAnimCompleteFlagDic.Any() &&
@@ -421,11 +428,20 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//ダメージアニメーションクリップ読み込み完了判定Dicを作る
 			AllDamageAnimCompleteFlagDic = new Dictionary<string, bool>();
 
+			//キャラ交代アニメーションクリップ読み込み完了判定Dicを作る
+			AllChangeAnimCompleteFlagDic = new Dictionary<string, bool>();
+
+
+
+
 			//全ての表情アニメーションクリップを持ったList初期化
 			AllFaceDic = new Dictionary<int, List<AnimationClip>>();
 
 			//全てのダメージモーションを持ったList初期化
 			AllDamageDic = new Dictionary<int, List<AnimationClip>>();
+
+			//全てのキャラ交代モーションを持ったList初期化
+			AllChangeDic = new Dictionary<int, List<AnimationClip>>();
 
 			//全てのスケベヒットモーションを持ったList初期化
 			AllH_HitDic = new Dictionary<int, List<AnimationClip>>();
@@ -445,6 +461,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				//ダメージアニメーションクリップ読み込み完了判定Dicにキャラ名でAdd
 				AllDamageAnimCompleteFlagDic.Add(i.F_NameC, false);
 
+				//キャラ交代アニメーションクリップ読み込み完了判定Dicにキャラ名でAdd
+				AllChangeAnimCompleteFlagDic.Add(i.F_NameC, false);
+
 				//表情アニメーションクリップ読み込み
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/Face/", "anim", (List<object> FaceOBJList) =>
 				{
@@ -463,6 +482,18 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 					//読み込んだダメージアニメーションのDicをtrueにする
 					AllDamageAnimCompleteFlagDic[i.F_NameC] = true;
+
+				}));
+
+
+				//キャラ交代アニメーションクリップ読み込み
+				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/Change/", "anim", (List<object> ChangeOBJList) =>
+				{
+					//読み込んだアニメーションをListにしてAdd
+					AllChangeDic.Add(i.CharacterID, ChangeOBJList.Select(o => o as AnimationClip).ToList());
+
+					//読み込んだダメージアニメーションのDicをtrueにする
+					AllChangeAnimCompleteFlagDic[i.F_NameC] = true;
 
 				}));
 
@@ -677,13 +708,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 							Introduction = ii.Split(',').ToList().ElementAt(1);
 							break;
 
-						case "MissionCharacter":
+						case "MissionCharacter":							
 							MissionCharacter = new List<int>(ii.Split(',').ToList().ElementAt(1).Split('|').ToList().Select(t => int.Parse(t)));
 							break;
 
 						case "ChapterCharacter":
-
-							foreach(string iii in ii.Split(',').ToList().ElementAt(1).Split('|').ToList())
+							foreach (string iii in ii.Split(',').ToList().ElementAt(1).Split('|').ToList())
 							{
 								ChapterCharacter.Add(iii.Split('*').Select(t => int.Parse(t)).ToList());
 							}
@@ -1599,7 +1629,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//操作キャラクターを交代する
-	public void ChangePlayableCharacter(int c , int n, GameObject e, bool f)
+	public void ChangePlayableCharacter(int c , int n, GameObject e, bool f, bool g)
 	{
 		//現在のキャラクターのインデックスを取得
 		int CurrentIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].IndexOf(c);
@@ -1624,8 +1654,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		NextCharacter.transform.position = PlayableCharacterOBJ.transform.position;
 		NextCharacter.transform.rotation = PlayableCharacterOBJ.transform.rotation;
 
-		//交代するキャラクター有効化
-		NextCharacter.SetActive(true);
+		//キャラクターの出現関数呼び出し
+		NextCharacter.GetComponent<PlayerScript>().ChangeAppear(0.5f, g);
 
 		//状況を引き継ぐ
 		ExecuteEvents.Execute<PlayerScriptInterface>(NextCharacter, null, (reciever, eventData) => reciever.ContinueSituation(e, f));
@@ -1643,7 +1673,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		}
 
 		//現在のキャラクターを無効化
-		PlayableCharacterOBJ.SetActive(false);
+		//PlayableCharacterOBJ.SetActive(false);
 
 		//プレイヤーキャラクターを更新
 		SetPlayableCharacterOBJ(NextCharacter);

@@ -14,7 +14,7 @@
     {
 		Tags
 		{
-			"Queue" = "Geometry"
+			"Queue" = "AlphaTest"
 			"RenderType" = "Opaque"
 		}
 

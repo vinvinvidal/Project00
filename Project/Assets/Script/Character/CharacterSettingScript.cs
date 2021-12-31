@@ -254,7 +254,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					}
 
 					//スクリプトにデータを渡す
-					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllFaceDic[ID], GameManagerScript.Instance.AllDamageDic[ID], GameManagerScript.Instance.AllH_HitDic[ID], GameManagerScript.Instance.AllH_DamageDic[ID], GameManagerScript.Instance.AllH_BreakDic[ID], CostumeOBJ, MosaicOBJ));
+					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllFaceDic[ID], GameManagerScript.Instance.AllDamageDic[ID], GameManagerScript.Instance.AllChangeDic[ID], GameManagerScript.Instance.AllH_HitDic[ID], GameManagerScript.Instance.AllH_DamageDic[ID], GameManagerScript.Instance.AllH_BreakDic[ID], CostumeOBJ, MosaicOBJ));
 
 				}));
 			}

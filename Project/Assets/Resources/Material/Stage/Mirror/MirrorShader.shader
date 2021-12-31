@@ -1,8 +1,18 @@
 ﻿Shader "Custom/MirrorShader"
 {
+	Properties
+	{	
+		//消滅用係数
+		_VanishNum("_VanishNum",float) = 0								
+	}
+
     SubShader
 	{
-		Tags { "RenderType" = "Opaque" }
+		Tags
+		{
+			"RenderType" = "Opaque"
+			"Queue" = "AlphaTest"
+		}
 		
 		Pass
 		{
@@ -25,8 +35,9 @@
 			//変数宣言
 
 			sampler2D _MainTex;
-			fixed4 _LightColor0;				//ライトカラー
+			fixed4 _LightColor0;			//ライトカラー
 			int MirrorON;
+			float _VanishNum;				//消滅用係数
 			
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
@@ -82,6 +93,9 @@
 				{
 					re = _LightColor0;
 				}
+
+				//透明部分をクリップ、消滅用の乱数精製
+				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum, round(_VanishNum)) + 0.05) * _VanishNum));
 
 				//出力
 				return re;
