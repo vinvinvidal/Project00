@@ -18,6 +18,9 @@
 			"RenderType" = "Opaque"
 		}
 
+		//GrabPassをテクスチャ名を指定して定義
+		GrabPass {"_GrabTex"}
+
         Pass
         {
 			
@@ -54,6 +57,8 @@
 
 			float _VanishNum;					//消滅用係数
 
+			sampler2D _GrabTex;
+
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
 			{
@@ -80,6 +85,9 @@
 				// テクスチャ座標
 				float2 uv : TEXCOORD0;
 
+				// Grab用テクスチャ座標
+				half4 GrabPos : TEXCOORD1;
+
 				// ハイライト用テクスチャ座標
 				float2 EyeHilightuv : TEXCOORD2;
 
@@ -91,7 +99,6 @@
 			//頂点シェーダ
 			vertex_output vert(vertex_input i)
 			{
-
 				//return用output構造体宣言
 				vertex_output re;
 
@@ -106,6 +113,9 @@
 
 				//法線をワールド座標系に変換
 				re.normal = UnityObjectToWorldNormal(i.normal);
+
+				// Grab用テクスチャ座標
+				re.GrabPos = ComputeGrabScreenPos(re.pos);
 
 				//ドロップシャドウ
 				//TRANSFER_SHADOW(re);
@@ -146,8 +156,11 @@
 				//ライトカラーを乗算
 				re *= lerp(1, _LightColor0, _LightColor0.a);
 
-				//透明部分をクリップ、消滅用の乱数精製
-				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum, round(_VanishNum)) + 0.05) * _VanishNum));
+				//プロジェクションで_Grabを貼り、透明度で消したりする
+				re.rgb = lerp(re, tex2Dproj(_GrabTex, i.GrabPos), _VanishNum);
+
+				//透明部分をクリップ
+				clip(re.a - 0.01);
 
 				//出力
 				return re;

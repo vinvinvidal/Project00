@@ -41,6 +41,25 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 			}
 		}
 
+		//キャラクター読み込み完了フラグDicを作る
+		foreach (int i in UseMissionClass.MissionCharacterList)
+		{
+			CharacterCompleteFlagDic.Add(i, false);
+		}
+
+		//ミッションに参加するキャラクターを全て読み込むコルーチン呼び出し
+		StartCoroutine(LoadCharacterCoroutine());
+
+		//ミッション開始時のセッティング、以降のチャプターはGameManagerから呼ぶ
+		MissionSetting(0);
+
+		//処理が終わるまで時間を止める
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0,0));
+	}
+
+	//ミッションに参加するキャラクターを全て読み込むコルーチン
+	private IEnumerator LoadCharacterCoroutine()
+	{
 		//ミッションに参加するキャラクターを全て読み込む
 		foreach (int i in UseMissionClass.MissionCharacterList)
 		{
@@ -53,19 +72,13 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 				//名前から(Clone)を消す
 				MissionCharacterDic[i].name = (OBJ as GameObject).name;
 			}));
+
+			//読み込みが終わるまで待って1キャラづつ読み込む、これをしないと重複ロードが起きてエラーになる
+			while(!CharacterCompleteFlagDic[i])
+			{
+				yield return null;
+			}
 		}
-
-		//キャラクター読み込み完了フラグDicを作る
-		foreach (int i in UseMissionClass.MissionCharacterList)
-		{
-			CharacterCompleteFlagDic.Add(i, false);
-		}
-
-		//ミッション開始時のセッティング、以降のチャプターはGameManagerから呼ぶ
-		MissionSetting(0);
-
-		//処理が終わるまで時間を止める
-		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0,0));
 	}
 
 	//モデルを読み込んだりしてミッションの準備をするインターフェイス

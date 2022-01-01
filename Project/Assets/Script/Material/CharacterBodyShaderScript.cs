@@ -45,6 +45,12 @@ public class CharacterBodyShaderScript : GlobalClass
     {
 		//ディレクショナルライトの行列をシェーダーに渡す
 		BodyMaterial.SetMatrix("_LightMatrix", LightTransform.worldToLocalMatrix);
+
+		//ディレクショナルライトの行列をシェーダーに渡す
+		BodyMaterial.SetMatrix("VartexMatrix", transform.root.worldToLocalMatrix);
+
+		//ディレクショナルライトの行列をシェーダーに渡す
+		BodyMaterial.SetVector("VartexVector", transform.root.forward);
 	}
 
 	//はだけテクスチャに変える

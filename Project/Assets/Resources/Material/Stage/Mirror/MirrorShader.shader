@@ -95,7 +95,7 @@
 				}
 
 				//透明部分をクリップ、消滅用の乱数精製
-				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum, round(_VanishNum)) + 0.05) * _VanishNum));
+				clip(re.a - 0.01);
 
 				//出力
 				return re;

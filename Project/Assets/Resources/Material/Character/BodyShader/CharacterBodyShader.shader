@@ -45,6 +45,9 @@
 		//アルファブレンド
 		//Blend SrcAlpha OneMinusSrcAlpha
 
+		//GrabPassをテクスチャ名を指定して定義
+		GrabPass {"_GrabTex"}
+
 		Pass
 		{
 			Tags
@@ -109,6 +112,12 @@
 
 			float _VanishNum;				//消滅用係数
 
+			float4x4 VartexMatrix;
+
+			vector VartexVector;
+
+			sampler2D _GrabTex;
+
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
 			{
@@ -140,6 +149,9 @@
 				// ハイライト用テクスチャ座標を取得
 				float2 hilightuv : TEXCOORD1;
 
+				// Grab用テクスチャ座標
+				half4 GrabPos : TEXCOORD2;
+
 				//ドロップシャドウ
 				SHADOW_COORDS(3)
 			};
@@ -153,14 +165,58 @@
 				//UVを格納
 				re.uv = v.uv;
 
+
+				float4x4 Vertmat = float4x4
+					(
+						float4(1, 0, 0, 0),
+						float4(0, 1, 0, 0),
+						float4(0, 0, 5, 0),
+						float4(0, 0, 0, 1)
+						);
+
+
+
+				//v.pos = mul(Vertmat, VartexVector);
+
+
+
 				//頂点座標をクリップ座標系に変換
 				re.pos = UnityObjectToClipPos(v.pos);
 
+				//re.pos.z *= 1.1;
+
+				
+				/*
+				re.pos = mul(unity_ObjectToWorld, v.pos);
+
+
+				//vector a =(1, 1, 100);
+				//re.pos *= a + VartexVector;
+
+				float4x4 Vertmat = float4x4
+					(
+						float4(1, 0, 0, 0),
+						float4(0, 1, 0, 0),
+						float4(0, 0, 2, 0),
+						float4(0, 0, 0, 1)
+						);
+
+				re.pos = mul(Vertmat,mul(VartexMatrix, re.pos));
+
+				re.pos = mul(unity_WorldToObject, re.pos);
+
+
+
+				*/
+
 				//法線をワールド座標系に変換
 				re.normal = UnityObjectToWorldNormal(v.normal);
-
+				
 				//スクリプトから受け取ったライトのマトリクスでmatcap用uvを求める
 				re.hilightuv = mul(_LightMatrix, re.normal).xy * 0.5 + 0.5;
+
+				// Grab用テクスチャ座標
+				re.GrabPos = ComputeGrabScreenPos(re.pos);
 
 				//ドロップシャドウ
 				TRANSFER_SHADOW(re);
@@ -211,8 +267,11 @@
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);
 
-				//透明部分をクリップ、消滅用の乱数精製
-				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum, round(_VanishNum)) + 0.05) * _VanishNum));
+				//プロジェクションで_Grabを貼り、透明度で消したりする
+				re.rgb = lerp(re, tex2Dproj(_GrabTex, i.GrabPos), _VanishNum);
+
+				//透明部分をクリップ
+				clip(re.a - 0.01);
 
 				//出力
 				return re;

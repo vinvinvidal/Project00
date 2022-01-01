@@ -2431,13 +2431,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//i.gameObject.layer = LayerMask.NameToLayer("InDoor");
 
 			//レンダラーのシャドウを切る
-			//i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
 			//描画順を変更
 			i.material.renderQueue = 3000;
 		}
 
-		while (VanishCount < 20)
+		while (VanishCount < 1)
 		{
 			//マテリアルを回して消滅用数値を入れる
 			foreach (var i in RendList)
@@ -2449,10 +2449,19 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			}
 
 			//消滅用カウントアップ
-			VanishCount += Time.deltaTime * 10;
+			VanishCount += Time.deltaTime;
 
 			//１フレーム待機
 			yield return null;
+		}
+
+		//マテリアルを回して消滅用数値を入れて完全に消す
+		foreach (var i in RendList)
+		{
+			foreach (var ii in i.materials)
+			{
+				ii.SetFloat("_VanishNum", 1);
+			}
 		}
 
 		//自身を削除

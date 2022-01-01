@@ -29,7 +29,7 @@
 		Cull off
 
 		// GrabPassをテクスチャ名を指定して定義
-		GrabPass {"_GrabTex"}
+		GrabPass {"_GrabDistortionTex"}
 
 		Pass
 		{
@@ -54,7 +54,7 @@
 
 			float4 _TexParticle_ST;					
 
-			sampler2D _GrabTex;
+			sampler2D _GrabDistortionTex;
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -129,7 +129,7 @@
 				fixed4 TrailColor = tex2D(_TexParticle, i.uv * _TexParticle_ST.xy + _TexParticle_ST.zw);
 
 				//プロジェクションで_Grabを貼り、Trail用のテクスチャのアルファを元に座標をずらす
-				re = tex2Dproj(_GrabTex, i.GrabPos - (TrailColor.a * 2 - 1) * 0.5);
+				re = tex2Dproj(_GrabDistortionTex, i.GrabPos - (TrailColor.a * 2 - 1) * 0.5);
 
 				//パーティクルシステムで設定した頂点カラーの透明度を適応
 				//re.a = i.vertColor.a;

@@ -60,7 +60,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool AttackEnable(bool H);
 
 	//キャラクター交代時に状況を引き継ぐ
-	void ContinueSituation(GameObject e, bool f);
+	void ContinueSituation(GameObject e, bool f, float t);
 }
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
@@ -377,6 +377,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//キャラ交代入力値
 	private int ChangeInputNum = 0;
+
+	//キャラ交代クールタイム
+	private float ChangeTime = 0;
 
 	//脱出用レバガチャカウント
 	public int BreakCount { get; set; } = 0;
@@ -1396,11 +1399,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクター交代時に状況を引き継ぐ
-	public void ContinueSituation(GameObject e, bool f)
+	public void ContinueSituation(GameObject e, bool f, float t)
 	{
+		//ロック中の敵を引き継ぎ
 		LockEnemy = e;
 
+		//バトルフラグ引き継ぎ
 		BattleFlag = f;
+
+		//キャラ交代時間引き継ぎ
+		ChangeTime = t;
+
+		//バトル中か判別
+		float IdlingBlend = BattleFlag ? 1 : 0;
+
+		//アイドリングモーション切り替え
+		CurrentAnimator.SetFloat("Idling_Blend", IdlingBlend);
 	}
 
 	//入力フラグを全て下す関数
@@ -3945,8 +3959,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void FlagManager(string s)
 	{
 		//キャラ交代入力許可条件
-		PermitInputBoolDic["ChangeBefore"]
-		= !PauseFlag &&
+		PermitInputBoolDic["ChangeBefore"] = 
+		!PauseFlag &&
 		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
@@ -4063,6 +4077,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			||
 			s == "SpecialAttack"
 			||
+			s == "ChangeAfter"
+			||
 			s.Contains("-> Idling")
 			||
 			s.Contains("-> Run")
@@ -4087,6 +4103,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			s == "Fall"
 			||
 			s == "SpecialAttack"
+			||
+			s == "ChangeAfter"
 			||
 			s.Contains("-> Idling")
 			||
@@ -4126,6 +4144,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			s == "SpecialSuccess"
 			||
 			s == "SpecialAttack"
+			||
+			s == "ChangeAfter"
 			||
 			s.Contains("-> Idling")
 			||
@@ -4173,8 +4193,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//Change遷移フラグを下す
 			CurrentAnimator.SetBool("ChangeBefore", false);
 
+			//時間をキャッシュ
+			ChangeTime = Time.time;
+
 			//キャラ交代処理を呼び出す
-			GameManagerScript.Instance.ChangePlayableCharacter(CharacterID, ChangeInputNum, LockEnemy, BattleFlag, OnGroundFlag);
+			GameManagerScript.Instance.ChangePlayableCharacter(CharacterID, ChangeInputNum, LockEnemy, BattleFlag, OnGroundFlag, ChangeTime);
 		}
 		//Jumpになった瞬間の処理
 		else if (s.Contains("-> Jump"))
@@ -4567,6 +4590,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		PermitTransitionBoolDic["ChangeBefore"] =
 		ChangeInput &&
 		PermitInputBoolDic["ChangeBefore"] &&
+		(Time.time - ChangeTime > 1) &&
 		CurrentAnimator.GetBool("Transition")
 		;
 
@@ -5009,15 +5033,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//レンダラー取得
 		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Player")).ToList());
 
-		//レンダラーを回してキャラクターを透明にする
+		//レンダラーを回す
 		foreach (Renderer i in RendList)
 		{
 			foreach (var ii in i.materials)
 			{
-				//マテリアルの描画順を変更
+				//マテリアルの描画順を変更してアウトラインを消す
 				ii.renderQueue = 3000;
 
-				ii.SetFloat("_VanishNum", 1000);
+				//消滅用数値に値を入れる
+				ii.SetFloat("_VanishNum", 1);
 			}
 		}
 
@@ -5029,7 +5054,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				foreach (var ii in i.materials)
 				{
-					ii.SetFloat("_VanishNum", 25 - (AppearTime * 25 / t));
+					ii.SetFloat("_VanishNum", 1 - AppearTime / t);
 				}
 			}
 
@@ -5086,7 +5111,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				foreach (var ii in i.materials)
 				{
-					ii.SetFloat("_VanishNum", VanishTime * 25 / t);
+					ii.SetFloat("_VanishNum", VanishTime / t);
 				}
 			}
 
@@ -5102,7 +5127,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			foreach (var ii in i.materials)
 			{
-				ii.SetFloat("_VanishNum", 1000);
+				ii.SetFloat("_VanishNum", 1);
 			}
 		}
 
