@@ -1629,7 +1629,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//操作キャラクターを交代する
-	public void ChangePlayableCharacter(int c , int n, GameObject e, bool f, bool g, float t)
+	public void ChangePlayableCharacter(int c, int n, GameObject e, bool b, bool g, float t, bool a, bool f, float d)
 	{
 		//現在のキャラクターのインデックスを取得
 		int CurrentIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].IndexOf(c);
@@ -1658,7 +1658,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		NextCharacter.GetComponent<PlayerScript>().ChangeAppear(0.25f, g);
 
 		//状況を引き継ぐ
-		ExecuteEvents.Execute<PlayerScriptInterface>(NextCharacter, null, (reciever, eventData) => reciever.ContinueSituation(e, f, t));
+		ExecuteEvents.Execute<PlayerScriptInterface>(NextCharacter, null, (reciever, eventData) => reciever.ContinueSituation(e, b, g, t, a, f, d));
 
 		//メインカメラにもプレイヤーキャラクターを渡す
 		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));
@@ -1671,9 +1671,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		{
 			ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));
 		}
-
-		//現在のキャラクターを無効化
-		//PlayableCharacterOBJ.SetActive(false);
 
 		//プレイヤーキャラクターを更新
 		SetPlayableCharacterOBJ(NextCharacter);

@@ -60,7 +60,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool AttackEnable(bool H);
 
 	//キャラクター交代時に状況を引き継ぐ
-	void ContinueSituation(GameObject e, bool f, float t);
+	void ContinueSituation(GameObject e, bool bf, bool g, float t, bool c, bool f, float d);
 }
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
@@ -209,6 +209,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//ダッシュフラグ
 	private bool DashFlag = false;
+
+	//キャラ交代フラグ
+	private bool ChangeFlag = false;
 
 	//空中ローリング許可フラグ
 	private bool AirRollingFlag = true;
@@ -983,9 +986,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		if (!PauseFlag)
 		{
-			//接地判定用のRayを飛ばす関数呼び出し
-			GroundRayCast();
-
 			//アニメーションステートを監視する関数呼び出し
 			StateMonitor();
 
@@ -995,13 +995,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーション制御関数呼び出し
 			AnimFunc();
 
-			//移動制御関数呼び出し
-			MoveFunc();
+			//キャラ交代中はしない処理
+			if (!ChangeFlag)
+			{
+				//接地判定用のRayを飛ばす関数呼び出し
+				GroundRayCast();
 
-			//キャラクター移動
-			Controller.Move(MoveVector);
+				//移動制御関数呼び出し
+				MoveFunc();
 
-			//スケベ処理、遷移中は処理しない
+				//キャラクター移動
+				Controller.Move(MoveVector);
+			}
+
+			//スケベ処理
 			if (H_Flag)
 			{
 				H_Func();
@@ -1399,16 +1406,48 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクター交代時に状況を引き継ぐ
-	public void ContinueSituation(GameObject e, bool f, float t)
+	public void ContinueSituation(GameObject e, bool b, bool g, float t, bool a, bool f, float d)
 	{
 		//ロック中の敵を引き継ぎ
 		LockEnemy = e;
 
 		//バトルフラグ引き継ぎ
-		BattleFlag = f;
+		BattleFlag = b;
 
 		//キャラ交代時間引き継ぎ
 		ChangeTime = t;
+
+		//地面との距離引継ぎ
+		GroundDistance = d;
+
+		//接地フラグ引継ぎ
+		OnGroundFlag = g;
+
+		//アニメーターのFallフラグ引継ぎ
+		CurrentAnimator.SetBool("Fall", f);
+		
+		//アニメーターのコンボフラグ引継ぎ
+		CurrentAnimator.SetBool("Combo", a);
+
+		//キャラ交代フラグを立てる
+		ChangeFlag = true;
+
+		PlayerMoveInputVecter *= 0;
+
+		//垂直移動値をリセット
+		VerticalAcceleration *= 0;
+
+		//水平移動値をリセット
+		HorizonAcceleration *= 0;
+
+		//ジャンプ水平移動ベクトルリセット
+		JumpHorizonVector *= 0;
+
+		//重力加速度をリセット
+		GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
+
+		//移動値をリセット
+		MoveVector *= 0;
 
 		//バトル中か判別
 		float IdlingBlend = BattleFlag ? 1 : 0;
@@ -3727,7 +3766,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else
 		{
 			OnGroundFlag = false;
-		}
+		}		
 
 		//急斜面判定
 		OnSlopeFlag = Vector3.Angle(RayHit.normal, Vector3.up) > 60 && Vector3.Angle(RayHit.normal, Vector3.up) < 85 && OnGroundFlag;
@@ -3890,6 +3929,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				//オーバーライドコントローラにアニメーションクリップをセット
 				OverRideAnimator["ChangeBefore_void"] = ChangeAnimList.Where(a => a.name.Contains("_B_G")).ToList()[0];
+			}
+			else
+			{
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["ChangeBefore_void"] = ChangeAnimList.Where(a => a.name.Contains("_B_A")).ToList()[0];
 			}
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
@@ -4187,8 +4231,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ChangeBeforeになった瞬間の処理
 		else if (s.Contains("-> ChangeBefore"))
 		{
-			//フラグ状態をまっさらに戻す関数呼び出し
-			ClearFlag();
+			//キャラ交代フラグを立てる
+			ChangeFlag = true;
 
 			//Change遷移フラグを下す
 			CurrentAnimator.SetBool("ChangeBefore", false);
@@ -4197,7 +4241,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			ChangeTime = Time.time;
 
 			//キャラ交代処理を呼び出す
-			GameManagerScript.Instance.ChangePlayableCharacter(CharacterID, ChangeInputNum, LockEnemy, BattleFlag, OnGroundFlag, ChangeTime);
+			GameManagerScript.Instance.ChangePlayableCharacter
+			(
+				CharacterID, 
+				ChangeInputNum, 
+				LockEnemy, 
+				BattleFlag, 
+				OnGroundFlag, 
+				ChangeTime, 
+				CurrentAnimator.GetBool("Combo"), 
+				CurrentAnimator.GetBool("Fall"),
+				GroundDistance
+			);
 		}
 		//Jumpになった瞬間の処理
 		else if (s.Contains("-> Jump"))
@@ -4439,7 +4494,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ダメージフラグを下す
 			DamageFlag = false;
 		}
-
 		//SpecialTryになった瞬間の処理
 		else if (s.Contains("-> SpecialTry"))
 		{
@@ -4567,6 +4621,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//口のアニメーションレイヤーの重みをリセット
 			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), 0);
+		}
+		//ChangeAfterから遷移した瞬間の処理
+		else if (s.Contains("ChangeAfter ->"))
+		{
+			//キャラ交代フラグを下す
+			ChangeFlag = false;
 		}
 	}
 	private IEnumerator SuperArtsSyncCoroutine()
@@ -4726,6 +4786,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//強制遷移フラグを下す
 		CurrentAnimator.SetBool("ForceIdling", false);
 		CurrentAnimator.SetBool("ForceFall", false);
+
+		//キャラ交代フラグを下す
+		CurrentAnimator.SetBool("ChangeBefore", false);
 
 		//遷移可能フラグを立てる
 		CurrentAnimator.SetBool("Transition", true);
@@ -5014,10 +5077,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//オーバーライドコントローラにアニメーションクリップをセット
 			OverRideAnimator["ChangeAfter_void"] = ChangeAnimList.Where(a => a.name.Contains("_A_G")).ToList()[0];
-
-			//アニメーターを上書きしてアニメーションクリップを切り替える
-			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 		}
+		else
+		{
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["ChangeAfter_void"] = ChangeAnimList.Where(a => a.name.Contains("_A_A")).ToList()[0];
+		}
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
 		//モーションを再生
 		CurrentAnimator.Play("ChangeAfter", 0, 0);
