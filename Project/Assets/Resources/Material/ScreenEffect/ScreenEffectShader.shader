@@ -24,7 +24,7 @@
 		ZTest Always
 
 		// GrabPassをテクスチャ名を指定して定義
-		GrabPass { "_GrabTex" }
+		GrabPass { "_GrabScreenTex" }
 
 		Pass
 		{
@@ -47,7 +47,7 @@
 
 			//変数宣言
 			sampler2D _TexParticle;
-			sampler2D _GrabTex;
+			sampler2D _GrabScreenTex;
 			fixed4 _AddColor;
 			fixed4 _Color;
 			float4 _TexParticle_ST;					
@@ -110,9 +110,9 @@
 				fixed4 re;
 				
 				//_GrabをコピーしてSTをいじれる様にする
-				_TexParticle = _GrabTex;
+				_TexParticle = _GrabScreenTex;
 				
-				//プロジェクションで_Grabを貼り、Trail用のテクスチャのアルファを元に座標をずらす
+				//プロジェクションで_Grabを貼る
 				re = tex2Dproj(_TexParticle, i.GrabPos + _TexParticle_ST);
 
 				//スクリプトから受け取ったカラーを加算合成

@@ -112,9 +112,9 @@
 
 			float _VanishNum;				//消滅用係数
 
-			float4x4 VartexMatrix;
+			float _BlurNum;					//ブラー用変数
 
-			vector VartexVector;
+			vector VartexVector;			//ブラー用のオブジェクト正面ベクトル
 
 			sampler2D _GrabTex;
 
@@ -129,6 +129,9 @@
 
 				// テクスチャ座標を取得
 				float2 uv : TEXCOORD0;
+
+				//頂点ID
+				uint vid : SV_VertexID;
 
 				//頂点カラー
 				//float4 vertColor : COLOR;
@@ -165,49 +168,17 @@
 				//UVを格納
 				re.uv = v.uv;
 
+				//頂点をワールド座標に変換
+				v.pos = mul(unity_ObjectToWorld, v.pos);
 
-				float4x4 Vertmat = float4x4
-					(
-						float4(1, 0, 0, 0),
-						float4(0, 1, 0, 0),
-						float4(0, 0, 5, 0),
-						float4(0, 0, 0, 1)
-						);
+				//IDで抽出した頂点をオブジェクトの後方に頂点を移動
+				v.pos -= VartexVector * clamp((clamp((v.vid % 300), 0, 1) - 1), 0, _BlurNum);
 
-
-
-				//v.pos = mul(Vertmat, VartexVector);
-
-
+				//頂点をオブジェクト座標に戻す
+				v.pos = mul(unity_WorldToObject, v.pos);
 
 				//頂点座標をクリップ座標系に変換
 				re.pos = UnityObjectToClipPos(v.pos);
-
-				//re.pos.z *= 1.1;
-
-				
-				/*
-				re.pos = mul(unity_ObjectToWorld, v.pos);
-
-
-				//vector a =(1, 1, 100);
-				//re.pos *= a + VartexVector;
-
-				float4x4 Vertmat = float4x4
-					(
-						float4(1, 0, 0, 0),
-						float4(0, 1, 0, 0),
-						float4(0, 0, 2, 0),
-						float4(0, 0, 0, 1)
-						);
-
-				re.pos = mul(Vertmat,mul(VartexMatrix, re.pos));
-
-				re.pos = mul(unity_WorldToObject, re.pos);
-
-
-
-				*/
 
 				//法線をワールド座標系に変換
 				re.normal = UnityObjectToWorldNormal(v.normal);

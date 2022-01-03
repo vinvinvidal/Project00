@@ -127,13 +127,21 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					foreach (SphereCollider ii in HairOBJ.GetComponentsInChildren<SphereCollider>())
 					{
 						//名前で判別してキャラクターのボーンの子にする
-						if (ii.name.Contains("Spine") && ii.name.Contains("Spine02"))
+						if (ii.name.Contains("Spine02"))
 						{
 							ii.transform.parent = DeepFind(gameObject, "SpineBone.002").transform;
 						}
 						else if (ii.name.Contains("Neck"))
 						{
 							ii.transform.parent = DeepFind(gameObject, "NeckBone").transform;
+						}
+						else if (ii.name.Contains("L_") && ii.name.Contains("Shoulder"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "L_ShoulderBone").transform;
+						}
+						else if (ii.name.Contains("R_") && ii.name.Contains("Shoulder"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "R_ShoulderBone").transform;
 						}
 
 						//相対位置と回転をゼロにする
@@ -221,9 +229,15 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						{
 							ii.transform.parent = DeepFind(gameObject, "PelvisBone").transform;
 						}
+						else if (ii.name.Contains("L_") && ii.name.Contains("Shoulder"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "L_ShoulderBone").transform;
+						}
+						else if (ii.name.Contains("R_") && ii.name.Contains("Shoulder"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "R_ShoulderBone").transform;
+						}
 
-
-						
 						//相対位置と回転をゼロにする
 						ii.transform.localPosition = new Vector3(0, 0, 0);
 						ii.transform.localRotation = Quaternion.Euler(0, 0, 0);

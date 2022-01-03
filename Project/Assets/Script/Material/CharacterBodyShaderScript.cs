@@ -45,35 +45,52 @@ public class CharacterBodyShaderScript : GlobalClass
     {
 		//ディレクショナルライトの行列をシェーダーに渡す
 		BodyMaterial.SetMatrix("_LightMatrix", LightTransform.worldToLocalMatrix);
-
-		//ディレクショナルライトの行列をシェーダーに渡す
-		BodyMaterial.SetMatrix("VartexMatrix", transform.root.worldToLocalMatrix);
-
-		//ディレクショナルライトの行列をシェーダーに渡す
-		BodyMaterial.SetVector("VartexVector", transform.root.forward);
 	}
 
-	//はだけテクスチャに変える
-	public void SetOffTexture()
+	//ブラー演出
+	public void BlurEffect(float t, float l, Vector3 v)
 	{
-		/*
-		//マテリアルにテクスチャを渡す
-		BodyMaterial.SetTexture("_TexBase", _TexBaseOff);
-		BodyMaterial.SetTexture("_TexNormal", _TexNormalOff);
-		BodyMaterial.SetTexture("_TexHiLight", _TexHiLight);
-		BodyMaterial.SetTexture("_HiLightMatCap", _HiLightMatCap);
-		BodyMaterial.SetTexture("_TexLine", _TexLineOff);
-		*/
-	}
+		//ブラーを延ばすベクトルをシェーダーに渡す
+		BodyMaterial.SetVector("VartexVector", v);
 
-	//はだけテクスチャを元に戻す
-	public void SetOnTexture()
+		//ブラー伸縮コルーチン呼び出し
+		StartCoroutine(BlurEffectCoroutine(t,l));
+	}
+	private IEnumerator BlurEffectCoroutine(float t, float l)
 	{
-		//マテリアルにテクスチャを渡す
-		BodyMaterial.SetTexture("_TexBase", _TexBase);
-		BodyMaterial.SetTexture("_TexNormal", _TexNormal);
-		BodyMaterial.SetTexture("_TexHiLight", _TexHiLight);
-		BodyMaterial.SetTexture("_HiLightMatCap", _HiLightMatCap);
-		BodyMaterial.SetTexture("_TexLine", _TexLine);
+		//経過時間
+		float BlurTime = 0;
+		
+		//経過時間まで回す
+		while(BlurTime < t)
+		{
+			//ブラー用変数をシェーダーに渡す
+			BodyMaterial.SetFloat("_BlurNum", BlurTime * l * Random.Range(0.5f, 1.5f) / t);
+
+			//経過時間カウントアップ
+			BlurTime += Time.deltaTime;
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//経過時間リセット
+		BlurTime = 0;
+
+		//経過時間まで回す
+		while (BlurTime < t)
+		{
+			//ブラー用変数をシェーダーに渡す
+			BodyMaterial.SetFloat("_BlurNum", (1 - (BlurTime / t)) * l * Random.Range(0.5f, 1.5f));
+
+			//経過時間カウントアップ
+			BlurTime += Time.deltaTime;
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//ブラー用変数をちゃんと0にしてシェーダーに渡す
+		BodyMaterial.SetFloat("_BlurNum", 0);
 	}
 }

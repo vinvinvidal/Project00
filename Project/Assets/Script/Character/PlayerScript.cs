@@ -5256,4 +5256,38 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 	}
+
+	//ブラー演出
+	public void BlurEffect(string i)
+	{
+		//ブラー時間
+		float t = float.Parse(i.Split(',').ToList().ElementAt(0));
+
+		//ブラー距離
+		float l = float.Parse(i.Split(',').ToList().ElementAt(1));
+
+		//ブラー方向
+		Vector3 v = transform.forward;
+
+		switch (i.Split(',').ToList().ElementAt(2))
+		{
+			case "b" :
+				v = -transform.forward;
+				break;
+
+			case "u":
+				v = transform.up;
+				break;
+
+			case "d":
+				v = -transform.up;
+				break;
+		}
+
+		//レンダラーを回してスクリプトの関数呼び出し
+		foreach (CharacterBodyShaderScript r in gameObject.GetComponentsInChildren<CharacterBodyShaderScript>())
+		{
+			r.BlurEffect(t,l,v);			
+		}
+	}
 }
