@@ -2,7 +2,7 @@ NameC,膚断
 NameH,はだだち
 UseCharacter,1
 Anim,Motion_1_GroundAttack00
-MoveVec,0*0*1*1|0*0*1*8|0*0*1*5
+MoveVec,0*0*1*1|0*0*1*12|0*0*1*5
 Damage,0|0|0|0|0
 Stun,1|1|1|1|1
 ColVec,0*1*1*1.5|0*1*1*1.5|0*1*1*1.5|0*1*1*1.5|0*1*1*1.5

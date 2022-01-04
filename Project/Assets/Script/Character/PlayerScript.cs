@@ -1594,12 +1594,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			/*
 			AttackMoveType 技の移動タイプ
-			0：地上で完結する移動、踏み外しの対象、
+			0：地上で完結する移動、踏み外しの対象
 			1：空中で完結する移動、
 			2：地上から空中に上がる移動
 			3：空中から地上に降りる移動
 			4：地上突進移動、相手に当たるとその場で止まる、踏み外しの対象、
 			5：空中突進移動、相手に当たるとその場で止まる
+			6：地上貫通移動、相手をすり抜ける、踏み外しの対象
+			7：空中貫通移動、相手をすり抜ける
 			*/
 
 			//ロックしている敵に向ける
@@ -1630,7 +1632,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//踏み外し判定
-			if ((AttackMoveType == 0 || AttackMoveType == 4) && GroundDistance > 0.5f)
+			if ((AttackMoveType == 0 || AttackMoveType == 4 || AttackMoveType == 6) && GroundDistance > 0.5f)
 			{
 				//踏み外し遷移フラグを立てる
 				CurrentAnimator.SetBool("Drop", true);
@@ -3807,11 +3809,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	IEnumerator SetCharacterLookAtPos()
 	{
 		//ロックしている敵がいたらそいつ、複数の敵が要る場合はランダムな相手、いなければ正面を見る
-		if (LockEnemy != null)
+		if (LockEnemy != null && BattleFlag)
 		{
 			CharacterLookAtPos = LockEnemy.transform.position;
 		}
-		else if (GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList().Count > 0)
+		else if (GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList().Count > 0 && BattleFlag)
 		{
 			//視線変更許可フラグで制御
 			if (LookAtPosFlag)
