@@ -2847,6 +2847,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SuperGauge: 1
   MiniMapColor: {r: 1, g: 0.2509804, b: 0.2509804, a: 1}
+  Idling0_Anim: {fileID: 7400000, guid: 9af0a8d9a346a3c4184eeba2be240c53, type: 2}
+  Idling1_Anim: {fileID: 7400000, guid: 41281075286e4124e9c4ee42fa5cc42e, type: 2}
+  Idling2_Anim: {fileID: 7400000, guid: 499b1261fd0b77949afa244f14e1e508, type: 2}
+  Idling3_Anim: {fileID: 7400000, guid: e65b5db54073fb945a8c205a3755b42e, type: 2}
+  Idling4_Anim: {fileID: 7400000, guid: 12d1c2d62f1630c46a5edb2570c22c3f, type: 2}
+  Walk_Anim: {fileID: 7400000, guid: 65bb97f5c7602f443a32d76da6951eaf, type: 2}
+  Run_Anim: {fileID: 7400000, guid: f314cba72cc58b54ca73a0771d46e64e, type: 2}
+  Dash_Anim: {fileID: 7400000, guid: 40d0f28eb7fd6c240a52e970d4cd61ec, type: 2}
+  Stop_Anim: {fileID: 7400000, guid: 679d04bd64b38244783a5398c9a0ac9b, type: 2}
+  Jump_Anim: {fileID: 7400000, guid: ff81f12fbe27ddd42bc7661f766033f3, type: 2}
+  Fall_Anim: {fileID: 7400000, guid: c8f2467c96a7b444a8bd16955b22800d, type: 2}
+  Crouch_Anim: {fileID: 7400000, guid: f2ccac36904c60f4abd1262874cded22, type: 2}
+  GroundRolling_Anim: {fileID: 7400000, guid: 8322e73bad6f4dd43b9e4864feb8f62f, type: 2}
+  AirRolling_Anim: {fileID: 7400000, guid: 2694cfe242cefe2459fbe20e989a8a8f, type: 2}
+  SpecialTry_Anim: {fileID: 7400000, guid: 0af4dc48f0392e947a0e3e426b314968, type: 2}
+  SpecialSuccess_Anim: {fileID: 7400000, guid: 077a9aefa283a6f49953c6138b78db4d, type: 2}
+  Down_Anim: {fileID: 7400000, guid: 2412d70273e3f27409cdd3cd791887f8, type: 2}
+  BaseFace_Anim: {fileID: 7400000, guid: 1e26e447ccccc8140a43593c561d1725, type: 2}
+  EyeClose_Anim: {fileID: 7400000, guid: e24e2ebac5e478d4884f2b74e9b7aa73, type: 2}
+  MouthClose_Anim: {fileID: 7400000, guid: 02781ea7a73430b4689e9e7c11ee8515, type: 2}
+  NippleBase_Anim: {fileID: 7400000, guid: 7688284f770235f40ab00738cd94be89, type: 2}
+  NippleElect_Anim: {fileID: 7400000, guid: e7f88ae60051bd547bc321e5b41425ef, type: 2}
+  GenitalBase_Anim: {fileID: 7400000, guid: ad63d64b317789147bddddb40a4b2481, type: 2}
+  GenitalElect_Anim: {fileID: 7400000, guid: bca69d93f3d83c543bae429828a8c1ab, type: 2}
 --- !u!114 &8553641901371823811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2887,7 +2911,7 @@ Animator:
   m_GameObject: {fileID: 7479689686135416206}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 7da3d5bb1ce05bd4390d2e20e68562b7, type: 2}
-  m_Controller: {fileID: 9100000, guid: 167a7b54b62345e4fbe8921eb3dc5a1e, type: 2}
+  m_Controller: {fileID: 9100000, guid: 512fb955ea959d548a33b895e867c3a3, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -3975,7 +3999,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 167a7b54b62345e4fbe8921eb3dc5a1e, type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 5876157851972502527, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
       propertyPath: m_Layer

@@ -307,9 +307,61 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//超必殺技移動ベクトル
 	public Vector3 SuperMoveVector { get; set; }
 
+	//--- デフォルトアニメーションクリップ ---//
 
+	[Header("アイドリングモーション")]
+	public AnimationClip Idling0_Anim;
+	public AnimationClip Idling1_Anim;
+	public AnimationClip Idling2_Anim;
+	public AnimationClip Idling3_Anim;
+	public AnimationClip Idling4_Anim;
 
+	[Header("移動モーション")]
+	public AnimationClip Walk_Anim;
+	public AnimationClip Run_Anim;
+	public AnimationClip Dash_Anim;
+	public AnimationClip Stop_Anim;
 
+	[Header("ジャンプモーション")]
+	public AnimationClip Jump_Anim;
+
+	[Header("落下モーション")]
+	public AnimationClip Fall_Anim;
+
+	[Header("着地モーション")]
+	public AnimationClip Crouch_Anim;
+
+	[Header("地上ローリングモーション")]
+	public AnimationClip GroundRolling_Anim;
+
+	[Header("空中ローリングモーション")]
+	public AnimationClip AirRolling_Anim;
+
+	[Header("特殊攻撃発生モーション")]
+	public AnimationClip SpecialTry_Anim;
+
+	[Header("特殊攻撃成功モーション")]
+	public AnimationClip SpecialSuccess_Anim;
+
+	[Header("ダウンモーション")]
+	public AnimationClip Down_Anim;
+
+	[Header("基本表情モーション")]
+	public AnimationClip BaseFace_Anim;
+	
+	[Header("瞬きモーション")]
+	public AnimationClip EyeClose_Anim;
+
+	[Header("口閉じモーション")]
+	public AnimationClip MouthClose_Anim;
+
+	[Header("乳首モーション")]
+	public AnimationClip NippleBase_Anim;
+	public AnimationClip NippleElect_Anim;
+
+	[Header("性器モーション")]
+	public AnimationClip GenitalBase_Anim;
+	public AnimationClip GenitalElect_Anim;
 
 	//--- レイキャスト関連 ---//
 
@@ -615,6 +667,36 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//オーバーライドアニメーターコントローラに元アニメーターコントローラをコピー
 		OverRideAnimator.runtimeAnimatorController = CurrentAnimator.runtimeAnimatorController;
+
+		//デフォルトアニメーションクリップをアニメーターに仕込む
+		OverRideAnimator["Idling_void_0"] = Idling0_Anim;
+		OverRideAnimator["Idling_void_1"] = Idling1_Anim;
+		OverRideAnimator["Idling_void_2"] = Idling2_Anim;
+		OverRideAnimator["Idling_void_3"] = Idling3_Anim;
+		OverRideAnimator["Idling_void_4"] = Idling4_Anim;
+		OverRideAnimator["Move_void_0"] = Walk_Anim;
+		OverRideAnimator["Move_void_1"] = Run_Anim;
+		OverRideAnimator["Move_void_2"] = Dash_Anim;
+		OverRideAnimator["Move_void_3"] = Stop_Anim;
+		OverRideAnimator["Jump_void"] = Jump_Anim;
+		OverRideAnimator["Fall_void"] = Fall_Anim;
+		OverRideAnimator["Drop_void"] = Fall_Anim;
+		OverRideAnimator["Crouch_void"] = Crouch_Anim;
+		OverRideAnimator["GroundRolling_void"] = GroundRolling_Anim;
+		OverRideAnimator["AirRolling_void"] = AirRolling_Anim;
+		OverRideAnimator["ChainBreak_void_0"] = Idling1_Anim;
+		OverRideAnimator["ChainBreak_void_1"] = Fall_Anim;
+		OverRideAnimator["Down_void"] = Down_Anim;
+		OverRideAnimator["SpecialTry_void"] = SpecialTry_Anim;
+		OverRideAnimator["SpecialSuccess_void"] = SpecialSuccess_Anim;
+		OverRideAnimator["BaseFace_void"] = BaseFace_Anim;
+		OverRideAnimator["EyeClose_void"] = EyeClose_Anim;
+		OverRideAnimator["MouthClose_void"] = MouthClose_Anim;
+		OverRideAnimator["Nipple_void"] = NippleBase_Anim;
+		OverRideAnimator["Genital_void"] = GenitalBase_Anim;
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
 		//メインカメラのトランスフォーム取得
 		MainCameraTransform = GameObject.Find("MainCamera").transform;

@@ -2880,6 +2880,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SuperGauge: 1
   MiniMapColor: {r: 1, g: 0.2509804, b: 0.2509804, a: 1}
+  Idling0_Anim: {fileID: 7400000, guid: 724c1bd9e558d94498fd52b4fd407a42, type: 2}
+  Idling1_Anim: {fileID: 7400000, guid: ef0cfb421a1df4f44b46a7bd1f7fb80b, type: 2}
+  Idling2_Anim: {fileID: 0}
+  Idling3_Anim: {fileID: 0}
+  Idling4_Anim: {fileID: 0}
+  Walk_Anim: {fileID: 0}
+  Run_Anim: {fileID: 7400000, guid: bbd543c166428e84f82c02d288a912c9, type: 2}
+  Dash_Anim: {fileID: 0}
+  Stop_Anim: {fileID: 7400000, guid: 0f17b637f9052d448b2d8e3919a83586, type: 2}
+  Jump_Anim: {fileID: 7400000, guid: cd6c0d0bfe65f744bb35683650469969, type: 2}
+  Fall_Anim: {fileID: 7400000, guid: 9e1a2c1da2e120048bd83585e925e7dc, type: 2}
+  Crouch_Anim: {fileID: 7400000, guid: 5b45832d06c4e144297c9749af12b1f0, type: 2}
+  GroundRolling_Anim: {fileID: 7400000, guid: ae92a1d6baa992d44951828c977b1e85, type: 2}
+  AirRolling_Anim: {fileID: 7400000, guid: 919c3944934f30d40ac76a3a778e86a3, type: 2}
+  SpecialTry_Anim: {fileID: 0}
+  SpecialSuccess_Anim: {fileID: 0}
+  Down_Anim: {fileID: 0}
+  BaseFace_Anim: {fileID: 7400000, guid: 4f4dff8ddda97bc408c5c2b985a79ab8, type: 2}
+  EyeClose_Anim: {fileID: 7400000, guid: 3213fe5a25777f44284142aba3d60810, type: 2}
+  MouthClose_Anim: {fileID: 0}
+  NippleBase_Anim: {fileID: 7400000, guid: 4c66f89b758dae34d83581f84c4a6de5, type: 2}
+  NippleElect_Anim: {fileID: 7400000, guid: a3ba97c82a9f6a1459e99197507bd659, type: 2}
+  GenitalBase_Anim: {fileID: 0}
+  GenitalElect_Anim: {fileID: 0}
 --- !u!114 &8553641901371823811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2920,7 +2944,7 @@ Animator:
   m_GameObject: {fileID: 7479689686135416206}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 1225aa61231d58e40b86b73f7a7fdfe0, type: 2}
-  m_Controller: {fileID: 9100000, guid: 6b26ba912b781c248bea0b19d3ad64e0, type: 2}
+  m_Controller: {fileID: 9100000, guid: 512fb955ea959d548a33b895e867c3a3, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
