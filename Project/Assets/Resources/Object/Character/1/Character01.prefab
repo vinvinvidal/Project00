@@ -2896,7 +2896,7 @@ MonoBehaviour:
   AirRolling_Anim: {fileID: 7400000, guid: 919c3944934f30d40ac76a3a778e86a3, type: 2}
   SpecialTry_Anim: {fileID: 0}
   SpecialSuccess_Anim: {fileID: 0}
-  Down_Anim: {fileID: 0}
+  Down_Anim: {fileID: 7400000, guid: ae58e5ead1f71fe45891e4d834e095b9, type: 2}
   BaseFace_Anim: {fileID: 7400000, guid: 4f4dff8ddda97bc408c5c2b985a79ab8, type: 2}
   EyeClose_Anim: {fileID: 7400000, guid: 3213fe5a25777f44284142aba3d60810, type: 2}
   MouthClose_Anim: {fileID: 0}

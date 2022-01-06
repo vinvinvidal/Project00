@@ -231,6 +231,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//スケベフラグ
 	public bool H_Flag { get; set; }
 
+	//口パクフラグ
+	public bool MouthMoveFlag { get; set; } = false;
+
 	//回転禁止フラグ
 	private bool NoRotateFlag = false;
 
@@ -705,7 +708,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_CameraOBJ = DeepFind(gameObject , "H_Camera");
 
 		//ライフゲージ初期化
-		L_Gauge = 10f;
+		L_Gauge = 1f;
 
 		//バリバリゲージ初期化
 		B_Gauge = 1f;
@@ -1905,62 +1908,114 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Eye"), 0);
 	}
 
-	//たまに口を閉じる処理、アニメーションクリップから呼ばれる
+	//たまに口を閉じたりパクパクしたりする処理、アニメーションクリップから呼ばれる
 	public void MouthClose(float i)
 	{
-		//引数は開閉頻度になる
-		if(UnityEngine.Random.Range(0f, 1f) <= i)
+		//切り替え判別
+		bool Swicth = UnityEngine.Random.Range(0f, 1f) <= i ? true : false;
+
+		if (Swicth && MouthMoveFlag)
 		{
+			//フラグ切り替え
+			MouthMoveFlag = false;
+
+			//コルーチン呼び出し
 			StartCoroutine(MouthCloseCoroutine());
 		}
+		else if (Swicth && !MouthMoveFlag)
+		{
+			//フラグ切り替え
+			MouthMoveFlag = true;
+
+			//コルーチン呼び出し
+			StartCoroutine(MouthMoveCoroutine());
+		}	
 	}
-	IEnumerator MouthCloseCoroutine()
+	private IEnumerator MouthCloseCoroutine()
 	{
 		//現在のブレンド比率を取得
 		float TempBlend = CurrentAnimator.GetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"));
 
-		//開いてたら閉じる
-		if (TempBlend < 0.5f)
+		//口を閉じる
+		while (TempBlend < 1)
 		{
-			while (TempBlend < 1)
+			//１フレーム待機
+			yield return null;
+
+			//ブレンド比率変更
+			TempBlend += Time.deltaTime * 2.5f;
+
+			//口のアニメーションレイヤーの重みを変更
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), TempBlend);
+
+			//遷移したらブレイク
+			if (CurrentAnimator.IsInTransition(0))
 			{
-				//１フレーム待機
-				yield return null;
-
-				//ブレンド比率変更
-				TempBlend += Time.deltaTime * 2.5f;
-
-				//口のアニメーションレイヤーの重みを変更
-				CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), TempBlend);
-
-				//遷移したらブレイク
-				if (CurrentAnimator.IsInTransition(0))
-				{
-					break;
-				}
+				break;
 			}
 		}
-		//閉じてたら開く
-		else
+	}
+	private IEnumerator MouthMoveCoroutine()
+	{
+		//現在のブレンド比率を取得
+		float TempBlend = CurrentAnimator.GetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"));
+
+		//まず半開きに
+		while (TempBlend < 0.5)
 		{
-			while (TempBlend > 0)
+			//１フレーム待機
+			yield return null;
+
+			//ブレンド比率変更
+			TempBlend += Time.deltaTime * 2.5f;
+
+			//口のアニメーションレイヤーの重みを変更
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), TempBlend);
+
+			//遷移したらブレイク
+			if (CurrentAnimator.IsInTransition(0))
 			{
-				//１フレーム待機
-				yield return null;
-
-				//ブレンド比率変更
-				TempBlend -= Time.deltaTime * 10;
-
-				//口のアニメーションレイヤーの重みを変更
-				CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), TempBlend);
-
-				//遷移したらブレイク
-				if (CurrentAnimator.IsInTransition(0))
-				{
-					break;
-				}
+				break;
 			}
 		}
+		while (TempBlend > 0.5)
+		{
+			//１フレーム待機
+			yield return null;
+
+			//ブレンド比率変更
+			TempBlend -= Time.deltaTime * 2.5f;
+
+			//口のアニメーションレイヤーの重みを変更
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), TempBlend);
+
+			//遷移したらブレイク
+			if (CurrentAnimator.IsInTransition(0))
+			{
+				break;
+			}
+		}
+		//フラグが降りるまでループ
+		while (MouthMoveFlag)
+		{
+			//１フレーム待機
+			yield return null;
+
+			//ブレンド比率変更
+			TempBlend = Mathf.PerlinNoise(Time.time * 1.5f, 0);
+
+			//口のアニメーションレイヤーの重みを変更
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), TempBlend);
+
+			//遷移したらブレイク
+			if (CurrentAnimator.IsInTransition(0))
+			{
+				break;
+			}
+		}
+
+		//ブレイクしたらブレンドを切る
+		CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), 0);
 	}
 
 	//当たった攻撃が有効かを返す関数
@@ -4684,6 +4739,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//スケベフラグを下ろす
 			H_Flag = false;
+
+			//口パクフラグを下ろす
+			MouthMoveFlag = false;
 
 			//脱出用レバガチャカウントリセット
 			BreakCount = 0;

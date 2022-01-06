@@ -13,7 +13,7 @@
 			"RenderType" = "Opaque"
 			"Queue" = "AlphaTest"
 		}
-		
+
 		Pass
 		{
 			Tags

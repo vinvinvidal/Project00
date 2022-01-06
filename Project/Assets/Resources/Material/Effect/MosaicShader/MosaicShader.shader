@@ -26,7 +26,7 @@
 		ZTest[_ZTest]
 
 		// GrabPassをテクスチャ名を指定して定義
-		GrabPass {"_GrabTex"}
+		GrabPass {"_MosaicGrabTex"}
 
 		Pass
 		{
@@ -48,7 +48,7 @@
 
 			//変数宣言		
 
-			sampler2D _GrabTex;
+			sampler2D _MosaicGrabTex;
 
 			float _Width;
 			float _Height;
@@ -124,7 +124,7 @@
 				i.GrabPos.y = floor((i.GrabPos.y * _ScreenParams.y) / _BlockSize) * _BlockSize / _ScreenParams.y;
 
 				//プロジェクションで_Grabを貼り、Trail用のテクスチャのアルファを元に座標をずらす
-				re = tex2Dproj(_GrabTex, i.GrabPos);
+				re = tex2Dproj(_MosaicGrabTex, i.GrabPos);
 
 				//パーティクルシステムで設定した頂点カラーの透明度を適応
 				re.a = i.vertColor.a;
