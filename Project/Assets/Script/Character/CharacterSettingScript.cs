@@ -237,12 +237,28 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						{
 							ii.transform.parent = DeepFind(gameObject, "R_ShoulderBone").transform;
 						}
+						else if (ii.name.Contains("L_") && ii.name.Contains("Breast"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "L_BreastBone").transform;
+						}
+						else if (ii.name.Contains("R_") && ii.name.Contains("Breast"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "R_BreastBone").transform;
+						}
+						else if (ii.name.Contains("L_") && ii.name.Contains("Nipple"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "L_NippleBone").transform;
+						}
+						else if (ii.name.Contains("R_") && ii.name.Contains("Nipple"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "R_NippleBone").transform;
+						}
 
 						//相対位置と回転をゼロにする
 						ii.transform.localPosition = new Vector3(0, 0, 0);
 						ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
 					}
-
+					
 					//読み込み完了フラグを立てる
 					CostumeLoadCompleteFlag = true;
 

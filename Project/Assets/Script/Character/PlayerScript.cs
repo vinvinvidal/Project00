@@ -4373,6 +4373,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//キャラ交代フラグを立てる
 			ChangeFlag = true;
 
+			//入力フラグを下ろす
+			ChangeInput = false;
+
 			//Change遷移フラグを下す
 			CurrentAnimator.SetBool("ChangeBefore", false);
 
