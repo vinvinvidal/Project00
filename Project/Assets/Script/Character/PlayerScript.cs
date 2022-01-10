@@ -2661,6 +2661,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ローカル座標で位置を設定
 		TempChargePowerEffect.transform.localPosition *= 0;
 
+		//親を解除
+		TempChargePowerEffect.transform.parent = null;
+
 		//いったん非アクティブにする
 		TempChargePowerEffect.SetActive(false);
 
@@ -2716,6 +2719,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//ローカル座標で位置を設定
 				TempChargeLevelEffect.transform.localPosition *= 0;
 
+				//親を解除
+				TempChargeLevelEffect.transform.parent = null;
+
 				//足元衝撃エフェクト表示
 				FootImpact(90);
 
@@ -2749,6 +2755,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//ローカル座標で位置を設定
 				TempChargeLevelEffect.transform.localPosition *= 0;
 
+				//親を解除
+				TempChargeLevelEffect.transform.parent = null;
+
 				//足元衝撃エフェクト表示
 				FootImpact(90);
 
@@ -2778,6 +2787,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//ローカル座標で位置を設定
 				TempChargeLevelEffect.transform.localPosition *= 0;
+
+				//親を解除
+				TempChargeLevelEffect.transform.parent = null;
 
 				//足元衝撃エフェクト表示
 				FootImpact(90);
@@ -2964,8 +2976,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//回転値をリセット
 		TempAttackEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
+		//親を解除
+		TempAttackEffect.transform.parent = null;
+
 		//タメ攻撃の場合エフェクトをでかくする
-		if(ChargeLevel > 0)
+		if (ChargeLevel > 0)
 		{
 			//エフェクトのアクセサを取り出す
 			ParticleSystem.MainModule Accesser = TempAttackEffect.GetComponent<ParticleSystem>().main;

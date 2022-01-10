@@ -1364,8 +1364,8 @@ AnimatorState:
   m_Transitions:
   - {fileID: 2468144455296362117}
   - {fileID: 6252652446061349425}
-  - {fileID: 8996312950177517587}
   - {fileID: 3910995836043790411}
+  - {fileID: 8996312950177517587}
   - {fileID: -7244168446070243405}
   - {fileID: 2455021475411662246}
   - {fileID: -8083045247637125361}
@@ -3564,7 +3564,7 @@ AnimatorStateTransition:
   serializedVersion: 3
   m_TransitionDuration: 0.1
   m_TransitionOffset: 0
-  m_ExitTime: 0.9
+  m_ExitTime: 0.8
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -4578,7 +4578,7 @@ AnimatorStateTransition:
   serializedVersion: 3
   m_TransitionDuration: 0.1
   m_TransitionOffset: 0
-  m_ExitTime: 0.9
+  m_ExitTime: 0.8
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
