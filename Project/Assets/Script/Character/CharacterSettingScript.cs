@@ -143,6 +143,14 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						{
 							ii.transform.parent = DeepFind(gameObject, "R_ShoulderBone").transform;
 						}
+						else if (ii.name.Contains("L_") && ii.name.Contains("Breast"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "L_BreastBone").transform;
+						}
+						else if (ii.name.Contains("R_") && ii.name.Contains("Breast"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "R_BreastBone").transform;
+						}
 
 						//相対位置と回転をゼロにする
 						ii.transform.localPosition = new Vector3(0, 0, 0);

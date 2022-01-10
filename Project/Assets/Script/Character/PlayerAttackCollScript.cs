@@ -27,6 +27,9 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 	//プレイヤーが操作するキャラクター
 	private GameObject PlayerCharacter;
 
+	//ヒットエフェクト
+	public GameObject HitEffect { get; set; }
+
 	//攻撃用コライダ
 	private BoxCollider AttackCol;
 
@@ -114,19 +117,19 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 				if (HitArts.HitEffectList[AttackIndex] != "null")
 				{
 					//使用するヒットエフェクトのインスタンス生成
-					GameObject TempHitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == HitArts.HitEffectList[AttackIndex]).ToArray()[0]);
+					HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == HitArts.HitEffectList[AttackIndex]).ToArray()[0]);
 
 					//通常の攻撃、プレイヤーの前にヒットエフェクトを出す
 					if (HitArts.ColType[AttackIndex] == 0 || HitArts.ColType[AttackIndex] == 1 || HitArts.ColType[AttackIndex] == 6)
 					{
 						//キャラクターの子にする
-						TempHitEffect.transform.parent = gameObject.transform.root.transform;
+						HitEffect.transform.parent = gameObject.transform.root.transform;
 
 						//ローカル座標で位置と回転を設定
-						TempHitEffect.transform.localRotation = Quaternion.Euler(HitArts.HitEffectAngleList[AttackIndex]);
+						HitEffect.transform.localRotation = Quaternion.Euler(HitArts.HitEffectAngleList[AttackIndex]);
 
 						//ローカル座標で位置を設定
-						TempHitEffect.transform.localPosition = HitArts.HitEffectPosList[AttackIndex];
+						HitEffect.transform.localPosition = HitArts.HitEffectPosList[AttackIndex];
 					}
 					//飛び道具、敵の座標に出す
 					else if (HitArts.ColType[AttackIndex] == 2 || HitArts.ColType[AttackIndex] == 3)
@@ -135,11 +138,14 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 						Vector3 EffectForward = (Hit.gameObject.transform.root.gameObject.transform.position - PlayerCharacter.transform.position).normalized;
 
 						//ローカル座標で回転を設定
-						TempHitEffect.transform.rotation = Quaternion.LookRotation(EffectForward);
+						HitEffect.transform.rotation = Quaternion.LookRotation(EffectForward);
 
 						//位置を指定、敵からの相対位置で出す
-						TempHitEffect.transform.position = Hit.gameObject.transform.root.gameObject.transform.position + (EffectForward * HitArts.HitEffectPosList[AttackIndex].z) + new Vector3(0, HitArts.HitEffectPosList[AttackIndex].y, 0);
+						HitEffect.transform.position = Hit.gameObject.transform.root.gameObject.transform.position + (EffectForward * HitArts.HitEffectPosList[AttackIndex].z) + new Vector3(0, HitArts.HitEffectPosList[AttackIndex].y, 0);
 					}
+
+					//親を解除する
+					HitEffect.transform.parent = null;
 				}
 			}
 		}

@@ -48,13 +48,15 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 
 	//頭と光源の内積各要素
 	float HeadDotLigntX;             
-	float HeadDotLigntY;             
-	float HeadDotLigntZ;
+	float HeadDotLigntY;
 
 	//頭と目線先の内積各要素
 	float HeadDotEyePosX;
 	float HeadDotEyePosY;
 	float HeadDotEyePosZ;
+
+	//ハイライトの回転角度
+	float HilightAngle;
 
 	//ダイレクトモードフラグ
 	public bool DirectFlag { get; set; } = false;
@@ -94,20 +96,16 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 
 	void Update()
     {
-		//オブジェクトとライト各軸の内積を取る、Clampをしないと後のAcosでNaNが発生する
-		HeadDotLigntX = Mathf.Clamp(Vector3.Dot(HeadAngle.right, DrcLight.transform.forward), -1.0f, 1.0f);
-		HeadDotLigntY = Mathf.Clamp(Vector3.Dot(HeadAngle.up, DrcLight.transform.forward), -1.0f, 1.0f);
-		HeadDotLigntZ = Mathf.Clamp(Vector3.Dot(HeadAngle.forward, DrcLight.transform.forward), -1.0f, 1.0f);
+		//頭とディレクショナルライトの内積を取る
+		HeadDotLigntX = Vector3.Dot(HeadAngle.right, DrcLight.transform.forward);
+		HeadDotLigntY = Vector3.Dot(HeadAngle.up, DrcLight.transform.forward);
 
-		//スケベ中はハイライトを小刻みに動かす
-		if(GameManagerScript.Instance.H_Flag)
-		{
-			HeadDotLigntZ += ((Mathf.PerlinNoise(Time.time * 50, -Time.time) - 0.5f) * 2) * 0.25f;
-		}
-
+		//内積を２次元座標として角度を取る、オイラーをラジアンにして上下の正負を反映
+		HilightAngle = Vector2.Angle(Vector2.right , new Vector2(HeadDotLigntX, HeadDotLigntY)) * Mathf.Deg2Rad * Mathf.Sign(HeadDotLigntY);
+		
 		//ハイライト回転用の値をシェーダーに渡す
-		EyeMaterial.SetFloat("Eye_HiLightRotationSin", HeadDotLigntY + HeadDotLigntZ * 0.75f);
-		EyeMaterial.SetFloat("Eye_HiLightRotationCos", HeadDotLigntX + HeadDotLigntZ * 0.25f);
+		EyeMaterial.SetFloat("Eye_HiLightRotationSin", Mathf.Sin(HilightAngle));
+		EyeMaterial.SetFloat("Eye_HiLightRotationCos", Mathf.Cos(HilightAngle));
 
 		//ダイレクトモード
 		if (DirectFlag)

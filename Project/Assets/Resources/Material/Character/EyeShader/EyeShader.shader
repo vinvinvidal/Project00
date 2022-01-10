@@ -70,7 +70,6 @@
 
 				// テクスチャ座標を取得
 				float2 uv : TEXCOORD0;
-
 			};
 
 			//頂点シェーダーからフラグメントシェーダーに情報を渡す構造体を宣言
@@ -90,10 +89,6 @@
 
 				// ハイライト用テクスチャ座標
 				float2 EyeHilightuv : TEXCOORD2;
-
-				//ドロップシャドウ
-				//SHADOW_COORDS(1)
-
 			};
 
 			//頂点シェーダ
@@ -117,39 +112,28 @@
 				// Grab用テクスチャ座標
 				re.GrabPos = ComputeGrabScreenPos(re.pos);
 
-				//ドロップシャドウ
-				//TRANSFER_SHADOW(re);
-
 				//出力　
 				return re;
-
 			}
 
 			//フラグメントシェーダ
 			fixed4 frag(vertex_output i) : SV_Target
 			{
-
 				//Return用変数宣言してベーステクスチャを貼る、オフセットを足して眼球を移動
 				fixed4 re = tex2D(_EyeTex, i.uv * _EyeTex_ST.xy + (_EyeTex_ST.zw - ((_EyeTex_ST.xy - 1) * 0.5f)));
 				
 				//まぶたから落ちる目の影を乗算合成
 				re *= lerp(1,tex2D(_EyeShadow, i.uv), tex2D(_EyeShadow, i.uv).a);
 
-				//ドロップシャドウを乗算
-				//re *= saturate(_EyeShadowColor + round(SHADOW_ATTENUATION(i) + 0.75));
-
 				//スクリプトから受け取った値でハイライト用回転行列を作成
 				Eye_HiLightRotation = float2x2(Eye_HiLightRotationCos, -Eye_HiLightRotationSin, Eye_HiLightRotationSin, Eye_HiLightRotationCos);
 				
-				//ハイライトの基点を中心ズラす
-				i.EyeHilightuv -= float2(0.5, 0.5);
+				//ハイライトの基点を画像中心にズラす
+				i.EyeHilightuv -= 0.5;
 
-				//ハイライトのUV回転
-				i.EyeHilightuv = mul(Eye_HiLightRotation, i.EyeHilightuv);
+				//ハイライトのUV回転、基点を戻す
+				i.EyeHilightuv = mul(Eye_HiLightRotation, i.EyeHilightuv) + 0.5;
 
-				//ズラしたハイライトの基点を戻す
-				i.EyeHilightuv += float2(0.5, 0.5) / _EyeTex_ST.xy;
-			
 				//ハイライトを加算合成
 				re += lerp(0, tex2D(_EyeHiLight, i.EyeHilightuv), tex2D(_EyeHiLight, i.EyeHilightuv).a * 0.75);
 

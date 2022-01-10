@@ -582,11 +582,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//特殊攻撃入力待ち時間
 	private float SpecialSelectTime = 0.1f;
 
-
-
-
-
-
 	//攻撃時のTrailエフェクトList
 	private List<GameObject> AttackTrailList;
 
