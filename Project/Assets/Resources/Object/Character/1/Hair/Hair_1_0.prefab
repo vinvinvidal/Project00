@@ -90,8 +90,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 0.075
-  m_Center: {x: 0, y: 0.1, z: 0}
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0.1, z: -0.025}
 --- !u!1 &2123981497364732796
 GameObject:
   m_ObjectHideFlags: 0
@@ -588,15 +588,15 @@ Cloth:
   - first: {fileID: 7993124093394731872}
     second: {fileID: 1725481759375181810}
   - first: {fileID: 5610284792931994441}
-    second: {fileID: 7993124093394731872}
-  - first: {fileID: 5610284792931994441}
-    second: {fileID: 1725481759375181810}
-  - first: {fileID: 5610284792931994441}
     second: {fileID: 7705154008224602313}
   - first: {fileID: 7705154008224602313}
     second: {fileID: 3183879070178117742}
   - first: {fileID: 7705154008224602313}
     second: {fileID: 8003072834238806560}
+  - first: {fileID: 5610284792931994441}
+    second: {fileID: 7993124093394731872}
+  - first: {fileID: 5610284792931994441}
+    second: {fileID: 1725481759375181810}
   m_SelfCollisionDistance: 0
   m_SelfCollisionStiffness: 0.2
   m_SelfAndInterCollisionIndices: 
@@ -633,7 +633,7 @@ GameObject:
   - component: {fileID: 4822430007976744768}
   - component: {fileID: 3183879070178117742}
   m_Layer: 0
-  m_Name: Braid_Collision_R_Breast
+  m_Name: Braid_Collision_R_Nipple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -664,8 +664,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 0.05
-  m_Center: {x: -0.025, y: 0.1, z: 0.025}
+  m_Radius: 0.075
+  m_Center: {x: -0.01, y: -0.07, z: 0}
 --- !u!1 &5912867961894033488
 GameObject:
   m_ObjectHideFlags: 0
@@ -708,8 +708,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 0.075
-  m_Center: {x: 0, y: 0.1, z: 0}
+  m_Radius: 0.1
+  m_Center: {x: 0, y: 0.1, z: -0.025}
 --- !u!114 &5513244105054133083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,7 +830,7 @@ GameObject:
   - component: {fileID: 2158977661604583510}
   - component: {fileID: 8003072834238806560}
   m_Layer: 0
-  m_Name: Braid_Collision_L_Breast
+  m_Name: Braid_Collision_L_Nipple
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -861,8 +861,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 0.05
-  m_Center: {x: 0.025, y: 0.1, z: 0.025}
+  m_Radius: 0.075
+  m_Center: {x: 0.01, y: -0.07, z: 0}
 --- !u!1 &8825636179584999382
 GameObject:
   m_ObjectHideFlags: 0
