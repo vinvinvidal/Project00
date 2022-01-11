@@ -2749,9 +2749,9 @@ MonoBehaviour:
   Idling2_Anim: {fileID: 0}
   Idling3_Anim: {fileID: 0}
   Idling4_Anim: {fileID: 0}
-  Walk_Anim: {fileID: 0}
+  Walk_Anim: {fileID: 7400000, guid: b3680b8f4465d1f4abd0e5ea392b5eaf, type: 2}
   Run_Anim: {fileID: 7400000, guid: bbd543c166428e84f82c02d288a912c9, type: 2}
-  Dash_Anim: {fileID: 0}
+  Dash_Anim: {fileID: 7400000, guid: c53ea86b43dfe934abc6da95a765c886, type: 2}
   Stop_Anim: {fileID: 7400000, guid: 0f17b637f9052d448b2d8e3919a83586, type: 2}
   Jump_Anim: {fileID: 7400000, guid: cd6c0d0bfe65f744bb35683650469969, type: 2}
   Fall_Anim: {fileID: 7400000, guid: 9e1a2c1da2e120048bd83585e925e7dc, type: 2}

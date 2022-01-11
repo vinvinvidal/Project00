@@ -4003,7 +4003,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			PlayerMoveBlend = DashFlag ? Mathf.Clamp01(PlayerMoveBlend += Time.deltaTime) : Mathf.Clamp01(PlayerMoveBlend -= Time.deltaTime);
 
 			//ブレンド比率でモーション再生速度を加減する
-			CurrentAnimator.SetFloat("MoveSpeed", (Mathf.Clamp01(CurrentAnimator.GetFloat("Move_Blend") - 1) * 0.5f) + 1);
+			CurrentAnimator.SetFloat("MoveSpeed", (Mathf.Clamp01(CurrentAnimator.GetFloat("Move_Blend") - 1) * 0.25f) + 1);
 
 			//移動値によってモーションブレンド比率を変える
 			CurrentAnimator.SetFloat("Move_Blend", PlayerMoveBlend + Mathf.Clamp01(Mathf.Abs(PlayerMoveInputVecter.x) + Mathf.Abs(PlayerMoveInputVecter.y)));
