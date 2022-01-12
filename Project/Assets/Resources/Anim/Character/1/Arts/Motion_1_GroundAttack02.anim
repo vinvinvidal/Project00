@@ -120082,13 +120082,6 @@ AnimationClip:
     floatParameter: 0
     intParameter: 1
     messageOptions: 0
-  - time: 0.36666667
-    functionName: StartAttackTrail
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
   - time: 0.38333333
     functionName: BlurEffect
     data: 0.05,2.5,f
@@ -120140,13 +120133,6 @@ AnimationClip:
     messageOptions: 0
   - time: 0.5833333
     functionName: EndAttackMove
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.96666664
-    functionName: StartAttackTrail
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

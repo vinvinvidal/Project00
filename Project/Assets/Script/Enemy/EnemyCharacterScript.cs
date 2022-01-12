@@ -496,6 +496,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		AllStates.Add("AnyState");
 		AllStates.Add("Idling");
 		AllStates.Add("Walk");
+		AllStates.Add("Run");
 		AllStates.Add("Attack");
 		AllStates.Add("H_Try");
 		AllStates.Add("H_Hit");
@@ -1668,7 +1669,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//アニメーション再生速度にノイズを加える
 			CurrentAnimator.SetFloat("H_Speed", Mathf.PerlinNoise(Time.time * 2.5f, -Time.time) + 0.5f);
 		}
-		//歩行中の処理
+		//歩き中の処理
 		else if (CurrentState.Contains("Walk"))
 		{
 			//サインカーブで歩行アニメーションと移動値を合わせる
@@ -1679,6 +1680,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			{
 				CurrentAnimator.SetFloat("Side_Walk", Mathf.Lerp(CurrentAnimator.GetFloat("Side_Walk"), (Vector3.Angle(transform.right, MoveMoment.normalized) - 90) / 90, 0.25f));
 			}
+		}
+		//走り中の処理
+		else if (CurrentState.Contains("Run"))
+		{
+			//サインカーブで歩行アニメーションと移動値を合わせる
+			BehaviorMoveVec *= (Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 1.5f * SinCount)) * 2) + 1.5f;
 		}
 	}
 

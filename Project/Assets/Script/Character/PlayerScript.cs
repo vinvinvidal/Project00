@@ -4805,7 +4805,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		PermitTransitionBoolDic["ChangeBefore"] =
 		ChangeInput &&
 		PermitInputBoolDic["ChangeBefore"] &&
-		(Time.time - ChangeTime > 1) &&
+		(Time.time - ChangeTime > 1.25f) &&
 		CurrentAnimator.GetBool("Transition")
 		;
 

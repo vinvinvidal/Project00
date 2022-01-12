@@ -35,6 +35,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	//仲間避け距離
 	private float AroundDistance;
 
+	//走り接近距離
+	private float RunDistance;
+
 	//最小待機時間
 	float MinWaitTime = 0.5f;
 
@@ -81,6 +84,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//仲間避け距離
 		AroundDistance = 3f;
+
+		//走り接近距離
+		RunDistance = 5;
 
 		//プレイヤーキャラクターとの水平距離初期化
 		PlayerHorizontalDistance = 0f;
@@ -195,6 +201,41 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			{
 				//高低差が無く射程距離内で攻撃中じゃなくてスケベ中じゃない
 				if (PlayerverticalDistance < 0.25f && PlayerHorizontalDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
+				{
+					re = true;
+				}
+				else
+				{
+					re = false;
+				}
+			}
+
+			//出力
+			return re;
+
+		}));
+
+		//攻撃01
+		EnemyBehaviorList.Add(new EnemyBehaviorClass("Attack01", 500, () =>
+		//攻撃01の処理
+		{
+			//攻撃01コルーチン呼び出し
+			StartCoroutine(Attack01Coroutine());
+
+		}, () =>
+		//攻撃01の条件
+		{
+			//出力用変数宣言
+			bool re = false;
+
+			//画面内に入っているかbool取得
+			ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => re = reciever.GetOnCameraBool());
+
+			//画面内に入っていたら処理
+			if (re)
+			{
+				//距離が離れていてスケベ中じゃない
+				if (PlayerHorizontalDistance > 5f && !GameManagerScript.Instance.H_Flag)
 				{
 					re = true;
 				}
@@ -337,12 +378,27 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//フラグを立てる
 		EnemyScript.BehaviorFlag = true;
 
-		//アニメーターのフラグを立てる
-		CurrentAnimator.SetBool("Walk", true);
-
 		//プレイヤーキャラクターに接近するまでループ
 		while (PlayerHorizontalDistance > ChaseDistance)
 		{
+			//プレイヤーとの距離によって走りと歩き切り替える
+			if (PlayerHorizontalDistance > RunDistance)
+			{
+				//アニメーターのフラグを立てる
+				CurrentAnimator.SetBool("Run", true);
+
+				//アニメーターフラグを下す
+				CurrentAnimator.SetBool("Walk", false);
+			}
+			else
+			{
+				//アニメーターのフラグを立てる
+				CurrentAnimator.SetBool("Walk", true);
+
+				//アニメーターフラグを下す
+				CurrentAnimator.SetBool("Run", false);
+			}
+
 			//プレイヤーキャラクターに向かう移動ベクトル算出
 			EnemyScript.BehaviorMoveVec = HorizontalVector(PlayerCharacter, gameObject).normalized;
 
@@ -385,6 +441,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//アニメーターのフラグを下ろす
 		CurrentAnimator.SetBool("Walk", false);
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Run", false);
 
 		//フラグを下ろす
 		EnemyScript.BehaviorFlag = false;
@@ -524,6 +583,70 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//フラグを下ろす
 		EnemyScript.BehaviorFlag = false;
 	}
+
+	//攻撃01コルーチン
+	IEnumerator Attack01Coroutine()
+	{
+		//フラグを立てる
+		EnemyScript.BehaviorFlag = true;
+
+		//プレイヤーキャラクターがいる方向測定
+		Vector3 PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Walk", true);
+
+		//プレイヤーが正面にくるまでループ
+		while (PlayerAngle > 0.1f)
+		{
+			//プレイヤーキャラクターがいる方向測定
+			PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
+
+			//プレイヤーキャラクターに向ける
+			EnemyScript.BehaviorRotate = PlayerVec;
+
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Walk", false);
+
+				goto Attack01Break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Walk", false);
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Attack", true);
+
+		//攻撃ステート再生速度リセット
+		CurrentAnimator.SetFloat("AttackSpeed", 1.0f);
+
+		//モーション名を敵スクリプトに送る
+		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetAttackMotion("01"));
+
+		//ステートを反映させる為に１フレーム待つ
+		yield return null;
+
+		//フラグが降りるまで待機
+		while (EnemyScript.CurrentState.Contains("Attack"))
+		{
+			//待機
+			yield return null;
+		}
+
+		//ループを抜ける先、余計な処理を避ける
+		Attack01Break:;
+
+		//フラグを下ろす
+		EnemyScript.BehaviorFlag = false;
+	}
+
 
 	//スケベ攻撃コルーチン
 	IEnumerator H_AttackCoroutine()
