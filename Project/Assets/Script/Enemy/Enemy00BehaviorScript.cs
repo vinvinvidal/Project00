@@ -590,6 +590,136 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//フラグを立てる
 		EnemyScript.BehaviorFlag = true;
 
+		//バトルフィールドオブジェクト宣言
+		GameObject BattleFieldOBJ = null;
+
+		//バトルフィールドオブジェクト取得
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => BattleFieldOBJ = reciever.GetBattleFieldOBJ());
+
+		//壁オブジェクトを全て取得
+		List<GameObject> WallOBJList = new List<GameObject>(DeepFind(BattleFieldOBJ, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")).Select(b => b.gameObject).ToList());
+
+		//最も近い壁オブジェクト宣言
+		GameObject WallOBJ = null;
+
+		//壁オブジェクトとの距離宣言
+		float OBJDistance = 10000;
+
+		//壁オブジェクトを回して最も近い壁オブジェクトを調べる
+		foreach (GameObject i in WallOBJList)
+		{
+			//高さが違う奴は無視
+			if(i.transform.position.y - gameObject.transform.position.y > 0.1 && i.transform.position.y - gameObject.transform.position.y < 2)
+			{
+				//距離測定
+				if (OBJDistance > Vector3.SqrMagnitude(i.transform.position - gameObject.transform.position))
+				{
+					//壁オブジェクトとの距離更新
+					OBJDistance = Vector3.SqrMagnitude(i.transform.position - gameObject.transform.position);
+
+					//最も近い壁オブジェクト更新
+					WallOBJ = i;
+				}
+			}
+		}
+
+		//壁オブジェクトがある方向測定
+		Vector3 WallVec = HorizontalVector(WallOBJ, gameObject);
+
+		//壁オブジェクトとの角度
+		float WallAngle = 180;
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Walk", true);
+
+		//プレイヤーが正面にくるまでループ
+		while (WallAngle > 0.1f)
+		{
+			//壁オブジェクトがある方向測定
+			WallVec = HorizontalVector(WallOBJ, gameObject);
+
+			//角度測定
+			WallAngle = Vector3.Angle(gameObject.transform.forward, WallVec);
+
+			//壁オブジェクトに向ける
+			EnemyScript.BehaviorRotate = WallVec;
+
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Walk", false);
+
+				goto Attack01Break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Walk", false);
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Run", true);
+
+		//ステートを反映させる為に１フレーム待つ
+		yield return null;
+
+		//壁に接近するまでループ
+		while (OBJDistance > 5)
+		{
+			//壁オブジェクトに向かう移動ベクトル算出
+			EnemyScript.BehaviorMoveVec = HorizontalVector(WallOBJ, gameObject).normalized;
+
+			//壁オブジェクトとの距離測定
+			OBJDistance = Vector3.SqrMagnitude(WallOBJ.transform.position - gameObject.transform.position);
+
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Run", false);
+
+				goto Attack01Break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//壁オブジェクトに向かう移動ベクトルリセット
+		EnemyScript.BehaviorMoveVec *= 0;
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Run", false);
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Attack", true);
+
+		//攻撃ステート再生速度リセット
+		CurrentAnimator.SetFloat("AttackSpeed", 1.0f);
+
+		//モーション名を敵スクリプトに送る
+		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetAttackMotion("01"));
+
+		//ステートを反映させる為に１フレーム待つ
+		yield return null;
+
+		//フラグが降りるまで待機
+		while (EnemyScript.CurrentState.Contains("Attack"))
+		{
+			//待機
+			yield return null;
+		}
+
+		//ループを抜ける先、余計な処理を避ける
+		Attack01Break:;
+
+		//フラグを下ろす
+		EnemyScript.BehaviorFlag = false;
+
+		/*
 		//プレイヤーキャラクターがいる方向測定
 		Vector3 PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
 
@@ -639,12 +769,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//待機
 			yield return null;
 		}
+		*/
 
-		//ループを抜ける先、余計な処理を避ける
-		Attack01Break:;
 
-		//フラグを下ろす
-		EnemyScript.BehaviorFlag = false;
 	}
 
 

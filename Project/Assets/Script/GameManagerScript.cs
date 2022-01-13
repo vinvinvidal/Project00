@@ -28,11 +28,17 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	//プレイアブルキャラクターをセットするインターフェイス
 	void SetPlayableCharacterOBJ(GameObject obj);
 
+	//現在のプレイアブルキャラクターを返すインターフェイス
+	GameObject GetPlayableCharacterOBJ();
+
 	//交代可能な参加メンバーをセットするインターフェイス
 	void SetMissionCharacterDic(Dictionary<int, GameObject> MCD);
 
-	//現在のプレイアブルキャラクターを返すインターフェイス
-	GameObject GetPlayableCharacterOBJ();
+	//バトルフィールドをセットするインターフェイス
+	void SetBattleFieldOBJ(GameObject obj);
+
+	//現在のバトルフィールドを返すインターフェイス
+	GameObject GetBattleFieldOBJ();
 
 	//ロック対象の敵を返す
 	GameObject SearchLockEnemy(bool b, Vector3 Vec);
@@ -134,6 +140,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//現在のプレイアブルキャラクター
 	private GameObject PlayableCharacterOBJ;
+
+	//現在のバトルフィールドオブジェクト
+	private GameObject BattleFieldOBJ;
 
 	//ミッションに参加していて交代可能なキャラクター
 	private Dictionary<int, GameObject> MissionCharacterDic;
@@ -1616,16 +1625,29 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		PlayableCharacterOBJ = obj;
 	}
 
+	//現在のプレイアブルキャラクターを返すインターフェイス
+	public GameObject GetPlayableCharacterOBJ()
+	{
+		return PlayableCharacterOBJ;
+	}
+
 	//交代可能な参加メンバーをセットするインターフェイス
 	public void SetMissionCharacterDic(Dictionary<int, GameObject> MCD)
 	{
 		MissionCharacterDic = new Dictionary<int, GameObject>(MCD);
 	}
 
-	//現在のプレイアブルキャラクターを返すインターフェイス
-	public GameObject GetPlayableCharacterOBJ()
+	//バトルフィールドをセットするインターフェイス
+	public void SetBattleFieldOBJ(GameObject obj)
 	{
-		return PlayableCharacterOBJ;
+		//プレイアブルキャラクターを代入
+		BattleFieldOBJ = obj;
+	}
+
+	//現在のバトルフィールドを返すインターフェイス
+	public GameObject GetBattleFieldOBJ()
+	{
+		return BattleFieldOBJ;
 	}
 
 	//操作キャラクターを交代する

@@ -369,7 +369,10 @@ public class BattleFieldScript : GlobalClass
 	private void OnTriggerEnter(Collider ColHit)
 	{
 		if(ColHit.gameObject.layer == LayerMask.NameToLayer("Player"))
-		{		
+		{
+			//ゲームマネージャーに自身を送る
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetBattleFieldOBJ(gameObject));
+
 			//コライダを無効化
 			gameObject.GetComponent<SphereCollider>().enabled = false;
 
@@ -504,6 +507,9 @@ public class BattleFieldScript : GlobalClass
 	//フィールド解放コルーチン
 	private IEnumerator ReleaseBattleFieldCoroutine()
 	{
+		//ゲームマネージャーのバトルフィールドをnullにする
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetBattleFieldOBJ(null));
+
 		//コライダ無効化
 		DeepFind(gameObject, "FieldCol").GetComponent<MeshCollider>().enabled = false;
 
