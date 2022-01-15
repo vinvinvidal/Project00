@@ -23,6 +23,15 @@ public class EnemyAttackClass
 	//攻撃タイプ
 	public int AttackType;
 
+	/*------//
+	0	:通常攻撃
+	10	:飛び道具
+	
+	//------*/
+
+	//ダメージモーションタイプ
+	public int DamageType;
+
 	//アニメーションクリップ名
 	public string AnimName;
 
@@ -38,6 +47,7 @@ public class EnemyAttackClass
 		string info,
 		int dm,
 		int at,
+		int dt,
 		string am
 	)
 	{
@@ -47,6 +57,7 @@ public class EnemyAttackClass
 		Info = info;
 		Damage = dm;
 		AttackType = at;
+		DamageType = dt;
 		AnimName = am;
 	}
 }

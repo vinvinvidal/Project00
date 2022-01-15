@@ -173,10 +173,15 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 
 	//存在している全てのキャラクターリスト
-	public List<GameObject> AllActiveCharacterList { get;} = new List<GameObject>();
+	public List<GameObject> AllActiveCharacterList { get; set; } = new List<GameObject>();
 
 	//存在している全てのエネミーリスト
-	public List<GameObject> AllActiveEnemyList { get; } = new List<GameObject>();
+	public List<GameObject> AllActiveEnemyList { get; set; } = new List<GameObject>();
+
+	//存在している全ての敵飛び道具オブジェクトList
+	public List<GameObject> AllEnemyWeaponList { get; set; } = new List<GameObject>();
+
+
 
 	//全てのキャラクター情報を持ったList
 	public List<CharacterClass> AllCharacterList { get; set; }
@@ -555,7 +560,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				string an = "";
 				string info = "";
 				int dm = 0;
-				int tp = 0;
+				int at = 0;
+				int dt = 0;
 				string am = "";
 
 				//改行で分割して回す
@@ -569,13 +575,14 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "Name": an = ii.Split(',').ToList().ElementAt(1); break;
 						case "info": info = ii.Split(',').ToList().ElementAt(1); break;
 						case "Damage": dm = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
-						case "Type": tp = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "AttackType": at = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "DamageType": dt = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "Anim": am = ii.Split(',').ToList().ElementAt(1); break;
 					}
 				}
 
 				//ListにAdd
-				AllEnemyAttackList.Add(new EnemyAttackClass(LineFeedCodeClear(id), LineFeedCodeClear(ud), LineFeedCodeClear(an), LineFeedCodeClear(info), dm, tp, LineFeedCodeClear(am)));
+				AllEnemyAttackList.Add(new EnemyAttackClass(LineFeedCodeClear(id), LineFeedCodeClear(ud), LineFeedCodeClear(an), LineFeedCodeClear(info), dm, at, dt, LineFeedCodeClear(am)));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る
@@ -1057,7 +1064,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				int di = 0;
 				int dm = 0;
 				string ep = "";
-				List<Action<GameObject, GameObject, SpecialClass>> sa = new List<Action<GameObject, GameObject, SpecialClass>>();
+				List<Action<GameObject, GameObject, GameObject, SpecialClass>> sa = new List<Action<GameObject, GameObject, GameObject, SpecialClass>>();
 
 				//改行で分割して回す
 				foreach (string ii in i.Split('\n').ToList())
@@ -1696,6 +1703,19 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//プレイヤーキャラクターを更新
 		SetPlayableCharacterOBJ(NextCharacter);
+	}
+
+	//ミッション開始時に初期化を行う関数
+	public void StartMission()
+	{
+		//存在している全てのキャラクターリスト初期化
+		AllActiveCharacterList = new List<GameObject>();
+
+		//存在している全てのエネミーリスト初期化
+		AllActiveEnemyList = new List<GameObject>();
+
+		//存在している全ての敵飛び道具オブジェクトリスト初期化
+		AllEnemyWeaponList = new List<GameObject>();
 	}
 
 	//追加されたキャラクターをリストに追加

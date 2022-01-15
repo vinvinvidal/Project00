@@ -52,10 +52,10 @@ public class SpecialClass
 	 */
 
 	//技の処理List
-	public List<Action<GameObject, GameObject, SpecialClass>> SpecialAtcList;
+	public List<Action<GameObject, GameObject, GameObject, SpecialClass>> SpecialAtcList;
 
 	//コンストラクタ
-	public SpecialClass(int cid, int aid, int ul, string nc, string nh, string an, string info, int tr, int di, int dm, string ep, List<Action<GameObject, GameObject, SpecialClass>> sa)
+	public SpecialClass(int cid, int aid, int ul, string nc, string nh, string an, string info, int tr, int di, int dm, string ep, List<Action<GameObject, GameObject, GameObject, SpecialClass>> sa)
 	{
 		UseCharacter = cid;
 		ArtsIndex = aid;
@@ -68,6 +68,6 @@ public class SpecialClass
 		DamageIndex = di;
 		Damage = dm;
 		EffectPos = ep;
-		SpecialAtcList = new List<Action<GameObject, GameObject, SpecialClass>>(sa);
+		SpecialAtcList = new List<Action<GameObject, GameObject, GameObject, SpecialClass>>(sa);
 	}
 }

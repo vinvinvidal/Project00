@@ -47,7 +47,7 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 		if (AttackEnable && !H_AttackFlag)
 		{
 			//プレイヤーキャラクターのスクリプトを呼び出す
-			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.HitEnemyAttack(HitArts, gameObject.transform.root.gameObject));
+			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.HitEnemyAttack(HitArts, gameObject.transform.root.gameObject, null));
 		}
 		//スケベ攻撃が有効
 		else if(AttackEnable && H_AttackFlag && !GameManagerScript.Instance.H_Flag)

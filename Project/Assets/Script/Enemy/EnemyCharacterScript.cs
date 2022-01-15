@@ -1682,11 +1682,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			}
 		}
 		//走り中の処理
-		else if (CurrentState.Contains("Run"))
+		else if (CurrentState == "Run")
 		{
 			//サインカーブで歩行アニメーションと移動値を合わせる
-			BehaviorMoveVec *= (Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 1.5f * SinCount)) * 2) + 1.5f;
+			BehaviorMoveVec *= (Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 1.5f * SinCount)) * 2) + 2.5f;
 		}
+	}
+
+	//現在のモーションを引数で指定されたフレームまでジャンプさせる、アニメーションクリップから呼ばれる
+	public void JampMotionFrame(int t)
+	{
+		CurrentAnimator.Play(CurrentState, 0, t / (CurrentAnimator.GetCurrentAnimatorClipInfo(0)[0].clip.length * GameManagerScript.Instance.FrameRate));
 	}
 
 	//ダウン制御コルーチン
@@ -2340,6 +2346,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	{
 		//使用した攻撃をキャッシュ
 		UseArts = AttackClassList.Where(a => a.AttackID.Contains(n)).ToList()[0];
+
+		//ビヘイビアにも渡す
+		ExecuteEvents.Execute<EnemyBehaviorInterface>(gameObject, null, (reciever, eventData) => reciever.SetArts(UseArts));
 
 		//使用するモーションに差し替え
 		OverRideAnimator["Attack_Void"] = UseArts.Anim;

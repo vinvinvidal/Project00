@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 public interface SpecialArtsScriptInterface : IEventSystemHandler
 {
 	//特殊攻撃の処理を返すインターフェイス
-	List<Action<GameObject, GameObject, SpecialClass>> GetSpecialAct(int c, int i);
+	List<Action<GameObject, GameObject, GameObject, SpecialClass>> GetSpecialAct(int c, int i);
 
 	//超必殺技の処理を返すインターフェイス
 	List<Action<GameObject, GameObject>> GetSuperAct(int c, int i);
@@ -83,6 +83,26 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 							}
 						}					
 					}
+				}
+			}
+		}
+		//桃花用処理
+		else if (i == 1)
+		{
+			//飛び道具との距離
+			float WeaponDistance = 10000;
+
+			//全ての飛び道具を回す
+			foreach(GameObject ii in GameManagerScript.Instance.AllEnemyWeaponList)
+			{
+				//一番近い物を探す
+				if(Vector3.SqrMagnitude(ii.transform.position - gameObject.transform.position) < WeaponDistance)
+				{
+					//距離をキャッシュ
+					WeaponDistance = Vector3.SqrMagnitude(ii.transform.position - gameObject.transform.position);
+
+					//投げきてきた敵を出力用変数に代入
+					re = ii.GetComponent<EnemyWeaponColScript>().Enemy;
 				}
 			}
 		}
@@ -426,9 +446,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	}
 
 	//特殊攻撃の処理を返す
-	public List<Action<GameObject, GameObject, SpecialClass>> GetSpecialAct(int c, int i)
+	public List<Action<GameObject, GameObject, GameObject, SpecialClass>> GetSpecialAct(int c, int i)
 	{
-		List<Action<GameObject, GameObject, SpecialClass>> re = new List<Action<GameObject, GameObject, SpecialClass>>();
+		List<Action<GameObject, GameObject, GameObject, SpecialClass>> re = new List<Action<GameObject, GameObject, GameObject, SpecialClass>>();
 
 		//御命
 		if(c == 0)
@@ -438,7 +458,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 			{
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy , SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy , GameObject Weapon, SpecialClass Arts) =>
 					{
 						//プレイヤーのフラグを立てる
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
@@ -508,7 +528,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//特殊攻撃制御フラグを下す
 						SpecialAction000Flag = false;
@@ -538,7 +558,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 			{
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy , SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//プレイヤーのフラグを立てる
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
@@ -567,7 +587,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy , SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//特殊行動制御フラグを下す
 						SpecialAction010Flag = false;
@@ -598,7 +618,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 			{
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//プレイヤーのフラグを立てる
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
@@ -627,7 +647,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//特殊行動制御フラグを下す
 						SpecialAction020Flag = false;
@@ -656,7 +676,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//特殊攻撃制御フラグを下す
 						SpecialAction021Flag = false;
@@ -671,7 +691,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//特殊攻撃制御フラグを立てる
 						SpecialAction022Flag = true;
@@ -700,7 +720,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//特殊攻撃制御フラグを立てる
 						SpecialAction023Flag = true;
@@ -729,7 +749,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 				re.Add
 				(
-					(GameObject Player, GameObject Enemy, SpecialClass Arts) =>
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//特殊攻撃制御フラグを下す
 						SpecialAction022Flag = false;
@@ -747,6 +767,37 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 			}
 		}
 
+		//桃花
+		if (c == 1)
+		{
+			//賎祓い
+			if (i == 0)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+						//飛び道具をくるくる
+						Weapon.GetComponent<Rigidbody>().AddTorque(Player.transform.up * 100, ForceMode.Impulse);
+						
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//飛び道具を敵に飛ばす
+						Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + Vector3.up) - Weapon.transform.position) * 5, ForceMode.Impulse);
+					}
+				);
+			}
+		}
+
+		//出力
 		return re;
 	}
 }

@@ -30,6 +30,9 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 
 	void Start()
     {
+		//ゲームマネージャーの初期化関数を呼び出す
+		GameManagerScript.Instance.StartMission();
+
 		//全てのミッションリストを回す
 		foreach (MissionClass i in GameManagerScript.Instance.AllMissionList)
 		{

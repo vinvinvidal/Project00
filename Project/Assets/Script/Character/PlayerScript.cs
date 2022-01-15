@@ -27,7 +27,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	void HitAttack(GameObject e, int AttackIndex);
 
 	//敵の攻撃が当たった時の処理
-	void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy);
+	void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy, GameObject Weapon);
 
 	//スケベ攻撃が当たった時の処理
 	void H_AttackHit(string ang, int men, GameObject M_Enemy, GameObject S_Enemy);
@@ -88,6 +88,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//攻撃時にロックした敵オブジェクト
 	private GameObject LockEnemy;
+
+	//敵の飛び道具
+	private GameObject EnemyWeapon;
 
 	//スケベ攻撃をしてきた敵オブジェクト
 	private GameObject H_MainEnemy;
@@ -450,8 +453,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//パンツ下ろしフラグ
 	private bool PantsOffFlag = false;
-
-
 
 
 
@@ -1028,8 +1029,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	void LateUpdate()
 	{
-		//超必殺技中は揺らさない
-		if(!SuperFlag)
+		//位置合わせが必要な時は揺らさない
+		if(!CurrentState.Contains("Super") && !CurrentState.Contains("Special"))
 		{
 			//ループカウント
 			int count = 0;
@@ -2030,13 +2031,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//敵の攻撃が当たった時の処理
-	public void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy)
+	public void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy, GameObject Weapon)
 	{
 		//当身に当たった
-		if (SpecialTryFlag && SpecialArtsList[0].Trigger == 0)
+		if (SpecialTryFlag && SpecialArtsList[0].Trigger == arts.AttackType)
 		{
 			//特殊攻撃待機フラグを下す
 			SpecialTryFlag = false;
+
+			//飛び道具を代入
+			EnemyWeapon = Weapon;
 
 			//ダメージ用コライダを無効化
 			DamageCol.enabled = false;
@@ -2082,7 +2086,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			else
 			{
 				//ダメージモーションインデクスに反映
-				DamageAnimIndex = arts.AttackType;
+				DamageAnimIndex = arts.DamageType;
 			}
 
 			//オーバーライドコントローラにアニメーションクリップをセット
@@ -2312,7 +2316,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void SpecialArtsAction(int n)
 	{
 		//特殊攻撃処理を実行
-		SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0].SpecialAtcList[n](gameObject , LockEnemy , SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0]);
+		SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0].SpecialAtcList[n](gameObject, LockEnemy, EnemyWeapon, SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0]);
 	}
 
 	//超必殺技処理実行、アニメーションクリップから呼ばれる
@@ -5042,13 +5046,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if(i.UnLock == 1)
 			{
 				//代入用変数宣言
-				List<Action<GameObject, GameObject, SpecialClass>> TempSpecialAct = null;
+				List<Action<GameObject, GameObject, GameObject, SpecialClass>> TempSpecialAct = null;
 
 				//スクリプトから処理を受け取る
-				ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => TempSpecialAct = new List<Action<GameObject, GameObject, SpecialClass>>(reciever.GetSpecialAct(i.UseCharacter, i.ArtsIndex)));
+				ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => TempSpecialAct = new List<Action<GameObject, GameObject, GameObject, SpecialClass>>(reciever.GetSpecialAct(i.UseCharacter, i.ArtsIndex)));
 
 				//処理を代入
-				i.SpecialAtcList = new List<Action<GameObject, GameObject, SpecialClass>>(TempSpecialAct);
+				i.SpecialAtcList = new List<Action<GameObject, GameObject, GameObject, SpecialClass>>(TempSpecialAct);
 			}
 		}
 

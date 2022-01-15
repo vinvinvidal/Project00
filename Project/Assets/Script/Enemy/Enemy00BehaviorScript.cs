@@ -13,6 +13,9 @@ public interface EnemyBehaviorInterface : IEventSystemHandler
 
 	//プレイヤーキャラクターを更新する
 	void SetPlayerCharacter(GameObject c);
+
+	//使用している攻撃を受け取る
+	void SetArts(EnemyAttackClass Arts);
 }
 
 public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
@@ -55,6 +58,12 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 	//プレイヤーキャラクターとの角度
 	private float PlayerAngle;
+
+	//武器オブジェクト
+	GameObject WeaponOBJ = null;
+
+	//使用している攻撃
+	EnemyAttackClass UseArts = null;
 
 	//行動List	
 	private List<EnemyBehaviorClass> EnemyBehaviorList = new List<EnemyBehaviorClass>();
@@ -455,11 +464,17 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	//仲間避けコルーチン
 	IEnumerator AroundCoroutine()
 	{
+		//移動加速度をリセット
+		EnemyScript.BehaviorMoveVec = Vector3.zero;
+
 		//フラグを立てる
 		EnemyScript.BehaviorFlag = true;
 
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("Walk", true);
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Run", false);
 
 		//一番近い敵代入変数
 		GameObject NearEnemy = null;
@@ -602,6 +617,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//最も近い壁オブジェクト宣言
 		GameObject WallOBJ = null;
 
+		//武器オブジェクト初期化
+		WeaponOBJ = null;
+
 		//壁オブジェクトとの距離宣言
 		float OBJDistance = 10000;
 
@@ -632,7 +650,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("Walk", true);
 
-		//プレイヤーが正面にくるまでループ
+		//壁オブジェクトが正面にくるまでループ
 		while (WallAngle > 0.1f)
 		{
 			//壁オブジェクトがある方向測定
@@ -703,28 +721,54 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//モーション名を敵スクリプトに送る
 		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetAttackMotion("01"));
 
-		//ステートを反映させる為に１フレーム待つ
-		yield return null;
+		//モーションの再生時間宣言
+		float MotionTime = 0;
 
-		//フラグが降りるまで待機
-		while (EnemyScript.CurrentState.Contains("Attack"))
+		//モーションがある程度再生されるまで待つ、決め打ちなのでよろしくない
+		while(MotionTime < 0.333f)
 		{
-			//待機
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Attack", false);
+
+				goto Attack01Break;
+			}
+
+			//モーションの再生時間カウントアップ
+			MotionTime += Time.deltaTime;
+
+			//１フレーム待機
 			yield return null;
 		}
 
-		//ループを抜ける先、余計な処理を避ける
-		Attack01Break:;
+		//壁オブジェクトのインスタンスを作って武器化
+		WeaponOBJ = Instantiate(WallOBJ);
 
-		//フラグを下ろす
-		EnemyScript.BehaviorFlag = false;
+		//持たせる
+		WeaponOBJ.transform.parent = DeepFind(gameObject, "R_HandBone").transform;
 
-		/*
+		//レイヤーを変えてアウトラインをつける
+		WeaponOBJ.GetComponentInChildren<MeshRenderer>().gameObject.layer = LayerMask.NameToLayer("Enemy");
+
+		//机
+		if (WeaponOBJ.name.Contains("Desk"))
+		{
+			//壁オブジェクトトランスフォーム設定
+			WeaponOBJ.transform.localPosition = new Vector3(-0.15f, 0.75f, -0.25f);
+			WeaponOBJ.transform.localRotation = Quaternion.Euler(new Vector3(90, 0, -90));
+		}
+		//椅子
+		else
+		{
+			//壁オブジェクトトランスフォーム設定
+			WeaponOBJ.transform.localPosition = new Vector3(-0.5f, 0.4f, -0.25f);
+			WeaponOBJ.transform.localRotation = Quaternion.Euler(new Vector3(-180, -90, 90));
+		}
+
 		//プレイヤーキャラクターがいる方向測定
 		Vector3 PlayerVec = HorizontalVector(PlayerCharacter, gameObject);
-
-		//アニメーターのフラグを立てる
-		CurrentAnimator.SetBool("Walk", true);
 
 		//プレイヤーが正面にくるまでループ
 		while (PlayerAngle > 0.1f)
@@ -739,7 +783,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			if (!EnemyScript.BehaviorFlag)
 			{
 				//アニメーターのフラグを下ろす
-				CurrentAnimator.SetBool("Walk", false);
+				CurrentAnimator.SetBool("Attack", false);
 
 				goto Attack01Break;
 			}
@@ -748,20 +792,33 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			yield return null;
 		}
 
-		//アニメーターのフラグを下ろす
-		CurrentAnimator.SetBool("Walk", false);
+		//プレイヤーが遠い、もしくは画面内にいない場合移動させる
+		while (PlayerHorizontalDistance > 5 || !EnemyScript.GetOnCameraBool())
+		{
+			//プレイヤーキャラクターに向かう移動ベクトル算出
+			EnemyScript.BehaviorMoveVec = HorizontalVector(PlayerCharacter, gameObject).normalized * EnemyScript.MoveSpeed;
 
-		//アニメーターのフラグを立てる
-		CurrentAnimator.SetBool("Attack", true);
+			//サインカーブで歩行アニメーションと移動値を合わせる
+			EnemyScript.BehaviorMoveVec *= Mathf.Abs(Mathf.Sin(2 * Mathf.PI * 0.75f * EnemyScript.SinCount));
 
-		//攻撃ステート再生速度リセット
-		CurrentAnimator.SetFloat("AttackSpeed", 1.0f);
+			//プレイヤーキャラクターに向ける
+			EnemyScript.BehaviorRotate = HorizontalVector(PlayerCharacter, gameObject);
 
-		//モーション名を敵スクリプトに送る
-		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetAttackMotion("01"));
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Attack", false);
 
-		//ステートを反映させる為に１フレーム待つ
-		yield return null;
+				goto Attack01Break;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//攻撃モーション再生
+		EnemyScript.JampMotionFrame(110);
 
 		//フラグが降りるまで待機
 		while (EnemyScript.CurrentState.Contains("Attack"))
@@ -769,11 +826,32 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//待機
 			yield return null;
 		}
-		*/
 
+		//ループを抜ける先、余計な処理を避ける
+		Attack01Break:;
 
+		//武器オブジェクトをまだ持ってたら消す
+		if (WeaponOBJ != null)
+		{
+			if(WeaponOBJ.transform.root.gameObject == gameObject)
+			{
+				//親を解除
+				WeaponOBJ.transform.parent = null;
+
+				//オブジェクトに消失用スクリプト追加
+				WeaponOBJ.AddComponent<WallVanishScript>();
+
+				//物理挙動有効化
+				WeaponOBJ.GetComponent<Rigidbody>().isKinematic = false;
+
+				//外側に力を与えて飛ばす
+				WeaponOBJ.GetComponent<Rigidbody>().AddForce((WeaponOBJ.transform.position - gameObject.transform.position + Vector3.up) * 2.5f, ForceMode.Impulse);
+			}
+		}
+
+		//フラグを下ろす
+		EnemyScript.BehaviorFlag = false;
 	}
-
 
 	//スケベ攻撃コルーチン
 	IEnumerator H_AttackCoroutine()
@@ -853,6 +931,49 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	public void SetPlayerCharacter(GameObject c)
 	{
 		PlayerCharacter = c;
+	}
+
+	//使用している攻撃を受け取る
+	public void SetArts(EnemyAttackClass Arts)
+	{
+		UseArts = Arts;
+	}
+
+	//持っている武器を投げる
+	public void WeaponThrow(float s)
+	{
+		//親を解除
+		WeaponOBJ.transform.parent = null;
+
+		//武器用コライダトリガー化
+		WeaponOBJ.GetComponent<MeshCollider>().isTrigger = true;
+
+		//レイヤーを武器化
+		WeaponOBJ.layer = LayerMask.NameToLayer("EnemyWeaponCol");
+
+		//武器化スクリプトを有効化
+		WeaponOBJ.GetComponent<EnemyWeaponColScript>().enabled = true;
+
+		//武器に技情報を渡す
+		WeaponOBJ.GetComponent<EnemyWeaponColScript>().UseArts = UseArts;
+
+		//武器に自身を渡す
+		WeaponOBJ.GetComponent<EnemyWeaponColScript>().Enemy = gameObject;
+
+		//物理挙動有効化
+		WeaponOBJ.GetComponent<Rigidbody>().isKinematic = false;
+
+		//武器の回転制限を解除
+		WeaponOBJ.GetComponent<Rigidbody>().angularDrag = 0;
+
+		//トルクを与えて回転
+		WeaponOBJ.GetComponent<Rigidbody>().AddTorque(gameObject.transform.right * 10 , ForceMode.Impulse);
+
+		//プレイヤーに向かって飛ばす
+		WeaponOBJ.GetComponent<Rigidbody>().AddForce(((PlayerCharacter.transform.position + Vector3.up) - WeaponOBJ.transform.position).normalized * s, ForceMode.Impulse);
+
+		//ゲームマネージャーに飛び道具を送る
+		GameManagerScript.Instance.AllEnemyWeaponList.Add(WeaponOBJ);
 	}
 
 	//準備完了待ちコルーチン

@@ -1,0 +1,11 @@
+NameC,賎祓い
+NameH,いやみばらい
+UseCharacter,1
+ArtsIndex,0
+DamageIndex,0
+Damage,0
+AnimName,Motion_1_Special0
+EffectPos,R_HandBone
+Trigger,10
+Info,敵の飛び道具を打ち返す
+UnLock,1

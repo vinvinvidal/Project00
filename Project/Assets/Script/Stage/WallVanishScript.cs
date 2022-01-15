@@ -22,8 +22,8 @@ public class WallVanishScript : GlobalClass
 		mat.renderQueue = 3000;
 
 		//レンダラーのシャドウを切る
-		//GetComponentInChildren<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-		//GetComponentInChildren<Renderer>().receiveShadows = false;
+		GetComponentInChildren<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+		GetComponentInChildren<Renderer>().receiveShadows = false;
 	}
 
     void Update()

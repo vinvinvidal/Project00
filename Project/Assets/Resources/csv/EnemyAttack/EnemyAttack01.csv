@@ -1,7 +1,8 @@
 ID,01
 UserID,00
 Name,物投げ
-Damage,1
-Type,0
+Damage,0
+AttackType,10
+DamageType,0
 Info,机や椅子を投げる
 Anim,Enemy00_Attack01

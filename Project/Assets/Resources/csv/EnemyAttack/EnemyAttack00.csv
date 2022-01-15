@@ -1,7 +1,8 @@
 ID,00
 UserID,00
 Name,素人パンチ
-Damage,1
-Type,0
+Damage,0
+AttackType,0
+DamageType,0
 Info,力任せに殴るだけの大振りパンチ
 Anim,Enemy00_Attack00
