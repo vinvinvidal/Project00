@@ -825,6 +825,13 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		{
 			//待機
 			yield return null;
+
+			//もし歩きループでハマってたら再度攻撃モーション再生
+			if(CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.2f && CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 0.5f)
+			{
+				//攻撃モーション再生
+				EnemyScript.JampMotionFrame(110);
+			}	
 		}
 
 		//ループを抜ける先、余計な処理を避ける
@@ -952,13 +959,13 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		WeaponOBJ.layer = LayerMask.NameToLayer("EnemyWeaponCol");
 
 		//武器化スクリプトを有効化
-		WeaponOBJ.GetComponent<EnemyWeaponColScript>().enabled = true;
+		WeaponOBJ.GetComponent<ThrowWeaponScript>().enabled = true;
 
 		//武器に技情報を渡す
-		WeaponOBJ.GetComponent<EnemyWeaponColScript>().UseArts = UseArts;
+		WeaponOBJ.GetComponent<ThrowWeaponScript>().UseArts = UseArts;
 
 		//武器に自身を渡す
-		WeaponOBJ.GetComponent<EnemyWeaponColScript>().Enemy = gameObject;
+		WeaponOBJ.GetComponent<ThrowWeaponScript>().Enemy = gameObject;
 
 		//物理挙動有効化
 		WeaponOBJ.GetComponent<Rigidbody>().isKinematic = false;

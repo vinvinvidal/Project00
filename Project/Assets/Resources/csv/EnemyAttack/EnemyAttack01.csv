@@ -6,3 +6,6 @@ AttackType,10
 DamageType,0
 Info,机や椅子を投げる
 Anim,Enemy00_Attack01
+PlayerUseDamage,10
+PlyaerUseDamageType,7
+PlyaerUseKnockBackVec,0*0*10*0.1

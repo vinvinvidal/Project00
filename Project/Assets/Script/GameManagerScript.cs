@@ -563,6 +563,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				int at = 0;
 				int dt = 0;
 				string am = "";
+				int pdm = 0;
+				int pdt = 0;
+				Color pkb = new Color(0,0,0,0);
 
 				//改行で分割して回す
 				foreach (string ii in i.Split('\n').ToList())
@@ -574,15 +577,25 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 						case "UserID": ud = ii.Split(',').ToList().ElementAt(1); break;
 						case "Name": an = ii.Split(',').ToList().ElementAt(1); break;
 						case "info": info = ii.Split(',').ToList().ElementAt(1); break;
-						case "Damage": dm = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "Damage": dm = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;						
 						case "AttackType": at = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "DamageType": dt = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
 						case "Anim": am = ii.Split(',').ToList().ElementAt(1); break;
+						case "PlayerUseDamage": pdm = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "PlyaerUseDamageType": pdt = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "PlyaerUseKnockBackVec":
+
+							foreach (var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
+							{
+								pkb = new Color(float.Parse(iii.Split('*').ElementAt(0)), float.Parse(iii.Split('*').ElementAt(1)), float.Parse(iii.Split('*').ElementAt(2)), float.Parse(iii.Split('*').ElementAt(3)));
+							}
+
+							break;
 					}
 				}
 
 				//ListにAdd
-				AllEnemyAttackList.Add(new EnemyAttackClass(LineFeedCodeClear(id), LineFeedCodeClear(ud), LineFeedCodeClear(an), LineFeedCodeClear(info), dm, at, dt, LineFeedCodeClear(am)));
+				AllEnemyAttackList.Add(new EnemyAttackClass(LineFeedCodeClear(id), LineFeedCodeClear(ud), LineFeedCodeClear(an), LineFeedCodeClear(info), dm, at, dt, pdm, pdt, pkb, LineFeedCodeClear(am)));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る
