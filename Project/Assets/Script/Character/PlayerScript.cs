@@ -936,6 +936,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		InvincibleList.Add("H_Break");
 		InvincibleList.Add("SuperTry");
 		InvincibleList.Add("SuperArts");
+		InvincibleList.Add("-> ChangeBefore");
 		InvincibleList.Add("ChangeBefore");
 		InvincibleList.Add("ChangeAfter");
 
@@ -2039,8 +2040,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//特殊攻撃待機フラグを下す
 			SpecialTryFlag = false;
 
-			//飛び道具を代入
-			EnemyWeapon = Weapon;
+			//飛び道具の処理
+			if(Weapon != null)
+			{
+				//飛び道具を代入
+				EnemyWeapon = Weapon;
+
+				//飛び道具の物理を切る
+				EnemyWeapon.GetComponent<Rigidbody>().isKinematic = true;
+
+				//飛び道具を当身位置に移動
+				EnemyWeapon.transform.position = gameObject.transform.position + new Vector3(transform.forward.x, EnemyWeapon.transform.position.y - gameObject.transform.position.y, transform.forward.z);
+			}
 
 			//ダメージ用コライダを無効化
 			DamageCol.enabled = false;
@@ -2057,6 +2068,29 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ライフを減らす
 			L_Gauge -= arts.Damage;
 
+			//飛び道具を喰らった時の処理
+			if (Weapon != null)
+			{
+				//オブジェクトに消失用スクリプト追加
+				Weapon.AddComponent<WallVanishScript>();
+
+				//飛び道具ををゲームマネージャーのListから消す
+				GameManagerScript.Instance.AllEnemyWeaponList.Remove(Weapon);
+
+				//オブジェクトを無害化
+				Weapon.GetComponent<ThrowWeaponScript>().PhysicOBJ();
+
+				//RigidBodyの補完を有効化
+				Weapon.GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.Interpolate;
+
+				//速度をリセット
+				Weapon.GetComponent<Rigidbody>().velocity = Vector3.zero;
+
+				//跳ね返りの加速度を加える
+				Weapon.GetComponent<Rigidbody>().AddForce((Weapon.transform.position - gameObject.transform.root.gameObject.transform.position).normalized * 5, ForceMode.Impulse);
+			}
+
+			//死んだ
 			if (L_Gauge <= 0)
 			{
 				//アニメーターの遷移フラグを立てる
@@ -3610,7 +3644,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if(H_Location.Contains("Back"))
 		{
 			//ヒットエフェクトインスタンス生成
-			GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect00").ToList()[0]);
+			GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect" + CharacterID + "1").ToList()[0]);
 
 			//プレイヤーの子にする
 			HitEffect.transform.parent = gameObject.transform;
@@ -3626,7 +3660,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else if(H_Location.Contains("Forward"))
 		{
 			//ヒットエフェクトインスタンス生成
-			GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect01").ToList()[0]);
+			GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect" + CharacterID + "1").ToList()[0]);
 
 			//プレイヤーの子にする
 			HitEffect.transform.parent = gameObject.transform;

@@ -32,6 +32,15 @@ public class EnemyAttackClass
 	//ダメージモーションタイプ
 	public int DamageType;
 
+	//飛び道具の場合、プレイヤーが打ち返した時のダメージ
+	public int PlyaerUseDamage;
+
+	//飛び道具の場合、プレイヤーが打ち返した時のノックバックベクトル
+	public Color PlyaerUseKnockBackVec;
+
+	//飛び道具の場合、プレイヤーが打ち返した時のダメージタイプ
+	public int PlyaerUseDamageType;
+
 	//アニメーションクリップ名
 	public string AnimName;
 
@@ -48,6 +57,9 @@ public class EnemyAttackClass
 		int dm,
 		int at,
 		int dt,
+		int pdm,
+		int pdt,
+		Color pkb,
 		string am
 	)
 	{
@@ -59,5 +71,8 @@ public class EnemyAttackClass
 		AttackType = at;
 		DamageType = dt;
 		AnimName = am;
+		PlyaerUseDamage = pdm;
+		PlyaerUseKnockBackVec = pkb;
+		PlyaerUseDamageType = pdt;
 	}
 }
