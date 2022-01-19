@@ -1609,7 +1609,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag)
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 6 && AttackMoveType != 7)
 		{
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
@@ -2090,16 +2090,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				Weapon.GetComponent<Rigidbody>().AddForce((Weapon.transform.position - gameObject.transform.root.gameObject.transform.position).normalized * 5, ForceMode.Impulse);
 			}
 
-			//死んだ
-			if (L_Gauge <= 0)
-			{
-				//アニメーターの遷移フラグを立てる
-				CurrentAnimator.SetBool("Down", true);
-			}
-
-			//攻撃用コライダ無効化
-			AttackCol.enabled = false;
-
 			//接地を判別、ongroundじゃなくアニメーターのフラグを使う
 			if (CurrentAnimator.GetBool("Fall"))
 			{
@@ -2132,12 +2122,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーションフラグを立てる
 			CurrentAnimator.SetBool("Damage", true);
 
-			//これ以上イベントを起こさないためにAttackステートを一時停止
-			CurrentAnimator.SetFloat("AttackSpeed00", 0.0f);
-			CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
+			//攻撃用コライダ無効化
+			AttackCol.enabled = false;
 
 			//攻撃してきた敵の方を向く
 			transform.rotation = Quaternion.LookRotation(HorizontalVector(enemy, gameObject));
+
+			//死んだ
+			if (L_Gauge <= 0)
+			{
+				//アニメーターの遷移フラグを立てる
+				CurrentAnimator.SetBool("Down", true);
+			}
 		}
 	}
 
@@ -3258,13 +3254,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				ForceMoveVector *= 0;
 
 				//ホールド状態フラグを立てる
-				HoldFlag = true;
-
-				//回転制御フラグを立てる
-				NoRotateFlag = true;
+				HoldFlag = true;				
 
 				//当たった敵の方を向く
 				transform.rotation = Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject));
+
+				//回転制御フラグを立てる
+				NoRotateFlag = true;
 
 				//ホールド状態維持コルーチン呼び出し
 				StartCoroutine(KeepHold());
@@ -4663,6 +4659,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ダメージ状態フラグを立てる
 			DamageFlag = true;
 
+			//これ以上イベントを起こさないためにAttackステートを一時停止
+			CurrentAnimator.SetFloat("AttackSpeed00", 0.0f);
+			CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
+
 			//入力フラグを全て下す関数呼び出し
 			InputReset();
 			
@@ -5447,6 +5447,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					i.Play();
 				}
 			}
+		}
+	}
+
+	//持っている武器を投げる、桃花専用か？
+	public void WeaponThrow()
+	{
+		if(LockEnemy != null && gameObject.GetComponent<SpecialArtsScript>().StockWeapon != null)
+		{
+			SpecialArtsList[1].SpecialAtcList[2](gameObject , LockEnemy , gameObject.GetComponent<SpecialArtsScript>().StockWeapon, SpecialArtsList[1]);
 		}
 	}
 

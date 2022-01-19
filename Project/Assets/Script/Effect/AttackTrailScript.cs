@@ -8,7 +8,7 @@ public class AttackTrailScript : GlobalClass
 	private Material Mat;
 
 	//テクスチャアニメーション用Vector2
-	private Vector2 ScaleVec = new Vector2(0,1);
+	private Vector2 ScaleVec = new Vector2(0,1.25f);
 	private Vector2 OffsetVec = Vector2.zero;
 
 	//速度
@@ -27,11 +27,15 @@ public class AttackTrailScript : GlobalClass
 		//テクスチャを拡大
 		while(ScaleVec.x < 1)
 		{
-			//スケール加算
-			ScaleVec.x += EffectSpeed;
+			//ポーズ中は処理しない
+			if (!GameManagerScript.Instance.PauseFlag)
+			{
+				//スケール加算
+				ScaleVec.x += EffectSpeed;
 
-			//テクスチャに反映
-			Mat.SetTextureScale("_TexParticle", ScaleVec);
+				//テクスチャに反映
+				Mat.SetTextureScale("_TexParticle", ScaleVec);
+			}
 
 			//1フレーム待機
 			yield return null;
@@ -40,15 +44,19 @@ public class AttackTrailScript : GlobalClass
 		//テクスチャを縮小
 		while (ScaleVec.x > 0)
 		{
-			//スケール減算
-			ScaleVec.x -= EffectSpeed;
+			//ポーズ中は処理しない
+			if (!GameManagerScript.Instance.PauseFlag)
+			{
+				//スケール減算
+				ScaleVec.x -= EffectSpeed;
 
-			//位置移動
-			OffsetVec.x += EffectSpeed;
+				//位置移動
+				OffsetVec.x += EffectSpeed;
 
-			//テクスチャに反映
-			Mat.SetTextureScale("_TexParticle", ScaleVec);
-			Mat.SetTextureOffset("_TexParticle", OffsetVec);
+				//テクスチャに反映
+				Mat.SetTextureScale("_TexParticle", ScaleVec);
+				Mat.SetTextureOffset("_TexParticle", OffsetVec);
+			}
 
 			//1フレーム待機
 			yield return null;

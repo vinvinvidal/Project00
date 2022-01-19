@@ -1,0 +1,11 @@
+NameC,幣帛召し
+NameH,みてぐらめし
+UseCharacter,1
+ArtsIndex,1
+DamageIndex,0
+Damage,0
+AnimName,Motion_1_Special1
+EffectPos,R_HandBone
+Trigger,10
+Info,飛び道具を自分の武器に張り付けて次の一撃の攻撃力を上げる。
+UnLock,1

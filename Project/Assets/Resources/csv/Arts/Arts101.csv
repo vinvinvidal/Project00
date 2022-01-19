@@ -1,5 +1,5 @@
-NameC,狼煙焚き
-NameH,のろしだき
+NameC,竈幟り
+NameH,かまどのぼり
 UseCharacter,1
 Anim,Motion_1_GroundAttack01
 MoveVec,0*0*1*1|0*0*1*5
@@ -7,7 +7,7 @@ Damage,1
 Stun,1
 ColVec,0*0.25*0.75*2
 KnockBackVec,0*10*0*0.1
-Introduction,相手の懐に潜り込み、両手で頭上にカチ上げる。
+Introduction,回転しながら踏み込み切り上げる。打ち上げ。
 UnLock,0|0|2
 Chain,0
 MoveType,0|0

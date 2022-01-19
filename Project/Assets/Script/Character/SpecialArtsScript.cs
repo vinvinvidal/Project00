@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 //他のスクリプトから関数を呼ぶ為のインターフェイス
 public interface SpecialArtsScriptInterface : IEventSystemHandler
@@ -40,6 +41,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	private GameObject SuperLightEffect;
 	private GameObject SuperChargeEffect;
 	private GameObject SuperFireWorkEffect;
+
+	//桃花の武器に付けている敵飛び道具
+	public GameObject StockWeapon = null;
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -837,6 +841,110 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//プレイヤーのフラグを下ろす
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+					}
+				);
+			}
+			//幣帛召し
+			if (i == 1)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{						
+						//ストックしてる飛び道具がなければストック
+						if (StockWeapon == null)
+						{
+							//くっつけた飛び道具をキャッシュ
+							StockWeapon = Weapon;
+
+							//プレイヤーのフラグを立てる
+							Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+							//飛び道具の関数を呼び出して無害化
+							Weapon.GetComponent<ThrowWeaponScript>().PhysicOBJ();
+
+							//飛び道具のコライダー無効化
+							Weapon.GetComponent<MeshCollider>().enabled = false;
+
+							//飛び道具のRigidBody無効化
+							Weapon.GetComponent<Rigidbody>().isKinematic = true;
+
+							//飛び道具を剣先にアタッチ
+							foreach (WeaponSettingScript ii in Player.GetComponentsInChildren<WeaponSettingScript>())
+							{
+								if (ii.name.Contains("_0"))
+								{
+									Weapon.transform.parent = ii.transform;
+
+									Weapon.transform.localRotation = Quaternion.Euler(new Vector3(Random.Range(-90, 90f), Random.Range(-90, 90), Random.Range(-90, 90)));
+
+									Weapon.transform.localPosition = new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f), Random.Range(0, 0.5f));
+								}
+							}
+						}
+						//ストックしている飛び道具があったら賎祓いにする
+						else
+						{
+							//親を解除
+							Weapon.transform.parent = null;
+
+							//飛び道具のRigidBody有効化
+							Weapon.GetComponent<Rigidbody>().isKinematic = false;
+
+							//飛び道具の関数を呼び出してこちらの攻撃にする
+							Weapon.GetComponent<ThrowWeaponScript>().PlyaerAttack();
+
+							//飛び道具にヒットエフェクトを渡す
+							Weapon.GetComponent<ThrowWeaponScript>().HitEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0];
+
+							//飛び道具を敵に飛ばす
+							Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + Vector3.up) - Weapon.transform.position).normalized * 30, ForceMode.Impulse);
+
+							//飛び道具を回転させる
+							Weapon.GetComponent<Rigidbody>().AddTorque(Player.transform.right, ForceMode.Impulse);
+						}
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//プレイヤーの移動ベクトル初期化
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+
+						//プレイヤーのフラグを下ろす
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//くっつけた飛び道具を解放
+						StockWeapon = null;
+
+						//親を解除
+						Weapon.transform.parent = null;
+
+						//飛び道具のコライダー無効化
+						Weapon.GetComponent<MeshCollider>().enabled = true;
+
+						//飛び道具のRigidBody有効化
+						Weapon.GetComponent<Rigidbody>().isKinematic = false;
+
+						//飛び道具の関数を呼び出してこちらの攻撃にする
+						Weapon.GetComponent<ThrowWeaponScript>().PlyaerAttack();
+
+						//飛び道具にヒットエフェクトを渡す
+						Weapon.GetComponent<ThrowWeaponScript>().HitEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0];
+
+						//飛び道具を敵に飛ばす
+						Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + Vector3.up) - Weapon.transform.position).normalized * 30, ForceMode.Impulse);
+
+						//飛び道具を回転させる
+						Weapon.GetComponent<Rigidbody>().AddTorque(Player.transform.right, ForceMode.Impulse);
 					}
 				);
 			}
