@@ -85,7 +85,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public int ListIndex { get; set; }
 
 	//体力
-	public int Life { get; set; }
+	public float Life { get; set; }
 
 	//気絶値
 	public float Stun { get; set; }
@@ -1022,8 +1022,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//プレイヤーからの攻撃を受けた時の処理
 	public void PlayerAttackHit(ArtsClass Arts, int n)
 	{
+		//喰らった技のダメージを受け取る
+		float Damage = Arts.Damage[n];
+
+		//プレイヤーが武器をストックしている
+		if (PlayerCharacter.GetComponent<SpecialArtsScript>().StockWeapon != null && Arts.NameC != "")
+		{			
+			//ストック武器のダケージを加算
+			Damage += PlayerCharacter.GetComponent<SpecialArtsScript>().StockWeapon.GetComponent<ThrowWeaponScript>().UseArts.PlyaerUseDamage * 0.1f;
+		}
+
 		//ライフを減らす
-		Life -= Arts.Damage[n] * 10;
+		Life -= Damage;
 
 		//タメ攻撃の係数を掛ける
 		Life -= Arts.ChargeDamage[n] * PlayerCharacter.GetComponent<PlayerScript>().ChargeLevel;
@@ -1822,6 +1832,31 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//ダメージモーション中の移動ベクトル初期化
 		DamageMoveVec *= 0;
+
+		//死んでたらダウン
+		if(DestroyFlag)
+		{
+			//ダメージステートカウントアップ
+			DamageState++;
+
+			//現在のアニメーターの遷移フラグを立てる
+			CurrentAnimator.SetBool("Damage0" + DamageState % 2, true);
+
+			//次の遷移フラグを下ろす
+			CurrentAnimator.SetBool("Damage0" + (DamageState + 1) % 2, false);
+
+			//使用するダメージステートのスピードを戻す
+			CurrentAnimator.SetFloat("DamageMotionSpeed" + DamageState % 2, 1);
+
+			//これ以上イベントを起こさないために使わないダメージステートを一時停止
+			CurrentAnimator.SetFloat("DamageMotionSpeed" + (DamageState + 1) % 2, 0);
+
+			//使用するモーションに差し替え
+			OverRideAnimator["Damage_Void_" + DamageState % 2] = DamageAnimList[1];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		}
 	}
 
 	//死亡監視関数使わない？

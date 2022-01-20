@@ -12,16 +12,19 @@ public class ThrowWeaponScript : GlobalClass
 	private Rigidbody RBody;
 
 	//当たった攻撃クラス
-	public EnemyAttackClass UseArts;
+	public EnemyAttackClass UseArts { get; set; }
 
 	//投げた敵オブジェクト
-	public GameObject Enemy;
+	public GameObject Enemy { get; set; }
 
 	//当たった時に表示するエフェクト
-	public GameObject HitEffect;
+	public GameObject HitEffect { get; set; }
 
-	//ダメージ
-	public int Damage;
+	//プレイヤーにストックされているフラグ
+	public bool StockFlag { get; set; } = false;
+
+	//プレイヤーにストックされた時のポジション
+	public Vector3 StockPosition;
 
 	void Start()
 	{
@@ -50,6 +53,31 @@ public class ThrowWeaponScript : GlobalClass
 
 		//レイヤーをプレイヤーの攻撃にする
 		gameObject.layer = LayerMask.NameToLayer("PlayerWeaponCol");
+	}
+
+	//オブジェクトを叩きつけた時に呼ばれる
+	public void BrokenWeapon()
+	{
+		//自身をゲームマネージャーのListから消す
+		GameManagerScript.Instance.AllEnemyWeaponList.Remove(gameObject);
+
+		//親を解除
+		transform.parent = null;
+
+		//オブジェクトを無害化
+		PhysicOBJ();
+
+		//速度をリセット
+		RBody.velocity = Vector3.zero;
+
+		//ちょい浮かす
+		RBody.AddForce(Vector3.up * 5, ForceMode.Impulse);
+
+		//回転させる
+		RBody.AddTorque((transform.right + transform.up) * 5, ForceMode.Impulse);
+
+		//オブジェクトに消失用スクリプト追加
+		gameObject.AddComponent<WallVanishScript>();
 	}
 
 	//コライダーが当たった時に呼び出される
@@ -100,7 +128,7 @@ public class ThrowWeaponScript : GlobalClass
 			TempHitEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-			ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { UseArts.PlyaerUseKnockBackVec }, new List<int>() { UseArts.PlyaerUseDamage }, new List<int>() { UseArts.PlyaerUseDamageType }), 0));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { UseArts.PlyaerUseKnockBackVec }, new List<float>() { UseArts.PlyaerUseDamage }, new List<int>() { UseArts.PlyaerUseDamageType }), 0));
 		}
 		//床に落ちた
 		else if(LayerMask.LayerToName(Hit.gameObject.layer) == "TransparentFX")

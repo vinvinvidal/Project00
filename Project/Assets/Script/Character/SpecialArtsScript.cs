@@ -29,9 +29,12 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	bool SpecialAction022Flag = false;
 	bool SpecialAction023Flag = false;
 
+	bool SpecialAction110Flag = false;
+
+	/*
 	bool SpecialAction100Flag = false;
 	bool SpecialAction101Flag = false;
-
+	*/
 	//超必殺技制御フラグ
 	bool SuperAction000Flag = false;
 	bool SuperAction001Flag = false;
@@ -616,7 +619,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));					
 
 						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0.5f, 15, 0.1f) } , new List<int>() { Arts.Damage }, new List<int>() { Arts.DamageIndex }), 0));
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0.5f, 15, 0.1f) } , new List<float>() { Arts.Damage }, new List<int>() { Arts.DamageIndex }), 0));
 					}
 				);
 			}
@@ -777,7 +780,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 		//桃花
 		if (c == 1)
 		{
-			//賎祓い
+			//伍経反し
 			if (i == 0)
 			{
 				re.Add
@@ -800,13 +803,53 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 							{
 								Weapon.transform.parent = ii.transform;
 
-								Weapon.transform.localRotation = Quaternion.Euler(Vector3.zero);
+								Weapon.transform.localRotation = Quaternion.Euler(new Vector3(180, 0, 180));
 
-								Weapon.transform.localPosition = new Vector3(0, 0, 0.25f);
+								Weapon.transform.localPosition = Weapon.GetComponent<ThrowWeaponScript>().StockPosition;
 							}
+						}
+
+						//ストックしている武器があれば投げる
+						if (StockWeapon != null)
+						{
+							StartCoroutine(PlayerSpecialAction110(Player, Enemy));
 						}
 					}
 				);
+
+				//ストック武器投げコルーチン
+				IEnumerator PlayerSpecialAction110(GameObject Player, GameObject Enemy)
+				{
+					//チョイ待機
+					yield return new WaitForSeconds(0.05f);
+
+					//親を解除
+					StockWeapon.transform.parent = null;
+
+					//飛び道具のストックフラグを下ろす
+					StockWeapon.GetComponent<ThrowWeaponScript>().StockFlag = false;
+
+					//飛び道具のコライダー有効化
+					StockWeapon.GetComponent<MeshCollider>().enabled = true;
+
+					//飛び道具のRigidBody有効化
+					StockWeapon.GetComponent<Rigidbody>().isKinematic = false;
+
+					//飛び道具の関数を呼び出してこちらの攻撃にする
+					StockWeapon.GetComponent<ThrowWeaponScript>().PlyaerAttack();
+
+					//飛び道具にヒットエフェクトを渡す
+					StockWeapon.GetComponent<ThrowWeaponScript>().HitEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0];
+
+					//飛び道具を敵に飛ばす
+					StockWeapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + Vector3.up) - StockWeapon.transform.position).normalized * 30, ForceMode.Impulse);
+
+					//飛び道具を回転させる
+					StockWeapon.GetComponent<Rigidbody>().AddTorque(Player.transform.right, ForceMode.Impulse);
+
+					//くっつけた飛び道具を解放
+					StockWeapon = null;
+				}
 
 				re.Add
 				(
@@ -825,7 +868,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						Weapon.GetComponent<ThrowWeaponScript>().HitEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0];
 
 						//飛び道具を敵に飛ばす
-						Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + Vector3.up) - Weapon.transform.position).normalized * 30, ForceMode.Impulse);
+						Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + (Vector3.up * 0.5f)) - Weapon.transform.position).normalized * 30, ForceMode.Impulse);
 
 						//飛び道具を回転させる
 						Weapon.GetComponent<Rigidbody>().AddTorque(Player.transform.right, ForceMode.Impulse);
@@ -844,8 +887,91 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					}
 				);
 			}
+			//賎祓い
+			else if (i == 1)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+						//特殊攻撃制御フラグを立てる
+						SpecialAction110Flag = true;
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction110(Player));
+					}
+				);
+
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSpecialAction110(GameObject Player)
+				{
+					//フラグが降りるまでループ
+					while (SpecialAction110Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 15f;
+
+						//1フレーム待機
+						yield return null;
+					}
+
+					//プレイヤーの移動ベクトル初期化
+					Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//特殊攻撃制御フラグを下す
+						SpecialAction110Flag = false;
+
+						//飛び道具のRigidBody有効化
+						Weapon.GetComponent<Rigidbody>().isKinematic = false;
+
+						//エフェクトのインスタンス生成
+						GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0]);
+
+						//エフェクトを飛び道具の場所に移動
+						HitEffect.transform.position = Weapon.transform.position;
+
+						//飛び道具壊し関数呼び出し
+						Weapon.GetComponent<ThrowWeaponScript>().BrokenWeapon();
+
+						//全ての敵を回す
+						foreach(GameObject ii in GameManagerScript.Instance.AllActiveEnemyList)
+						{
+							//nullチェック
+							if(ii !=null)
+							{
+								//近くの敵を検出
+								if (Vector3.SqrMagnitude(Weapon.transform.position - ii.transform.position) < 10)
+								{
+									//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
+									ExecuteEvents.Execute<EnemyCharacterInterface>(ii, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -1, 0.1f) }, new List<float>() { 0 }, new List<int>() { 3 }), 0));
+								}
+							}
+						}
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//プレイヤーの移動ベクトル初期化
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+
+						//プレイヤーのフラグを下ろす
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+					}
+				);
+			}
 			//幣帛召し
-			if (i == 1)
+			else if (i == 2)
 			{
 				re.Add
 				(
@@ -859,6 +985,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 							//プレイヤーのフラグを立てる
 							Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+							//飛び道具のストックフラグを立てる
+							Weapon.GetComponent<ThrowWeaponScript>().StockFlag = true;
 
 							//飛び道具の関数を呼び出して無害化
 							Weapon.GetComponent<ThrowWeaponScript>().PhysicOBJ();
@@ -876,11 +1005,14 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 								{
 									Weapon.transform.parent = ii.transform;
 
-									Weapon.transform.localRotation = Quaternion.Euler(new Vector3(Random.Range(-90, 90f), Random.Range(-90, 90), Random.Range(-90, 90)));
+									Weapon.transform.localRotation = Quaternion.Euler(new Vector3(180, 0, 180));
 
-									Weapon.transform.localPosition = new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f), Random.Range(0, 0.5f));
+									Weapon.transform.localPosition = Weapon.GetComponent<ThrowWeaponScript>().StockPosition;
 								}
 							}
+
+							//ゲームマネージャーのリストから自身を削除
+							GameManagerScript.Instance.AllEnemyWeaponList.Remove(Weapon);
 						}
 						//ストックしている飛び道具があったら賎祓いにする
 						else
@@ -915,36 +1047,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//プレイヤーのフラグを下ろす
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
-					}
-				);
-
-				re.Add
-				(
-					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
-					{
-						//くっつけた飛び道具を解放
-						StockWeapon = null;
-
-						//親を解除
-						Weapon.transform.parent = null;
-
-						//飛び道具のコライダー無効化
-						Weapon.GetComponent<MeshCollider>().enabled = true;
-
-						//飛び道具のRigidBody有効化
-						Weapon.GetComponent<Rigidbody>().isKinematic = false;
-
-						//飛び道具の関数を呼び出してこちらの攻撃にする
-						Weapon.GetComponent<ThrowWeaponScript>().PlyaerAttack();
-
-						//飛び道具にヒットエフェクトを渡す
-						Weapon.GetComponent<ThrowWeaponScript>().HitEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0];
-
-						//飛び道具を敵に飛ばす
-						Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + Vector3.up) - Weapon.transform.position).normalized * 30, ForceMode.Impulse);
-
-						//飛び道具を回転させる
-						Weapon.GetComponent<Rigidbody>().AddTorque(Player.transform.right, ForceMode.Impulse);
 					}
 				);
 			}

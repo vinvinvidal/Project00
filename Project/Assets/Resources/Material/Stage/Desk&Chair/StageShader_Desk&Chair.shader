@@ -9,7 +9,7 @@
 		_TexNormal("_TexNormal", 2D) = "white" {}
 
 		//消滅用係数
-		_VanishNum("_VanishNum",float) = 0									
+		_VanishNum("_VanishNum",float) = 0		
 	}
 
 	SubShader
@@ -66,6 +66,7 @@
 				float2 uv : TEXCOORD0;
 			};
 
+			/*
             //ジオメトリシェーダーからフラグメントシェーダーに渡すデータ
 			struct g2f
 			{
@@ -73,6 +74,7 @@
 
 				float2 uv : TEXCOORD0;
 			};
+			*/
 
 			//頂点シェーダーからフラグメントシェーダーに情報を渡す構造体を宣言
 			struct vertex_output

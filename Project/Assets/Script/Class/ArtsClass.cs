@@ -26,7 +26,7 @@ public class ArtsClass
 	public List<string> HitSE;
 
 	//威力
-	public List<int> Damage;
+	public List<float> Damage;
 
 	//スタン値
 	public List<int> Stun;
@@ -177,7 +177,7 @@ public class ArtsClass
 
 		List<Color> mv,
 
-		List<int> dm,
+		List<float> dm,
 
 		List<int> st,
 
@@ -234,7 +234,7 @@ public class ArtsClass
 
 		MoveVec = new List<Color>(mv);
 
-		Damage = new List<int>(dm);
+		Damage = new List<float>(dm);
 
 		Stun = new List<int>(st);
 

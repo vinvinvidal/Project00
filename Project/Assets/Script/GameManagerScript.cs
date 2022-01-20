@@ -803,7 +803,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				int uc = 0;
 				string an = "";
 				List<Color> mv = new List<Color>();
-				List<int> dm = new List<int>();
+				List<float> dm = new List<float>();
 				List<int> st = new List<int>();
 				List<Color> cv = new List<Color>();
 				List<Color> kb = new List<Color>();
@@ -859,7 +859,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 							foreach (var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
 							{
-								dm.Add(int.Parse(iii));
+								dm.Add(float.Parse(iii));
 							}
 
 							break;

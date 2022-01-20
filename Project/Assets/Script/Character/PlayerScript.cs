@@ -3279,7 +3279,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				if (tempbool)
 				{
 					//敵のロックを外す	
-					LockEnemy = null;
+					//LockEnemy = null;
 
 					//メインカメラのロックも外す
 					ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
@@ -3650,7 +3650,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(180, 0, 0));
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, 0.1f) }, new List<int>() { 0 }, new List<int>() { 1 }), 0));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, 0.1f) }, new List<float>() { 0 }, new List<int>() { 1 }), 0));
 		}
 		//前１人
 		else if(H_Location.Contains("Forward"))
@@ -3666,7 +3666,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(45, 0, 0));
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 7.5f, 0.1f) }, new List<int>() { 0 }, new List<int>() { 4 }), 0));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 7.5f, 0.1f) }, new List<float>() { 0 }, new List<int>() { 4 }), 0));
 		}
 
 		//敵のクロス用コライダを解除する
@@ -5447,15 +5447,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					i.Play();
 				}
 			}
-		}
-	}
-
-	//持っている武器を投げる、桃花専用か？
-	public void WeaponThrow()
-	{
-		if(LockEnemy != null && gameObject.GetComponent<SpecialArtsScript>().StockWeapon != null)
-		{
-			SpecialArtsList[1].SpecialAtcList[2](gameObject , LockEnemy , gameObject.GetComponent<SpecialArtsScript>().StockWeapon, SpecialArtsList[1]);
 		}
 	}
 
