@@ -102,7 +102,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 			if (AttackEnable)
 			{
 				//巻き込み攻撃でなければコライダを非アクティブ化
-				if (HitArts.ColType[AttackIndex] != 7 && HitArts.ColType[AttackIndex] != 8)
+				if (HitArts.ColType[AttackIndex] != 4 && HitArts.ColType[AttackIndex] != 5 && HitArts.ColType[AttackIndex] != 7 && HitArts.ColType[AttackIndex] != 8)
 				{
 					AttackCol.enabled = false;
 				}
@@ -131,8 +131,10 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 						//ローカル座標で位置を設定
 						HitEffect.transform.localPosition = HitArts.HitEffectPosList[AttackIndex];
 					}
+					//巻き込み、当たった敵の場所に出す
+	
 					//飛び道具、敵の座標に出す
-					else if (HitArts.ColType[AttackIndex] == 2 || HitArts.ColType[AttackIndex] == 3)
+					else if (HitArts.ColType[AttackIndex] == 2 || HitArts.ColType[AttackIndex] == 3 || HitArts.ColType[AttackIndex] == 4 || HitArts.ColType[AttackIndex] == 5)
 					{
 						//キャラクターから敵までのベクトルを正面とする
 						Vector3 EffectForward = (Hit.gameObject.transform.root.gameObject.transform.position - PlayerCharacter.transform.position).normalized;
@@ -209,6 +211,43 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 				yield return null;
 			}
 		}
+		//周囲回転
+		else if(t == 4 || t == 5)
+		{
+			//コライダを出現位置に移動
+			AttackCol.center = new Vector3(0, c.g, c.r * 0.5f);
+
+			//コライダ拡大
+			AttackCol.size = new Vector3(0.25f, 0.1f, c.r);
+
+			//コライダを初期角度に回転
+			gameObject.transform.localRotation = Quaternion.Euler(new Vector3(0, c.b, 0));
+
+			//回転方向の符号を取得
+			float RotateSign = Mathf.Sign(c.a);
+
+			//回転値
+			float RotateNum = c.b;
+
+			//コライダ回転
+			while (Mathf.Abs(c.b - RotateNum) < 360)
+			{
+				//回転値を加算
+				RotateNum += 360 * Time.deltaTime * 6 * RotateSign;
+
+				//回転値を反映
+				transform.localRotation = Quaternion.Euler(new Vector3(0, RotateNum, 0));
+
+				//１フレーム待機
+				yield return null;
+			}
+
+			//コライダを非アクティブ化
+			AttackCol.enabled = false;
+
+			//コライダの回転をリセット
+			gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+		}
 		//範囲発生
 		else if (t == 7 || t == 8)
 		{
@@ -234,6 +273,9 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 
 		//コライダを待機位置に移動
 		AttackCol.center *= 0;
+
+		//回転をリセット
+		gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//コライダの半径をデフォルトに戻す
 		AttackCol.size = new Vector3(1, 1, 1);

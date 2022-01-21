@@ -1718,6 +1718,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				//踏み外し遷移フラグを立てる
 				CurrentAnimator.SetBool("Drop", true);
+
+				//踏み外しフラグを立てる
+				DropFlag = true;
 			}
 
 			//水平方向の攻撃移動値を反映
@@ -3205,7 +3208,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//巻き込み攻撃でなければ当たった敵をロックする
-			if (UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
+			if (UseArts.ColType[AttackIndex] != 4 && UseArts.ColType[AttackIndex] != 5 && UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
 			{
 				LockEnemy = e;
 			}
@@ -4350,6 +4353,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		= !PauseFlag &&
 		!H_Flag &&
 		!NoEquipFlag &&
+		!DropFlag &&
 		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
@@ -4939,6 +4943,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//特殊攻撃フラグを下ろす
 		SpecialTryFlag = false;
+
+		//踏み外しフラグを下す
+		DropFlag = false;
 
 		//特殊攻撃成功フラグを下ろす
 		SpecialSuccessFlag = false;

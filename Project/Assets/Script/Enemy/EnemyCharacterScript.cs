@@ -457,12 +457,16 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ダウン時間初期化
 		DownTime = 0;
 
+
+
 		//ダウンしない攻撃List初期化
 		NotDownAttackList = new List<int>();
 
 		NotDownAttackList.Add(0);
 		NotDownAttackList.Add(3);
 		NotDownAttackList.Add(9);
+
+
 
 		//ダウン状態で当たってもそのままモーション再生する攻撃List初期化
 		DownEnableAttakList = new List<int>();
@@ -472,6 +476,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//胸倉ホールド攻撃
 		DownEnableAttakList.Add(30);
+
+
 
 		//打ち上げ状態で当たってもそのままモーション再生する攻撃List初期化
 		RiseEnableAttakList = new List<int>();
@@ -488,6 +494,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//胸倉ホールド攻撃
 		RiseEnableAttakList.Add(30);
+
+
 
 		//足元の衝撃エフェクト取得
 		FootImpactEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "FootImpact").ToArray()[0];
@@ -1500,6 +1508,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//ダメージ遷移フラグを下ろす
 				CurrentAnimator.SetBool("Damage00", false);
 				CurrentAnimator.SetBool("Damage01", false);
+
+				//少しの間ダメージコライダ無効化
+				StartCoroutine(DamageColEnable());
 			}
 			//ダウン着地になった瞬間の処理
 			else if (CurrentState == "DownLanding")
@@ -2058,6 +2069,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		EndAttackCol();
 	}
 
+	//２度当たりを防ぐ為にダメージして少しの間ダメージコライダを無効化する
+	private IEnumerator DamageColEnable()
+	{
+		//コライダ無効化
+		DamageCol.enabled = false;
+
+		//チョイ待機
+		yield return new WaitForSeconds(0.1f);
+
+		//コライダ有効化
+		DamageCol.enabled = true;
+	}
 	//キャラクターコントローラの設定を変える関数
 	public void CharaControllerReset(string FlagName)
 	{
