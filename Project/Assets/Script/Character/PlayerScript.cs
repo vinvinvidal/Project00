@@ -3014,7 +3014,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempAttackEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//親を解除
-		TempAttackEffect.transform.parent = null;
+		//TempAttackEffect.transform.parent = null;
 
 		//タメ攻撃の場合エフェクトをでかくする
 		if (ChargeLevel > 0)

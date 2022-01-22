@@ -1529,7 +1529,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				}
 			}
 			//ダウンになった瞬間の処理
-			else if (CurrentState.Contains("-> Down"))
+			else if (CurrentState.Contains("Down"))
 			{
 				//打ち上げフラグを下ろす
 				RiseFlag = false;
@@ -2076,7 +2076,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		DamageCol.enabled = false;
 
 		//チョイ待機
-		yield return new WaitForSeconds(0.1f);
+		yield return new WaitForSeconds(0.15f);
 
 		//コライダ有効化
 		DamageCol.enabled = true;

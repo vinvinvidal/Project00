@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 716511704676611056}
   - component: {fileID: 7802246547913195862}
   - component: {fileID: 2281654277386482220}
-  - component: {fileID: 3970485300761863429}
   m_Layer: 20
   m_Name: FireEffect
   m_TagString: Untagged
@@ -93,17 +92,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc4c1f961a03b71419275cd2bfe38e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Y_Speed: 1
-  X_Speed: 0.05
---- !u!114 &3970485300761863429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4375218729992415420}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4aaa93481a743e4b9a0d17c7ac76eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  Y_Speed: 1.7
+  X_Speed: 1

@@ -17,7 +17,7 @@ ColType,2
 TimeType,100
 HitEffect,HitEffect02
 HitEffectPos,0*0.8*0.5
-HitEffectAngle,0*180*0
+HitEffectAngle,0*0*0
 HitStop,0
 Charge,30
 HoldPos,0*0*0

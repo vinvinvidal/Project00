@@ -142,6 +142,8 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 						//ローカル座標で回転を設定
 						HitEffect.transform.rotation = Quaternion.LookRotation(EffectForward);
 
+						HitEffect.transform.rotation *= Quaternion.Euler(new Vector3(HitArts.HitEffectAngleList[AttackIndex].x, HitArts.HitEffectAngleList[AttackIndex].y, HitArts.HitEffectAngleList[AttackIndex].z));
+
 						//位置を指定、敵からの相対位置で出す
 						HitEffect.transform.position = Hit.gameObject.transform.root.gameObject.transform.position + (EffectForward * HitArts.HitEffectPosList[AttackIndex].z) + new Vector3(0, HitArts.HitEffectPosList[AttackIndex].y, 0);
 					}

@@ -29,10 +29,10 @@ public class FireShaderScript : GlobalClass
     {
 		//オフセットカウントアップ
 		TexTureX_Offset += Time.deltaTime;
-		TexTureY_Offset -= Mathf.PerlinNoise(-Time.time , Time.time) + 0.5f;
+		TexTureY_Offset -= Time.deltaTime * (Mathf.PerlinNoise(-Time.time, Time.time) + 0.5f);
 
 		//火を動かす
-		FireMaterial.SetTextureOffset("_FireNormalTex", new Vector2(0, TexTureY_Offset * Y_Speed));
 		FireMaterial.SetTextureOffset("_FireMainTex", new Vector2(TexTureX_Offset * X_Speed, 0));
+		FireMaterial.SetTextureOffset("_FireNormalTex", new Vector2(0, TexTureY_Offset * Y_Speed));		
 	}
 }
