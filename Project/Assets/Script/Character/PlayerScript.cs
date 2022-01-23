@@ -4199,6 +4199,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			||
 			s == "Idling"
 			||
+			s == "Crouch"
+			||
 			s == "Run"
 			||
 			s == "Jump"
@@ -4214,6 +4216,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			s == "SpecialAttack"
 			||
 			s.Contains("-> Idling")
+			||
+			s.Contains("-> Crouch")
 			||
 			s.Contains("-> Run")
 			||
@@ -4362,6 +4366,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			||
 			s == "Idling"
 			||
+			s == "Crouch"
+			||
 			s == "Run"
 			||
 			s == "Jump"
@@ -4379,6 +4385,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			s == "ChangeAfter"
 			||
 			s.Contains("-> Idling")
+			||
+			s.Contains("-> Crouch")
 			||
 			s.Contains("-> Run")
 			||

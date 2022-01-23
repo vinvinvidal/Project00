@@ -8,7 +8,7 @@ public class AttackTrailScript : GlobalClass
 	private Material Mat;
 
 	//テクスチャアニメーション用Vector2
-	private Vector2 ScaleVec = new Vector2(0,1.25f);
+	private Vector2 ScaleVec = new Vector2(0,1);
 	private Vector2 OffsetVec = Vector2.zero;
 
 	//速度

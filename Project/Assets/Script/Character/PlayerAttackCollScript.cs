@@ -232,7 +232,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 			float RotateNum = c.b;
 
 			//コライダ回転
-			while (Mathf.Abs(c.b - RotateNum) < 360)
+			while (Mathf.Abs(c.b - RotateNum) < c.a)
 			{
 				//回転値を加算
 				RotateNum += 360 * Time.deltaTime * 6 * RotateSign;

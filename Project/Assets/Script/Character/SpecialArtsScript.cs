@@ -868,7 +868,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						Weapon.GetComponent<ThrowWeaponScript>().HitEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0];
 
 						//飛び道具を敵に飛ばす
-						Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + (Vector3.up * 0.5f)) - Weapon.transform.position).normalized * 30, ForceMode.Impulse);
+						Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + (Vector3.up * 0.75f)) - Weapon.transform.position).normalized * 30, ForceMode.Impulse);
 
 						//飛び道具を回転させる
 						Weapon.GetComponent<Rigidbody>().AddTorque(Player.transform.right, ForceMode.Impulse);

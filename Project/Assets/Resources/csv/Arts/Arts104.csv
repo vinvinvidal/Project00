@@ -10,8 +10,8 @@ KnockBackVec,0*-2.5*5*0.1|0*0*0*0|0*0*0*0
 Introduction,刀を両手で横に持って飛び掛り、首にかけて引き起こしす。
 UnLock,0|0|1
 Chain,0
-MoveType,6|6|6
-AttackType,4|7|30
+MoveType,0|6|6
+AttackType,4|6|30
 DownEnable,1|1|1
 ColType,0|0|0
 TimeType,100|100|100
