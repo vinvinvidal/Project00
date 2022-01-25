@@ -113,6 +113,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//攻撃スイング音オブジェクト
 	private GameObject AttackSwingOBJ;
 
+	//武器SEオブジェクト
+	private GameObject WeaponSEOBJ;
+
 	//汎用SEオブジェクト
 	private GameObject GenericSEOBJ;
 
@@ -860,13 +863,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_Effect00 = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "H_Effect00").ToArray()[0];
 
 		//足音オブジェクト取得
-		FootStepOBJ = DeepFind(gameObject, "FootStep");
+		FootStepOBJ = DeepFind(gameObject, "FootStepSE");
 
 		//攻撃ヒット音オブジェクト取得
-		AttackImpactOBJ = DeepFind(gameObject, "AttackImpact");
+		AttackImpactOBJ = DeepFind(gameObject, "AttackImpactSE");
 
 		//攻撃スイング音オブジェクト取得
-		AttackSwingOBJ = DeepFind(gameObject, "AttackSwing");
+		AttackSwingOBJ = DeepFind(gameObject, "AttackSwingSE");
+
+		//武器SEオブジェクト取得
+		WeaponSEOBJ = DeepFind(gameObject, "WeaponSE");
 
 		//汎用SEオブジェクト取得
 		GenericSEOBJ = DeepFind(gameObject, "GenericSE");
@@ -1609,7 +1615,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 6 && AttackMoveType != 7)
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7)
 		{
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
@@ -3847,7 +3853,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 	}
 
-	//攻撃時に武器を移動させる
+	//武器のSEを鳴らす
+	private void WeaponSE(int n)
+	{
+		WeaponSEOBJ.GetComponent<SoundEffectScript>().PlaySoundEffect(n);
+	}
+
+	//武器を移動させる
 	private void WeaponMove(String s)
 	{
 		//引数をカンマで分割

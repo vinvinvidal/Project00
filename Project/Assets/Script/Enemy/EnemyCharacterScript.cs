@@ -1018,6 +1018,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			||
 			//地上限定の技が空中で当たった
 			(!OnGround && Arts.ColType[n] == 8)
+			||
+			//ダウン中にダウン専用攻撃が当たった
+			(DownFlag && Arts.ColType[n] == 9)
 		)
 		{
 			re = false;
@@ -2069,14 +2072,14 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		EndAttackCol();
 	}
 
-	//２度当たりを防ぐ為にダメージして少しの間ダメージコライダを無効化する
+	//ダメージを受けたら少しの間ダメージコライダを無効化する
 	private IEnumerator DamageColEnable()
 	{
 		//コライダ無効化
 		DamageCol.enabled = false;
 
 		//チョイ待機
-		yield return new WaitForSeconds(0.15f);
+		yield return new WaitForSeconds(0.05f);
 
 		//コライダ有効化
 		DamageCol.enabled = true;
