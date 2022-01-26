@@ -95169,16 +95169,16 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.016666668
-    functionName: ChangeFace
-    data: Motion_1_Face04,0.1
+  - time: 0
+    functionName: WeaponSE
+    data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.033333335
-    functionName: WeaponSE
-    data: 
+  - time: 0.016666668
+    functionName: ChangeFace
+    data: Motion_1_Face04,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

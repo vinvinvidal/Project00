@@ -227,7 +227,7 @@ MonoBehaviour:
   - {x: 0.15, y: 0.09, z: -0.015}
   - {x: 0.035, y: 0.02, z: -0.015}
   - {x: -0.15, y: -0.02, z: -0.015}
-  - {x: 0, y: 0, z: 0.65}
+  - {x: 0, y: 0, z: 0.55}
   WeaponAttachOBJMoveList:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0.65}
@@ -362,8 +362,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 0}
   m_AABB:
-    m_Center: {x: -0.0005208994, y: -0.021165527, z: 0.014878318}
-    m_Extent: {x: 0.0060026264, y: 0.05530768, z: 0.10487832}
+    m_Center: {x: 7.6487075e-18, y: 0.06414139, z: 0.015446909}
+    m_Extent: {x: 1.3323818e-14, y: 0.041641384, z: 0.108649954}
   m_DirtyAABB: 0
 --- !u!114 &5172713957034945546
 MonoBehaviour:
@@ -634,7 +634,7 @@ MonoBehaviour:
   - {x: 0.15, y: 0.09, z: -0.015}
   - {x: -0.15, y: -0.02, z: -0.015}
   - {x: -0.15, y: -0.02, z: -0.015}
-  - {x: 0, y: 0, z: 0.65}
+  - {x: 0, y: 0, z: 0.55}
   WeaponAttachOBJMoveList:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: -0.65}
