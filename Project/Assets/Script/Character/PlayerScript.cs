@@ -249,6 +249,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//ポーズフラグ
 	private bool PauseFlag = false;
 
+	//踏みつけフラグ
+	private bool StompingFlag = false;
 
 
 	//--- 移動値 ---//
@@ -1615,7 +1617,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7)
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8)
 		{
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
@@ -1708,7 +1710,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//空中攻撃移動制御
-			if (AttackMoveType == 1 || AttackMoveType == 2 || AttackMoveType == 3 || AttackMoveType == 5)
+			if (AttackMoveType == 1 || AttackMoveType == 2 || AttackMoveType == 3 || AttackMoveType == 5 || AttackMoveType == 7)
 			{
 				//垂直方向の加速度で重力を打ち消して攻撃加速度を入れる
 				VerticalAcceleration = AttackMoveVector.y - GravityAcceleration;
@@ -2904,6 +2906,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//遷移可能フラグを立てる
 		CurrentAnimator.SetBool("Transition", true);
 
+		//攻撃コライダ無効化
+		EndAttackCol();
+
 		//使用技を破棄
 		UseArts = null;
 	}	
@@ -3146,6 +3151,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					//1フレーム待機
 					yield return null;
 				}
+
+				//モーション再生時間を戻す
+				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 1.0f);
 			}
 			//速度変更タイプ判定：降下攻撃
 			else if (UseArts.TimeType[n] == 1)
@@ -3159,10 +3167,49 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					//1フレーム待機
 					yield return null;
 				}
-			}
 
-			//モーション再生時間を戻す
-			CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 1.0f);
+				//モーション再生時間を戻す
+				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 1.0f);
+			}
+			//速度変更タイプ判定：踏みつけ攻撃
+			else if (UseArts.TimeType[n] == 2)
+			{
+				//踏みつけフラグを立てる
+				StompingFlag = true;
+
+				//現在のステートのモーション再生時間を変更、完全停止
+				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
+
+				//接地するまでループ
+				while (!OnGroundFlag)
+				{
+					//踏みつけ成功
+					if(!StompingFlag)
+					{
+						//ローリングを避けて抜ける
+						goto StompingLoopBreak;
+					}
+
+					//1フレーム待機
+					yield return null;
+				}
+
+				//攻撃を強制終了
+				EndAttack();
+
+				//ローリングの正面を設定
+				RollingRotateVector = transform.forward;
+
+				//強制的にローリング実行
+				CurrentAnimator.SetBool("Crouch", true);
+				CurrentAnimator.SetBool("Rolling", true);
+
+				//ローリングを避けて抜ける先
+				StompingLoopBreak:;
+
+				//踏みつけフラグを下す
+				StompingFlag = false;
+			}
 		}
 	}
 
@@ -3273,6 +3320,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//ホールド状態維持コルーチン呼び出し
 				StartCoroutine(KeepHold());
+			}
+
+			//踏みつけ攻撃が当たった
+			if (StompingFlag)
+			{
+				//踏みつけフラグを下す
+				StompingFlag = false;
+
+				//重力加速度をリセット
+				GravityAcceleration *= 0;
+
+				//垂直方向の加速度をリセット
+				VerticalAcceleration *= 0;
+
+				//モーションの再生を再開
+				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 1.0f);
 			}
 
 			//敵を倒したらロックを外す処理
@@ -4966,6 +5029,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//踏み外しフラグを下す
 		DropFlag = false;
+
+		//踏みつけフラグを下す
+		StompingFlag = false;
 
 		//特殊攻撃成功フラグを下ろす
 		SpecialSuccessFlag = false;

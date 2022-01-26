@@ -114,7 +114,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 				ExecuteEvents.Execute<PlayerScriptInterface>(PlayerCharacter, null, (reciever, eventData) => reciever.HitAttack(Hit.gameObject.transform.root.gameObject, AttackIndex));
 
 				//ちゃんと技がある場合処理実行
-				if (HitArts.HitEffectList[AttackIndex] != "null")
+				if (HitArts.HitEffectList[AttackIndex] != "null" && HitArts != null)
 				{
 					//使用するヒットエフェクトのインスタンス生成
 					HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == HitArts.HitEffectList[AttackIndex]).ToArray()[0]);
