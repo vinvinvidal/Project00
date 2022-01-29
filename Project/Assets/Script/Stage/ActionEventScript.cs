@@ -96,11 +96,21 @@ public class ActionEventScript : GlobalClass
 	//アクション実行
 	public void EventRun()
 	{
+		//コルーチン呼び出し
+		StartCoroutine(EventRunCoroutine());
+	}
+
+	private IEnumerator EventRunCoroutine()
+	{
+		//ループ継続bool宣言
+		bool ContinueFlag = false;
+
+
 		//PlayerEventListの要素数だけ回す
 		for (int Count = 0; Count < ActionEventList.Count; Count++)
 		{
 			//イベント実行タイミング判定
-			if(PlayTiming == PlayTimingList[Count])
+			if (PlayTiming == PlayTimingList[Count])
 			{
 				if (HitOBJ == "Player")
 				{
@@ -128,14 +138,17 @@ public class ActionEventScript : GlobalClass
 						//すでに存在しているかチェック
 						if (!GameObject.Find(file + "(Clone)"))
 						{
+							//ループ待機フラグを立てる
+							ContinueFlag = true;
+
 							//オブジェクトロードコルーチン呼び出し
 							StartCoroutine(GameManagerScript.Instance.LoadOBJ(dir, file, "prefab", (object OBJ) =>
 							{
-								//読み込んだオブジェクトをインスタンス化、名前から(Clone)を消す
-								//Instantiate(OBJ as GameObject).name = (OBJ as GameObject).name;
-
+								//読み込んだオブジェクトをインスタンス化
 								Instantiate(OBJ as GameObject);
 
+								//ループ待機フラグを下す
+								ContinueFlag = false;
 							}));
 						}
 					}
@@ -198,7 +211,7 @@ public class ActionEventScript : GlobalClass
 						//メインカメラのトランスフォームを遷移元のヴァーチャルカメラにコピー
 						GameManagerScript.Instance.GetComponentInChildren<CinemachineVirtualCamera>().transform.position = MainCamera.transform.position;
 						GameManagerScript.Instance.GetComponentInChildren<CinemachineVirtualCamera>().transform.rotation = MainCamera.transform.rotation;
-						
+
 						//ヴァーチャルカメラコルーチン呼び出し
 						StartCoroutine(VcameraCoroutine());
 					}
@@ -207,6 +220,13 @@ public class ActionEventScript : GlobalClass
 				{
 
 				}
+			}
+
+			//ループを待つ、これをしないとロードで重複してエラーになる
+			while(ContinueFlag)
+			{
+				//1フレーム待機
+				yield return null;
 			}
 		}
 	}
