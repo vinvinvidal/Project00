@@ -76,8 +76,8 @@ public class OutLineScript : GlobalClass
 		}
 		else
 		{
-			//キャラクターリストとエネミーリストをLinqで合体させて回す
-			foreach (GameObject i in GameManagerScript.Instance.AllActiveCharacterList.Concat(GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null)))
+			//キャラクターとエネミーリストをLinqで合体させて回す
+			foreach (GameObject i in GameManagerScript.Instance.AllActiveCharacterList.Where(p => p == GameManagerScript.Instance.GetPlayableCharacterOBJ()).ToList().Concat(GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null)))
 			{
 				//カメラとの距離を計る
 				float tempDist = (transform.position - i.transform.position).sqrMagnitude;
