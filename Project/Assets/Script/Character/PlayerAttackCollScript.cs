@@ -99,7 +99,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 			ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => AttackEnable = reciever.AttackEnable(HitArts, AttackIndex));
 
 			//攻撃が有効なら処理実行
-			if (AttackEnable)
+			if (AttackEnable && HitArts != null)
 			{
 				//巻き込み攻撃でなければコライダを非アクティブ化
 				if (HitArts.ColType[AttackIndex] != 4 && HitArts.ColType[AttackIndex] != 5 && HitArts.ColType[AttackIndex] != 7 && HitArts.ColType[AttackIndex] != 8)
@@ -107,14 +107,8 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 					AttackCol.enabled = false;
 				}
 
-				//攻撃が当たった時の敵側の処理を呼び出す
-				ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(HitArts, AttackIndex));
-
-				//攻撃が当たった時のプレイヤー側の処理を呼び出す
-				ExecuteEvents.Execute<PlayerScriptInterface>(PlayerCharacter, null, (reciever, eventData) => reciever.HitAttack(Hit.gameObject.transform.root.gameObject, AttackIndex));
-
-				//ちゃんと技がある場合処理実行
-				if (HitArts.HitEffectList[AttackIndex] != "null" && HitArts != null)
+				//ヒットエフェクト
+				if (HitArts.HitEffectList[AttackIndex] != "null")
 				{
 					//使用するヒットエフェクトのインスタンス生成
 					HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == HitArts.HitEffectList[AttackIndex]).ToArray()[0]);
@@ -131,9 +125,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 						//ローカル座標で位置を設定
 						HitEffect.transform.localPosition = HitArts.HitEffectPosList[AttackIndex];
 					}
-					//巻き込み、当たった敵の場所に出す
-	
-					//飛び道具、敵の座標に出す
+					//飛び道具と巻き込み、敵の座標に出す
 					else if (HitArts.ColType[AttackIndex] == 2 || HitArts.ColType[AttackIndex] == 3 || HitArts.ColType[AttackIndex] == 4 || HitArts.ColType[AttackIndex] == 5)
 					{
 						//キャラクターから敵までのベクトルを正面とする
@@ -151,6 +143,12 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 					//親を解除する
 					HitEffect.transform.parent = null;
 				}
+
+				//攻撃が当たった時の敵側の処理を呼び出す
+				ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(HitArts, AttackIndex));
+
+				//攻撃が当たった時のプレイヤー側の処理を呼び出す
+				ExecuteEvents.Execute<PlayerScriptInterface>(PlayerCharacter, null, (reciever, eventData) => reciever.HitAttack(Hit.gameObject.transform.root.gameObject, AttackIndex));
 			}
 		}
 	}

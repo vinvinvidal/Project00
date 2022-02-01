@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8517004f7e957d7469777d478916b01c
+guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3
 ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable: []
@@ -93,5 +93,5 @@ ModelImporter:
   avatarSetup: 0
   additionalBone: 0
   userData: 
-  assetBundleName: 
+  assetBundleName: model/stage/stage05
   assetBundleVariant: 
