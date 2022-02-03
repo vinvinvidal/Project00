@@ -69,7 +69,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _TexNormal:
         m_Texture: {fileID: 2800000, guid: cdce69eaeff46e84faa593db5216742b, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     - _TexPaint:
         m_Texture: {fileID: 0}
