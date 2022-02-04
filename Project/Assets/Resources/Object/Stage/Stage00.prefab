@@ -717,7 +717,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TexPaint:
   - {fileID: 2800000, guid: 2ee06bf52e96707449c151aa23f2a4bf, type: 3}
-  - {fileID: 0}
+  - {fileID: 2800000, guid: fdbc97247f0608f4ca4ac8dbc4f22247, type: 3}
   - {fileID: 0}
 --- !u!1 &2722706740703978683
 GameObject:
@@ -3010,7 +3010,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[1]
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2100000, guid: 2271f05b37175b740a8f390e22d6aff7, type: 2}
     - target: {fileID: -802909894056850584, guid: a723e22baa6743641b5e3624e93c9d54,
         type: 3}
       propertyPath: m_Materials.Array.data[2]

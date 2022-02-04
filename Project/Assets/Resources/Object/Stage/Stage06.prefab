@@ -85,6 +85,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TexPaint:
   - {fileID: 0}
+  - {fileID: 2800000, guid: c01c3ae9915ebf0408fa5034ece8c1bb, type: 3}
 --- !u!114 &5574518929548685371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -891,6 +892,11 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: aa4e91f1cca4c164f9df1924850fd293, type: 2}
+    - target: {fileID: -5818927992106005294, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
+        type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4d19ea119ec5e654b9f049f77eae79c3, type: 2}
     - target: {fileID: -4897604920497869429, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
         type: 3}
       propertyPath: m_LocalRotation.x
