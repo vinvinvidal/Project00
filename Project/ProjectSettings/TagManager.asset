@@ -38,7 +38,7 @@ TagManager:
   - PlayerDamageCol
   - EnemyWeaponCol
   - PlayerWeaponCol
-  - 
+  - NotTouchObject
   - 
   - 
   m_SortingLayers:

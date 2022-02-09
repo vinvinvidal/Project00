@@ -1421,7 +1421,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 
 		//通常攻撃
-		if (Arts.ColType[n] != 7 && Arts.ColType[n] != 8)
+		if (Arts.ColType[n] != 7 && Arts.ColType[n] != 8 && Arts.ColType[n] != 4 && Arts.ColType[n] != 5)
 		{
 			//プレイヤーキャラクターの正面ベクトルを基準にノックバックベクトルを求める
 			KnockBackVec = Quaternion.LookRotation(PlayerCharacter.transform.forward, transform.up) * tempVector;
