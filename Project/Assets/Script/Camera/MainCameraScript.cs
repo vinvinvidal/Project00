@@ -99,6 +99,9 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 	//カメラとキャラクターの間にある障害物をチェックするRayに当たったコライダ情報を格納
 	private RaycastHit CameraRayHit;
 
+	//視線が遮られた時の経過時間
+	private float RayHitTimeCount = 0;
+
 	//地面の属性をチェックするRayに当たったコライダ情報を格納
 	private RaycastHit LocationRayHit;
 
@@ -228,18 +231,38 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 						//カメラの速度を変更、トレースポイントが溜まっているほど早くする
 						TraceCameraMoveSpeed = 0.1f * PlayerTraceList.Count;
 
+						//経過時間カウントアップ
+						RayHitTimeCount += Time.deltaTime;
+
+						//経過時間が過ぎたらカメラがハマってるのでリセット
+						if(RayHitTimeCount > 2)
+						{
+							//経過時間リセット
+							RayHitTimeCount = 0;
+
+							//カメラ位置リセット関数呼び出し
+							OnCameraReset();
+						}
+
 						//プレイヤーの位置をトレースする関数呼び出し
 						TracePlayer();
 					}
 					else
 					{
-						//カメラの速度を戻す
-						TraceCameraMoveSpeed = 1f;
-
-						//プレイヤーの位置をトレースするList初期化
-						if (PlayerTraceList.Count != 0)
+						//視線が通った瞬間の処理
+						if (PlayerTraceList.Count > 0)
 						{
+							//経過時間リセット
+							RayHitTimeCount = 0;
+
+							//プレイヤーの位置をトレースするList初期化
 							PlayerTraceList = new List<Vector3>();
+
+							//カメラの速度を戻す
+							TraceCameraMoveSpeed = 1f;
+
+							//現在のカメラ距離を測定して反映する
+							MainCameraTargetDistance = Vector3.Distance(MainCamera.transform.position, PlayerCharacter.transform.position);
 						}
 					}
 
@@ -436,7 +459,8 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		//カメラリセットフラグを立てる
 		CameraResetFlag = true;
 
-		//1フレーム待機
+		//1フレームだとたまにシケるので2フレーム待機
+		yield return null;
 		yield return null;
 
 		//カメラリセットフラグを下ろす
@@ -616,12 +640,25 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 	//プレイヤーの位置をトレースする関数
 	private void TracePlayer()
 	{
-		//プレイヤーの位置をトレースするListにAdd
+		//トレースリストに値が入っていない場合
 		if (PlayerTraceList.Count == 0)
 		{
+			//キャラクターが移動していない
+			if (PlayerCharacter.GetComponent<CharacterController>().velocity.sqrMagnitude == 0 && CameraMoveinputValue.sqrMagnitude != 0)
+			{
+				//カメラ移動入力値を逆算した位置をAdd
+				PlayerTraceList.Add(PlayerCharacter.transform.position + (MainCamera.transform.right * CameraMoveinputValue.x) + new Vector3(0, -CameraMoveinputValue.y, 0));
+			}
+			else
+			{
+				//プレイヤーの背後の位置をAdd
+				PlayerTraceList.Add(PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * 0.5f));
+			}
+			
+			//プレイヤーの現在位置をAdd
 			PlayerTraceList.Add(PlayerCharacter.transform.position);
 		}
-		//すでに入ってたらある程度離れてから追加する
+		//すでに値が入ってたらある程度離れてから追加する
 		else if ((PlayerTraceList[PlayerTraceList.Count - 1] - PlayerCharacter.transform.position).sqrMagnitude > Mathf.Pow(0.25f, 2) && PlayerTraceList.Count < 50) 
 		{
 			PlayerTraceList.Add(PlayerCharacter.transform.position);

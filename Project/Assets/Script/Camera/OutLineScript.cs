@@ -23,6 +23,7 @@ public class OutLineScript : GlobalClass
 
 	//最も離れているキャラクターとの距離
 	private float Distance;
+	private float TempDistance;
 
 	//カメラに設定されているレイヤーマスク
 	private int Mask;
@@ -64,7 +65,8 @@ public class OutLineScript : GlobalClass
 	private void Update()
 	{
 		//最も離れているキャラクターとの距離初期化
-		Distance = 0.0f;
+		Distance = 0;
+		TempDistance = 0;
 
 		//メインカメラとFOVを同期
 		PostEffectCamera.fieldOfView = MainCamera.fieldOfView;
@@ -76,17 +78,35 @@ public class OutLineScript : GlobalClass
 		}
 		else
 		{
-			//キャラクターとエネミーリストをLinqで合体させて回す
-			foreach (GameObject i in GameManagerScript.Instance.AllActiveCharacterList.Where(p => p == GameManagerScript.Instance.GetPlayableCharacterOBJ()).ToList().Concat(GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null)))
+			//まずキャラクターの位置を測る
+			foreach (GameObject i in GameManagerScript.Instance.AllActiveCharacterList.Where(a => a == GameManagerScript.Instance.GetPlayableCharacterOBJ()).ToList())
 			{
 				//カメラとの距離を計る
-				float tempDist = (transform.position - i.transform.position).sqrMagnitude;
+				TempDistance = (transform.position - i.transform.position).sqrMagnitude;
 
 				//距離を比較
-				if (Distance < tempDist)
+				if (Distance < TempDistance)
 				{
 					//遠かったら値を更新
-					Distance = tempDist;
+					Distance = TempDistance;
+				}
+			}
+
+			//敵の位置を測る
+			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(a => a!= null).ToList())
+			{
+				//カメラに入ってたら位置を比較
+				if(i.GetComponent<EnemyCharacterScript>().GetOnCameraBool())
+				{
+					//カメラとの距離を計る
+					TempDistance = (transform.position - i.transform.position).sqrMagnitude;
+
+					//距離を比較
+					if (Distance < TempDistance && TempDistance < 900)
+					{
+						//遠かったら値を更新
+						Distance = TempDistance;
+					}
 				}
 			}
 		}
