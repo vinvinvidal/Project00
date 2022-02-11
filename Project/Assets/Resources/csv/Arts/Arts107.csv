@@ -1,5 +1,5 @@
-NameC,鴉躙り
-NameH,からすにじり
+NameC,鱶跨ぎ
+NameH,ふかまたぎ
 UseCharacter,1
 Anim,Motion_1_AirAttack02
 MoveVec,0*0*1*1|0*5*1*1|0*10*0*1
@@ -7,7 +7,7 @@ Damage,1
 Stun,1
 ColVec,0*0.5*0*1.25
 KnockBackVec,0*-10*0*0.1
-Introduction,空中で木刀と両足の三点で踏み付ける、自身はまた空中へ。
+Introduction,相手を踏みつけて上空に上がる
 UnLock,2|0|1
 Chain,0
 MoveType,7|7|7
