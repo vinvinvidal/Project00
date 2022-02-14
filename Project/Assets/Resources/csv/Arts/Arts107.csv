@@ -2,10 +2,10 @@ NameC,鱶跨ぎ
 NameH,ふかまたぎ
 UseCharacter,1
 Anim,Motion_1_AirAttack02
-MoveVec,0*2.5*1*1|0*-10*0*1|0*10*0*1
+MoveVec,0*6*1*1|0*-15*0*1|0*12*0*1
 Damage,1
 Stun,1
-ColVec,0*0.5*0*1.25
+ColVec,0*0.25*0*1.25
 KnockBackVec,0*-10*0*0.1
 Introduction,相手を踏みつけて上空に上がる
 UnLock,2|0|1

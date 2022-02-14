@@ -5,5 +5,5 @@ MissionCharacter,0|1
 ChapterCharacter,1*0|0
 FirstCharacter,0|1
 ChapterStage,Stage00
-PlayerPos,13*-21.1*15
+PlayerPos,13*0*30
 CameraPos,5*2*0

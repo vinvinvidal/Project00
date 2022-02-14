@@ -4616,6 +4616,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//表情を普通に戻す
 			ChangeFace("Reset");
 
+			//重力加速度をリセット
+			GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
+
 			//空中ローリングの場合
 			if (s.Contains("-> AirRolling"))
 			{
@@ -4624,9 +4627,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//空中ローリング許可フラグを下ろす
 				AirRollingFlag = false;
-
-				//重力加速度をリセット
-				GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
 
 				//跳ねる
 				VerticalAcceleration = JumpPower * 0.9f;
