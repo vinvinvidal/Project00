@@ -177,13 +177,16 @@ MonoBehaviour:
   ActionEventList:
   - DestroyOBJ
   - DestroyOBJ
+  - DestroyOBJ
   ObjList: []
   FloatList: []
   AnimList: []
   StringList:
   - Stage03
   - Stage04
+  - Stage07
   PlayTimingList:
+  - IN
   - IN
   - IN
   ColorList: []
@@ -562,13 +565,16 @@ MonoBehaviour:
   ActionEventList:
   - DestroyOBJ
   - DestroyOBJ
+  - DestroyOBJ
   ObjList: []
   FloatList: []
   AnimList: []
   StringList:
   - Stage01_0
   - Stage04
+  - Stage07
   PlayTimingList:
+  - IN
   - IN
   - IN
   ColorList: []
@@ -949,13 +955,16 @@ MonoBehaviour:
   ActionEventList:
   - LoadOBJ
   - LoadOBJ
+  - LoadOBJ
   ObjList: []
   FloatList: []
   AnimList: []
   StringList:
   - Object/Stage/,Stage01_1
   - Object/Stage/,Stage04
+  - Object/Stage/,Stage07
   PlayTimingList:
+  - IN
   - IN
   - IN
   ColorList: []
@@ -1045,13 +1054,16 @@ MonoBehaviour:
   ActionEventList:
   - LoadOBJ
   - LoadOBJ
+  - LoadOBJ
   ObjList: []
   FloatList: []
   AnimList: []
   StringList:
   - Object/Stage/,Stage02
   - Object/Stage/,Stage04
+  - Object/Stage/,Stage07
   PlayTimingList:
+  - IN
   - IN
   - IN
   ColorList: []
@@ -1185,13 +1197,16 @@ MonoBehaviour:
   ActionEventList:
   - DestroyOBJ
   - DestroyOBJ
+  - DestroyOBJ
   ObjList: []
   FloatList: []
   AnimList: []
   StringList:
   - Stage03
   - Stage04
+  - Stage07
   PlayTimingList:
+  - IN
   - IN
   - IN
   ColorList: []
@@ -1281,13 +1296,16 @@ MonoBehaviour:
   ActionEventList:
   - LoadOBJ
   - LoadOBJ
+  - LoadOBJ
   ObjList: []
   FloatList: []
   AnimList: []
   StringList:
   - Object/Stage/,Stage02
   - Object/Stage/,Stage04
+  - Object/Stage/,Stage07
   PlayTimingList:
+  - IN
   - IN
   - IN
   ColorList: []
@@ -1743,13 +1761,16 @@ MonoBehaviour:
   ActionEventList:
   - LoadOBJ
   - LoadOBJ
+  - LoadOBJ
   ObjList: []
   FloatList: []
   AnimList: []
   StringList:
   - Object/Stage/,Stage01_1
   - Object/Stage/,Stage04
+  - Object/Stage/,Stage07
   PlayTimingList:
+  - IN
   - IN
   - IN
   ColorList: []
@@ -2050,13 +2071,16 @@ MonoBehaviour:
   ActionEventList:
   - DestroyOBJ
   - DestroyOBJ
+  - DestroyOBJ
   ObjList: []
   FloatList: []
   AnimList: []
   StringList:
   - Stage01_0
   - Stage04
+  - Stage07
   PlayTimingList:
+  - IN
   - IN
   - IN
   ColorList: []

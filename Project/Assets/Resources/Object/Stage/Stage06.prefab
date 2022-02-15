@@ -231,6 +231,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -3911156982393619672, guid: 757a9747843a0f2448ab79d0bd0c30c0,
+        type: 3}
+      propertyPath: m_TagString
+      value: Hall
+      objectReference: {fileID: 0}
     - target: {fileID: -1793513286952462107, guid: 757a9747843a0f2448ab79d0bd0c30c0,
         type: 3}
       propertyPath: m_CastShadows
