@@ -114,7 +114,7 @@
 			fixed4 frag(vertex_output i) : SV_Target
 			{
 				//出力用変数宣言、色を反映
-				fixed4 re = 1;
+				fixed4 re = (0,0,0,1);
 
 				//プレイヤーキャラクターとの高低差で色を付ける
 				re.rgb *= lerp(1, _MiniMapHighColor, saturate((i.worldPos.y - _PlayerCharacterPos) * 0.25f));
@@ -125,6 +125,8 @@
 				
 				//透明部分をクリップ
 				clip(re.a - 0.01);
+
+				re.a -= 0.1f;
 
 				//出力
 				return re;
