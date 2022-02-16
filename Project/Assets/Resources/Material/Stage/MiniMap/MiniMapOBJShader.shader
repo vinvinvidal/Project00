@@ -59,6 +59,9 @@
 				// 法線情報を取得
 				half3 normal : NORMAL;
 
+				//頂点カラー
+				float4 vertColor : COLOR;
+
 				// テクスチャ座標を取得
 				float2 uv : TEXCOORD0;
 			};
@@ -71,6 +74,9 @@
 
 				// 法線情報
 				half3 normal: NORMAL;
+
+				//頂点カラー
+				float4 vertColor : COLOR;
 
 				// テクスチャ座標
 				float2 uv : TEXCOORD0;
@@ -91,6 +97,9 @@
 				//法線をワールド座標系に変換
 				re.normal = UnityObjectToWorldNormal(v.normal);
 
+				//頂点カラー
+				re.vertColor = v.vertColor;
+
 				//出力　
 				return re;
 			}
@@ -99,7 +108,10 @@
 			fixed4 frag(vertex_output i) : SV_Target
 			{
 				//出力用変数宣言、色を反映
-				fixed4 re = _OBJColor;
+				fixed4 re = i.vertColor;
+				
+				//
+				re += _OBJColor;
 
 				//出力
 				return re;

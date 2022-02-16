@@ -37,10 +37,12 @@ public class B_GaugeScript : GlobalClass
 	
 	void Update()
     {
+		/*
 		//バリバリゲージの色を反映
 		B_GaugeImage.color = B_GaugeGradient.Evaluate(PlayerCharacter.GetComponent<PlayerScript>().B_Gauge);
 
 		//バリバリゲージの長さを反映
 		B_GaugeTransform.sizeDelta = new Vector2(B_GaugeTransform.rect.width, B_GaugeMAX * PlayerCharacter.GetComponent<PlayerScript>().B_Gauge);
+	*/
 	}
 }

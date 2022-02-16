@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 //メッセージシステムでイベントを受け取るためのインターフェイス
 public interface GameManagerScriptInterface : IEventSystemHandler
@@ -51,6 +52,9 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 
 	//スカイボックス取得、シーンの最初に呼び出す
 	void SetSkyBox();
+
+	//ミニマップ表示切り替え
+	void MiniMapSwitch(bool s);
 
 	//超必殺技暗転演出
 	void StartSuperArtsLightEffect(float t);
@@ -1773,6 +1777,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//プレイアブルキャラクターの戦闘中フラグを下ろす
 			//ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.SetFightingFlag(false));
 		}
+	}
+
+	//ミニマップ表示切り替え
+	public void MiniMapSwitch(bool s)
+	{
+		DeepFind(gameObject, "MiniMap").GetComponent<RawImage>().enabled = s;
 	}
 
 	//ポーズボタンを押した時

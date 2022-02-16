@@ -715,13 +715,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		B_Gauge = 1f;
 
 		//UIにカメラを追加
-		DeepFind(gameObject, "UI").GetComponent<Canvas>().worldCamera = MainCameraTransform.gameObject.GetComponent<Camera>();
+		//DeepFind(gameObject, "UI").GetComponent<Canvas>().worldCamera = MainCameraTransform.gameObject.GetComponent<Camera>();
 
 		//UIのパネルディタンス設定
-		DeepFind(gameObject, "UI").GetComponent<Canvas>().planeDistance = 0.15f;
+		//DeepFind(gameObject, "UI").GetComponent<Canvas>().planeDistance = 0.15f;
 
-		//UIのミニマップにテクスチャを設定
-		DeepFind(gameObject, "MiniMap").GetComponent<RawImage>().texture = GameObject.Find("MiniMapCamera").GetComponent<Camera>().targetTexture;
+
 
 		//ミニマップアイコンの色を設定
 		DeepFind(gameObject, "MiniMapArrow").GetComponent<Renderer>().material.SetColor("_OBJColor", MiniMapColor);

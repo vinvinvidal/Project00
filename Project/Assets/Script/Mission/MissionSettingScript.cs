@@ -132,7 +132,10 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 
 		//メインカメラの初期設定関数呼び出し
 		ExecuteEvents.Execute<MainCameraScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot"), null, (reciever, eventData) => reciever.MissionCameraSetting());
-		
+
+		//ミニマップ表示
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.MiniMapSwitch(true));
+
 		//読み込み完了したら時間を進める
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0, 1));
 
