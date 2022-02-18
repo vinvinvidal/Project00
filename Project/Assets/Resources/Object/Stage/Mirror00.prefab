@@ -102,7 +102,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2743420034058052632}
   - component: {fileID: 99850258551601366}
-  m_Layer: 24
+  m_Layer: 0
   m_Name: MirrorCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
