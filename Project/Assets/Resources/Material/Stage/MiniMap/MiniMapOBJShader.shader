@@ -5,6 +5,9 @@
 		//オブジェクトの色
 		_OBJColor("_OBJColor", Color) = (0, 0, 0, 1)
 
+		//ベーステクスチャ
+		_TexBase("_TexBase", 2D) = "white" {}
+
 		[Enum(UnityEngine.Rendering.CompareFunction)]_ZTest("_ZTest", Float) = 8
 	}
 
@@ -50,6 +53,8 @@
 			//変数宣言
 			fixed4 _OBJColor;					//オブジェクトの色
 
+			sampler2D _TexBase;				//表面テクスチャ
+
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
 			{
@@ -58,9 +63,6 @@
 
 				// 法線情報を取得
 				half3 normal : NORMAL;
-
-				//頂点カラー
-				float4 vertColor : COLOR;
 
 				// テクスチャ座標を取得
 				float2 uv : TEXCOORD0;
@@ -74,9 +76,6 @@
 
 				// 法線情報
 				half3 normal: NORMAL;
-
-				//頂点カラー
-				float4 vertColor : COLOR;
 
 				// テクスチャ座標
 				float2 uv : TEXCOORD0;
@@ -97,9 +96,6 @@
 				//法線をワールド座標系に変換
 				re.normal = UnityObjectToWorldNormal(v.normal);
 
-				//頂点カラー
-				re.vertColor = v.vertColor;
-
 				//出力　
 				return re;
 			}
@@ -107,10 +103,10 @@
 			//フラグメントシェーダ
 			fixed4 frag(vertex_output i) : SV_Target
 			{
-				//出力用変数宣言、色を反映
-				fixed4 re = i.vertColor;
+				//出力用変数宣言、ベーステクスチャを貼る
+				fixed4 re = tex2D(_TexBase, i.uv);
 				
-				//
+				//色を加算
 				re += _OBJColor;
 
 				//出力
