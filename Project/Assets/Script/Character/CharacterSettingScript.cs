@@ -17,6 +17,12 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 	//このキャラクターのID
 	public int ID;
 
+	//ミニマップアイコンの色
+	public Color MiniMapColor;
+
+	//ミニマップオブジェクト読み込み完了フラグ
+	private bool MiniMapOBJLoadCompleteFlag = false;
+
 	//髪オブジェクト読み込み完了フラグ
 	private bool HairLoadCompleteFlag = false;
 
@@ -43,6 +49,29 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 			//自身のCharacterClassを抽出して処理
 			if (i.CharacterID == ID)
 			{
+				//ミニマップ用オブジェクト読み込み
+				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/MiniMap/", "MiniMapPlayerArrow", "prefab", (object O) =>
+				{
+					//読み込んだオブジェクトをインスタンス化
+					GameObject MinimapOBJ = Instantiate(O as GameObject);
+
+					//キャラクターオブジェクトの子にする
+					MinimapOBJ.transform.parent = gameObject.transform;
+
+					//(Clone)を消す
+					MinimapOBJ.name = "MiniMapPlayerArrow";
+
+					//トランスフォームリセット
+					MinimapOBJ.transform.localPosition = new Vector3(0,0.1f,0);
+					MinimapOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+					//ミニマップアイコンの色を設定
+					//MinimapOBJ.GetComponentInChildren<Renderer>().material.SetColor("_OBJColor", MiniMapColor);
+
+					//読み込み完了フラグを立てる
+					MiniMapOBJLoadCompleteFlag = true;
+				}));
+
 				//顔テクスチャ読み込み
 				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Texture/Character/" + ID + "/Face/", "_TexFace0" + ID + "Base", "tga", (object O) =>
 				{
@@ -317,7 +346,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 	IEnumerator AllReadyCoroutine()
 	{
 		//読み込み完了するまで回る
-		while (!(HairLoadCompleteFlag && CostumeLoadCompleteFlag && WeaponLoadCompleteFlag && BaseTexLoadCompleteFlag && CheekTexLoadCompleteFlag))
+		while (!(HairLoadCompleteFlag && CostumeLoadCompleteFlag && WeaponLoadCompleteFlag && BaseTexLoadCompleteFlag && CheekTexLoadCompleteFlag && MiniMapOBJLoadCompleteFlag))
 		{
 			yield return null;
 		}

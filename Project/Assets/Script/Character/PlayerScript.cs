@@ -149,9 +149,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//超必殺技を発動できるバリバリゲージしきい値
 	public float SuperGauge;
 
-	//ミニマップアイコンの色
-	public Color MiniMapColor;
-
 	//--- 変動パラメータ ---//
 
 	//ライフゲージ
@@ -719,11 +716,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//UIのパネルディタンス設定
 		//DeepFind(gameObject, "UI").GetComponent<Canvas>().planeDistance = 0.15f;
-
-
-
-		//ミニマップアイコンの色を設定
-		DeepFind(gameObject, "MiniMapArrow").GetComponent<Renderer>().material.SetColor("_OBJColor", MiniMapColor);
 
 		//移動ベクトル用ダミー取得
 		PlayerMoveAxis = DeepFind(transform.gameObject, "PlayerMoveAxis");
