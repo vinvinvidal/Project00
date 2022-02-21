@@ -66,7 +66,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					MinimapOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 					//ミニマップアイコンの色を設定
-					//MinimapOBJ.GetComponentInChildren<Renderer>().material.SetColor("_OBJColor", MiniMapColor);
+					MinimapOBJ.GetComponentInChildren<Renderer>().material.SetColor("_OBJColor", MiniMapColor);
 
 					//読み込み完了フラグを立てる
 					MiniMapOBJLoadCompleteFlag = true;

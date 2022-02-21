@@ -111,6 +111,10 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 
 			//画角を調整
 			MirrorCamera.fieldOfView = 2 * Mathf.Atan(MirrorSize / (2 * MirrorDistance)) * Mathf.Rad2Deg;
+
+			//オブジェクトをカメラに向ける
+			MirrorOBJ.transform.LookAt(MainCamera.transform);
+
 		}
 		//敵顔ミラーオン
 		else if(OnMirror && EnemyFaceMirrorFlag)

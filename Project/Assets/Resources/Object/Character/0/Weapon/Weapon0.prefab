@@ -181,6 +181,7 @@ MonoBehaviour:
   - {x: 0.07, y: -0.01, z: 0.22}
   - {x: 0, y: 0.04, z: -0.03}
   - {x: 0, y: 0.04, z: -0.03}
+  WeaponAttachOBJMoveList: []
   WeaponAttachOBJRotateList:
   - {x: -56, y: -2, z: 230}
   - {x: 0, y: 180, z: 0}
@@ -665,7 +666,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 7b7b3f4a53d37de4abdbb9e3d8e1b832, type: 2}
+      objectReference: {fileID: 2100000, guid: e14039761f1fa9c4db98df4f2e054939, type: 2}
     - target: {fileID: -7467871760199066769, guid: bd8fd7943061471499bbd7c6346305ed,
         type: 3}
       propertyPath: m_Materials.Array.data[0]

@@ -10,9 +10,11 @@
 	{
 		Tags
 		{
-			"RenderType" = "Opaque"
-			"Queue" = "AlphaTest"
+			"Queue" = "Transparent"
+			"RenderType" = "Transparent"
 		}
+
+		ZTest Always
 
 		Pass
 		{
@@ -20,6 +22,16 @@
 			{
 				"LightMode" = "ForwardBase"
 			}
+
+			// ステンシルバッファの設定
+            Stencil
+			{
+                // ステンシルの番号
+                Ref 2
+
+                // Equal: ステンシルバッファの値がRefと同じであれば描画を行う
+                Comp Equal
+            }
 
 			//プログラム開始
 			CGPROGRAM
@@ -95,7 +107,7 @@
 				}
 
 				//透明部分をクリップ、消滅用の乱数精製
-				clip(re.a - 0.01);
+				//clip(re.a - 0.01);
 
 				//出力
 				return re;

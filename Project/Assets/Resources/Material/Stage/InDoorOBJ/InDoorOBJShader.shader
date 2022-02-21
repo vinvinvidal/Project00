@@ -27,7 +27,7 @@
 			}
 
 			//両面表示
-			Cull off
+			//Cull off
 
 			//プログラム開始
 			CGPROGRAM
