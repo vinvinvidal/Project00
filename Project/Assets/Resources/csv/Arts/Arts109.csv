@@ -6,7 +6,7 @@ MoveVec,0*0*-1*1|0*0*-5*1|0*0*2*1|0*0*7.5*1
 Damage,1
 Stun,1
 ColVec,0*1*1*1.5
-KnockBackVec,0*0*0*0.1
+KnockBackVec,0*-10*1*0.1
 Introduction,渾身の力を込めた一閃、溜め攻撃
 UnLock,0|1|1
 Chain,0
