@@ -242,9 +242,13 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						{
 							ii.transform.parent = DeepFind(gameObject, "R_KneeBone").transform;
 						}
-						else if (ii.name.Contains("Spine") && ii.name.Contains("Spine02"))
+						else if (ii.name.Contains("Spine02"))
 						{
 							ii.transform.parent = DeepFind(gameObject, "SpineBone.002").transform;
+						}
+						else if (ii.name.Contains("Spine01"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "SpineBone.001").transform;
 						}
 						else if (ii.name.Contains("R_") && ii.name.Contains("UpperLeg"))
 						{
@@ -273,6 +277,10 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						else if (ii.name.Contains("Pelvis"))
 						{
 							ii.transform.parent = DeepFind(gameObject, "PelvisBone").transform;
+						}
+						else if (ii.name.Contains("Neck"))
+						{
+							ii.transform.parent = DeepFind(gameObject, "NeckBone").transform;
 						}
 						else if (ii.name.Contains("L_") && ii.name.Contains("Shoulder"))
 						{

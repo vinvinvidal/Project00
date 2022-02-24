@@ -98,13 +98,27 @@ public class ActionEventScript : GlobalClass
 	{
 		//コルーチン呼び出し
 		StartCoroutine(EventRunCoroutine());
+
+		//多重実行防止処理
+		StartCoroutine(WaitColCoroutine());
+	}
+
+	private IEnumerator WaitColCoroutine()
+	{
+		//コリジョン無効化
+		gameObject.GetComponent<BoxCollider>().enabled = false;
+
+		//ちょっと待つ
+		yield return new WaitForSeconds(0.5f);
+
+		//コリジョン有効化
+		gameObject.GetComponent<BoxCollider>().enabled = true;
 	}
 
 	private IEnumerator EventRunCoroutine()
 	{
 		//ループ継続bool宣言
 		bool ContinueFlag = false;
-
 
 		//PlayerEventListの要素数だけ回す
 		for (int Count = 0; Count < ActionEventList.Count; Count++)
@@ -221,10 +235,10 @@ public class ActionEventScript : GlobalClass
 
 				}
 			}
-
+	
 			//ループを待つ、これをしないとロードで重複してエラーになる
 			while(ContinueFlag)
-			{
+			{				
 				//1フレーム待機
 				yield return null;
 			}

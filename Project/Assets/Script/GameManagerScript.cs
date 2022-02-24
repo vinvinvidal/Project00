@@ -1968,8 +1968,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			{
 				//依存データが未読み込みの場合処理を実行
 				if (!LoadedDataList.Contains(ii))
-				{
-					//依存データをロード
+				{                       //依存データをロード
 					LoadDependencyRequest = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + "/" + ii);
 
 					//ロードが終わるまで待つ
@@ -1988,7 +1987,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			{
 				//依存データをロードしたら本データをロード
 				LoadBundleRequest = AssetBundle.LoadFromFileAsync(Application.streamingAssetsPath + GenerateBundlePath(Dir + File));
-
+				
 				//ロードが終わるまで待つ
 				while (LoadBundleRequest.isDone == false)
 				{
