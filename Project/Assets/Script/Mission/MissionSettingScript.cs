@@ -50,6 +50,12 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 			CharacterCompleteFlagDic.Add(i, false);
 		}
 
+		//野外ライトのライトカラーを設定する
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.GradientChange(UseMissionClass.LightColorIndexList[0] , UseMissionClass.LightColorPosList[0]));
+
+		//屋内ライトのライトカラーを設定する
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.GradientChange(UseMissionClass.LightColorIndexList[1], UseMissionClass.LightColorPosList[1]));
+
 		//ミッションに参加するキャラクターを全て読み込むコルーチン呼び出し
 		StartCoroutine(LoadCharacterCoroutine());
 

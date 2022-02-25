@@ -34,8 +34,11 @@ public class MissionClass
 	//ミッションのチャプター毎のカメラ初期位置
 	public List<Vector3> CameraPosList;
 
-	//ミッション開始時に使用するライトカラー用グラデーションインデックス
-	public Gradient LightColorIndex;
+	//ミッション開始時に使用するライトカラー用グラデーションインデックス、0が野外1が屋内
+	public List<int> LightColorIndexList;
+
+	//ミッション開始時に使用するライトカラー用グラデーションのポジション、0が野外1が屋内
+	public List<float> LightColorPosList;
 
 	//コンストラクタ
 	public MissionClass
@@ -48,7 +51,9 @@ public class MissionClass
 		List<int> FCL,
 		List<string> ST,
 		List<Vector3> PPOS,
-		List<Vector3> CPOS
+		List<Vector3> CPOS,
+		List<int> LightG,
+		List<float> LightP
 	)
 	{
 		Num = n;
@@ -60,5 +65,7 @@ public class MissionClass
 		ChapterStageList = new List<string>(ST);
 		PlayableCharacterPosList = new List<Vector3>(PPOS);
 		CameraPosList = new List<Vector3>(CPOS);
+		LightColorIndexList = new List<int>(LightG);
+		LightColorPosList = new List<float>(LightP);
 	}
 }

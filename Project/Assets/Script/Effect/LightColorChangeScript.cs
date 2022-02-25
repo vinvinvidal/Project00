@@ -9,6 +9,9 @@ public interface LightColorChangeScriptInterface : IEventSystemHandler
 {
 	//ライトをカラーを変える
 	void LightChange(float t, float n, Action act);
+
+	//ライトグラデーションを切り替える
+	void GradientChange(int i, float p);
 }
 public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterface
 {
@@ -19,15 +22,28 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 	private Light LightComp;
 
 	//現在のグラデーションポジション
-	public float LightColorPos;
+	private float LightColorPos;
+
+	//現在使用しているグラデーションインデックス
+	private int GradientIndex = 0;
 
 	void Start()
     {
 		//ライトコンポーネント取得
 		LightComp = gameObject.GetComponent<Light>();
+	}
+
+	//ライトグラデーションを切り替える
+	public void GradientChange(int i, float p)
+	{
+		//グラデーションインデックス更新
+		GradientIndex = i;
+
+		//グラデーションポジション更新
+		LightColorPos = p;
 
 		//ライトカラー設定
-		//LightComp.color = LightColorGradient.Evaluate(LightColorPos);
+		LightComp.color = LightColorGradientList[GradientIndex].Evaluate(LightColorPos);
 	}
 
 	//ライトをカラーを変える
@@ -53,7 +69,7 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 			FadeTime += Time.deltaTime;
 
 			//ライトカラーに反映
-			//LightComp.color = LightColorGradient.Evaluate(LightColorPos + (LightNum * FadeTime / t));
+			LightComp.color = LightColorGradientList[GradientIndex].Evaluate(LightColorPos + (LightNum * FadeTime / t));
 
 			//1フレーム待機
 			yield return null;
@@ -63,7 +79,7 @@ public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterfa
 		LightColorPos = n;
 
 		//ライトカラーに反映
-		//LightComp.color = LightColorGradient.Evaluate(LightColorPos);
+		LightComp.color = LightColorGradientList[GradientIndex].Evaluate(LightColorPos);
 
 		//匿名関数実行
 		act();

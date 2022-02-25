@@ -722,6 +722,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				List<string> ChapterStage = null;
 				List<Vector3> CharacterPosListt = new List<Vector3>();
 				List<Vector3> CameraPosList = new List<Vector3>();
+				List<int> LightG = new List<int>();
+				List<float> LightP = new List<float>();
 
 				//改行で分割して回す
 				foreach (string ii in i.Split('\n').ToList())
@@ -780,11 +782,29 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 							}
 
 							break;
+
+						case "LightG":
+
+							foreach (var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
+							{
+								LightG.Add(int.Parse(iii));
+							}
+
+							break;
+
+						case "LightP":
+
+							foreach (var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
+							{
+								LightP.Add(float.Parse(iii));
+							}
+
+							break;
 					}
 				}
 
 				//ListにAdd
-				AllMissionList.Add(new MissionClass(Num, MissionTitle, Introduction, MissionCharacter, ChapterCharacter, FirstCharacter, ChapterStage, CharacterPosListt, CameraPosList));
+				AllMissionList.Add(new MissionClass(Num, MissionTitle, Introduction, MissionCharacter, ChapterCharacter, FirstCharacter, ChapterStage, CharacterPosListt, CameraPosList, LightG, LightP));
 			}
 
 			//読み込み完了フラグを立てる

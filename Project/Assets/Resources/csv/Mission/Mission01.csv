@@ -7,3 +7,5 @@ FirstCharacter,1
 ChapterStage,Stage00|Stage01|Stage02
 PlayerPos,3*0.5*0
 CameraPos,5*2*0|0*0*0|1*1*1
+LightG,1|1
+LightP,1|0.5
