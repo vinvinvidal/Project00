@@ -34,6 +34,9 @@ public class MissionClass
 	//ミッションのチャプター毎のカメラ初期位置
 	public List<Vector3> CameraPosList;
 
+	//ミッション開始時に使用するライトカラー用グラデーションインデックス
+	public Gradient LightColorIndex;
+
 	//コンストラクタ
 	public MissionClass
 	(

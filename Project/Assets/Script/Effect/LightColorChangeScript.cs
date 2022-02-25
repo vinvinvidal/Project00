@@ -7,103 +7,63 @@ using UnityEngine.EventSystems;
 //他のスクリプトから関数を呼ぶ為のインターフェイス
 public interface LightColorChangeScriptInterface : IEventSystemHandler
 {
-	//ライトを点ける
-	void LightOn(float t, float n, Action act);
-
-	//ライトを消す
-	void LightOff(float t, float n, float i, Action act);
+	//ライトをカラーを変える
+	void LightChange(float t, float n, Action act);
 }
 public class LightColorChangeScript : GlobalClass, LightColorChangeScriptInterface
 {
-	//ライトカラーグラデーション
-	public Gradient LightColorGradient = new Gradient();
+	//ライトカラーグラデーションList
+	public List<Gradient> LightColorGradientList = new List<Gradient>();
 
 	//ライトコンポーネント
 	private Light LightComp;
 
-	//元のライトカラー
-	private Color LightColor;
+	//現在のグラデーションポジション
+	public float LightColorPos;
 
 	void Start()
     {
 		//ライトコンポーネント取得
 		LightComp = gameObject.GetComponent<Light>();
 
-		//元のライトカラー取得
-		LightColor = LightComp.color;
+		//ライトカラー設定
+		//LightComp.color = LightColorGradient.Evaluate(LightColorPos);
 	}
 
-	//ライトを点ける
-	public void LightOn(float t, float n, Action act)
+	//ライトをカラーを変える
+	public void LightChange(float t, float n, Action act)
 	{
 		//コルーチン呼び出し
-		StartCoroutine(LightOnCoroutine(t, n, act));
+		StartCoroutine(LightChangeCoroutine(t, n, act));
 	}
 
-	//ライトを消す
-	public void LightOff(float t, float n, float i, Action act)
+	//ライトをカラーを変えるコルーチン
+	private IEnumerator LightChangeCoroutine(float t, float n, Action act)
 	{
-		//コルーチン呼び出し
-		StartCoroutine(LightOffCoroutine(t, n, i, act));
-	}
+		//受け取った値と現在値の差を求める
+		float LightNum = n - LightColorPos;
 
-	//ライトを点けるコルーチン
-	private IEnumerator LightOnCoroutine(float t, float n, Action act)
-	{
-		//ライト係数
-		float LightNum = 0;
-
-		//時間
+		//経過時間
 		float FadeTime = 0;
 
-		while(LightNum < 1)
+		//フェード時間中ループ
+		while (FadeTime < t)
 		{
-			//経過時間算出
+			//経過時間更新
 			FadeTime += Time.deltaTime;
 
-			//ライト係数算出
-			LightNum = FadeTime / t;
-
 			//ライトカラーに反映
-			LightComp.color = LightColorGradient.Evaluate(LightNum * n) * LightColor;
+			//LightComp.color = LightColorGradient.Evaluate(LightColorPos + (LightNum * FadeTime / t));
 
 			//1フレーム待機
 			yield return null;
 		}
 
-		//ライトカラーを目的の位置にする
-		LightComp.color = LightColor;
+		//ライトカラーポジションを更新
+		LightColorPos = n;
 
-		//匿名関数実行
-		act();
-	}
-
-	//ライトを消すコルーチン
-	private IEnumerator LightOffCoroutine(float t, float n, float i, Action act)
-	{
-		//ライト係数
-		float LightNum = 1;
-
-		//時間
-		float FadeTime = t;
-
-		while (LightNum > 0)
-		{
-			//経過時間算出
-			FadeTime -= Time.deltaTime;
-
-			//ライト係数算出
-			LightNum = FadeTime / t;
-
-			//ライトカラーに反映
-			LightComp.color = LightColorGradient.Evaluate(LightNum * n + i);
-
-			//1フレーム待機
-			yield return null;
-		}
-
-		//ライトカラーを目的の位置にする
-		LightComp.color = LightColorGradient.Evaluate(i);
+		//ライトカラーに反映
+		//LightComp.color = LightColorGradient.Evaluate(LightColorPos);
 
 		//匿名関数実行
 		act();

@@ -1433,8 +1433,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		StartCoroutine(SkyBoxOffCoroutine(t));
 
 		//他のライトを消す
-		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 1, 0.2f, () => { }));
-		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightOff(t, 0.5f, 0.2f, () => { }));
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightChange(t, 0.1f, () => { }));
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightChange(t, 0.1f, () => { }));
 
 		//演出用ライト点灯
 		DeepFind(gameObject, "SuperArtsLight").GetComponent<Light>().enabled = true;
@@ -1447,16 +1447,26 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//スカイボックスをフェードで点ける
 		StartCoroutine(SkyBoxOnCoroutine(t));
 
+		//演出用ライト消灯
+		DeepFind(gameObject, "SuperArtsLight").GetComponent<Light>().enabled = false;
+
+		//キャラクターの顔シェーダーのライト切り替え
+		ExecuteEvents.Execute<CharacterFaceShaderScriptInterface>(PlayableCharacterOBJ.GetComponentInChildren<CharacterFaceShaderScript>().gameObject, null, (rec, eve) => rec.ChangeLight(DeepFind(gameObject, "OutDoorLight").transform));
+
 		//他のライトを点ける
-		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightOn(t, 1, () =>{}));
-		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightOn(t, 0.5f, () =>
+		if (MainCamera.GetComponent<MainCameraScript>().Location.Contains("In"))
 		{
-			//演出用ライト消灯
-			DeepFind(gameObject, "SuperArtsLight").GetComponent<Light>().enabled = false;
-
-			//キャラクターの顔シェーダーのライト切り替え
-			ExecuteEvents.Execute<CharacterFaceShaderScriptInterface>(PlayableCharacterOBJ.GetComponentInChildren<CharacterFaceShaderScript>().gameObject, null, (rec, eve) => rec.ChangeLight(DeepFind(gameObject, "OutDoorLight").transform));
-
+			//屋内
+			ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightChange(t, 0.65f, () => { }));
+		}
+		else
+		{
+			//野外
+			ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightChange(t, 1f, () => { }));
+		}
+		
+		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.LightChange(t, 0.5f, () =>
+		{
 			//敵ポーズ解除
 			foreach (GameObject i in AllActiveEnemyList)
 			{
@@ -1520,38 +1530,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//正規化
 		SkyBoxMaterial.SetFloat("_Exposure", 1);
-	}
-
-	//ロケーションによってライトを変更する
-	public void ChangeLocationLight(string l)
-	{
-		Color tempcolor = Color.white;
-
-		if (l == "In")
-		{
-			tempcolor = new Color(0.75f, 0.75f, 0.75f,1);
-		}
-
-		//コルーチン呼び出し
-		StartCoroutine(ChangeLocationLightCoroutine(tempcolor));
-	}	
-	private IEnumerator ChangeLocationLightCoroutine(Color c)
-	{
-		float time = Time.time;
-
-		Color tempcolor = OutDoorLight.GetComponent<Light>().color;
-
-		while (Time.time - time < 1)
-		{
-			tempcolor.r = Mathf.Lerp(tempcolor.r, c.r, Time.time - time);
-			tempcolor.g = Mathf.Lerp(tempcolor.g, c.g, Time.time - time);
-			tempcolor.b = Mathf.Lerp(tempcolor.b, c.b, Time.time - time);
-			tempcolor.a = Mathf.Lerp(tempcolor.a, c.a, Time.time - time);
-
-			OutDoorLight.color = tempcolor;
-
-			yield return null;
-		}
 	}
 
 	//プレイヤーの攻撃時にロック対象を検索する関数、boolがfalseならnullを返す。メッセージシステムから呼び出される

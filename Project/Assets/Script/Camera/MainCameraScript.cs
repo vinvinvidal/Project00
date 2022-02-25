@@ -109,7 +109,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 	public LayerMask RayMask;
 
 	//屋外などのロケーション情報
-	private string Location;
+	public string Location { get; set; }
 
 	//コライダヒット情報
 	private ControllerColliderHit ColHit = null;
@@ -594,13 +594,14 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 				//ロケーション更新
 				Location = LocationRayHit.collider.name;
 
+				//ライトカラー変更
 				if(Location.Contains("InDoor"))
 				{
-					GameManagerScript.Instance.ChangeLocationLight("In");
+					ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightChange(0.5f, 0.65f, () => { }));
 				}
 				else if (Location.Contains("OutDoor"))
 				{
-					GameManagerScript.Instance.ChangeLocationLight("Out");
+					ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightChange(0.5f, 1, () => { }));
 				}
 			}
 		}
