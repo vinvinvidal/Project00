@@ -339,6 +339,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	[Header("着地モーション")]
 	public AnimationClip Crouch_Anim;
 
+	[Header("ハード着地モーション")]
+	public AnimationClip HardLanding_Anim;	
+
 	[Header("地上ローリングモーション")]
 	public AnimationClip GroundRolling_Anim;
 
@@ -683,6 +686,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		OverRideAnimator["Fall_void"] = Fall_Anim;
 		OverRideAnimator["Drop_void"] = Fall_Anim;
 		OverRideAnimator["Crouch_void"] = Crouch_Anim;
+		OverRideAnimator["HardLanding_void"] = HardLanding_Anim;
 		OverRideAnimator["GroundRolling_void"] = GroundRolling_Anim;
 		OverRideAnimator["AirRolling_void"] = AirRolling_Anim;
 		OverRideAnimator["ChainBreak_void_0"] = Idling1_Anim;
@@ -693,8 +697,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		OverRideAnimator["BaseFace_void"] = BaseFace_Anim;
 		OverRideAnimator["EyeClose_void"] = EyeClose_Anim;
 		OverRideAnimator["MouthClose_void"] = MouthClose_Anim;
-		OverRideAnimator["Nipple_void"] = NippleBase_Anim;
+		OverRideAnimator["Nipple_void"] = NippleBase_Anim;		
 		OverRideAnimator["Genital_void"] = GenitalBase_Anim;
+		
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -946,6 +951,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AllStates.Add("Fall");
 		AllStates.Add("Jump");
 		AllStates.Add("Crouch");
+		AllStates.Add("HardLanding");
 		AllStates.Add("GroundRolling");
 		AllStates.Add("AirRolling");
 		AllStates.Add("Attack00");
@@ -966,7 +972,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AllStates.Add("SuperTry");
 		AllStates.Add("SuperArts");
 		AllStates.Add("ChangeBefore");
-		AllStates.Add("ChangeAfter");
+		AllStates.Add("ChangeAfter");		
 
 		//全てのステートとトランジションをListにAdd
 		foreach (string i in AllStates)
@@ -1595,6 +1601,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if (!OnGroundFlag)
 		{
 			GravityAcceleration += Physics.gravity.y * 2 * Time.deltaTime;
+
+			//落下速度が一定以下ならハードランディング
+			if (VerticalAcceleration + GravityAcceleration < -20)
+			{				
+				CurrentAnimator.SetBool("HardLanding", CurrentState == "Fall");
+			}
+			else
+			{
+				CurrentAnimator.SetBool("HardLanding", false);
+			}
 		}
 
 		//急斜面にいる時の処理
@@ -1786,7 +1802,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}				
 		}
 		//空中移動制御
-		else if(CurrentState.Contains("Jump") || CurrentState.Contains("Fall"))
+		else if((CurrentState.Contains("Jump") || CurrentState.Contains("Fall")) && !CurrentState.Contains("HardLanding"))
 		{
 			//入力ベクトルキャッシュ
 			Vector3 tempVector = (PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x);
@@ -3191,12 +3207,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//攻撃を強制終了
 				EndAttack();
 
-				//ローリングの正面を設定
-				RollingRotateVector = transform.forward;
-
-				//強制的にローリング実行
-				CurrentAnimator.SetBool("Crouch", true);
-				CurrentAnimator.SetBool("Rolling", true);
+				//HardLanding遷移フラグを下す
+				CurrentAnimator.SetBool("HardLanding", true);
 
 				//ローリングを避けて抜ける先
 				StompingLoopBreak:;
@@ -4266,6 +4278,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			||
 			s.Contains("Stop")
 			||
+			s.Contains("HardLanding")
+			||
 			s == "Idling"
 			||
 			s == "Crouch"
@@ -4310,6 +4324,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			||
 			s.Contains("Stop")
 			||
+			s.Contains("HardLanding")
+			||
 			s == "Idling"
 			||
 			s == "Run"
@@ -4334,6 +4350,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			s.Contains("Attack")
 			||
 			s.Contains("Stop")
+			||
+			s.Contains("HardLanding")
 			||
 			s == "Idling"
 			||
@@ -4374,6 +4392,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			||
 			s.Contains("Stop")
 			||
+			s.Contains("HardLanding")
+			||
 			s == "Idling"
 			||
 			s == "Run"
@@ -4396,6 +4416,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			s.Contains("Attack")
 			||
 			s.Contains("Stop")
+			||
+			s.Contains("HardLanding")
 			||
 			s == "Idling"
 			||
@@ -4432,6 +4454,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			s.Contains("Attack")
 			||
 			s.Contains("Stop")
+			||
+			s.Contains("HardLanding")
 			||
 			s == "Idling"
 			||
@@ -4491,6 +4515,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//フラグ状態をまっさらに戻す関数呼び出し
 			ClearFlag();
+		}
+		//HardLandingになった瞬間の処理
+		else if (s.Contains("-> HardLanding"))
+		{
+			//HardLanding遷移フラグを下す
+			CurrentAnimator.SetBool("HardLanding", false);
 		}
 		//ChangeBeforeになった瞬間の処理
 		else if (s.Contains("-> ChangeBefore"))
