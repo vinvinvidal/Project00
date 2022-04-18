@@ -50,36 +50,36 @@ MonoBehaviour:
   _TexFaceHiLight: {fileID: 2800000, guid: a0051b461e6c9754198a4a63993c9894, type: 3}
   _TexFaceHiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729,
     type: 3}
-  _TexFaceShadowFront: {fileID: 2800000, guid: 78895aafad616d34c9ad652305c23948, type: 3}
-  _TexFaceShadowFrontTop: {fileID: 2800000, guid: de236e9451446d14aa5108aa191a3872,
+  _TexFaceShadowFront: {fileID: 2800000, guid: 9d59a47db9df55e47a170647cda56904, type: 3}
+  _TexFaceShadowFrontTop: {fileID: 2800000, guid: 82532c2e315e3444997b5e0aac718edb,
     type: 3}
-  _TexFaceShadowFrontLeft: {fileID: 2800000, guid: e1f86afe2087feb4d8fc34cb8b6a570f,
+  _TexFaceShadowFrontLeft: {fileID: 2800000, guid: a6a159e69f8580143b9e47233610d9c6,
     type: 3}
-  _TexFaceShadowFrontRight: {fileID: 2800000, guid: 3b5ea90196b5c864cba962d14caf986d,
+  _TexFaceShadowFrontRight: {fileID: 2800000, guid: cdc1d2060bca41145abf300ef4d86f57,
     type: 3}
-  _TexFaceShadowFrontBottom: {fileID: 2800000, guid: 0c149fb94472b084d944d1f72b494b93,
+  _TexFaceShadowFrontBottom: {fileID: 2800000, guid: 510b91a80e653bd4691bce1b612f94c5,
     type: 3}
-  _TexFaceShadowBack: {fileID: 2800000, guid: e9f519716e54c81449bcb7e0a347018d, type: 3}
-  _TexFaceShadowBackTop: {fileID: 2800000, guid: d34a7dee8a3c1454398eada885175d88,
+  _TexFaceShadowBack: {fileID: 2800000, guid: dc226f769cb983644b2fb4ff75cdae77, type: 3}
+  _TexFaceShadowBackTop: {fileID: 2800000, guid: 6e98d1d7ada3f8341a3b91a81cc83496,
     type: 3}
-  _TexFaceShadowBackLeft: {fileID: 2800000, guid: a870b2d0f64a68a479c541b37b093617,
+  _TexFaceShadowBackLeft: {fileID: 2800000, guid: c553f2d061e000f48a007e0dad844209,
     type: 3}
-  _TexFaceShadowBackRight: {fileID: 2800000, guid: 199232dd3aae766429a0aff0fbdeaf65,
+  _TexFaceShadowBackRight: {fileID: 2800000, guid: b9b5924152fb6c342b95afa0f4642f24,
     type: 3}
-  _TexFaceShadowBackBottom: {fileID: 2800000, guid: 61dfe585dfca4124aa9ee4059fed8fc8,
+  _TexFaceShadowBackBottom: {fileID: 2800000, guid: 71abfa3f363fda847a43086c122de209,
     type: 3}
-  _TexFaceShadowLeft: {fileID: 2800000, guid: 7742b44de4fb51c47a11d330f2efc1d7, type: 3}
-  _TexFaceShadowLeftTop: {fileID: 2800000, guid: e6044462de0024b4dae3dac7367a0e6a,
+  _TexFaceShadowLeft: {fileID: 2800000, guid: c563675907e672f4d8144cd2e0f57aaa, type: 3}
+  _TexFaceShadowLeftTop: {fileID: 2800000, guid: e3f42190f45668c4f9c045557d38fad3,
     type: 3}
-  _TexFaceShadowLeftBottom: {fileID: 2800000, guid: 58e7b090169cf374aa1d97b11a2c5952,
+  _TexFaceShadowLeftBottom: {fileID: 2800000, guid: e6a382af567d58b4594a2a8ac87efd81,
     type: 3}
-  _TexFaceShadowRight: {fileID: 2800000, guid: 7525f4923a5329b4d8148443cc10c8cf, type: 3}
-  _TexFaceShadowRightTop: {fileID: 2800000, guid: 1f31da57b3eeee6409e7c9ee4cac8a81,
+  _TexFaceShadowRight: {fileID: 2800000, guid: 955790bd8d2a32b4ba9b7853662cfc9d, type: 3}
+  _TexFaceShadowRightTop: {fileID: 2800000, guid: f9827131a5bdcd04cb0dd534aa9a05a1,
     type: 3}
-  _TexFaceShadowRightBottom: {fileID: 2800000, guid: 9d1dd2f74915c3849aebc5e7986a6608,
+  _TexFaceShadowRightBottom: {fileID: 2800000, guid: 7f4b8100875748041aa8f3a89b39d9cc,
     type: 3}
-  _TexFaceShadowTop: {fileID: 2800000, guid: b51684f1e40a23c4ab34a815062c7466, type: 3}
-  _TexFaceShadowBottom: {fileID: 2800000, guid: c8a015fc123fb344cbc5ed6a16cc0c78,
+  _TexFaceShadowTop: {fileID: 2800000, guid: 1c23d183e33910748bbf1d59e56ef18e, type: 3}
+  _TexFaceShadowBottom: {fileID: 2800000, guid: db81170fa33a0794e91982e5cd070854,
     type: 3}
 --- !u!1 &4947065565102491961
 GameObject:
@@ -105,7 +105,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4947065565102491961}
-  m_LocalRotation: {x: -0, y: -0, z: 0.00000009362675, w: 1}
+  m_LocalRotation: {x: -0.00017246048, y: -0, z: 0, w: 1}
   m_LocalPosition: {x: 0.00000009321098, y: -0.00000023841858, z: 0.0000003222376}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -121,8 +121,8 @@ RotationConstraint:
   m_GameObject: {fileID: 4947065565102491961}
   m_Enabled: 1
   m_Weight: 1
-  m_RotationAtRest: {x: 0, y: 0, z: 0}
-  m_RotationOffset: {x: -89.980225, y: 0, z: -180}
+  m_RotationAtRest: {x: -0.019762505, y: 0, z: 0}
+  m_RotationOffset: {x: -89.980225, y: 0, z: 180}
   m_AffectRotationX: 1
   m_AffectRotationY: 1
   m_AffectRotationZ: 1
@@ -388,6 +388,11 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: fd18bfe1f42f05145bcceed001c805b0, type: 2}
+    - target: {fileID: 2563666737632206272, guid: b6fe6732093989a46a02e790e1facc4f,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4844402533665829127, guid: b6fe6732093989a46a02e790e1facc4f,
         type: 3}
       propertyPath: m_LocalRotation.x
@@ -437,6 +442,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 6302517995333052161, guid: b6fe6732093989a46a02e790e1facc4f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7369899320410579237, guid: b6fe6732093989a46a02e790e1facc4f,
         type: 3}
