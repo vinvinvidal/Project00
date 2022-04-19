@@ -65,6 +65,8 @@ public interface PlayerScriptInterface : IEventSystemHandler
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
 {
+	public bool BoneMoveSwitch;
+
 
 	//--- オブジェクト　コンポーネント類 ---//
 
@@ -1036,7 +1038,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	void LateUpdate()
 	{
 		//位置合わせが必要な時は揺らさない
-		if(!CurrentState.Contains("Super") && !CurrentState.Contains("Special"))
+		if(!CurrentState.Contains("Super") && !CurrentState.Contains("Special") && BoneMoveSwitch)
 		{
 			//ループカウント
 			int count = 0;

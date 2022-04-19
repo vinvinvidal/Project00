@@ -1,0 +1,12 @@
+L_NameC,禍宮
+L_NameH,まがいみや
+F_NameC,泉
+F_NameH,せん
+CharacterID,2
+OBJname,Character02
+PlayerMoveSpeed,6.5
+PlayerDashSpeed,9
+RollingSpeed,8
+JumpPower,10
+TurnSpeed,800
+AttackDistance,5

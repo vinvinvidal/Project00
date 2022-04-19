@@ -2200,6 +2200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee9fcb5866324b04e9bd7fc813581d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BoneMoveSwitch: 1
   SuperGauge: 1
   Idling0_Anim: {fileID: 7400000, guid: 724c1bd9e558d94498fd52b4fd407a42, type: 2}
   Idling1_Anim: {fileID: 7400000, guid: ef0cfb421a1df4f44b46a7bd1f7fb80b, type: 2}
@@ -3438,7 +3439,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.x
       value: -90
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5866666021909216657, guid: 09109e0ac0b7de84cba1f5cb1e2402ca, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 09109e0ac0b7de84cba1f5cb1e2402ca, type: 3}
 --- !u!4 &4480147271590106962 stripped
 Transform:
