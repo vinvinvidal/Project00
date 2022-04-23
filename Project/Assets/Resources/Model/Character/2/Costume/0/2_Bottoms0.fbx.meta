@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: cca7a6e8ae31d04418af9d52d1d765ec
+guid: 6a86aa98ccffc1c45b41c9f658900d8f
 ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable: []
@@ -93,5 +93,5 @@ ModelImporter:
   avatarSetup: 0
   additionalBone: 0
   userData: 
-  assetBundleName: model/character/2/costume/0/2_tops0
+  assetBundleName: model/character/2/costume/0/2_bottoms0
   assetBundleVariant: 
