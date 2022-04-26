@@ -42,8 +42,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 0.1
-  m_Center: {x: -0.017, y: 0.06, z: 0.01}
+  m_Radius: 0.105
+  m_Center: {x: -0.015, y: 0.06, z: 0.01}
 --- !u!1 &1472636042359912280
 GameObject:
   m_ObjectHideFlags: 0
@@ -761,7 +761,7 @@ SkinnedMeshRenderer:
   m_SortingOrder: 0
   serializedVersion: 2
   m_Quality: 0
-  m_UpdateWhenOffscreen: 0
+  m_UpdateWhenOffscreen: 1
   m_SkinnedMotionVectors: 1
   m_Mesh: {fileID: 6844767082218302590, guid: 965ddea92d9af994b944fd1515a6cc02, type: 3}
   m_Bones:
@@ -876,8 +876,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 0}
   m_AABB:
-    m_Center: {x: 0.000000007450581, y: -0.031089753, z: 1.1581151}
-    m_Extent: {x: 0.089003496, y: 0.11113198, z: 0.08549857}
+    m_Center: {x: 1.8912909e+24, y: 0, z: 1.8773378e+24}
+    m_Extent: {x: 2.3295226e+23, y: 0, z: 1.6407774e+23}
   m_DirtyAABB: 0
 --- !u!114 &3491661561367572099
 MonoBehaviour:
@@ -1186,8 +1186,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 0.1
-  m_Center: {x: 0.017, y: 0.06, z: 0.01}
+  m_Radius: 0.105
+  m_Center: {x: 0.015, y: 0.06, z: 0.01}
 --- !u!1 &3492853881833055707
 GameObject:
   m_ObjectHideFlags: 0
@@ -1962,8 +1962,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 0}
   m_AABB:
-    m_Center: {x: 0, y: -0.009182118, z: 0.9462574}
-    m_Extent: {x: 0.6006677, y: 0.12442645, z: 0.30875474}
+    m_Center: {x: NaN, y: NaN, z: NaN}
+    m_Extent: {x: NaN, y: NaN, z: NaN}
   m_DirtyAABB: 0
 --- !u!114 &6933994239509654943
 MonoBehaviour:
@@ -3920,6 +3920,10 @@ Cloth:
     second: {fileID: 2296815745222208102}
   - first: {fileID: 950289009866063950}
     second: {fileID: 8405276169171509429}
+  - first: {fileID: 950289009866063950}
+    second: {fileID: 5993779791947572550}
+  - first: {fileID: 6882639305520133635}
+    second: {fileID: 3425992603092131797}
   m_SelfCollisionDistance: 0
   m_SelfCollisionStiffness: 0.2
   m_SelfAndInterCollisionIndices: 
