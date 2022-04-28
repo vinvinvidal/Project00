@@ -1382,6 +1382,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//ノックバック処理
 	IEnumerator DamageKnockBack(ArtsClass Arts, int n)
 	{
+		//1フレーム待機
+		yield return null;
+
 		//ノックバックフラグが立つまで待機
 		while (PauseFlag || !KnockBackFlag)
 		{
@@ -1482,7 +1485,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//ノックバックの移動ベクトル初期化
 		KnockBackVec *= 0;
-
+		
 		//コルーチンを抜ける
 		yield break;
 	}
