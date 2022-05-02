@@ -1327,7 +1327,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
       cycleCount: 0
-      repeatInterval: 0.05
+      repeatInterval: 0.025
       probability: 1
   SizeModule:
     enabled: 1
@@ -1349,7 +1349,7 @@ ParticleSystem:
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.5
+          time: 0.4
           value: 0.05
           inSlope: -0.045262303
           outSlope: -0.045262303
@@ -1671,8 +1671,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 1, b: 1, a: 0}
-        key1: {r: 1, g: 1, b: 1, a: 0.5019608}
+        key0: {r: 1, g: 1, b: 1, a: 0.2509804}
+        key1: {r: 1, g: 1, b: 1, a: 0.7529412}
         key2: {r: 0, g: 0, b: 0, a: 0.5019608}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
@@ -1688,7 +1688,7 @@ ParticleSystem:
         ctime6: 0
         ctime7: 0
         atime0: 0
-        atime1: 16384
+        atime1: 6554
         atime2: 32768
         atime3: 58982
         atime4: 65535
@@ -2994,8 +2994,8 @@ ParticleSystem:
     strength:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.1
-      minScalar: -0.1
+      scalar: 0.05
+      minScalar: -0.05
       maxCurve:
         serializedVersion: 2
         m_Curve:

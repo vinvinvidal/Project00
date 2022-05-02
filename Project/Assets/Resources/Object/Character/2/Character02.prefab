@@ -224,7 +224,7 @@ MonoBehaviour:
   Crouch_Anim: {fileID: 7400000, guid: e69f896dab66f5e40935cf8e9a0d35b3, type: 2}
   HardLanding_Anim: {fileID: 7400000, guid: 9e99d4aaebf7d35408238a824afbdb1c, type: 2}
   GroundRolling_Anim: {fileID: 7400000, guid: 6b622c9564fda2b4da154f6a4c51056f, type: 2}
-  AirRolling_Anim: {fileID: 7400000, guid: 919c3944934f30d40ac76a3a778e86a3, type: 2}
+  AirRolling_Anim: {fileID: 7400000, guid: bf46f1652c21dfd4b8d8f36d96219bf8, type: 2}
   SpecialTry_Anim: {fileID: 7400000, guid: 378d058bd428d574f929f8971cb4d624, type: 2}
   SpecialSuccess_Anim: {fileID: 7400000, guid: c6bddb6459bddb24fbea73cb40e1e67a, type: 2}
   Down_Anim: {fileID: 7400000, guid: ae58e5ead1f71fe45891e4d834e095b9, type: 2}

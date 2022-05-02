@@ -1,5 +1,11 @@
 ﻿Shader "Custom/CigaretteSmokeShader"
 {
+	Properties
+	{
+		//表面テクスチャ
+		_TexCigaretteSmoke("_TexCigaretteSmoke", 2D) = "white" {}
+	}
+
 	SubShader
 	{
 		Tags 
@@ -36,6 +42,8 @@
 
 			//変数宣言
 			fixed4 _LightColor0;				//ライトカラー
+
+			sampler2D _TexCigaretteSmoke;
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -95,7 +103,7 @@
 			fixed4 frag(vertex_output i) : SV_Target
 			{
 				//出力用変数宣言、
-				fixed4 re = i.vertColor;
+				fixed4 re = tex2D(_TexCigaretteSmoke, i.uv) * i.vertColor;				
 
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);

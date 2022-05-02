@@ -120206,7 +120206,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.083333336
+  - time: 0.1
     functionName: ChangeFace
     data: Motion_1_Face03,0.1
     objectReferenceParameter: {fileID: 0}
@@ -120236,7 +120236,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.55
     functionName: BlurEffect
-    data: 0.05,2.5,f
+    data: 0.05,1.5,f
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -120306,7 +120306,7 @@ AnimationClip:
     messageOptions: 0
   - time: 1.15
     functionName: BlurEffect
-    data: 0.05,2.5,b
+    data: 0.05,1.5,b
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
