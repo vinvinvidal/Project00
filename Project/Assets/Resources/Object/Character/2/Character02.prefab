@@ -217,19 +217,19 @@ MonoBehaviour:
   Idling4_Anim: {fileID: 0}
   Walk_Anim: {fileID: 7400000, guid: b3680b8f4465d1f4abd0e5ea392b5eaf, type: 2}
   Run_Anim: {fileID: 7400000, guid: 762ddb132bcfede4a9f498a924795bbc, type: 2}
-  Dash_Anim: {fileID: 7400000, guid: c53ea86b43dfe934abc6da95a765c886, type: 2}
-  Stop_Anim: {fileID: 7400000, guid: 0f17b637f9052d448b2d8e3919a83586, type: 2}
+  Dash_Anim: {fileID: 7400000, guid: e2c5681505f52c743b10c68cb0696ef0, type: 2}
+  Stop_Anim: {fileID: 7400000, guid: 9a442477604885c4caf7b32e56f9d065, type: 2}
   Jump_Anim: {fileID: 7400000, guid: c3fceba10aed6164c87dec21a387a663, type: 2}
   Fall_Anim: {fileID: 7400000, guid: 75c217f451c5e3f48b0659892786d6e2, type: 2}
   Crouch_Anim: {fileID: 7400000, guid: e69f896dab66f5e40935cf8e9a0d35b3, type: 2}
-  HardLanding_Anim: {fileID: 7400000, guid: 9e99d4aaebf7d35408238a824afbdb1c, type: 2}
+  HardLanding_Anim: {fileID: 7400000, guid: 1e43afcec9a060546b20e59eee540c06, type: 2}
   GroundRolling_Anim: {fileID: 7400000, guid: 6b622c9564fda2b4da154f6a4c51056f, type: 2}
   AirRolling_Anim: {fileID: 7400000, guid: bf46f1652c21dfd4b8d8f36d96219bf8, type: 2}
   SpecialTry_Anim: {fileID: 7400000, guid: 378d058bd428d574f929f8971cb4d624, type: 2}
   SpecialSuccess_Anim: {fileID: 7400000, guid: c6bddb6459bddb24fbea73cb40e1e67a, type: 2}
   Down_Anim: {fileID: 7400000, guid: ae58e5ead1f71fe45891e4d834e095b9, type: 2}
   BaseFace_Anim: {fileID: 7400000, guid: 4f4dff8ddda97bc408c5c2b985a79ab8, type: 2}
-  EyeClose_Anim: {fileID: 7400000, guid: 3213fe5a25777f44284142aba3d60810, type: 2}
+  EyeClose_Anim: {fileID: 7400000, guid: f31907015dd825547aaff57ee8cef4e9, type: 2}
   MouthClose_Anim: {fileID: 0}
   NippleBase_Anim: {fileID: 7400000, guid: 4c66f89b758dae34d83581f84c4a6de5, type: 2}
   NippleElect_Anim: {fileID: 7400000, guid: a3ba97c82a9f6a1459e99197507bd659, type: 2}
