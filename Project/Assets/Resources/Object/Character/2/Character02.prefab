@@ -228,11 +228,11 @@ MonoBehaviour:
   SpecialTry_Anim: {fileID: 7400000, guid: 378d058bd428d574f929f8971cb4d624, type: 2}
   SpecialSuccess_Anim: {fileID: 7400000, guid: c6bddb6459bddb24fbea73cb40e1e67a, type: 2}
   Down_Anim: {fileID: 7400000, guid: ae58e5ead1f71fe45891e4d834e095b9, type: 2}
-  BaseFace_Anim: {fileID: 7400000, guid: 4f4dff8ddda97bc408c5c2b985a79ab8, type: 2}
+  BaseFace_Anim: {fileID: 7400000, guid: 1466b9e3c8b13f747afdaf4972a608d6, type: 2}
   EyeClose_Anim: {fileID: 7400000, guid: f31907015dd825547aaff57ee8cef4e9, type: 2}
   MouthClose_Anim: {fileID: 0}
-  NippleBase_Anim: {fileID: 7400000, guid: 4c66f89b758dae34d83581f84c4a6de5, type: 2}
-  NippleElect_Anim: {fileID: 7400000, guid: a3ba97c82a9f6a1459e99197507bd659, type: 2}
+  NippleBase_Anim: {fileID: 7400000, guid: 5d9c0f97726effa498dbb9ae0cb342ac, type: 2}
+  NippleElect_Anim: {fileID: 7400000, guid: c7718ed1b549e6244b4b490e95299516, type: 2}
   GenitalBase_Anim: {fileID: 0}
   GenitalElect_Anim: {fileID: 0}
 --- !u!143 &1470597665654347745

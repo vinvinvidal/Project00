@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Motion_0_Nipple_Base
+  m_Name: Motion_2_Nipple_Base
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -17,7 +17,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: -0.50889844, y: 0.84417707, z: -0.049302906, w: 0.16111065}
+        value: {x: -0.49685127, y: 0.8534858, z: -0.1563938, w: -0.015543174}
         inSlope: {x: 0, y: 0, z: 0, w: 0}
         outSlope: {x: 0, y: 0, z: 0, w: 0}
         tangentMode: 0
@@ -27,13 +27,13 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
   - curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: -0.50889844, y: -0.84417707, z: 0.049302906, w: 0.16111065}
+        value: {x: -0.49685067, y: -0.85348606, z: 0.15639476, w: -0.015544202}
         inSlope: {x: 0, y: 0, z: 0, w: 0}
         outSlope: {x: 0, y: 0, z: 0, w: 0}
         tangentMode: 0
@@ -43,7 +43,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
   m_CompressedRotationCurves: []
   m_EulerCurves: []
   m_PositionCurves:
@@ -52,7 +52,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: -0, y: 0.113685966, z: -0.000000011175871}
+        value: {x: -0.00000016763806, y: 0.098275036, z: -0.000000029802322}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -62,13 +62,13 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
   - curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: -0, y: 0.113685966, z: -0.000000011175871}
+        value: {x: -0.000000022351742, y: 0.09827491, z: -0.000000029802322}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -78,14 +78,14 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
   m_ScaleCurves:
   - curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: 1, y: 1, z: 1}
+        value: {x: 0.99999994, y: 1.0000001, z: 1.0000001}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -95,13 +95,13 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
   - curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: 1, y: 1, z: 1}
+        value: {x: 1, y: 0.9999997, z: 0.99999994}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -111,7 +111,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
   m_FloatCurves: []
   m_PPtrCurves: []
   m_SampleRate: 60
@@ -122,42 +122,42 @@ AnimationClip:
   m_ClipBindingConstant:
     genericBindings:
     - serializedVersion: 2
-      path: 91774934
+      path: 2332628477
       attribute: 1
       script: {fileID: 0}
       typeID: 4
       customType: 0
       isPPtrCurve: 0
     - serializedVersion: 2
-      path: 4288067915
+      path: 1911026528
       attribute: 1
       script: {fileID: 0}
       typeID: 4
       customType: 0
       isPPtrCurve: 0
     - serializedVersion: 2
-      path: 4288067915
+      path: 1911026528
       attribute: 2
       script: {fileID: 0}
       typeID: 4
       customType: 0
       isPPtrCurve: 0
     - serializedVersion: 2
-      path: 91774934
+      path: 2332628477
       attribute: 2
       script: {fileID: 0}
       typeID: 4
       customType: 0
       isPPtrCurve: 0
     - serializedVersion: 2
-      path: 91774934
+      path: 2332628477
       attribute: 3
       script: {fileID: 0}
       typeID: 4
       customType: 0
       isPPtrCurve: 0
     - serializedVersion: 2
-      path: 4288067915
+      path: 1911026528
       attribute: 3
       script: {fileID: 0}
       typeID: 4
@@ -190,7 +190,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0
+        value: -0.00000016763806
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -201,7 +201,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.x
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -209,7 +209,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.113685966
+        value: 0.098275036
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -220,7 +220,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.y
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -228,7 +228,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0.000000011175871
+        value: -0.000000029802322
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -239,7 +239,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.z
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -247,7 +247,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0
+        value: -0.000000022351742
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -258,7 +258,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.x
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -266,7 +266,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.113685966
+        value: 0.09827491
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -277,7 +277,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.y
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -285,7 +285,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0.000000011175871
+        value: -0.000000029802322
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -296,7 +296,64 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.z
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    classID: 4
+    script: {fileID: 0}
+  - curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.99999994
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_LocalScale.x
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    classID: 4
+    script: {fileID: 0}
+  - curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1.0000001
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_LocalScale.y
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    classID: 4
+    script: {fileID: 0}
+  - curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1.0000001
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_LocalScale.z
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -315,7 +372,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalScale.x
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -323,9 +380,9 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1
-        inSlope: -13.727996
-        outSlope: -13.727996
+        value: 0.9999997
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -334,7 +391,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalScale.y
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -342,7 +399,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1
+        value: 0.99999994
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -353,7 +410,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalScale.z
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -361,64 +418,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: m_LocalScale.x
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
-    classID: 4
-    script: {fileID: 0}
-  - curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: -13.727996
-        outSlope: -13.727996
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: m_LocalScale.y
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
-    classID: 4
-    script: {fileID: 0}
-  - curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: m_LocalScale.z
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
-    classID: 4
-    script: {fileID: 0}
-  - curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: -0.50889844
+        value: -0.49685127
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -429,7 +429,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -437,7 +437,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.84417707
+        value: 0.8534858
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -448,7 +448,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -456,7 +456,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0.049302906
+        value: -0.1563938
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -467,7 +467,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -475,7 +475,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.16111065
+        value: -0.015543174
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -486,7 +486,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -494,7 +494,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0.50889844
+        value: -0.49685067
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -505,7 +505,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.x
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -513,7 +513,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0.84417707
+        value: -0.85348606
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -524,7 +524,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.y
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -532,7 +532,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.049302906
+        value: 0.15639476
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -543,7 +543,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.z
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -551,7 +551,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.16111065
+        value: -0.015544202
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -562,7 +562,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalRotation.w
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   m_EulerEditorCurves:
@@ -571,9 +571,9 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -4.6309385
-        inSlope: 0.00051498413
-        outSlope: 0.00051498413
+        value: 16.40396
+        inSlope: 0.00006866455
+        outSlope: 0.00006866455
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -582,7 +582,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAngles.x
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -590,7 +590,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -161.14055
+        value: -172.27925
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -601,7 +601,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAngles.y
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -609,9 +609,9 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 61.396458
-        inSlope: -0.00068664545
-        outSlope: -0.00068664545
+        value: 61.52552
+        inSlope: -0.0002746582
+        outSlope: -0.0002746582
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -620,7 +620,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAngles.z
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/R_BreastBone/R_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -628,9 +628,9 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -4.6309385
-        inSlope: 0.00051498413
-        outSlope: 0.00051498413
+        value: 16.4038
+        inSlope: -0.00020599365
+        outSlope: -0.00020599365
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -639,7 +639,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAngles.x
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -647,9 +647,9 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 161.14055
-        inSlope: 0.0027465818
-        outSlope: 0.0027465818
+        value: 172.27919
+        inSlope: -0.0005493164
+        outSlope: -0.0005493164
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -658,7 +658,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAngles.y
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -666,9 +666,9 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -61.396458
-        inSlope: 0.00068664545
-        outSlope: 0.00068664545
+        value: -61.525597
+        inSlope: 0
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -677,7 +677,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAngles.z
-    path: 0_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
+    path: 2_Body_Armature/RootBone/PelvisBone/SpineBone.000/SpineBone.001/SpineBone.002/L_BreastBone/L_NippleBone
     classID: 4
     script: {fileID: 0}
   m_HasGenericRootTransform: 0

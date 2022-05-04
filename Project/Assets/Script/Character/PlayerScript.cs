@@ -699,7 +699,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		OverRideAnimator["BaseFace_void"] = BaseFace_Anim;
 		OverRideAnimator["EyeClose_void"] = EyeClose_Anim;
 		OverRideAnimator["MouthClose_void"] = MouthClose_Anim;
-		OverRideAnimator["Nipple_void"] = NippleBase_Anim;		
+		//OverRideAnimator["Nipple_void"] = NippleBase_Anim;
+		OverRideAnimator["Nipple_void"] = NippleElect_Anim;	
 		OverRideAnimator["Genital_void"] = GenitalBase_Anim;
 		
 
