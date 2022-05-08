@@ -197,7 +197,7 @@
 			}
 
 			//フラグメントシェーダ
-			fixed4 frag(vertex_output i) : SV_Target
+			fixed4 frag(vertex_output i,fixed facing : VFACE) : SV_Target
 			{
 				//return用変数を宣言、ベースtextureを貼る
 				fixed4 re = tex2D(_TexBase, i.uv);
@@ -245,7 +245,12 @@
 				clip(re.a - 0.01);
 
 				//出力
-				return re;
+				
+				//return re;
+
+				//裏面を暗くして出力
+				return re * clamp(facing, 0.5f, 1);
+
 			}
 
 			//プログラム終了
