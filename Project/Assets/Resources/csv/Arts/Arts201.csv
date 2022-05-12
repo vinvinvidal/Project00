@@ -2,7 +2,7 @@ NameC,撓蛇蝎
 NameH,しなりだかつ
 UseCharacter,2
 Anim,Motion_2_GroundAttack01
-MoveVec,0*0*1*1|0*0*1*5|0*0*1*-0.5|0*0*1*-2
+MoveVec,0*0*1*1|0*0*1*5|0*0*1*-0.5|0*0*1*-1
 Damage,1|1
 Stun,1|1
 ColVec,0*0.25*0.5*1|0*0.25*0.5*1
