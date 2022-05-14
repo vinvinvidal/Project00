@@ -887,8 +887,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//超必殺技用カメラワークオブジェクト生成
 			SuperCameraWorkOBJ = Instantiate(SuperArts.Vcam);
 			SuperCameraWorkOBJ.transform.parent = transform;
-			SuperCameraWorkOBJ.transform.localPosition = Vector3.zero;
-			SuperCameraWorkOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			ResetTransform(SuperCameraWorkOBJ);
+			//SuperCameraWorkOBJ.transform.localPosition = Vector3.zero;
+			//SuperCameraWorkOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 			//超必殺技のモーションを仕込む
 			OverRideAnimator["SuperTry_void"] = GameManagerScript.Instance.AllSuperArtsList.Where(a => a.TryAnimClip.name.Contains(CharacterID + "_SuperTry" + a.ArtsIndex)).ToArray()[0].TryAnimClip;
@@ -2402,6 +2403,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ローリング移動加速度をリセット
 		RollingMoveVector *= 0;
 
+		//特殊行動移動加速度をリセット
+		SpecialMoveVector *= 0;
+
 		//地上ダメージモーションの場合
 		if (float.Parse(i.Split(',').ToList().ElementAt(1)) == 0)
 		{
@@ -3032,10 +3036,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempAttackEffect.transform.parent = gameObject.transform.root.transform;
 
 		//ローカル座標で位置を設定
-		TempAttackEffect.transform.localPosition *= 0;
+		//TempAttackEffect.transform.localPosition *= 0;
 
 		//回転値をリセット
-		TempAttackEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+		//TempAttackEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+		//トランスフォームリセット
+		ResetTransform(TempAttackEffect);
 
 		//親を解除
 		//TempAttackEffect.transform.parent = null;
@@ -3920,8 +3927,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			i.transform.parent = i.GetComponent<WeaponSettingScript>().WeaponAttachOBJList[n].transform;
 
 			//ローカルトランスフォームを設定
-			i.transform.localPosition *= 0;
-			i.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			ResetTransform(i);
+			//i.transform.localPosition *= 0;
+			//i.transform.localRotation = Quaternion.Euler(Vector3.zero);
 		}
 	}
 
@@ -4634,6 +4642,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//攻撃移動値をリセット
 			AttackMoveVector *= 0;
 
+			//特殊行動移動加速度をリセット
+			SpecialMoveVector *= 0;
+
 			//攻撃移動タイプを初期化
 			AttackMoveType = 100;
 
@@ -5068,6 +5079,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//攻撃移動ベクトルリセット
 		AttackMoveVector *= 0;
+
+		//特殊行動移動加速度をリセット
+		SpecialMoveVector *= 0;
 
 		//ダメージ移動ベクトルリセット
 		DamageMoveVector *= 0;

@@ -521,8 +521,9 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		CloseUpEffect.transform.parent = MainCamera.transform;
 
 		//ローカル座標回転設定
-		CloseUpEffect.transform.localPosition *= 0;
-		CloseUpEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+		//CloseUpEffect.transform.localPosition *= 0;
+		//CloseUpEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+		ResetTransform(CloseUpEffect);
 
 		//エフェクト再生
 		CloseUpEffect.GetComponent<ParticleSystem>().Play();

@@ -206,8 +206,9 @@ public class EnemySettingScript : GlobalClass
 				i.gameObject.transform.parent = DeepFind(gameObject, "R_LowerArmBone").transform;
 
 				//ローカルTRSをリセット
-				i.gameObject.transform.localPosition = Vector3.zero;
-				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//i.gameObject.transform.localPosition = Vector3.zero;
+				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				ResetTransform(i.gameObject);
 			}
 			//右手
 			else if (i.gameObject.name.Contains("_RHand"))
@@ -216,8 +217,9 @@ public class EnemySettingScript : GlobalClass
 				i.gameObject.transform.parent = DeepFind(gameObject, "R_HandBone").transform;
 
 				//ローカルTRSをリセット
-				i.gameObject.transform.localPosition = Vector3.zero;
-				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//i.gameObject.transform.localPosition = Vector3.zero;
+				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				ResetTransform(i.gameObject);
 			}
 			//左腕
 			else if (i.gameObject.name.Contains("_LArm"))
@@ -226,8 +228,9 @@ public class EnemySettingScript : GlobalClass
 				i.gameObject.transform.parent = DeepFind(gameObject, "L_LowerArmBone").transform;
 
 				//ローカルTRSをリセット
-				i.gameObject.transform.localPosition = Vector3.zero;
-				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//i.gameObject.transform.localPosition = Vector3.zero;
+				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				ResetTransform(i.gameObject);
 			}
 			//左手
 			else if (i.gameObject.name.Contains("_LHand"))
@@ -236,8 +239,9 @@ public class EnemySettingScript : GlobalClass
 				i.gameObject.transform.parent = DeepFind(gameObject, "L_HandBone").transform;
 
 				//ローカルTRSをリセット
-				i.gameObject.transform.localPosition = Vector3.zero;
-				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//i.gameObject.transform.localPosition = Vector3.zero;
+				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				ResetTransform(i.gameObject);
 			}
 			else if (i.gameObject.name.Contains("_Head"))
 			{
@@ -245,8 +249,9 @@ public class EnemySettingScript : GlobalClass
 				i.gameObject.transform.parent = DeepFind(gameObject, "HeadBone").transform;
 
 				//ローカルTRSをリセット
-				i.gameObject.transform.localPosition = Vector3.zero;
-				i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//i.gameObject.transform.localPosition = Vector3.zero;
+				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				ResetTransform(i.gameObject);
 			}
 		}
 
@@ -263,8 +268,9 @@ public class EnemySettingScript : GlobalClass
 				mosaicOBJ.transform.parent = ii.gameObject.transform;
 
 				//ローカルTransform設定
-				mosaicOBJ.transform.localPosition *= 0;
-				mosaicOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//mosaicOBJ.transform.localPosition *= 0;
+				//mosaicOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				ResetTransform(mosaicOBJ);
 
 				//最初は消しとく
 				mosaicOBJ.SetActive(false);
@@ -292,8 +298,9 @@ public class EnemySettingScript : GlobalClass
 			HairOBJ.transform.parent = DeepFind(gameObject, "HeadBone").transform;
 
 			//ローカルtransformをゼロに
-			HairOBJ.transform.localPosition *= 0;
-			HairOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//HairOBJ.transform.localPosition *= 0;
+			//HairOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			ResetTransform(HairOBJ);
 
 			//読み込み完了フラグを立てる
 			HairLoadCompleteFlag = true;
@@ -316,8 +323,9 @@ public class EnemySettingScript : GlobalClass
 			UnderWearOBJ.transform.parent = gameObject.transform;
 
 			//ローカルtransformをゼロに
-			UnderWearOBJ.transform.localPosition *= 0;
-			UnderWearOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//UnderWearOBJ.transform.localPosition *= 0;
+			//UnderWearOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			ResetTransform(UnderWearOBJ);
 
 			//プレハブ内のスキニングメッシュレンダラーを全て取得
 			foreach (SkinnedMeshRenderer ii in UnderWearOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
@@ -347,8 +355,9 @@ public class EnemySettingScript : GlobalClass
 			InnerOBJ.transform.parent = gameObject.transform;
 
 			//ローカルtransformをゼロに
-			InnerOBJ.transform.localPosition *= 0;
-			InnerOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//InnerOBJ.transform.localPosition *= 0;
+			//InnerOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			ResetTransform(InnerOBJ);
 
 			//プレハブ内のスキニングメッシュレンダラーを全て取得
 			foreach (SkinnedMeshRenderer ii in InnerOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
@@ -409,8 +418,9 @@ public class EnemySettingScript : GlobalClass
 			BottomsOBJ.transform.parent = gameObject.transform;
 
 			//ローカルtransformをゼロに
-			BottomsOBJ.transform.localPosition *= 0;
-			BottomsOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//BottomsOBJ.transform.localPosition *= 0;
+			//BottomsOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			ResetTransform(BottomsOBJ);
 
 			//プレハブ内のスキニングメッシュレンダラーを全て取得
 			foreach (SkinnedMeshRenderer ii in BottomsOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
@@ -440,8 +450,9 @@ public class EnemySettingScript : GlobalClass
 			ShoesOBJ.transform.parent = gameObject.transform;
 
 			//ローカルtransformをゼロに
-			ShoesOBJ.transform.localPosition *= 0;
-			ShoesOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//ShoesOBJ.transform.localPosition *= 0;
+			//ShoesOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			ResetTransform(ShoesOBJ);
 
 			//プレハブ内のスキニングメッシュレンダラーを全て取得
 			foreach (SkinnedMeshRenderer ii in ShoesOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())

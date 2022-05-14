@@ -135,6 +135,15 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					//キャラクターの武器を登録するインターフェイス呼び出し
 					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetWeapon(WeaponOBJ));					
 
+					//泉の武器ボーンを登録する
+					if(ID == 2)
+					{
+						for (int count = 0; count <= 5; count ++)
+						{
+							gameObject.GetComponent<SpecialArtsScript>().WeaponBoneList.Add(DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_1_Bone0" + count));
+						}							
+					}
+
 					//読み込み完了フラグを立てる
 					WeaponLoadCompleteFlag = true;
 				}));
@@ -149,8 +158,10 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					HairOBJ.transform.parent = DeepFind(gameObject, "HeadBone").transform;
 
 					//ローカルtransformをゼロに
-					HairOBJ.transform.localPosition *= 0;
-					HairOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+					//HairOBJ.transform.localPosition *= 0;
+					//HairOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+					ResetTransform(HairOBJ);
+
 
 					//髪のダイナミックボーンに使うコライダを全て取得
 					foreach(DynamicBoneCollider ii in HairOBJ.GetComponentsInChildren<DynamicBoneCollider>())
@@ -174,8 +185,9 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						}
 
 						//相対位置と回転をゼロにする
-						ii.transform.localPosition = new Vector3(0, 0, 0);
-						ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
+						//ii.transform.localPosition = new Vector3(0, 0, 0);
+						//ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
+						ResetTransform(ii.gameObject);
 					}
 
 					//髪のクロスに使うSphereColliderを全て取得
@@ -216,8 +228,9 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						}
 
 						//相対位置と回転をゼロにする
-						ii.transform.localPosition = new Vector3(0, 0, 0);
-						ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
+						//ii.transform.localPosition = new Vector3(0, 0, 0);
+						//ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
+						ResetTransform(ii.gameObject);
 					}
 
 					//読み込み完了フラグを立てる
@@ -235,8 +248,9 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					CostumeOBJ.transform.parent = gameObject.transform;
 
 					//ローカルトランスフォームをリセット
-					CostumeOBJ.transform.localPosition *= 0;
-					CostumeOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+					//CostumeOBJ.transform.localPosition *= 0;
+					//CostumeOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+					ResetTransform(CostumeOBJ);
 
 					//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
 					SkinnedMeshRenderer CostumeRenderer = DeepFind(gameObject, "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
@@ -334,8 +348,9 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						}
 
 						//相対位置と回転をゼロにする
-						ii.transform.localPosition = new Vector3(0, 0, 0);
-						ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
+						//ii.transform.localPosition = new Vector3(0, 0, 0);
+						//ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
+						ResetTransform(ii.gameObject);
 					}
 					
 					//読み込み完了フラグを立てる
@@ -357,8 +372,9 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 							MosaicOBJ.transform.parent = ii.gameObject.transform;
 
 							//ローカルTransform設定
-							MosaicOBJ.transform.localPosition *= 0;
-							MosaicOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+							//MosaicOBJ.transform.localPosition *= 0;
+							//MosaicOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+							ResetTransform(MosaicOBJ);
 						}
 					}
 

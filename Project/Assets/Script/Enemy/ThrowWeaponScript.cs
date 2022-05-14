@@ -124,8 +124,9 @@ public class ThrowWeaponScript : GlobalClass
 			TempHitEffect.transform.parent = gameObject.transform;
 
 			//PRS設定
-			TempHitEffect.transform.localPosition = Vector3.zero;
-			TempHitEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//TempHitEffect.transform.localPosition = Vector3.zero;
+			//TempHitEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			ResetTransform(TempHitEffect);
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
 			ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { UseArts.PlyaerUseKnockBackVec }, new List<float>() { UseArts.PlyaerUseDamage }, new List<int>() { UseArts.PlyaerUseDamageType }), 0));

@@ -57,9 +57,11 @@ public class WeaponSettingScript : GlobalClass
 		transform.parent = WeaponAttachOBJList[0].transform;
 
 		//ローカルTransformを設定
-		transform.localPosition = Vector3.zero;
-		transform.localRotation = Quaternion.Euler(Vector3.zero);
-		transform.localScale = Vector3.one;
+		//transform.localPosition = Vector3.zero;
+		//transform.localRotation = Quaternion.Euler(Vector3.zero);
+		//transform.localScale = Vector3.one;
+		ResetTransform(gameObject);
+		
 
 		//クロスがあればコリジョンを処理
 		if (WeaponClothCol != null)

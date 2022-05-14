@@ -31,10 +31,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 	bool SpecialAction110Flag = false;
 
-	/*
-	bool SpecialAction100Flag = false;
-	bool SpecialAction101Flag = false;
-	*/
 	//超必殺技制御フラグ
 	bool SuperAction000Flag = false;
 	bool SuperAction001Flag = false;
@@ -47,6 +43,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 	//桃花の武器に付けている敵飛び道具
 	public GameObject StockWeapon = null;
+
+	//泉の武器ボーンList
+	public List<GameObject> WeaponBoneList = new List<GameObject>();
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -116,9 +115,69 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				}
 			}
 		}
+		//泉用処理
+		else if (i == 2)
+		{
+			//攻撃と同じようにロック対象を探す
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => re = reciever.SearchLockEnemy(true, transform.forward));
+		}
 
 		//出力
 		return re;
+	}
+
+	//泉の特殊攻撃用、武器を投げる
+	public void SpecialWeaponMove(int n)
+	{
+		if(n == 0)
+		{
+			WeaponBoneList[1].transform.parent = DeepFind(gameObject , "R_HandBone").transform;
+
+			ResetTransform(WeaponBoneList[1]);
+		}
+		else if (n == 1)
+		{
+			WeaponBoneList[1].transform.parent = null;
+
+			//WeaponBoneList[1].transform.position = transform.position + Vector3.up;
+
+			StartCoroutine(SpecialWeaponMoveCoroutine());
+
+			
+		}
+		//戻す
+		else if (n == 100)
+		{
+			for(int count = 5; count >= 1; count--)
+			{
+				//先端から一つずつ親を設定する
+				WeaponBoneList[count].transform.parent = WeaponBoneList[count - 1].transform;
+
+				//トランスフォームリセット
+				ResetTransform(WeaponBoneList[count]);
+			}
+		}
+
+		
+	}
+
+	private IEnumerator SpecialWeaponMoveCoroutine()
+	{
+		while((WeaponBoneList[1].transform.position - transform.position).sqrMagnitude < 150)
+		{
+			WeaponBoneList[1].transform.position += transform.forward * 30 * Time.deltaTime;
+
+			yield return null;
+		}
+
+		while ((WeaponBoneList[1].transform.position - WeaponBoneList[0].transform.position).sqrMagnitude > 0.1f)
+		{
+			WeaponBoneList[1].transform.position += (WeaponBoneList[0].transform.position - WeaponBoneList[1].transform.position) * 20 * Time.deltaTime;
+
+			yield return null;
+		}
+
+		SpecialWeaponMove(100);
 	}
 
 	//超必殺技の処理を返す

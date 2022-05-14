@@ -19,6 +19,14 @@ public class GlobalClass : MonoBehaviour
 		SceneManager.LoadScene(scene);
 	}
 
+	//引数で受け取ったオブジェクトのトランスフォームをリセットする関数
+	public void ResetTransform(GameObject o)
+	{
+		o.transform.localPosition *= 0;
+		o.transform.localRotation = Quaternion.Euler(Vector3.zero);
+		o.transform.localScale = Vector3.one;
+	}
+
 	//引数のオブジェクトの全ての子オブジェクトを名前で検索して返す関数
 	public GameObject DeepFind(GameObject root, string name)
 	{
