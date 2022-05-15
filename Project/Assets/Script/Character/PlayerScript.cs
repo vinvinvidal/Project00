@@ -61,6 +61,9 @@ public interface PlayerScriptInterface : IEventSystemHandler
 
 	//キャラクター交代時に状況を引き継ぐ
 	void ContinueSituation(GameObject e, bool bf, bool g, float t, bool c, bool f, float d);
+
+	//泉の特殊攻撃が当たった時の処理
+	void HitCharacter2SpecialAttack(GameObject enemy);
 }
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
@@ -2051,6 +2054,25 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//出力
 		return re;
+	}
+
+	//泉の特殊攻撃が当たった時の処理
+	public void HitCharacter2SpecialAttack(GameObject enemy)
+	{
+		//特殊攻撃待機フラグを下す
+		SpecialTryFlag = false;
+
+		//ダメージ用コライダを無効化
+		DamageCol.enabled = false;
+
+		//アニメーターの遷移フラグを立てる
+		CurrentAnimator.SetBool("SpecialSuccess", true);
+
+		ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => reciever.Character2SpecialArtsHit(enemy));
+		
+		//特殊攻撃成功コルーチン呼び出し
+		StartCoroutine(SpecialArtsSuccess(enemy));
+
 	}
 
 	//敵の攻撃が当たった時の処理

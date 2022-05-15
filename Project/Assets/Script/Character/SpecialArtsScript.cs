@@ -17,6 +17,9 @@ public interface SpecialArtsScriptInterface : IEventSystemHandler
 
 	//特殊攻撃の対象を返すインターフェイス
 	GameObject SearchSpecialTarget(int i);
+
+	//泉の特殊攻撃が合った時のインターフェイス
+	void Character2SpecialArtsHit(GameObject enemy);
 }
 
 public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
@@ -46,6 +49,8 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 	//泉の武器ボーンList
 	public List<GameObject> WeaponBoneList = new List<GameObject>();
+
+	private bool Character2SpecialArtsHitFlag = false;
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -139,11 +144,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 		{
 			WeaponBoneList[1].transform.parent = null;
 
-			//WeaponBoneList[1].transform.position = transform.position + Vector3.up;
-
 			StartCoroutine(SpecialWeaponMoveCoroutine());
-
-			
 		}
 		//戻す
 		else if (n == 100)
@@ -156,19 +157,43 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				//トランスフォームリセット
 				ResetTransform(WeaponBoneList[count]);
 			}
-		}
+		}		
+	}
 
-		
+	//泉の特殊攻撃用、当たった時の処理
+	public void Character2SpecialArtsHit(GameObject enemy)
+	{
+		Character2SpecialArtsHitFlag = true;
+
+		SpecialWeaponMove(100);
+
+		WeaponBoneList[5].transform.parent = DeepFind(enemy, "NeckBone").transform;
+
+		ResetTransform(WeaponBoneList[5]);
 	}
 
 	private IEnumerator SpecialWeaponMoveCoroutine()
 	{
-		while((WeaponBoneList[1].transform.position - transform.position).sqrMagnitude < 150)
+		//武器コライダ有効化
+		ExecuteEvents.Execute<Character2WeaponColInterface>(WeaponBoneList[5], null, (reciever, eventData) => reciever.SwitchCol(true));
+
+		//フラグリセット
+		Character2SpecialArtsHitFlag = false;
+
+		while ((WeaponBoneList[1].transform.position - transform.position).sqrMagnitude < 150)
 		{
 			WeaponBoneList[1].transform.position += transform.forward * 30 * Time.deltaTime;
 
+			if(Character2SpecialArtsHitFlag)
+			{
+				goto loopjump;
+			}
+
 			yield return null;
 		}
+
+		//武器コライダ無効化
+		ExecuteEvents.Execute<Character2WeaponColInterface>(WeaponBoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false));
 
 		while ((WeaponBoneList[1].transform.position - WeaponBoneList[0].transform.position).sqrMagnitude > 0.1f)
 		{
@@ -178,6 +203,8 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 		}
 
 		SpecialWeaponMove(100);
+
+		loopjump:;
 	}
 
 	//超必殺技の処理を返す
@@ -837,7 +864,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 		}
 
 		//桃花
-		if (c == 1)
+		else if(c == 1)
 		{
 			//伍経反し
 			if (i == 0)
@@ -1106,6 +1133,44 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//プレイヤーのフラグを下ろす
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+					}
+				);
+			}
+		}
+
+		//泉
+		else if (c == 2)
+		{
+			//蝦蟇喰
+			if (i == 0)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+
+					}
+				);
+			}
+			//躙蜘蛛
+			else if (i == 1)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+
+					}
+				);
+			}
+			//蔓燐糞
+			else if (i == 2)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+
 					}
 				);
 			}

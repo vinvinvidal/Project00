@@ -1,0 +1,11 @@
+NameC,躙蜘蛛
+NameH,にじりぐも
+UseCharacter,2
+ArtsIndex,1
+DamageIndex,0
+Damage,0
+AnimName,Motion_2_Special1
+EffectPos,R_HandBone
+Trigger,10
+Info,相手に急接近する。
+UnLock,1
