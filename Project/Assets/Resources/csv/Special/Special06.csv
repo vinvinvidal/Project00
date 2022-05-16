@@ -5,7 +5,7 @@ ArtsIndex,0
 DamageIndex,0
 Damage,0
 AnimName,Motion_2_Special0
-EffectPos,R_HandBone
-Trigger,10
+EffectPos,EnemyNeck
+Trigger,1000
 Info,相手を引き寄せる。
 UnLock,1

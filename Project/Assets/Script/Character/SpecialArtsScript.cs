@@ -17,9 +17,6 @@ public interface SpecialArtsScriptInterface : IEventSystemHandler
 
 	//特殊攻撃の対象を返すインターフェイス
 	GameObject SearchSpecialTarget(int i);
-
-	//泉の特殊攻撃が合った時のインターフェイス
-	void Character2SpecialArtsHit(GameObject enemy);
 }
 
 public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
@@ -50,7 +47,14 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	//泉の武器ボーンList
 	public List<GameObject> WeaponBoneList = new List<GameObject>();
 
-	private bool Character2SpecialArtsHitFlag = false;
+	//泉の武器が敵に当たったフラグ
+	public bool WeaponCollEnemyFlag = false;
+
+	//泉の武器が壁に当たったフラグ
+	public bool WeaponCollWallFlag = false;
+
+	//線の特殊攻撃でロックしている敵
+	private GameObject LockEnemy = null;
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -124,32 +128,59 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 		else if (i == 2)
 		{
 			//攻撃と同じようにロック対象を探す
-			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => re = reciever.SearchLockEnemy(true, transform.forward));
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => re = reciever.SearchLockEnemy(transform.forward));
+
+			//メインカメラにもロック対象を渡す
+			ExecuteEvents.Execute<MainCameraScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot"), null, (reciever, eventData) => reciever.SetLockEnemy(re));
+
+			//ロックしている敵を取得
+			LockEnemy = re;
 		}
 
 		//出力
 		return re;
 	}
 
-	//泉の特殊攻撃用、武器を投げる
-	public void SpecialWeaponMove(int n)
+	//泉の特殊攻撃トライ処理
+	public void Character2SpecialAttackTry(int n)
 	{
-		if(n == 0)
+		//右手で武器を握る
+		if (n == 0)
 		{
-			WeaponBoneList[1].transform.parent = DeepFind(gameObject , "R_HandBone").transform;
+			//フラグリセット
+			WeaponCollEnemyFlag = false;
+			WeaponCollWallFlag = false;
 
+			//親を右手にする
+			WeaponBoneList[1].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
+
+			//トランスフォームリセット
 			ResetTransform(WeaponBoneList[1]);
 		}
-		else if (n == 1)
+		//武器を投げる
+		else if(n == 1)
 		{
-			WeaponBoneList[1].transform.parent = null;
+			//一旦収納位置に戻す
+			Character2SpecialAttackTry(100);
 
-			StartCoroutine(SpecialWeaponMoveCoroutine());
+			//親を自分の直下する
+			WeaponBoneList[1].transform.parent = gameObject.transform;
+
+			if(LockEnemy != null)
+			{
+				//武器投げコルーチン呼び出し
+				StartCoroutine(Character2SpecialAttackTryCoroutine(DeepFind(LockEnemy, "NeckBone").transform.position));
+			}
+			else
+			{
+				//武器投げコルーチン呼び出し
+				StartCoroutine(Character2SpecialAttackTryCoroutine(transform.forward * 100));
+			}
 		}
-		//戻す
+		//武器を収納位置に戻す
 		else if (n == 100)
 		{
-			for(int count = 5; count >= 1; count--)
+			for (int count = 5; count >= 1; count--)
 			{
 				//先端から一つずつ親を設定する
 				WeaponBoneList[count].transform.parent = WeaponBoneList[count - 1].transform;
@@ -157,54 +188,72 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				//トランスフォームリセット
 				ResetTransform(WeaponBoneList[count]);
 			}
-		}		
+		}
 	}
 
-	//泉の特殊攻撃用、当たった時の処理
-	public void Character2SpecialArtsHit(GameObject enemy)
+	//武器投げコルーチン
+	private IEnumerator Character2SpecialAttackTryCoroutine(Vector3 pos)
 	{
-		Character2SpecialArtsHitFlag = true;
-
-		SpecialWeaponMove(100);
-
-		WeaponBoneList[5].transform.parent = DeepFind(enemy, "NeckBone").transform;
-
-		ResetTransform(WeaponBoneList[5]);
-	}
-
-	private IEnumerator SpecialWeaponMoveCoroutine()
-	{
-		//武器コライダ有効化
+		//コライダ有効化
 		ExecuteEvents.Execute<Character2WeaponColInterface>(WeaponBoneList[5], null, (reciever, eventData) => reciever.SwitchCol(true));
 
-		//フラグリセット
-		Character2SpecialArtsHitFlag = false;
-
-		while ((WeaponBoneList[1].transform.position - transform.position).sqrMagnitude < 150)
+		//武器移動
+		while ((gameObject.transform.position - WeaponBoneList[5].transform.position).sqrMagnitude < 150 && !WeaponCollWallFlag)
 		{
-			WeaponBoneList[1].transform.position += transform.forward * 30 * Time.deltaTime;
-
-			if(Character2SpecialArtsHitFlag)
+			//敵に当たった
+			if (WeaponCollEnemyFlag)
 			{
-				goto loopjump;
+				//ループを抜けて処理をスキップ
+				goto WeaponEnemyHit;
 			}
+			else
+			{
+				WeaponBoneList[1].transform.position += (pos - WeaponBoneList[1].transform.position).normalized * 30 * Time.deltaTime;
+			}	
 
 			yield return null;
 		}
 
-		//武器コライダ無効化
+		//コライダ無効化
 		ExecuteEvents.Execute<Character2WeaponColInterface>(WeaponBoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false));
 
-		while ((WeaponBoneList[1].transform.position - WeaponBoneList[0].transform.position).sqrMagnitude > 0.1f)
+		//巻き戻し
+		while ((WeaponBoneList[0].transform.position - WeaponBoneList[5].transform.position).sqrMagnitude > 1)
 		{
-			WeaponBoneList[1].transform.position += (WeaponBoneList[0].transform.position - WeaponBoneList[1].transform.position) * 20 * Time.deltaTime;
+			WeaponBoneList[1].transform.position += (WeaponBoneList[0].transform.position - WeaponBoneList[5].transform.position).normalized * 50 * Time.deltaTime;
 
 			yield return null;
 		}
 
-		SpecialWeaponMove(100);
+		//収納位置に戻す
+		Character2SpecialAttackTry(100);
 
-		loopjump:;
+		//敵に当たった時に抜ける先
+		WeaponEnemyHit:;
+	}
+
+	//泉の特殊攻撃成功処理
+	public void Character2SpecialAttackHit(GameObject e)
+	{
+		//収納位置に戻す
+		Character2SpecialAttackTry(100);
+
+		//敵の首にアタッチ
+		WeaponBoneList[5].transform.parent = DeepFind(e, "NeckBone").transform;
+
+		//左手にアタッチ
+		WeaponBoneList[4].transform.parent = DeepFind(gameObject, "L_HandBone").transform;
+
+		//右手にアタッチ
+		WeaponBoneList[3].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
+
+		//トランスフォームリセット
+		ResetTransform(WeaponBoneList[5]);
+		ResetTransform(WeaponBoneList[4]);
+		ResetTransform(WeaponBoneList[3]);
+		ResetTransform(WeaponBoneList[2]);
+		ResetTransform(WeaponBoneList[1]);
+		ResetTransform(WeaponBoneList[0]);
 	}
 
 	//超必殺技の処理を返す

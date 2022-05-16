@@ -5,7 +5,7 @@ ArtsIndex,2
 DamageIndex,0
 Damage,0
 AnimName,Motion_2_Special2
-EffectPos,R_HandBone
-Trigger,10
+EffectPos,EnemyNeck
+Trigger,1000
 Info,爆弾を送る。
 UnLock,1

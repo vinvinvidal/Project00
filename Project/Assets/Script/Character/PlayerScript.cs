@@ -60,10 +60,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool AttackEnable(bool H);
 
 	//キャラクター交代時に状況を引き継ぐ
-	void ContinueSituation(GameObject e, bool bf, bool g, float t, bool c, bool f, float d);
-
-	//泉の特殊攻撃が当たった時の処理
-	void HitCharacter2SpecialAttack(GameObject enemy);
+	void ContinueSituation(GameObject e, bool g, float t, bool c, bool f, float d);
 }
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
@@ -195,7 +192,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private bool OnGroundFlag = false;
 
 	//戦闘フラグ
-	private bool BattleFlag = false;
+	//private bool BattleFlag = false;
 
 	//攻撃ボタン押しっぱなしフラグ
 	private bool HoldButtonFlag = false;
@@ -1432,8 +1429,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//入力フラグを立てる
 			SpecialInput = true;
-		}
-		
+		}		
 
 		//スケベフラグを戻す処理、とりあえずなので後で消す
 		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
@@ -1500,13 +1496,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクター交代時に状況を引き継ぐ
-	public void ContinueSituation(GameObject e, bool b, bool g, float t, bool a, bool f, float d)
+	public void ContinueSituation(GameObject e, bool g, float t, bool a, bool f, float d)
 	{
 		//ロック中の敵を引き継ぎ
 		LockEnemy = e;
-
-		//バトルフラグ引き継ぎ
-		BattleFlag = b;
 
 		//キャラ交代時間引き継ぎ
 		ChangeTime = t;
@@ -1544,7 +1537,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		MoveVector *= 0;
 
 		//バトル中か判別
-		float IdlingBlend = BattleFlag ? 1 : 0;
+		float IdlingBlend = GameManagerScript.Instance.BattleFlag ? 1 : 0;
 
 		//アイドリングモーション切り替え
 		CurrentAnimator.SetFloat("Idling_Blend", IdlingBlend);
@@ -2056,8 +2049,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		return re;
 	}
 
-	//泉の特殊攻撃が当たった時の処理
-	public void HitCharacter2SpecialAttack(GameObject enemy)
+	//特殊攻撃成功処理
+	public void SpecialAttackHit(GameObject e)
 	{
 		//特殊攻撃待機フラグを下す
 		SpecialTryFlag = false;
@@ -2068,11 +2061,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//アニメーターの遷移フラグを立てる
 		CurrentAnimator.SetBool("SpecialSuccess", true);
 
-		ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => reciever.Character2SpecialArtsHit(enemy));
-		
 		//特殊攻撃成功コルーチン呼び出し
-		StartCoroutine(SpecialArtsSuccess(enemy));
-
+		StartCoroutine(SpecialArtsSuccess(e));
 	}
 
 	//敵の攻撃が当たった時の処理
@@ -2081,9 +2071,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//当身に当たった
 		if (SpecialTryFlag && SpecialArtsList[0].Trigger == arts.AttackType)
 		{
-			//特殊攻撃待機フラグを下す
-			SpecialTryFlag = false;
-
 			//飛び道具の処理
 			if(Weapon != null)
 			{
@@ -2097,14 +2084,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				EnemyWeapon.transform.position = gameObject.transform.position + new Vector3(transform.forward.x, EnemyWeapon.transform.position.y - gameObject.transform.position.y, transform.forward.z);
 			}
 
-			//ダメージ用コライダを無効化
-			DamageCol.enabled = false;
-
-			//アニメーターの遷移フラグを立てる
-			CurrentAnimator.SetBool("SpecialSuccess", true);
-
-			//特殊攻撃成功コルーチン呼び出し
-			StartCoroutine(SpecialArtsSuccess(enemy));
+			//特殊攻撃成功処理
+			SpecialAttackHit(enemy);
 		}
 		//普通に喰らった
 		else
@@ -2322,8 +2303,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//特殊攻撃成功エフェクト生成
 		GameObject TempEffect = Instantiate(SpecialSuccessEffect);
 
-		//親を設定
-		TempEffect.transform.parent = DeepFind(gameObject, SpecialArtsList[0].EffectPos).transform;
+		//敵の首にエフェクト
+		if(SpecialArtsList[0].EffectPos == "EnemyNeck")
+		{
+			//親を設定
+			TempEffect.transform.parent = DeepFind(enemy, "NeckBone").transform;
+		}
+		//プレイヤーのボーンにエフェクト
+		else
+		{
+			//親を設定
+			TempEffect.transform.parent = DeepFind(gameObject, SpecialArtsList[0].EffectPos).transform;
+		}
 
 		//ローカルポジションリセット
 		TempEffect.transform.localPosition = Vector3.zero;
@@ -2510,9 +2501,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
-			if (LockEnemy == null && BattleFlag)
+			if (LockEnemy == null && GameManagerScript.Instance.BattleFlag)
 			{
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(true, HorizonAcceleration));
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(HorizonAcceleration));
 			}
 		}
 	}
@@ -4107,11 +4098,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	IEnumerator SetCharacterLookAtPos()
 	{
 		//ロックしている敵がいたらそいつ、複数の敵が要る場合はランダムな相手、いなければ正面を見る
-		if (LockEnemy != null && BattleFlag)
+		if (LockEnemy != null && GameManagerScript.Instance.BattleFlag)
 		{
 			CharacterLookAtPos = LockEnemy.transform.position;
 		}
-		else if (GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList().Count > 0 && BattleFlag)
+		else if (GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList().Count > 0 && GameManagerScript.Instance.BattleFlag)
 		{
 			//視線変更許可フラグで制御
 			if (LookAtPosFlag)
@@ -4212,9 +4203,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetBool("SuperTry", true);
 
 			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
-			if (LockEnemy == null && BattleFlag)
+			if (LockEnemy == null && GameManagerScript.Instance.BattleFlag)
 			{
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(true, HorizonAcceleration));
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(HorizonAcceleration));
 			}
 		}
 
@@ -4576,7 +4567,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				CharacterID, 
 				ChangeInputNum, 
 				LockEnemy, 
-				BattleFlag, 
+				//BattleFlag, 
 				OnGroundFlag, 
 				ChangeTime, 
 				CurrentAnimator.GetBool("Combo"), 
@@ -5309,7 +5300,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		StartCoroutine(IdlingChangeCoroutine(2, 1));
 
 		//戦闘フラグを立てる
-		BattleFlag = true;
+		GameManagerScript.Instance.BattleFlag = true;
 	}
 
 	//戦闘継続演出処理
@@ -5362,7 +5353,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		StartCoroutine(IdlingChangeCoroutine(4, 0));
 
 		//戦闘フラグを下す
-		BattleFlag = false;
+		GameManagerScript.Instance.BattleFlag = false;
 	}
 
 	//戦闘演出終了処理

@@ -42,7 +42,7 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	GameObject GetBattleFieldOBJ();
 
 	//ロック対象の敵を返す
-	GameObject SearchLockEnemy(bool b, Vector3 Vec);
+	GameObject SearchLockEnemy(Vector3 Vec);
 
 	//カメラワークの遷移でイージングをするためヴァーチャルカメラを制御する
 	void EasingVcamera();
@@ -165,6 +165,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//イベント中フラグ
 	public bool EventFlag { get; set; } = false;
+
+	//戦闘中フラグ
+	public bool BattleFlag { get; set; } = false;
 
 	//ロック対象になる敵を入れるList
 	private List<GameObject> LockEnemyList;
@@ -1553,13 +1556,13 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//プレイヤーの攻撃時にロック対象を検索する関数、boolがfalseならnullを返す。メッセージシステムから呼び出される
-	public GameObject SearchLockEnemy(bool b, Vector3 Vec)
+	public GameObject SearchLockEnemy(Vector3 Vec)
 	{
 		//ロック対象の敵オブジェクトを初期化
 		GameObject LockEnemy = null;
 
 		//索敵処理
-		if (b)
+		if (BattleFlag)
 		{
 			//ロックする対象を選定するリストを初期化
 			LockEnemyList = new List<GameObject>();
@@ -1673,7 +1676,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//操作キャラクターを交代する
-	public void ChangePlayableCharacter(int c, int n, GameObject e, bool b, bool g, float t, bool a, bool f, float d)
+	public void ChangePlayableCharacter(int c, int n, GameObject e, bool g, float t, bool a, bool f, float d)
 	{
 		//現在のキャラクターのインデックスを取得
 		int CurrentIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].IndexOf(c);
@@ -1702,7 +1705,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		NextCharacter.GetComponent<PlayerScript>().ChangeAppear(0.25f, g);
 
 		//状況を引き継ぐ
-		ExecuteEvents.Execute<PlayerScriptInterface>(NextCharacter, null, (reciever, eventData) => reciever.ContinueSituation(e, b, g, t, a, f, d));
+		ExecuteEvents.Execute<PlayerScriptInterface>(NextCharacter, null, (reciever, eventData) => reciever.ContinueSituation(e, g, t, a, f, d));
 
 		//メインカメラにもプレイヤーキャラクターを渡す
 		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));

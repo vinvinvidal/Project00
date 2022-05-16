@@ -5,7 +5,7 @@ ArtsIndex,1
 DamageIndex,0
 Damage,0
 AnimName,Motion_2_Special1
-EffectPos,R_HandBone
-Trigger,10
+EffectPos,EnemyNeck
+Trigger,1000
 Info,相手に急接近する。
 UnLock,1
