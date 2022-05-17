@@ -86,6 +86,42 @@ public class GlobalClass : MonoBehaviour
 
 		return temparts;
 	}
+	//適当なArtsClassを作って返す関数、ホールド攻撃用オーバーロード
+	public ArtsClass MakeInstantArts(List<Color> KBV, List<float> DML, List<int> ATI, List<Vector3> HPS)
+	{
+		//架空の技Classを作る
+		ArtsClass temparts = new ArtsClass
+		(
+			"",
+			"",
+			0,
+			"",
+			new List<Color>(),
+			DML,
+			new List<int>() { 0 },
+			new List<Color>(),
+			KBV,
+			"",
+			new List<int>(),
+			new List<int>(),
+			ATI,
+			new List<int>(),
+			new List<int>() { 0 },
+			new List<int>(),
+			false,
+			new List<string>(),
+			new List<Vector3>(),
+			new List<Vector3>(),
+			new List<float>(),
+			new List<int>() { 0 },
+			HPS,
+			0,
+			new List<string>()
+		);
+
+		return temparts;
+	}
+
 
 	//オブジェクトが削除された時に複製したマテリアルを削除する、これをしないとメモリリークするらしい
 	private void OnDestroy()

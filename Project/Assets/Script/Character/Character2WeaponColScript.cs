@@ -49,6 +49,9 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 			//特殊攻撃成功処理呼び出し
 			CharacterOBJ.GetComponent<PlayerScript>().SpecialAttackHit(Hit.gameObject.transform.root.gameObject);
 			CharacterOBJ.GetComponent<SpecialArtsScript>().Character2SpecialAttackHit(Hit.gameObject.transform.root.gameObject);
+
+			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
+			ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0) }, new List<float>() { 0 }, new List<int>() { 41 }), 0));
 		}
 		//コライダが壁に当たった
 		else if (Hit.gameObject.layer == LayerMask.NameToLayer("TransparentFX"))

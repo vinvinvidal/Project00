@@ -17,6 +17,9 @@ public interface SpecialArtsScriptInterface : IEventSystemHandler
 
 	//特殊攻撃の対象を返すインターフェイス
 	GameObject SearchSpecialTarget(int i);
+
+	//特殊攻撃中に攻撃を喰らった時に呼び出すインターフェイス
+	void SpecialAttackMiss();
 }
 
 public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
@@ -230,6 +233,15 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 		//敵に当たった時に抜ける先
 		WeaponEnemyHit:;
+	}
+
+	public void SpecialAttackMiss()
+	{
+		//泉の攻撃が壁に当たったことにして巻き戻す
+		WeaponCollWallFlag = true;
+
+		//コライダ無効化
+		ExecuteEvents.Execute<Character2WeaponColInterface>(WeaponBoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false));
 	}
 
 	//泉の特殊攻撃成功処理

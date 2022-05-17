@@ -2342,18 +2342,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				goto SpecialLoopBreak;
 			}
 
+			//ダメージを受けたらブレーク
+			if(DamageFlag)
+			{
+				goto SpecialLoopDamage;
+			}
+
 			//1フレーム待機
 			yield return null;
 		}
 
 		//ループを抜ける先
 		SpecialLoopBreak:;
-
-		//タイムスケールを戻す
-		GameManagerScript.Instance.TimeScaleChange(0.1f, 1);
-
-		//フラグを下す
-		SpecialSuccessFlag = false;
 
 		//オーバーライドコントローラにアニメーションクリップをセット		
 		OverRideAnimator["Special_void"] = SpecialArtsList.Where(a => a.ArtsIndex == SpecialInputIndex).ToList()[0].AnimClip;
@@ -2363,6 +2363,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//アニメーターの遷移フラグを立てる
 		CurrentAnimator.SetBool("SpecialAttack", true);
+
+		//ダメージを受けてループを抜ける先
+		SpecialLoopDamage:;
+
+		//タイムスケールを戻す
+		GameManagerScript.Instance.TimeScaleChange(0.1f, 1);
+
+		//フラグを下す
+		SpecialSuccessFlag = false;
 	}
 
 	//特殊攻撃フラグを立てる、アニメーションクリップから呼ばれる
@@ -4800,6 +4809,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//これ以上イベントを起こさないためにAttackステートを一時停止
 			CurrentAnimator.SetFloat("AttackSpeed00", 0.0f);
 			CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
+
+			//特殊攻撃失敗処理
+			ExecuteEvents.Execute<SpecialArtsScript>(gameObject, null, (reciever, eventData) => reciever.SpecialAttackMiss());
 
 			//入力フラグを全て下す関数呼び出し
 			InputReset();

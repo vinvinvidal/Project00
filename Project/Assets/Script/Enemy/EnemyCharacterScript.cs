@@ -1770,14 +1770,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//ホールド持続待機
 		while (HoldFlag)
 		{
-			//ホールドポジション更新
-			HoldPos = (PlayerCharacter.transform.right * pos.x) + (PlayerCharacter.transform.up * pos.y) + (PlayerCharacter.transform.forward * pos.z);
+			if(pos != Vector3.zero)
+			{ 
+				//ホールドポジション更新
+				HoldPos = (PlayerCharacter.transform.right * pos.x) + (PlayerCharacter.transform.up * pos.y) + (PlayerCharacter.transform.forward * pos.z);
 
-			//ちょっとゆらす
-			HoldPos += new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
+				//ちょっとゆらす
+				HoldPos += new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
 
-			//ホールドベクトルを設定
-			HoldVec = ((PlayerCharacter.transform.position + HoldPos) - gameObject.transform.position) * 20;
+				//ホールドベクトルを設定
+				HoldVec = ((PlayerCharacter.transform.position + HoldPos) - gameObject.transform.position) * 20;
+			}
 
 			//1フレーム待機
 			yield return null;
