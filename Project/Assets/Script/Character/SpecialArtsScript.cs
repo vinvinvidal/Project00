@@ -34,6 +34,14 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 	bool SpecialAction110Flag = false;
 
+	bool SpecialAction200Flag = false;
+	bool SpecialAction201Flag = false;
+	bool SpecialAction202Flag = false;
+	bool SpecialAction203Flag = false;
+	bool SpecialAction204Flag = false;
+	bool SpecialAction205Flag = false;
+
+
 	//超必殺技制御フラグ
 	bool SuperAction000Flag = false;
 	bool SuperAction001Flag = false;
@@ -1209,9 +1217,105 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				(
 					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
 
+						//移動ベクトルを設定
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -gameObject.transform.forward * 5;
 					}
 				);
+
+				//敵行動コルーチン
+				IEnumerator EnemySpecialAction200(GameObject Player, GameObject Enemy)
+				{
+					//移動目的地をキャッシュ
+					//Vector3 TargetPos = Player.transform.position - Player.transform.forward * 1.25f;
+
+					//移動開始時間をキャッシュ
+					float temptime = Time.time;
+
+					//時間が過ぎるまでループ、途中で敵が死んだりしたら抜ける
+					while (temptime + 0.75f > Time.time && Enemy != null)
+					{
+						//目的地まで移動
+						Enemy.GetComponent<EnemyCharacterScript>().SpecialMoveVec = (Player.transform.position - Enemy.transform.position) * 2f;
+
+						//1フレーム待機
+						yield return null;
+					}
+
+					//移動値リセット
+					Enemy.GetComponent<EnemyCharacterScript>().SpecialMoveVec *= 0;
+
+					//敵のフラグを下ろす
+					Enemy.GetComponent<EnemyCharacterScript>().SpecialFlag = false;
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//移動ベクトルをリセット
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//移動ベクトルを設定
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -gameObject.transform.forward * 2;
+
+						//敵のフラグを立てる
+						Enemy.GetComponent<EnemyCharacterScript>().SpecialFlag = true;
+
+						//敵のアニメーター遷移フラグを立てる
+						Enemy.GetComponent<Animator>().SetBool("Special", true);
+
+						//使用するモーションに差し替え
+						Enemy.GetComponent<EnemyCharacterScript>().OverRideAnimator["Special_void"] = Enemy.GetComponent<EnemyCharacterScript>().DamageAnimList[Arts.DamageIndex];
+
+						//アニメーターを上書きしてアニメーションクリップを切り替える
+						Enemy.GetComponent<Animator>().runtimeAnimatorController = Enemy.GetComponent<EnemyCharacterScript>().OverRideAnimator;
+
+						//敵移動コルーチン呼び出し
+						StartCoroutine(EnemySpecialAction200(Player, Enemy));
+
+						//武器巻き戻しコルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction201());
+					}
+				);
+
+				re.Add
+				(					
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//移動ベクトルをリセット
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+
+						//プレイヤーのフラグを下ろす
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+					}
+				);
+
+				//武器巻き戻しコルーチン
+				IEnumerator PlayerSpecialAction201()
+				{
+					//親を解除
+					WeaponBoneList[5].transform.parent = null;
+
+					//巻き戻し
+					while ((WeaponBoneList[4].transform.position - WeaponBoneList[5].transform.position).sqrMagnitude > 0.1f)
+					{
+						WeaponBoneList[5].transform.position += (WeaponBoneList[4].transform.position - WeaponBoneList[5].transform.position).normalized * 30 * Time.deltaTime;
+
+						yield return null;
+					}
+
+					//収納位置に戻す
+					Character2SpecialAttackTry(100);
+				}
 			}
 			//躙蜘蛛
 			else if (i == 1)

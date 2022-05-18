@@ -2,7 +2,7 @@ NameC,蝦蟇喰
 NameH,がまじき
 UseCharacter,2
 ArtsIndex,0
-DamageIndex,0
+DamageIndex,9
 Damage,0
 AnimName,Motion_2_Special0
 EffectPos,EnemyNeck
