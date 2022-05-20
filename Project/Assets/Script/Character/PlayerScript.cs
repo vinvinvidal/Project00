@@ -2093,6 +2093,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ライフを減らす
 			L_Gauge -= arts.Damage;
 
+			//特殊攻撃失敗処理呼び出し
+			ExecuteEvents.Execute<SpecialArtsScript>(gameObject, null, (reciever, eventData) => reciever.SpecialAttackMiss(CharacterID));
+
 			//飛び道具を喰らった時の処理
 			if (Weapon != null)
 			{
@@ -2942,6 +2945,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//遷移可能フラグを立てる
 		CurrentAnimator.SetBool("Transition", true);
 
+		//回転無効フラグを下す
+		NoRotateFlag = false;
+
 		//攻撃コライダ無効化
 		EndAttackCol();
 
@@ -3228,7 +3234,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					//踏みつけ成功
 					if(!StompingFlag)
 					{
-						//ローリングを避けて抜ける
+						//着地モーションを避けて抜ける
 						goto StompingLoopBreak;
 					}
 
@@ -3760,7 +3766,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(180, 0, 0));
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, 0.1f) }, new List<float>() { 0 }, new List<int>() { 1 }), 0));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, 0.1f) }, new List<float>() { 0 }, new List<int>() { 1 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
 		}
 		//前１人
 		else if(H_Location.Contains("Forward"))
@@ -3776,7 +3782,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(45, 0, 0));
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 7.5f, 0.1f) }, new List<float>() { 0 }, new List<int>() { 4 }), 0));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(H_MainEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 7.5f, 0.1f) }, new List<float>() { 0 }, new List<int>() { 4 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
 		}
 
 		//敵のクロス用コライダを解除する
@@ -4809,9 +4815,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//これ以上イベントを起こさないためにAttackステートを一時停止
 			CurrentAnimator.SetFloat("AttackSpeed00", 0.0f);
 			CurrentAnimator.SetFloat("AttackSpeed01", 0.0f);
-
-			//特殊攻撃失敗処理
-			ExecuteEvents.Execute<SpecialArtsScript>(gameObject, null, (reciever, eventData) => reciever.SpecialAttackMiss());
 
 			//入力フラグを全て下す関数呼び出し
 			InputReset();

@@ -135,13 +135,17 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					//キャラクターの武器を登録するインターフェイス呼び出し
 					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetWeapon(WeaponOBJ));					
 
-					//泉の武器ボーンを登録する
+					//泉の武器を登録する
 					if(ID == 2)
 					{
+						//ワイヤーのボーン
 						for (int count = 0; count <= 5; count ++)
 						{
-							gameObject.GetComponent<SpecialArtsScript>().WeaponBoneList.Add(DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_1_Bone0" + count));
-						}							
+							gameObject.GetComponent<Character2WeaponMoveScript>().BoneList.Add(DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_1_Bone0" + count));
+						}
+
+						//燐糞オブジェクト
+						gameObject.GetComponent<Character2WeaponMoveScript>().BombOBJ = DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_2");
 					}
 
 					//読み込み完了フラグを立てる

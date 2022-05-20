@@ -129,7 +129,7 @@ public class ThrowWeaponScript : GlobalClass
 			ResetTransform(TempHitEffect);
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-			ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { UseArts.PlyaerUseKnockBackVec }, new List<float>() { UseArts.PlyaerUseDamage }, new List<int>() { UseArts.PlyaerUseDamageType }), 0));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { UseArts.PlyaerUseKnockBackVec }, new List<float>() { UseArts.PlyaerUseDamage }, new List<int>() { UseArts.PlyaerUseDamageType }, new List<int>() { 1 }, new List<int>() { 0 }), 0));
 		}
 		//床に落ちた
 		else if(LayerMask.LayerToName(Hit.gameObject.layer) == "TransparentFX")

@@ -19,7 +19,7 @@ public interface SpecialArtsScriptInterface : IEventSystemHandler
 	GameObject SearchSpecialTarget(int i);
 
 	//特殊攻撃中に攻撃を喰らった時に呼び出すインターフェイス
-	void SpecialAttackMiss();
+	void SpecialAttackMiss(int i);
 }
 
 public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
@@ -34,13 +34,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 	bool SpecialAction110Flag = false;
 
-	bool SpecialAction200Flag = false;
-	bool SpecialAction201Flag = false;
-	bool SpecialAction202Flag = false;
-	bool SpecialAction203Flag = false;
-	bool SpecialAction204Flag = false;
-	bool SpecialAction205Flag = false;
-
+	bool SpecialAction210Flag = false;
 
 	//超必殺技制御フラグ
 	bool SuperAction000Flag = false;
@@ -54,18 +48,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 	//桃花の武器に付けている敵飛び道具
 	public GameObject StockWeapon = null;
-
-	//泉の武器ボーンList
-	public List<GameObject> WeaponBoneList = new List<GameObject>();
-
-	//泉の武器が敵に当たったフラグ
-	public bool WeaponCollEnemyFlag = false;
-
-	//泉の武器が壁に当たったフラグ
-	public bool WeaponCollWallFlag = false;
-
-	//線の特殊攻撃でロックしている敵
-	private GameObject LockEnemy = null;
 
 	//特殊攻撃の対象を返すインターフェイス
 	public GameObject SearchSpecialTarget(int i)
@@ -144,136 +126,33 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 			//メインカメラにもロック対象を渡す
 			ExecuteEvents.Execute<MainCameraScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot"), null, (reciever, eventData) => reciever.SetLockEnemy(re));
 
-			//ロックしている敵を取得
-			LockEnemy = re;
+			//武器スクリプトにもロック対象を渡す
+			gameObject.GetComponent<Character2WeaponMoveScript>().LockEnemy = re;
 		}
 
 		//出力
 		return re;
 	}
 
-	//泉の特殊攻撃トライ処理
-	public void Character2SpecialAttackTry(int n)
+	//特殊攻撃の途中で喰らった時の処理
+	public void SpecialAttackMiss(int i)
 	{
-		//右手で武器を握る
-		if (n == 0)
+		//御命
+		if (i == 0)
 		{
-			//フラグリセット
-			WeaponCollEnemyFlag = false;
-			WeaponCollWallFlag = false;
 
-			//親を右手にする
-			WeaponBoneList[1].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
-
-			//トランスフォームリセット
-			ResetTransform(WeaponBoneList[1]);
 		}
-		//武器を投げる
-		else if(n == 1)
+		//桃花
+		else if (i == 1)
 		{
-			//一旦収納位置に戻す
-			Character2SpecialAttackTry(100);
 
-			//親を自分の直下する
-			WeaponBoneList[1].transform.parent = gameObject.transform;
-
-			if(LockEnemy != null)
-			{
-				//武器投げコルーチン呼び出し
-				StartCoroutine(Character2SpecialAttackTryCoroutine(DeepFind(LockEnemy, "NeckBone").transform.position));
-			}
-			else
-			{
-				//武器投げコルーチン呼び出し
-				StartCoroutine(Character2SpecialAttackTryCoroutine(transform.forward * 100));
-			}
 		}
-		//武器を収納位置に戻す
-		else if (n == 100)
+		//泉
+		else if (i == 2)
 		{
-			for (int count = 5; count >= 1; count--)
-			{
-				//先端から一つずつ親を設定する
-				WeaponBoneList[count].transform.parent = WeaponBoneList[count - 1].transform;
-
-				//トランスフォームリセット
-				ResetTransform(WeaponBoneList[count]);
-			}
+			//特殊攻撃失敗処理呼び出し
+			ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.SpecialAttackMiss());
 		}
-	}
-
-	//武器投げコルーチン
-	private IEnumerator Character2SpecialAttackTryCoroutine(Vector3 pos)
-	{
-		//コライダ有効化
-		ExecuteEvents.Execute<Character2WeaponColInterface>(WeaponBoneList[5], null, (reciever, eventData) => reciever.SwitchCol(true));
-
-		//武器移動
-		while ((gameObject.transform.position - WeaponBoneList[5].transform.position).sqrMagnitude < 150 && !WeaponCollWallFlag)
-		{
-			//敵に当たった
-			if (WeaponCollEnemyFlag)
-			{
-				//ループを抜けて処理をスキップ
-				goto WeaponEnemyHit;
-			}
-			else
-			{
-				WeaponBoneList[1].transform.position += (pos - WeaponBoneList[1].transform.position).normalized * 30 * Time.deltaTime;
-			}	
-
-			yield return null;
-		}
-
-		//コライダ無効化
-		ExecuteEvents.Execute<Character2WeaponColInterface>(WeaponBoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false));
-
-		//巻き戻し
-		while ((WeaponBoneList[0].transform.position - WeaponBoneList[5].transform.position).sqrMagnitude > 1)
-		{
-			WeaponBoneList[1].transform.position += (WeaponBoneList[0].transform.position - WeaponBoneList[5].transform.position).normalized * 50 * Time.deltaTime;
-
-			yield return null;
-		}
-
-		//収納位置に戻す
-		Character2SpecialAttackTry(100);
-
-		//敵に当たった時に抜ける先
-		WeaponEnemyHit:;
-	}
-
-	public void SpecialAttackMiss()
-	{
-		//泉の攻撃が壁に当たったことにして巻き戻す
-		WeaponCollWallFlag = true;
-
-		//コライダ無効化
-		ExecuteEvents.Execute<Character2WeaponColInterface>(WeaponBoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false));
-	}
-
-	//泉の特殊攻撃成功処理
-	public void Character2SpecialAttackHit(GameObject e)
-	{
-		//収納位置に戻す
-		Character2SpecialAttackTry(100);
-
-		//敵の首にアタッチ
-		WeaponBoneList[5].transform.parent = DeepFind(e, "NeckBone").transform;
-
-		//左手にアタッチ
-		WeaponBoneList[4].transform.parent = DeepFind(gameObject, "L_HandBone").transform;
-
-		//右手にアタッチ
-		WeaponBoneList[3].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
-
-		//トランスフォームリセット
-		ResetTransform(WeaponBoneList[5]);
-		ResetTransform(WeaponBoneList[4]);
-		ResetTransform(WeaponBoneList[3]);
-		ResetTransform(WeaponBoneList[2]);
-		ResetTransform(WeaponBoneList[1]);
-		ResetTransform(WeaponBoneList[0]);
 	}
 
 	//超必殺技の処理を返す
@@ -771,10 +650,10 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//PRS設定
 						HitEffect.transform.localPosition = new Vector3(0,0.75f,0.5f);
-						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));					
+						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));
 
 						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0.5f, 15, 0.1f) } , new List<float>() { Arts.Damage }, new List<int>() { Arts.DamageIndex }), 0));
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0.5f, 15, 0.1f) }, new List<float>() { Arts.Damage }, new List<int>() { Arts.DamageIndex }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
 					}
 				);
 			}
@@ -1106,7 +985,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 								if (Vector3.SqrMagnitude(Weapon.transform.position - ii.transform.position) < 10)
 								{
 									//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-									ExecuteEvents.Execute<EnemyCharacterInterface>(ii, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -1, 0.1f) }, new List<float>() { 0 }, new List<int>() { 3 }), 0));
+									ExecuteEvents.Execute<EnemyCharacterInterface>(ii, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -1, 0.1f) }, new List<float>() { 0 }, new List<int>() { 3 }, new List<int>() { 1 }, new List<int>() { 0 }), 0));
 								}
 							}
 						}
@@ -1228,8 +1107,8 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				//敵行動コルーチン
 				IEnumerator EnemySpecialAction200(GameObject Player, GameObject Enemy)
 				{
-					//移動目的地をキャッシュ
-					//Vector3 TargetPos = Player.transform.position - Player.transform.forward * 1.25f;
+					//敵をキャラクターに向ける
+					Enemy.transform.LookAt(new Vector3(Player.transform.position.x, Enemy.transform.position.y, Player.transform.position.z));
 
 					//移動開始時間をキャッシュ
 					float temptime = Time.time;
@@ -1282,8 +1161,8 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//敵移動コルーチン呼び出し
 						StartCoroutine(EnemySpecialAction200(Player, Enemy));
 
-						//武器巻き戻しコルーチン呼び出し
-						StartCoroutine(PlayerSpecialAction201());
+						//武器巻き戻し処理呼び出し
+						ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.MoveWire(2));
 					}
 				);
 
@@ -1298,24 +1177,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
 					}
 				);
-
-				//武器巻き戻しコルーチン
-				IEnumerator PlayerSpecialAction201()
-				{
-					//親を解除
-					WeaponBoneList[5].transform.parent = null;
-
-					//巻き戻し
-					while ((WeaponBoneList[4].transform.position - WeaponBoneList[5].transform.position).sqrMagnitude > 0.1f)
-					{
-						WeaponBoneList[5].transform.position += (WeaponBoneList[4].transform.position - WeaponBoneList[5].transform.position).normalized * 30 * Time.deltaTime;
-
-						yield return null;
-					}
-
-					//収納位置に戻す
-					Character2SpecialAttackTry(100);
-				}
 			}
 			//躙蜘蛛
 			else if (i == 1)
@@ -1324,7 +1185,67 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				(
 					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
+						//移動ベクトルを設定
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = gameObject.transform.forward * 4;
+					}
+				);
 
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+						//制御フラグを立てる
+						SpecialAction210Flag = true;
+
+						//移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction210(Player, Enemy));
+					}
+				);
+
+				//移動コルーチン
+				IEnumerator PlayerSpecialAction210(GameObject Player, GameObject Enemy)
+				{
+					//時間が過ぎるまでループ、途中で敵が死んだりしたら抜ける
+					while (SpecialAction210Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = transform.forward * ((Enemy.transform.position - gameObject.transform.position).magnitude + 0.1f) * 2.5f;
+	
+						//1フレーム待機
+						yield return null;
+					}
+
+					//移動ベクトルを設定
+					Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//制御フラグを下す
+						SpecialAction210Flag = false;
+
+						//移動ベクトルを設定
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = gameObject.transform.forward;
+
+						//武器巻き戻し処理呼び出し
+						ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.MoveWire(2));
+					}
+				);
+
+				re.Add
+				(					
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//移動ベクトルをリセット
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+
+						//プレイヤーのフラグを下ろす
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
 					}
 				);
 			}
@@ -1335,7 +1256,59 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				(
 					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
 
+						//武器移動処理呼び出し
+						ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.MoveWire(3));
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0.1f) }, new List<float>() { 0 }, new List<int>() { 6 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//燐糞を生成
+						ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.CreateBomb());
+
+						//左手に持たせる
+						ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.SettingBombPos(DeepFind(gameObject, "L_HandBone").transform, new Vector3(-0.02f, 0.05f, -0.07f)));
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//右手に持たせる
+						ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.SettingBombPos(DeepFind(gameObject, "R_HandBone").transform, new Vector3(0, 0.07f, -0.07f)));
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//燐糞を敵に向かって移動させる
+						ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.SpecialBombMove());
+					}
+				);
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//プレイヤーのフラグを下す
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
 					}
 				);
 			}

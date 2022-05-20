@@ -1104,7 +1104,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	}
 
 	//引数で技後のダウンフラグを立てる
-	private void SetDownFlag(int dwn)
+	public void SetDownFlag(int dwn)
 	{
 		//引数で技後のダウンフラグを立てる
 		if (dwn == 0)
@@ -1342,6 +1342,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//香港スピン
 		else if (state == 5)
 		{
+			//すぐにダウン状態にする
+			DownFlag = true;
+
+			//ダウン制御コルーチン呼び出し
+			StartCoroutine(DownCoroutine());
+
 			//重力をリセット
 			Gravity = 0;
 
