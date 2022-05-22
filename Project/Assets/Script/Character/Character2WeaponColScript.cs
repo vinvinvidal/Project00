@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -18,6 +19,9 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 	//キャラクターオブジェクト
 	private GameObject CharacterOBJ;
 
+	//爆発エフェクトオブジェクト
+	private GameObject BombEffect;
+
 	//ワイヤーか爆弾か
 	public int WeaponIndex;
 
@@ -29,6 +33,9 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 
 		//キャラクターオブジェクト取得
 		CharacterOBJ = gameObject.transform.root.gameObject;
+
+		//爆発エフェクト取得
+		BombEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "BombEffect").ToArray()[0];
 	}
 
 	//攻撃コライダーが当たった時に呼び出される
@@ -93,6 +100,12 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 
 				//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
 				ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(TempArts, 0));
+
+				//爆発エフェクト生成
+				GameObject TempEfffect = Instantiate(BombEffect);
+
+				//位置を設定
+				TempEfffect.transform.position = gameObject.transform.position;
 			}
 		}
 	}

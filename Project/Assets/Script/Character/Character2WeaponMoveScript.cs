@@ -63,7 +63,13 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		BombInst = Instantiate(BombOBJ);
 
 		//レンダラー有効化
-		BombInst.GetComponentInChildren<Renderer>().enabled = true;
+		foreach(var i in BombInst.GetComponentsInChildren<Renderer>())
+		{
+			if(i.name.Contains("Mesh"))
+			{
+				i.enabled = true;
+			}
+		}		
 
 		//トランスフォームリセット
 		ResetTransform(BombInst);
@@ -82,6 +88,15 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 
 			//位置を設定
 			BombInst.transform.localPosition = Pos;
+		}
+	}
+
+	//燐糞に着火する
+	public void BombIgnition()
+	{
+		if (BombInst != null)
+		{
+			BombInst.GetComponentInChildren<ParticleSystem>().Play();
 		}
 	}
 
