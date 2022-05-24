@@ -60,7 +60,7 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 				ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => TempBool = reciever.AttackEnable(TempArts, 0));
 
 				//有効なら処理実行
-				if (TempBool)
+				if (TempBool && Hit.gameObject.transform.root.gameObject.GetComponent<EnemyCharacterScript>().Life > 0)
 				{
 					//当たった敵をロック対象にする
 					CharacterOBJ.GetComponent<Character2WeaponMoveScript>().LockEnemy = Hit.gameObject.transform.root.gameObject;
@@ -77,7 +77,6 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 					//壁当たりフラグを立てる
 					CharacterOBJ.GetComponent<Character2WeaponMoveScript>().WallHitFlag = true;
 				}
-
 			}
 			//コライダが壁に当たった
 			else if (Hit.gameObject.layer == LayerMask.NameToLayer("TransparentFX"))
@@ -96,7 +95,7 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 				CharacterOBJ.GetComponent<Character2WeaponMoveScript>().EnemyHitFlag = true;
 
 				//架空の技を作成
-				ArtsClass TempArts = MakeInstantArts(new List<Color>() { new Color(0, 2, 0, 0.1f) }, new List<float>() { 0 }, new List<int>() { 11 }, new List<int>() { 1 }, new List<int>() { 0 });
+				ArtsClass TempArts = MakeInstantArts(new List<Color>() { new Color(0, 4, 0, 0.1f) }, new List<float>() { 0 }, new List<int>() { 11 }, new List<int>() { 1 }, new List<int>() { 0 });
 
 				//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
 				ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(TempArts, 0));

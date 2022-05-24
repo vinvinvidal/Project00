@@ -126,7 +126,10 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//コライダ有効化
 		BombInst.GetComponent<Character2WeaponColScript>().SwitchCol(true);
 
-		while (!EnemyHitFlag)
+		//時間をキャッシュ
+		float BombTime = Time.time;
+
+		while (!EnemyHitFlag && (BombTime + 1.5f) > Time.time)
 		{
 			//1フレーム待機
 			yield return null;

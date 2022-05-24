@@ -4978,7 +4978,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 0.05
+  m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3892235707546350038
 MonoBehaviour:
@@ -10271,6 +10271,16 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: ab72c5b69e2bc6b4c85dd30709a40fc1, type: 2}
+    - target: {fileID: 2597163119160487590, guid: bea8614880207054aa28205366774414,
+        type: 3}
+      propertyPath: m_AABB.m_Center.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2597163119160487590, guid: bea8614880207054aa28205366774414,
+        type: 3}
+      propertyPath: m_AABB.m_Center.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3183094659476084966, guid: bea8614880207054aa28205366774414,
         type: 3}
       propertyPath: m_LocalRotation.x

@@ -72,6 +72,9 @@
 
 				// テクスチャ座標を取得
 				float2 uv : TEXCOORD0;
+
+				//頂点カラー
+				float4 vertColor : COLOR;
 			};
 
 			//頂点シェーダーからフラグメントシェーダーに情報を渡す構造体を宣言
@@ -91,6 +94,9 @@
 
 				//従法線
 				half3 binormal : TEXCOORD2;
+
+				//頂点カラー
+				float4 vertColor : COLOR;
 
 				// Matcap用テクスチャ座標
 				//float2 MatCapuv : TEXCOORD3;
@@ -113,6 +119,9 @@
 
 				//法線をワールド座標系に変換
 				re.normal = UnityObjectToWorldNormal(i.normal);
+
+				//頂点カラー
+				re.vertColor = i.vertColor;
 
 				//正接
 				re.tangent = mul((float3x3)UNITY_MATRIX_MV, i.tangent.xyz);
@@ -145,8 +154,9 @@
 				//Return用変数宣言、MatCapでメインテクスチャを貼る
 				fixed4 re = tex2D(_FireMainTex, MatCapUV * _FireMainTex_ST.xy + _FireMainTex_ST.zw);
 				
-				//ライトカラーを乗算
-				re *= lerp(1, _LightColor0, _LightColor0.a);
+				//頂点カラーを乗算
+				re *= i.vertColor;
+				//re *= lerp(1, _LightColor0, _LightColor0.a);
 
 				//出力
 				return re * _FadeCount;

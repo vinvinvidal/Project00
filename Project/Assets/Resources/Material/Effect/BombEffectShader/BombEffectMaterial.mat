@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: FootImpactMaterial
-  m_Shader: {fileID: 4800000, guid: b8387dcad8864ef4a850662ac6e41387, type: 3}
+  m_Name: BombEffectMaterial
+  m_Shader: {fileID: 4800000, guid: 6a97d28c7fc793844ac552ca63fe8fb2, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -56,7 +56,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TexParticle:
-        m_Texture: {fileID: 2800000, guid: eb61700b21d0c37499fc5eddf188ac25, type: 3}
+        m_Texture: {fileID: 2800000, guid: 027df551efc0ffb469da8b8fc2547f01, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -75,8 +75,6 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _ZTest: 0
-    - _ZTestMode: 4
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

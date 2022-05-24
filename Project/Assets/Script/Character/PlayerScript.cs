@@ -1363,8 +1363,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if(BreakInputFlag)
 		{
 			BreakCount++;
-		}
-		
+		}		
 	}
 	private void OnPlayerAttack01(InputValue i)
 	{
@@ -1418,6 +1417,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//特殊攻撃を押した時
 	private void OnPlayerSpecial(InputValue i)
 	{
+		//Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "BombEffect").ToArray()[0]).transform.position = transform.position;
+
 		//特殊攻撃入力許可条件判定
 		if (PermitInputBoolDic["SpecialTry"])
 		{
