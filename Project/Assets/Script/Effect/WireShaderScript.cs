@@ -7,6 +7,9 @@ public class WireShaderScript : GlobalClass
 	//マテリアル
 	Material WireMaterial;
 
+	//オフセット値
+	Vector2 OffsetVec = Vector2.zero;
+
     void Start()
     {
 		//マテリアル取得
@@ -15,6 +18,8 @@ public class WireShaderScript : GlobalClass
 
 	void Update()
     {
-		WireMaterial.SetTextureOffset("_MainTexture", new Vector2(Time.time * 2, 0));
+		OffsetVec.x += Time.deltaTime * Mathf.PerlinNoise(Time.time , 0) * 5;
+
+		WireMaterial.SetTextureOffset("_MainTexture", -OffsetVec);
 	}
 }

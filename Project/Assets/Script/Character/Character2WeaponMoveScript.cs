@@ -134,8 +134,15 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			//1フレーム待機
 			yield return null;
 
-			//燐糞移動
-			BombInst.transform.position += (BoneList[5].transform.position - BombInst.transform.position).normalized * ((BoneList[4].transform.position - BombInst.transform.position).magnitude + 1) * 3 * Time.deltaTime;
+			if (!GameManagerScript.Instance.PauseFlag)
+			{
+				//燐糞移動
+				BombInst.transform.position += (BoneList[5].transform.position - BombInst.transform.position).normalized * ((BoneList[4].transform.position - BombInst.transform.position).magnitude + 1) * 3 * Time.deltaTime;
+			}
+			else
+			{
+				BombTime += Time.deltaTime; 
+			}
 		}
 
 		//コライダ無効化
@@ -300,7 +307,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 				//ループを抜けて処理をスキップ
 				goto WeaponEnemyHit;
 			}
-			else
+			else if(!GameManagerScript.Instance.PauseFlag)
 			{
 				BoneList[5].transform.position += (pos - BoneList[4].transform.position).normalized * 30 * Time.deltaTime;
 			}			
