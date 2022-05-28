@@ -35,8 +35,8 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	//武器をセットする
 	void SetWeapon(GameObject w);
 
-	//戦闘演出開始処理
-	void BattleEventStart(GameObject LooKAtOBJ, GameObject PosOBJ);
+	//戦闘開始処理
+	void BattleStart();
 
 	//戦闘継続演出処理
 	void BattleEventNext(GameObject LooKAtOBJ, GameObject PosOBJ);
@@ -1537,11 +1537,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//移動値をリセット
 		MoveVector *= 0;
 
-		//バトル中か判別
-		float IdlingBlend = GameManagerScript.Instance.BattleFlag ? 1 : 0;
-
 		//アイドリングモーション切り替え
-		CurrentAnimator.SetFloat("Idling_Blend", IdlingBlend);
+		CurrentAnimator.SetFloat("Idling_Blend", GameManagerScript.Instance.BattleFlag ? 1 : 0);
 	}
 
 	//入力フラグを全て下す関数
@@ -5291,9 +5288,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AttackDistance = CC.AttackDistance;
 	}
 
-	//戦闘演出開始処理
-	public void BattleEventStart(GameObject LooKAtOBJ, GameObject PosOBJ)
+	//戦闘開始処理
+	public void BattleStart()
 	{
+		//アイドリングモーション切り替え
+		CurrentAnimator.SetFloat("Idling_Blend", GameManagerScript.Instance.BattleFlag ? 1 : 0);
+
+		/*
 		//移動値をリセット
 		EventMoveVector *= 0;
 
@@ -5317,6 +5318,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//戦闘フラグを立てる
 		GameManagerScript.Instance.BattleFlag = true;
+		*/
 	}
 
 	//戦闘継続演出処理

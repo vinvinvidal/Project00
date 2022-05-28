@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -91,6 +92,103 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		}
 	}
 
+	//泉の爆弾投げ
+	public void BombThrow(string t)
+	{
+		//燐糞を生成
+		CreateBomb();
+
+		//アタッチする先
+		string AttachOBJ = t.Split(',').ToList()[0];
+
+		//着火タイミング
+		float IgnitionTime = float.Parse(t.Split(',').ToList()[1]);
+
+		//投げタイミング
+		float ThrowTime = float.Parse(t.Split(',').ToList()[2]);
+
+		//投げベクトル
+		Vector3 ThrowVec = new Vector3(float.Parse(t.Split(',').ToList()[3]), float.Parse(t.Split(',').ToList()[4]), float.Parse(t.Split(',').ToList()[5]));
+
+		//投げ速度
+		float ThrowPow = float.Parse(t.Split(',').ToList()[6]);		
+
+		//左手に持たせる
+		if (AttachOBJ == "L")
+		{
+			SettingBombPos(DeepFind(gameObject, "L_HandBone").transform, new Vector3(-0.02f, 0.05f, -0.07f));
+		}
+		else if (AttachOBJ == "R")
+		{
+			//右手に持たせる
+			SettingBombPos(DeepFind(gameObject, "R_HandBone").transform, new Vector3(0, 0.07f, -0.07f));
+		}
+
+		//爆弾投げコルーチン呼び出し
+		StartCoroutine(BombThrowCoroutine(IgnitionTime, ThrowTime, ThrowVec, ThrowPow));
+	}
+
+	private IEnumerator BombThrowCoroutine(float IgnitionTime, float ThrowTime, Vector3 ThrowVec, float ThrowPow)
+	{
+		//開始時間キャッシュ
+		float BombTime = Time.time;
+
+		//待機
+		while(BombTime + IgnitionTime > Time.time)
+		{
+			if (GameManagerScript.Instance.PauseFlag)
+			{
+				BombTime += Time.deltaTime; 
+			}
+
+			yield return null;
+		}
+
+		//着火
+		BombIgnition();
+
+		//待機
+		while (BombTime + ThrowTime > Time.time)
+		{
+			if (GameManagerScript.Instance.PauseFlag)
+			{
+				BombTime += Time.deltaTime;
+			}
+
+			yield return null;
+		}
+		
+		if (BombInst != null)
+		{
+			//リジッドボディ取得
+			Rigidbody TempRigid = BombInst.GetComponent<Rigidbody>();
+
+			//親を解除
+			BombInst.transform.parent = null;
+
+			//位置をキャラクターと合わせる
+			BombInst.transform.position = new Vector3(gameObject.transform.position.x, BombInst.transform.position.y, gameObject.transform.position.z);
+
+			//キャラクターの正面に向ける
+			BombInst.transform.LookAt(gameObject.transform.forward + BombInst.transform.position);
+
+			//投げる方向に向ける
+			BombInst.transform.rotation *= Quaternion.Euler(ThrowVec.x, ThrowVec.y, ThrowVec.z);
+
+			//コライダ有効化
+			BombInst.GetComponent<Character2WeaponColScript>().SwitchCol(true);
+
+			//リジッドボディ有効化
+			TempRigid.isKinematic = false;
+
+			//リジッドボディに力を与える
+			TempRigid.AddForce(BombInst.transform.forward * ThrowPow, ForceMode.Impulse);
+
+			//ランダムにトグルを与える
+			TempRigid.AddTorque(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)), ForceMode.Impulse);		
+		}
+	}
+
 	//燐糞に着火する
 	public void BombIgnition()
 	{
@@ -136,8 +234,11 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 
 			if (!GameManagerScript.Instance.PauseFlag)
 			{
-				//燐糞移動
-				BombInst.transform.position += (BoneList[5].transform.position - BombInst.transform.position).normalized * ((BoneList[4].transform.position - BombInst.transform.position).magnitude + 1) * 3 * Time.deltaTime;
+				if(BombInst != null)
+				{
+					//燐糞移動
+					BombInst.transform.position += (BoneList[5].transform.position - BombInst.transform.position).normalized * ((BoneList[4].transform.position - BombInst.transform.position).magnitude + 1) * 3 * Time.deltaTime;
+				}
 			}
 			else
 			{
@@ -145,14 +246,8 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			}
 		}
 
-		//コライダ無効化
-		BombInst.GetComponent<Character2WeaponColScript>().SwitchCol(false);
-
 		//モーション再生
 		gameObject.GetComponent<Animator>().SetFloat("SpecialAttackSpeed", 1);
-
-		//オブジェクト削除
-		Destroy(BombInst);
 
 		//ワイヤー巻き戻し
 		MoveWire(2);

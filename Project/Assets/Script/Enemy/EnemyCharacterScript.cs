@@ -2577,6 +2577,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//アニメーター再生
 		CurrentAnimator.speed = 1;
 
+
 		//アングルを測定、プレイヤーに向くまでループ
 		while (Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject)) > 1)
 		{
@@ -2609,7 +2610,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CurrentAnimator.speed = 1;
 
 		//たむろモーションが終わるまで待つ
-		while(CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+		while (CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
 		{
 			//１フレーム待機
 			yield return null;
@@ -2618,20 +2619,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//アイドリングモーションを変更
 		CurrentAnimator.SetFloat("IdlingBlend", 0);
 
-		//歩きモーションフラグを立てる
-		CurrentAnimator.SetBool("Walk", true);
+		//ダメージコライダ有効化
+		DamageCol.enabled = true;
 
-		//アングルを測定、プレイヤーに向くまでループ
-		while (Vector3.Angle(gameObject.transform.forward,HorizontalVector(PlayerCharacter , gameObject)) > 1)
-		{
-			//プレイヤーに向けて回転
-			EventRotate = HorizontalVector(PlayerCharacter, gameObject);
-
-			//１フレーム待機
-			yield return null;
-		}
-
-		//歩きモーションフラグを下ろす
-		CurrentAnimator.SetBool("Walk", false);
+		//戦闘フラグを立てる
+		BattleFlag = true;
 	}
 }

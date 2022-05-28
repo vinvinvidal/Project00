@@ -5,52 +5,26 @@ using UnityEngine;
 
 public class GenerateWallScript : GlobalClass
 {
-	//壁素材List
-	public List<GameObject> GarbageList;
+	private Rigidbody R_body;
 
-	//壁生成時間
-	public float GanerateTime;
-
-	//終了時間
-	private float EndTime = 0;
-
-	//完了フラグ
-	public bool CompleteFlag { get; set; } = false;
-
-	//壁生成コルーチン
-	public IEnumerator GenerateWallCoroutine()
+	private void Start()
 	{
-		//ドーリーで移動開始
-		gameObject.GetComponent<CinemachineDollyCart>().enabled = true;
+		R_body = GetComponent<Rigidbody>();
 
-		while (EndTime < GanerateTime)
+		StartCoroutine(GenerateWallCoroutine());
+	}
+
+	private IEnumerator GenerateWallCoroutine()
+	{
+		yield return new WaitForSeconds(0.1f);
+
+		R_body.AddForce(Vector3.down * 10, ForceMode.Impulse);
+
+		while(R_body.velocity.sqrMagnitude > 0.05f)
 		{
-			//生成時間カウントアップ
-			EndTime += Time.deltaTime;
-
-			//オブジェクトリストからランダムでオブジェクトのインスタンス生成
-			GameObject TempGarbage = Instantiate(GarbageList[Random.Range(0, GarbageList.Count)]);
-
-			//レンダラーのあるオブジェクトのレイヤーを自身のレイヤーと同じにする
-			TempGarbage.GetComponentInChildren<Renderer>().transform.gameObject.layer = gameObject.layer;
-			
-			//自身と同じ位置にする
-			TempGarbage.transform.position = transform.position;
-
-			//壁オブジェクトをまとめるオブジェクトの子にする
-			TempGarbage.transform.parent = DeepFind(gameObject.transform.parent.gameObject, "WallOBJ").transform;
-
-			//下方向に力を加える
-			TempGarbage.GetComponent<Rigidbody>().AddForce(Vector3.down * 10, ForceMode.Impulse);
-
-			//ちょっとランダム性を持たせて待機
-			yield return new WaitForSeconds(Random.Range(Time.deltaTime, 0.05f));
+			yield return null;			
 		}
 
-		//ドーリーで移動停止
-		gameObject.GetComponent<CinemachineDollyCart>().enabled = false;
-
-		//完了フラグを立てる
-		CompleteFlag = true;
+		R_body.isKinematic = true;
 	}
 }

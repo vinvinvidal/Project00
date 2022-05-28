@@ -2,7 +2,7 @@ NameC,蝓
 NameH,ゆ
 UseCharacter,2
 Anim,Motion_2_AirAttack00
-MoveVec,0*1*0*0.1|0*1*0*1.5|0*1.5*-1*2
+MoveVec,0*1*0*0.1|0*1*0*1.5|0*1.5*-2*2|0*0*-1*2
 Damage,1|1|1
 Stun,1|1|1
 ColVec,0*1*1*1|0*1*1*1|0*1*1*1

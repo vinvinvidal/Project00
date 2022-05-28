@@ -490,9 +490,6 @@ public class EnemySettingScript : GlobalClass
 		//セッティング完了フラグを立てる
 		AllReadyFlag = true;
 
-		//ダメージ用コライダを有効化
-		DeepFind(gameObject, "EnemyDamageCol").GetComponent<BoxCollider>().enabled = true;
-
 		//読み込み完了したら全てのレンダラーを有効化して表示する
 		foreach (SkinnedMeshRenderer i in GetComponentsInChildren<SkinnedMeshRenderer>())
 		{

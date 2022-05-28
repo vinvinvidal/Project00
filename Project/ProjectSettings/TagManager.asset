@@ -39,7 +39,7 @@ TagManager:
   - EnemyWeaponCol
   - PlayerWeaponCol
   - NotTouchObject
-  - 
+  - BattleField
   - 
   m_SortingLayers:
   - name: Default
