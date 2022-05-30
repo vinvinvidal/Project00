@@ -31,6 +31,9 @@ public class BattleFieldScript : GlobalClass
 	//プレイヤーキャラクター
 	private GameObject PlayerCharacter = null;
 
+	//コライダ　
+	private SphereCollider BattleFieldCol;
+
 
 	private void Start()
 	{
@@ -43,8 +46,11 @@ public class BattleFieldScript : GlobalClass
 		//壁素材オブジェクト取得
 		WallMaterial = new List<GameObject>(WallOBJ.GetComponentsInChildren<Rigidbody>().Select(a => a.gameObject).ToList());
 
+		//コライダ取得
+		BattleFieldCol = GetComponent<SphereCollider>();
+
 		//取得したらすぐに非活性化しておく
-		foreach(var i in WallMaterial)
+		foreach (var i in WallMaterial)
 		{
 			i.SetActive(false);
 		}
@@ -96,7 +102,7 @@ public class BattleFieldScript : GlobalClass
 		//壁メッシュコライダの地面より高い位置の頂点位置を抽出
 		foreach (var i in WallOBJ.GetComponent<MeshCollider>().sharedMesh.vertices)
 		{
-			if(i.y > 0)
+			if(i.y < 5)
 			{
 				//リストにAdd
 				VertexList.Add(i);
@@ -105,6 +111,9 @@ public class BattleFieldScript : GlobalClass
 
 		//リストをシャッフル
 		VertexList = VertexList.OrderBy(a => Guid.NewGuid()).ToList();
+
+		//出現位置オフセット
+		float Offset = 0.5f;
 
 		//高所の頂点位置から壁素材を発生させる
 		for (int i = 0; i < 5; i++)
@@ -115,10 +124,10 @@ public class BattleFieldScript : GlobalClass
 				GameObject TempWallMat = Instantiate(WallMaterial[Random.Range(0, WallMaterial.Count)]);
 
 				//親を設定
-				TempWallMat.transform.parent = gameObject.transform;
+				TempWallMat.transform.parent = DeepFind(gameObject, "WallOBJ").transform;
 
 				//発生位置に移動
-				TempWallMat.transform.position = ii;
+				TempWallMat.transform.position = ii + new Vector3(Random.Range(-0.5f, 0.5f), Offset, Random.Range(-0.5f, 0.5f));
 
 				//ランダムに回転
 				TempWallMat.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
@@ -128,11 +137,14 @@ public class BattleFieldScript : GlobalClass
 
 				//壁生成スクリプトを付ける
 				TempWallMat.AddComponent<GenerateWallScript>();
-
-				//1フレーム待機
-				yield return null;
 			}
-		}	
+
+			//オフセット位置を上げる
+			Offset += 0.5f;
+
+			//1フレーム待機
+			yield return null;
+		}
 	}
 
 	//プレイヤーキャラクター取得コルーチン
@@ -243,6 +255,9 @@ public class BattleFieldScript : GlobalClass
 
 		//ウェーブカウントアップ
 		WaveCount++;
+
+		//敵の配置が終わってからコライダ有効化
+		BattleFieldCol.enabled = true;
 	}
 }
 
