@@ -103,9 +103,12 @@ public class BattleFieldScript : GlobalClass
 			}
 		}
 
+		//リストをシャッフル
+		VertexList = VertexList.OrderBy(a => Guid.NewGuid()).ToList();
+
+		//高所の頂点位置から壁素材を発生させる
 		for (int i = 0; i < 5; i++)
 		{
-			//高所の頂点位置から壁素材を発生させる
 			foreach (var ii in VertexList)
 			{
 				//壁素材をインスタンス化
