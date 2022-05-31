@@ -6,15 +6,22 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
+//他のスクリプトから関数を呼ぶ為のインターフェイス
+public interface BattleFieldScriptInterface : IEventSystemHandler
+{
+	void SetPlayerCharacter(GameObject p);
+}
 
-
-public class BattleFieldScript : GlobalClass
+public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 {
 	//出現する敵ウェーブリスト
 	public List<int> EnemyWaveList;
 
 	//出現させた敵List
 	private List<GameObject> EnemyList;
+
+	//全滅チェックフラグ
+	private bool EnemyCheckFlag = false;
 
 	//ウェーブカウント
 	private int WaveCount = 0;
@@ -34,6 +41,20 @@ public class BattleFieldScript : GlobalClass
 	//コライダ　
 	private SphereCollider BattleFieldCol;
 
+	//演出用ヴァーチャルカメラ
+	private GameObject VcamOBJ;
+
+	//メインカメラのヴァーチャルカメラ
+	private CinemachineBrain MainVCam;
+
+	//演出中フラグ
+	private bool EventFlag = false;
+
+	//プレイヤーキャラクターをセットするインターフェイス
+	public void SetPlayerCharacter(GameObject p)
+	{
+		PlayerCharacter = p;
+	}
 
 	private void Start()
 	{
@@ -45,6 +66,12 @@ public class BattleFieldScript : GlobalClass
 
 		//壁素材オブジェクト取得
 		WallMaterial = new List<GameObject>(WallOBJ.GetComponentsInChildren<Rigidbody>().Select(a => a.gameObject).ToList());
+
+		//演出用ヴァーチャルカメラ取得
+		VcamOBJ = GetComponentInChildren<CinemachineVirtualCamera>().gameObject;
+
+		//メインカメラのヴァーチャルカメラ
+		MainVCam = GameObject.Find("MainCamera").GetComponent<CinemachineBrain>();
 
 		//コライダ取得
 		BattleFieldCol = GetComponent<SphereCollider>();
@@ -62,103 +89,112 @@ public class BattleFieldScript : GlobalClass
 		StartCoroutine(StandByCoroutine());
 	}
 
-	//プレイヤーがエリアに進入したら呼ばれる関数
-	private void OnTriggerEnter(Collider ColHit)
+	private void Update()
 	{
-		if (ColHit.gameObject.layer == LayerMask.NameToLayer("Player"))
+		//敵全滅チェック
+		if(EnemyCheckFlag)
 		{
-			//ゲームマネージャーの戦闘フラグを立てる
-			GameManagerScript.Instance.BattleFlag = true;
-
-			//ゲームマネージャーに自身を送る
-			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetBattleFieldOBJ(gameObject));
-
-			//進入コライダを無効化
-			gameObject.GetComponent<SphereCollider>().enabled = false;
-
-			//壁コライダ有効化
-			WallOBJ.GetComponent<MeshCollider>().enabled = true;
-
-			//プレイヤーキャラクターの戦闘開始処理実行
-			ColHit.gameObject.GetComponent<PlayerScript>().BattleStart();
-
-			//敵に戦闘開始フラグを送る
-			foreach (var i in EnemyList.Where(a => a != null).ToList())
+			//敵を全て倒したら処理
+			if (EnemyList.All(a => a == null))
 			{
-				i.GetComponent<EnemyCharacterScript>().BattleStart();
-			}
+				//敵全滅チェック停止
+				EnemyCheckFlag = false;
 
-			//壁生成コルーチン呼び出し
-			StartCoroutine(GeneraeteWallCoroutine());
+				//最終ウェーブだったら勝利処理
+				if (EnemyWaveList.Count == WaveCount)
+				{
+					Victory();
+				}
+				//次のウェーブ移行処理
+				else
+				{
+					NextWave();
+				}
+			}
 		}
 	}
 
-	//壁生成コルーチン
-	private IEnumerator GeneraeteWallCoroutine()
+	//勝利処理関数
+	private void Victory()
 	{
-		//ガベージ発生頂点座標List宣言
-		List<Vector3> VertexList = new List<Vector3>();
-
-		//壁メッシュコライダの地面より高い位置の頂点位置を抽出
-		foreach (var i in WallOBJ.GetComponent<MeshCollider>().sharedMesh.vertices)
-		{
-			if(i.y < 5)
-			{
-				//リストにAdd
-				VertexList.Add(i);
-			}
-		}
-
-		//リストをシャッフル
-		VertexList = VertexList.OrderBy(a => Guid.NewGuid()).ToList();
-
-		//出現位置オフセット
-		float Offset = 0.5f;
-
-		//高所の頂点位置から壁素材を発生させる
-		for (int i = 0; i < 5; i++)
-		{
-			foreach (var ii in VertexList)
-			{
-				//壁素材をインスタンス化
-				GameObject TempWallMat = Instantiate(WallMaterial[Random.Range(0, WallMaterial.Count)]);
-
-				//親を設定
-				TempWallMat.transform.parent = DeepFind(gameObject, "WallOBJ").transform;
-
-				//発生位置に移動
-				TempWallMat.transform.position = ii + new Vector3(Random.Range(-0.5f, 0.5f), Offset, Random.Range(-0.5f, 0.5f));
-
-				//ランダムに回転
-				TempWallMat.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
-
-				//活性化
-				TempWallMat.SetActive(true);
-
-				//壁生成スクリプトを付ける
-				TempWallMat.AddComponent<GenerateWallScript>();
-			}
-
-			//オフセット位置を上げる
-			Offset += 0.5f;
-
-			//1フレーム待機
-			yield return null;
-		}
+		//フィールド解放コルーチン呼び出し
+		StartCoroutine(ReleaseBattleFieldCoroutine());
 	}
 
-	//プレイヤーキャラクター取得コルーチン
-	private IEnumerator GetPlayerCharacterCoroutine()
+	//次のウェーブ移行処理関数
+	private void NextWave()
 	{
-		//プレイヤーキャラクターが入るまで待つ
-		while (PlayerCharacter == null)
-		{
-			//プレイヤーキャラクター取得
-			PlayerCharacter = GameManagerScript.Instance.GetPlayableCharacterOBJ();
+		//バーチャルカメラを演出位置に移動
+		VcamOBJ.transform.parent = DeepFind(PlayerCharacter, "HeadBone").transform;
 
-			//１フレーム待機
+		VcamOBJ.GetComponent<CinemachineVirtualCamera>().LookAt = VcamOBJ.transform.parent;
+
+		VcamOBJ.transform.localPosition = new Vector3(-0.25f, 0.3f, 0.15f);
+
+		VcamOBJ.GetComponent<CinemachineVirtualCamera>().enabled = true;
+
+		MainVCam.enabled = true;
+
+		EventFlag = true;
+
+		StartCoroutine(NextWaveCoroutine());
+
+		//敵配置コルーチン呼び出し
+		StartCoroutine(StandByCoroutine());
+	}
+	private IEnumerator NextWaveCoroutine()
+	{
+		Vector3 v = VcamOBJ.transform.localPosition;
+
+		while (EventFlag)
+		{
+			v.x = Mathf.Lerp(-0.25f, 0.25f, (Mathf.Sin(Time.time * 2) + 1) * 0.5f);
+
+			VcamOBJ.transform.localPosition = v;
+
+			yield return null;
+		}		
+	}
+
+	//フィールド解放コルーチン
+	private IEnumerator ReleaseBattleFieldCoroutine()
+	{
+		//ゲームマネージャーの戦闘フラグを下す
+		GameManagerScript.Instance.BattleFlag = false;
+
+		//ゲームマネージャーのバトルフィールドをnullにする
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetBattleFieldOBJ(null));
+
+		//壁オブジェクト取得
+		List<GameObject> OBJList = new List<GameObject>(DeepFind(gameObject, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")).Select(b => b.gameObject).ToList());
+
+		//壁コライダ無効化
+		WallOBJ.GetComponent<MeshCollider>().enabled = false;
+
+		//プレイヤーキャラクターの戦闘終了処理実行
+		PlayerCharacter.GetComponent<PlayerScript>().BattleEnd();
+
+		//壁オブジェクトのRigitBodyを回す
+		foreach (Rigidbody i in OBJList.Select(a => a.GetComponent<Rigidbody>()))
+		{
+			//オブジェクトに壁消失用スクリプト追加
+			i.gameObject.AddComponent<WallVanishScript>();
+
+			//物理挙動有効化
+			i.isKinematic = false;
+
+			//外側に力を与えて壁を崩す
+			i.AddForce((i.transform.position - gameObject.transform.position + Vector3.up) * 2.5f, ForceMode.Impulse);
+		}
+
+		//壁オブジェクトが全部消えるまでループ
+		while (!OBJList.All(a => a == null))
+		{
 			yield return null;
 		}
+
+		//自身を削除
+		Destroy(gameObject);
 	}
 
 	//敵配置コルーチン
@@ -253,11 +289,129 @@ public class BattleFieldScript : GlobalClass
 			EnemyList.Add(TempEnemy);
 		}
 
-		//ウェーブカウントアップ
-		WaveCount++;
+		//敵の配置が終わってから行う処理
+		if (WaveCount == 0)
+		{
+			//コライダ有効化をする
+			BattleFieldCol.enabled = true;
+		}
+		else
+		{
+			//敵に戦闘開始フラグを送る
+			foreach (var i in EnemyList.Where(a => a != null).ToList())
+			{
+				i.GetComponent<EnemyCharacterScript>().BattleStart();
+			}
 
-		//敵の配置が終わってからコライダ有効化
-		BattleFieldCol.enabled = true;
+			MainVCam.enabled = false;
+
+			EventFlag = false;
+		}
+
+		//ウェーブカウントアップ
+		WaveCount++;		
+
+		//全滅チェック開始
+		EnemyCheckFlag = true;
+	}
+
+	//プレイヤーがエリアに進入したら呼ばれる関数
+	private void OnTriggerEnter(Collider ColHit)
+	{
+		if (ColHit.gameObject.layer == LayerMask.NameToLayer("Player"))
+		{
+			//ゲームマネージャーの戦闘フラグを立てる
+			GameManagerScript.Instance.BattleFlag = true;
+
+			//ゲームマネージャーに自身を送る
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetBattleFieldOBJ(gameObject));
+
+			//進入コライダを無効化
+			gameObject.GetComponent<SphereCollider>().enabled = false;
+
+			//壁コライダ有効化
+			WallOBJ.GetComponent<MeshCollider>().enabled = true;
+
+			//プレイヤーキャラクターの戦闘開始処理実行
+			ColHit.gameObject.GetComponent<PlayerScript>().BattleStart();
+
+			//敵に戦闘開始フラグを送る
+			foreach (var i in EnemyList.Where(a => a != null).ToList())
+			{
+				i.GetComponent<EnemyCharacterScript>().BattleStart();
+			}
+
+			//壁生成コルーチン呼び出し
+			StartCoroutine(GeneraeteWallCoroutine());
+		}
+	}
+
+	//壁生成コルーチン
+	private IEnumerator GeneraeteWallCoroutine()
+	{
+		//ガベージ発生頂点座標List宣言
+		List<Vector3> VertexList = new List<Vector3>();
+
+		//壁メッシュコライダの地面より高い位置の頂点位置を抽出
+		foreach (var i in WallOBJ.GetComponent<MeshCollider>().sharedMesh.vertices)
+		{
+			if(i.y < 5)
+			{
+				//リストにAdd
+				VertexList.Add(i);
+			}
+		}
+
+		//リストをシャッフル
+		VertexList = VertexList.OrderBy(a => Guid.NewGuid()).ToList();
+
+		//出現位置オフセット
+		float Offset = 0.5f;
+
+		//高所の頂点位置から壁素材を発生させる
+		for (int i = 0; i < 5; i++)
+		{
+			foreach (var ii in VertexList)
+			{
+				//壁素材をインスタンス化
+				GameObject TempWallMat = Instantiate(WallMaterial[Random.Range(0, WallMaterial.Count)]);
+
+				//親を設定
+				TempWallMat.transform.parent = DeepFind(gameObject, "WallOBJ").transform;
+
+				//発生位置に移動
+				TempWallMat.transform.position = ii + new Vector3(Random.Range(-0.5f, 0.5f), Offset, Random.Range(-0.5f, 0.5f));
+
+				//ランダムに回転
+				TempWallMat.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
+
+				//活性化
+				TempWallMat.SetActive(true);
+
+				//壁生成スクリプトを付ける
+				TempWallMat.AddComponent<GenerateWallScript>();
+			}
+
+			//オフセット位置を上げる
+			Offset += 0.75f;
+
+			//1フレーム待機
+			yield return null;
+		}
+	}
+
+	//プレイヤーキャラクター取得コルーチン
+	private IEnumerator GetPlayerCharacterCoroutine()
+	{
+		//プレイヤーキャラクターが入るまで待つ
+		while (PlayerCharacter == null)
+		{
+			//プレイヤーキャラクター取得
+			PlayerCharacter = GameManagerScript.Instance.GetPlayableCharacterOBJ();
+
+			//１フレーム待機
+			yield return null;
+		}
 	}
 }
 

@@ -38,14 +38,8 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	//戦闘開始処理
 	void BattleStart();
 
-	//戦闘継続演出処理
-	void BattleEventNext(GameObject LooKAtOBJ, GameObject PosOBJ);
-
-	//戦闘勝利演出処理
-	void BattleEventVictory(GameObject LooKAtOBJ, GameObject PosOBJ);
-
-	//戦闘演出終了処理
-	void BattleEventEnd();
+	//戦闘終了処理
+	void BattleEnd();
 
 	//ポーズ処理
 	void Pause(bool b);
@@ -5288,140 +5282,35 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AttackDistance = CC.AttackDistance;
 	}
 
+	//戦闘終了処理
+	public void BattleEnd()
+	{
+		//アイドリングモーション切り替え
+		StartCoroutine(IdlingChangeCoroutine(1, 0, 0.5f));
+	}
+
 	//戦闘開始処理
 	public void BattleStart()
 	{
 		//アイドリングモーション切り替え
-		CurrentAnimator.SetFloat("Idling_Blend", GameManagerScript.Instance.BattleFlag ? 1 : 0);
-
-		/*
-		//移動値をリセット
-		EventMoveVector *= 0;
-
-		//表情を普通に戻す
-		ChangeFace("Reset");
-
-		//キャラクターコントローラ無効化
-		Controller.enabled = false;
-
-		//ポジションを移動
-		gameObject.transform.position = PosOBJ.transform.position;
-
-		//キャラクターコントローラ有効化
-		Controller.enabled = true;
-
-		//回転値を入れる
-		EventRotateVector = HorizontalVector(LooKAtOBJ, gameObject);
-
-		//構え切り替えコルーチン呼び出し
-		StartCoroutine(IdlingChangeCoroutine(2, 1));
-
-		//戦闘フラグを立てる
-		GameManagerScript.Instance.BattleFlag = true;
-		*/
-	}
-
-	//戦闘継続演出処理
-	public void BattleEventNext(GameObject LooKAtOBJ, GameObject PosOBJ)
-	{
-		//移動値をリセット
-		EventMoveVector *= 0;
-
-		//表情を普通に戻す
-		ChangeFace("Reset");
-
-		//キャラクターコントローラ無効化
-		Controller.enabled = false;
-
-		//ポジションを移動
-		gameObject.transform.position = PosOBJ.transform.position;
-
-		//キャラクターコントローラ有効化
-		Controller.enabled = true;
-
-		//回転値を入れる
-		EventRotateVector = HorizontalVector(LooKAtOBJ, gameObject);
-
-		//構え切り替えコルーチン呼び出し
-		StartCoroutine(IdlingChangeCoroutine(3, 1));
-	}
-
-	//戦闘勝利演出処理
-	public void BattleEventVictory(GameObject LooKAtOBJ, GameObject PosOBJ)
-	{
-		//移動値をリセット
-		EventMoveVector *= 0;
-
-		//表情を普通に戻す
-		ChangeFace("Reset");
-
-		//キャラクターコントローラ無効化
-		Controller.enabled = false;
-
-		//ポジションを移動
-		gameObject.transform.position = PosOBJ.transform.position;
-
-		//キャラクターコントローラ有効化
-		Controller.enabled = true;
-
-		//回転値を入れる
-		EventRotateVector = HorizontalVector(LooKAtOBJ, gameObject);
-
-		//構え切り替えコルーチン呼び出し
-		StartCoroutine(IdlingChangeCoroutine(4, 0));
-
-		//戦闘フラグを下す
-		GameManagerScript.Instance.BattleFlag = false;
-	}
-
-	//戦闘演出終了処理
-	public void BattleEventEnd()
-	{
-		//入力許可フラグを更新
-		FlagManager(CurrentState);
+		StartCoroutine(IdlingChangeCoroutine(0, 1, 0.5f));
 	}
 
 	//立ち構え切り替えコルーチン
-	IEnumerator IdlingChangeCoroutine(int Change ,int Affter)
+	private IEnumerator IdlingChangeCoroutine(float B, float A, float T)
 	{
-		//入力許可フラグを更新
-		FlagManager(CurrentState);
+		float n = 0;
 
-		//入力フラグをリセット
-		InputReset();
-
-		//攻撃遷移フラグを下す
-		CurrentAnimator.SetBool("Attack00", false);
-		CurrentAnimator.SetBool("Attack01", false);
-
-		//モーション切り替え
-		CurrentAnimator.SetFloat("Idling_Blend", Change);
-		
-		//モーションを再生
-		CurrentAnimator.Play("Idling", 0, 0);
-
-		//完全にアイドリングモーションになるまで待つ
-		while (CurrentState != "Idling")
+		while(n < 1)
 		{
-			//入力移動値をリセット
-			PlayerMoveInputVecter *= 0;
+			CurrentAnimator.SetFloat("Idling_Blend", Mathf.Lerp(B, A, n));
 
-			//1フレーム待機
+			n += Time.deltaTime / T;
+
 			yield return null;
 		}
 
-		//切り替えモーションが終わるまで待つ
-		while (CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
-		{
-			//1フレーム待機
-			yield return null;
-		}
-
-		//モーション切り替え
-		CurrentAnimator.SetFloat("Idling_Blend", Affter);
-
-		//回転値リセット
-		EventRotateVector *= 0;
+		CurrentAnimator.SetFloat("Idling_Blend", A);
 	}
 
 	//キャラ交代時にキャラを出現させる関数

@@ -3,7 +3,7 @@ NameH,すりぬき
 UseCharacter,0
 Anim,Motion_0_GroundAttack03
 MoveVec,0*0*1*1
-Damage,10
+Damage,1
 Stun,1
 ColVec,0*0*9*0.1
 KnockBackVec,0*0*1*0.1

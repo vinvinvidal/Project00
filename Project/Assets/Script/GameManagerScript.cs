@@ -1713,10 +1713,16 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//メインカメラにもロック中の敵を引き継ぐ
 		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetLockEnemy(e));
 
-		//敵にもプレイヤーキャラクターを渡す
+		//敵にプレイヤーキャラクターを渡す
 		foreach (var i in AllActiveEnemyList)
 		{
 			ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));
+		}
+
+		//バトルフィールドにプレイヤーキャラクターを渡す
+		if(BattleFieldOBJ != null)
+		{
+			ExecuteEvents.Execute<BattleFieldScriptInterface>(BattleFieldOBJ, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));
 		}
 
 		//プレイヤーキャラクターを更新
