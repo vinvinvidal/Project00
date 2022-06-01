@@ -38,6 +38,6 @@ public class CameraWorkScript : GlobalClass
 	//移動速度
 	public float MoveSpeed;
 
-	//注視点にするオブジェクト名
-	public string LookAtOBJName;	
+	//注視点にするオブジェクト
+	public GameObject LookAtOBJ;
 }

@@ -38,23 +38,14 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//プレイヤーキャラクター
 	private GameObject PlayerCharacter = null;
 
+	//プレイヤーキャラクターポジションオブジェクト
+	private GameObject PlayerPosOBJ;
+
 	//コライダ　
 	private SphereCollider BattleFieldCol;
 
 	//演出用ヴァーチャルカメラ
-	private GameObject VcamOBJ;
-
-	//メインカメラのヴァーチャルカメラ
-	private CinemachineBrain MainVCam;
-
-	//演出中フラグ
-	private bool EventFlag = false;
-
-	//プレイヤーキャラクターをセットするインターフェイス
-	public void SetPlayerCharacter(GameObject p)
-	{
-		PlayerCharacter = p;
-	}
+	private CinemachineCameraScript BattleNextVcam;
 
 	private void Start()
 	{
@@ -68,10 +59,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		WallMaterial = new List<GameObject>(WallOBJ.GetComponentsInChildren<Rigidbody>().Select(a => a.gameObject).ToList());
 
 		//演出用ヴァーチャルカメラ取得
-		VcamOBJ = GetComponentInChildren<CinemachineVirtualCamera>().gameObject;
-
-		//メインカメラのヴァーチャルカメラ
-		MainVCam = GameObject.Find("MainCamera").GetComponent<CinemachineBrain>();
+		BattleNextVcam = DeepFind(gameObject, "BattleFieldCamera_Next").GetComponent<CinemachineCameraScript>();
 
 		//コライダ取得
 		BattleFieldCol = GetComponent<SphereCollider>();
@@ -81,6 +69,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		{
 			i.SetActive(false);
 		}
+
+		//プレイヤーキャラクターポジションオブジェクト取得
+		PlayerPosOBJ = DeepFind(gameObject, "PlayerPosOBJ");
 
 		//プレイヤーキャラクター取得コルーチン呼び出し
 		StartCoroutine(GetPlayerCharacterCoroutine());
@@ -114,6 +105,12 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		}
 	}
 
+	//プレイヤーキャラクターをセットするインターフェイス
+	public void SetPlayerCharacter(GameObject p)
+	{
+		PlayerCharacter = p;
+	}
+
 	//勝利処理関数
 	private void Victory()
 	{
@@ -124,36 +121,24 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//次のウェーブ移行処理関数
 	private void NextWave()
 	{
-		//バーチャルカメラを演出位置に移動
-		VcamOBJ.transform.parent = DeepFind(PlayerCharacter, "HeadBone").transform;
+		//プレイヤーキャラクターの戦闘継続処理実行
+		PlayerCharacter.GetComponent<PlayerScript>().BattleNext(PlayerPosOBJ);
 
-		VcamOBJ.GetComponent<CinemachineVirtualCamera>().LookAt = VcamOBJ.transform.parent;
+		//演出カメラの注視オブジェクト設定
+		BattleNextVcam.CameraWorkList[0].GetComponent<CameraWorkScript>().LookAtOBJ = DeepFind(PlayerCharacter, "NeckBone");
 
-		VcamOBJ.transform.localPosition = new Vector3(-0.25f, 0.3f, 0.15f);
+		//トランスフォームをキャラクターと同期させる
+		BattleNextVcam.transform.position = PlayerCharacter.transform.position;
+		BattleNextVcam.transform.rotation = PlayerCharacter.transform.rotation;
 
-		VcamOBJ.GetComponent<CinemachineVirtualCamera>().enabled = true;
+		//バーチャルカメラ再生
+		BattleNextVcam.PlayCameraWork(0, true);
 
-		MainVCam.enabled = true;
-
-		EventFlag = true;
-
-		StartCoroutine(NextWaveCoroutine());
+		//イベント中フラグを立てる
+		GameManagerScript.Instance.EventFlag = true;
 
 		//敵配置コルーチン呼び出し
 		StartCoroutine(StandByCoroutine());
-	}
-	private IEnumerator NextWaveCoroutine()
-	{
-		Vector3 v = VcamOBJ.transform.localPosition;
-
-		while (EventFlag)
-		{
-			v.x = Mathf.Lerp(-0.25f, 0.25f, (Mathf.Sin(Time.time * 2) + 1) * 0.5f);
-
-			VcamOBJ.transform.localPosition = v;
-
-			yield return null;
-		}		
 	}
 
 	//フィールド解放コルーチン
@@ -303,9 +288,8 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				i.GetComponent<EnemyCharacterScript>().BattleStart();
 			}
 
-			MainVCam.enabled = false;
-
-			EventFlag = false;
+			//イベント中フラグを下す
+			GameManagerScript.Instance.EventFlag = false;
 		}
 
 		//ウェーブカウントアップ

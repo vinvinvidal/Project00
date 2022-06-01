@@ -38,6 +38,9 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	//戦闘開始処理
 	void BattleStart();
 
+	//戦闘継続処理
+	void BattleNext(GameObject Pos);
+
 	//戦闘終了処理
 	void BattleEnd();
 
@@ -3450,7 +3453,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//表情を変える、アニメーションクリップのイベントから呼ばれる
-	private void ChangeFace(string n)
+	public void ChangeFace(string n)
 	{
 		//瞬き禁止フラグを下ろす
 		NoBlinkFlag = false;
@@ -5287,6 +5290,21 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//アイドリングモーション切り替え
 		StartCoroutine(IdlingChangeCoroutine(1, 0, 0.5f));
+	}
+
+	//戦闘継続処理
+	public void BattleNext(GameObject Pos)
+	{
+		//アイドリングモーション切り替え
+		StartCoroutine(IdlingChangeCoroutine(1, 2, 0.1f));
+
+		Controller.enabled = false;
+
+		transform.position = Pos.transform.position;
+
+		transform.LookAt(new Vector3(GameManagerScript.Instance.GetBattleFieldOBJ().transform.position.x, transform.position.y, GameManagerScript.Instance.GetBattleFieldOBJ().transform.position.z));
+
+		Controller.enabled = true;
 	}
 
 	//戦闘開始処理

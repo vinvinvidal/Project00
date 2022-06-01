@@ -98,11 +98,20 @@ public class CinemachineCameraScript : GlobalClass
 		//カメラワーク持続フラグ初期化
 		KeepCameraFlag = true;
 
+		/*
 		//注視点オブジェクトが指定されていたら設定
 		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJName != "")
 		{
 			Vcam[VcamIndex].LookAt = GameObject.Find(CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJName).transform;
 		}
+		*/
+
+		//注視点オブジェクトが指定されていたら設定
+		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJ != null)
+		{
+			Vcam[VcamIndex].LookAt = CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJ.transform;
+		}
+
 
 		//遷移モードを設定
 		switch (CameraWorkList[Index].GetComponent<CameraWorkScript>().TransrationMode)
