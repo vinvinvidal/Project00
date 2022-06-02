@@ -77,7 +77,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		StartCoroutine(GetPlayerCharacterCoroutine());
 
 		//敵初期配置コルーチン呼び出し
-		StartCoroutine(StandByCoroutine());
+		StartCoroutine(StandByCoroutine(() => { }));
 	}
 
 	private void Update()
@@ -121,24 +121,34 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//次のウェーブ移行処理関数
 	private void NextWave()
 	{
+		//イベント中フラグを立てる
+		GameManagerScript.Instance.EventFlag = true;
+
 		//プレイヤーキャラクターの戦闘継続処理実行
-		PlayerCharacter.GetComponent<PlayerScript>().BattleNext(PlayerPosOBJ);
+		PlayerCharacter.GetComponent<PlayerScript>().BattleNext(gameObject);
 
 		//演出カメラの注視オブジェクト設定
 		BattleNextVcam.CameraWorkList[0].GetComponent<CameraWorkScript>().LookAtOBJ = DeepFind(PlayerCharacter, "NeckBone");
 
 		//トランスフォームをキャラクターと同期させる
 		BattleNextVcam.transform.position = PlayerCharacter.transform.position;
-		BattleNextVcam.transform.rotation = PlayerCharacter.transform.rotation;
 
 		//バーチャルカメラ再生
-		BattleNextVcam.PlayCameraWork(0, true);
-
-		//イベント中フラグを立てる
-		GameManagerScript.Instance.EventFlag = true;
+		BattleNextVcam.PlayCameraWork(0, true);		
 
 		//敵配置コルーチン呼び出し
-		StartCoroutine(StandByCoroutine());
+		StartCoroutine(StandByCoroutine(() => 
+		{
+			//カメラワーク終了
+			BattleNextVcam.KeepCameraFlag = false;
+
+			//イベント中フラグを下す
+			GameManagerScript.Instance.EventFlag = false;
+
+			//プレイヤーキャラクターの戦闘継続処理実行
+			PlayerCharacter.GetComponent<PlayerScript>().BattleContinue();
+
+		}));
 	}
 
 	//フィールド解放コルーチン
@@ -183,7 +193,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	}
 
 	//敵配置コルーチン
-	private IEnumerator StandByCoroutine()
+	private IEnumerator StandByCoroutine(Action Act)
 	{
 		//プレイヤーキャラクター存在チェック
 		while (PlayerCharacter == null)
@@ -297,6 +307,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 		//全滅チェック開始
 		EnemyCheckFlag = true;
+
+		//匿名関数実行
+		Act();
 	}
 
 	//プレイヤーがエリアに進入したら呼ばれる関数

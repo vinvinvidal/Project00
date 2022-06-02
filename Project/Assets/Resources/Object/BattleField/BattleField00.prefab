@@ -786,16 +786,19 @@ MonoBehaviour:
     pathColor: {r: 0, g: 1, b: 0, a: 1}
     inactivePathColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     width: 0.2
-  m_Looped: 0
+  m_Looped: 1
   m_Waypoints:
-  - position: {x: 0, y: 0.2, z: 3}
-    tangent: {x: 0, y: 0, z: -0.49390602}
+  - position: {x: 0, y: 0.1, z: 2}
+    tangent: {x: -1, y: 0, z: 0}
     roll: 0
-  - position: {x: -0.1, y: 0.5, z: 1.5}
-    tangent: {x: -0.19573095, y: 0.08218837, z: -0.44871676}
+  - position: {x: -2, y: 0.1, z: 0}
+    tangent: {x: 0, y: 0, z: -1}
     roll: 0
-  - position: {x: 0, y: 1, z: -2}
-    tangent: {x: 1.7895386, y: 0, z: -1.6203117}
+  - position: {x: 0, y: 0.1, z: -2}
+    tangent: {x: 1, y: 0, z: 0}
+    roll: 0
+  - position: {x: 2, y: 0.1, z: 0}
+    tangent: {x: 0, y: 0, z: 1}
     roll: 0
 --- !u!114 &1324926600291800900
 MonoBehaviour:
@@ -810,14 +813,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CameraMode: 1
-  KeepMode: 2
+  KeepMode: 0
   TransrationMode: 0
   NextCameraWorkMode: 10
   RandomFlag: 0
   ReturnPositionFlag: 0
-  EasingTime: 0
+  EasingTime: 0.5
   KeepTime: 0
-  MoveSpeed: 0.5
+  MoveSpeed: 2
   LookAtOBJ: {fileID: 0}
 --- !u!1 &3012848010687126539
 GameObject:

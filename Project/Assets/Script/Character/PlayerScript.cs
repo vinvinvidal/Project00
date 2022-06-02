@@ -40,6 +40,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 
 	//戦闘継続処理
 	void BattleNext(GameObject Pos);
+	void BattleContinue();
 
 	//戦闘終了処理
 	void BattleEnd();
@@ -5296,15 +5297,31 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void BattleNext(GameObject Pos)
 	{
 		//アイドリングモーション切り替え
-		StartCoroutine(IdlingChangeCoroutine(1, 2, 0.1f));
+		StartCoroutine(IdlingChangeCoroutine(1, 2, 0.5f));
 
+		//モーションを最初から再生
+		CurrentAnimator.Play(0);
+
+		//キャラクターコントローラ無効化
 		Controller.enabled = false;
-
-		transform.position = Pos.transform.position;
-
+		
+		//敵のスポーン位置に向ける
 		transform.LookAt(new Vector3(GameManagerScript.Instance.GetBattleFieldOBJ().transform.position.x, transform.position.y, GameManagerScript.Instance.GetBattleFieldOBJ().transform.position.z));
 
+		//キャラクターコントローラ有効化
 		Controller.enabled = true;
+
+		//強制的に入力フラグを更新
+		FlagManager(CurrentState);
+	}
+	//戦闘継続処理
+	public void BattleContinue()
+	{
+		//アイドリングモーション切り替え
+		StartCoroutine(IdlingChangeCoroutine(2, 1, 0.5f));
+
+		//強制的に入力フラグを更新
+		FlagManager(CurrentState);
 	}
 
 	//戦闘開始処理
