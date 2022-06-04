@@ -28,8 +28,11 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	//ボーンList
 	public List<GameObject> BoneList = new List<GameObject>();
 
+	//ワイヤーオブジェクト
+	public GameObject WireOBJ { get; set; }
+
 	//燐糞オブジェクト
-	public GameObject BombOBJ;
+	public GameObject BombOBJ { get; set; }
 
 	//燐糞オブジェクトインスタンス
 	private GameObject BombInst;
@@ -42,17 +45,6 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 
 	//壁にヒットしたフラグ
 	public bool WallHitFlag = false;
-
-	// Start is called before the first frame update
-	void Start()
-	{
-
-	}
-	// Update is called once per frame
-	void Update()
-    {
-
-    }
 
 	//燐糞を生成する
 	public void CreateBomb()
@@ -127,7 +119,6 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//爆弾投げコルーチン呼び出し
 		StartCoroutine(BombThrowCoroutine(IgnitionTime, ThrowTime, ThrowVec, ThrowPow));
 	}
-
 	private IEnumerator BombThrowCoroutine(float IgnitionTime, float ThrowTime, Vector3 ThrowVec, float ThrowPow)
 	{
 		//開始時間キャッシュ
@@ -369,6 +360,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//親を解除
 		BoneList[5].transform.parent = null;
 
+		//ワイヤー波打ちアニメ呼び出し
+		ExecuteEvents.Execute<WireShaderScriptInterface>(WireOBJ, null, (reciever, eventData) => reciever.WireWave(-0.1f));
+
 		//巻き戻し
 		while ((BoneList[4].transform.position - BoneList[5].transform.position).sqrMagnitude > 0.1f)
 		{
@@ -387,6 +381,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//コライダ有効化
 		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(true));
 
+		//ワイヤー波打ちアニメ呼び出し
+		ExecuteEvents.Execute<WireShaderScriptInterface>(WireOBJ, null, (reciever, eventData) => reciever.WireWave(0.2f));		
+
 		//武器移動
 		while ((gameObject.transform.position - BoneList[5].transform.position).sqrMagnitude < 150 && !WallHitFlag)
 		{
@@ -398,6 +395,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			{
 				//特殊攻撃成功処理実行
 				SpecialAttackHit();
+
+				//ワイヤー波打ちアニメ呼び出し
+				ExecuteEvents.Execute<WireShaderScriptInterface>(WireOBJ, null, (reciever, eventData) => reciever.WireWave(-0.2f));
 
 				//ループを抜けて処理をスキップ
 				goto WeaponEnemyHit;
@@ -411,10 +411,16 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//コライダ無効化
 		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false));
 
+		//ワイヤー波打ちアニメ呼び出し
+		ExecuteEvents.Execute<WireShaderScriptInterface>(WireOBJ, null, (reciever, eventData) => reciever.WireWave(-0.2f));
+
 		//巻き戻し
 		while ((BoneList[0].transform.position - BoneList[5].transform.position).sqrMagnitude > 1)
 		{
-			BoneList[5].transform.position += (BoneList[0].transform.position - BoneList[5].transform.position).normalized * 50 * Time.deltaTime;
+			if(!GameManagerScript.Instance.PauseFlag)
+			{
+				BoneList[5].transform.position += (BoneList[0].transform.position - BoneList[5].transform.position).normalized * 50 * Time.deltaTime;
+			}
 
 			yield return null;
 		}

@@ -144,6 +144,9 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 							gameObject.GetComponent<Character2WeaponMoveScript>().BoneList.Add(DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_1_Bone0" + count));
 						}
 
+						//ワイヤーオブジェクト
+						gameObject.GetComponent<Character2WeaponMoveScript>().WireOBJ = DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_1_Mesh");
+
 						//燐糞オブジェクト
 						gameObject.GetComponent<Character2WeaponMoveScript>().BombOBJ = DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_2");
 					}
