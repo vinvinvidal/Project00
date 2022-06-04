@@ -124,6 +124,7 @@ MonoBehaviour:
   TransrationMode: 1
   NextCameraWorkMode: 10
   RandomFlag: 0
+  ReturnPositionMode: 0
   ReturnPositionFlag: 0
   EasingTime: 0.5
   KeepTime: 0.5
@@ -817,6 +818,7 @@ MonoBehaviour:
   TransrationMode: 0
   NextCameraWorkMode: 10
   RandomFlag: 0
+  ReturnPositionMode: 2
   ReturnPositionFlag: 0
   EasingTime: 0.5
   KeepTime: 0
@@ -1074,6 +1076,7 @@ MonoBehaviour:
   TransrationMode: 0
   NextCameraWorkMode: 0
   RandomFlag: 0
+  ReturnPositionMode: 0
   ReturnPositionFlag: 0
   EasingTime: 0
   KeepTime: 0
@@ -1318,6 +1321,7 @@ MonoBehaviour:
   TransrationMode: 0
   NextCameraWorkMode: 0
   RandomFlag: 0
+  ReturnPositionMode: 0
   ReturnPositionFlag: 0
   EasingTime: 0
   KeepTime: 0
@@ -1545,6 +1549,7 @@ MonoBehaviour:
   TransrationMode: 0
   NextCameraWorkMode: 10
   RandomFlag: 0
+  ReturnPositionMode: 0
   ReturnPositionFlag: 0
   EasingTime: 0
   KeepTime: 0

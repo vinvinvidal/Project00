@@ -321,8 +321,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public AnimationClip Idling0_Anim;
 	public AnimationClip Idling1_Anim;
 	public AnimationClip Idling2_Anim;
-	public AnimationClip Idling3_Anim;
-	public AnimationClip Idling4_Anim;
+	//public AnimationClip Idling3_Anim;
+	//public AnimationClip Idling4_Anim;
 
 	[Header("移動モーション")]
 	public AnimationClip Walk_Anim;
@@ -676,8 +676,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		OverRideAnimator["Idling_void_0"] = Idling0_Anim;
 		OverRideAnimator["Idling_void_1"] = Idling1_Anim;
 		OverRideAnimator["Idling_void_2"] = Idling2_Anim;
-		OverRideAnimator["Idling_void_3"] = Idling3_Anim;
-		OverRideAnimator["Idling_void_4"] = Idling4_Anim;
+		//OverRideAnimator["Idling_void_3"] = Idling3_Anim;
+		//OverRideAnimator["Idling_void_4"] = Idling4_Anim;
 		OverRideAnimator["Move_void_0"] = Walk_Anim;
 		OverRideAnimator["Move_void_1"] = Run_Anim;
 		OverRideAnimator["Move_void_2"] = Dash_Anim;
@@ -3378,26 +3378,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 1.0f);
 			}
 
-			//敵を倒したらロックを外す処理
-			if (LockEnemy != null)
-			{
-				//返り値受け取り用変数
-				bool tempbool = false;
-
-				//攻撃を当てた敵から死亡フラグを受け取る
-				ExecuteEvents.Execute<EnemyCharacterInterface>(LockEnemy, null, (reciever, eventData) => tempbool = reciever.GetDestroyFlag());
-
-				//死んでたら
-				if (tempbool)
-				{
-					//敵のロックを外す	
-					//LockEnemy = null;
-
-					//メインカメラのロックも外す
-					ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
-				}
-			}
-
 			//タメ攻撃がフルチャージ
 			if (ChargeLevel == 3)
 			{
@@ -3409,6 +3389,26 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//ズームエフェクト呼び出し
 				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.05f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
+			}
+		}
+
+		//敵を倒したらロックを外す処理
+		if (LockEnemy != null)
+		{
+			//返り値受け取り用変数
+			bool tempbool = false;
+
+			//攻撃を当てた敵から死亡フラグを受け取る
+			ExecuteEvents.Execute<EnemyCharacterInterface>(LockEnemy, null, (reciever, eventData) => tempbool = reciever.GetDestroyFlag());
+
+			//死んでたら
+			if (tempbool)
+			{
+				//敵のロックを外す	
+				LockEnemy = null;
+
+				//メインカメラのロックも外す
+				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 			}
 		}
 	}
@@ -5296,11 +5296,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//戦闘継続処理
 	public void BattleNext(GameObject Pos)
 	{
+		//ボタン押しっぱなしフラグ解除
+		HoldButtonFlag = false;
+
 		//アイドリングモーション切り替え
 		StartCoroutine(IdlingChangeCoroutine(1, 2, 0.5f));
 
-		//モーションを最初から再生
-		CurrentAnimator.Play(0);
+		//アイドリング中ならモーションを最初から再生
+		if(CurrentState == "Idling")
+		{
+			CurrentAnimator.Play(0);
+		}
 
 		//キャラクターコントローラ無効化
 		Controller.enabled = false;

@@ -344,17 +344,8 @@ public class CinemachineCameraScript : GlobalClass
 		//終了用Vcam有効化
 		MasterVcam.enabled = true;
 
-		//カメラ位置をカメラワーク開始時のポジションに戻す場合
-		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().ReturnPositionFlag)
-		{
-			//終了用Vcamを通常の注視点に向ける、ポジションは開始時のEasingVcamera()で入る
-			MasterVcam.transform.LookAt(GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position + MainCamera.transform.parent.GetComponent<MainCameraScript>().LookAtOffset);
-
-			//コルーチン呼び出し
-			StartCoroutine(EndCameraWorkCoroutine(1));
-		}
 		//カメラ位置をそのままにする場合
-		else
+		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().ReturnPositionMode == 0)
 		{
 			//終了用Vcamを現在のカメラに合わせる
 			MasterVcam.transform.position = MainCamera.transform.position;
@@ -362,6 +353,30 @@ public class CinemachineCameraScript : GlobalClass
 
 			//コルーチン呼び出し
 			StartCoroutine(EndCameraWorkCoroutine(0.1f));
+		}
+		//カメラ位置をカメラワーク開始時のポジションに戻す場合
+		else if (CameraWorkList[Index].GetComponent<CameraWorkScript>().ReturnPositionMode == 1)
+		{
+			//終了用Vcamを通常の注視点に向ける、ポジションは開始時のEasingVcamera()で入る
+			MasterVcam.transform.LookAt(GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position + MainCamera.transform.parent.GetComponent<MainCameraScript>().LookAtOffset);
+
+			//コルーチン呼び出し
+			StartCoroutine(EndCameraWorkCoroutine(1));
+		}
+		//キャラクターの背面に移動させる場合
+		else if (CameraWorkList[Index].GetComponent<CameraWorkScript>().ReturnPositionMode == 2)
+		{
+			//プレイヤーキャラクター取得
+			GameObject POBJ = GameManagerScript.Instance.GetPlayableCharacterOBJ();
+
+			//終了用Vcamをリセット位置に移動
+			MasterVcam.transform.position = POBJ.transform.position - (POBJ.transform.forward * 3) + new Vector3(0,2,0);
+
+			//終了用Vcamを通常の注視点に向ける、ポジションは開始時のEasingVcamera()で入る
+			MasterVcam.transform.LookAt(POBJ.transform.position + MainCamera.transform.parent.GetComponent<MainCameraScript>().LookAtOffset);
+
+			//コルーチン呼び出し
+			StartCoroutine(EndCameraWorkCoroutine(1));
 		}
 	}
 	//この処理をやらないとコリジョンの外にVcamがあった場合カメラがハマる

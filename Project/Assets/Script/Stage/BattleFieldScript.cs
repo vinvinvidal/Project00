@@ -85,20 +85,20 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//敵全滅チェック
 		if(EnemyCheckFlag)
 		{
-			//敵を全て倒したら処理
-			if (EnemyList.All(a => a == null))
+			if(GameManagerScript.Instance.AllActiveEnemyList.All(a => a == null))
 			{
 				//敵全滅チェック停止
 				EnemyCheckFlag = false;
 
-				//最終ウェーブだったら勝利処理
+				//最終ウェーブ
 				if (EnemyWaveList.Count == WaveCount)
 				{
+					//勝利処理
 					Victory();
 				}
-				//次のウェーブ移行処理
 				else
 				{
+					//次のウェーブ処理
 					NextWave();
 				}
 			}
@@ -114,45 +114,11 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//勝利処理関数
 	private void Victory()
 	{
-		//フィールド解放コルーチン呼び出し
-		StartCoroutine(ReleaseBattleFieldCoroutine());
+		//勝利処理コルーチン呼び出し
+		StartCoroutine(VictoryCoroutine());
 	}
-
-	//次のウェーブ移行処理関数
-	private void NextWave()
-	{
-		//イベント中フラグを立てる
-		GameManagerScript.Instance.EventFlag = true;
-
-		//プレイヤーキャラクターの戦闘継続処理実行
-		PlayerCharacter.GetComponent<PlayerScript>().BattleNext(gameObject);
-
-		//演出カメラの注視オブジェクト設定
-		BattleNextVcam.CameraWorkList[0].GetComponent<CameraWorkScript>().LookAtOBJ = DeepFind(PlayerCharacter, "NeckBone");
-
-		//トランスフォームをキャラクターと同期させる
-		BattleNextVcam.transform.position = PlayerCharacter.transform.position;
-
-		//バーチャルカメラ再生
-		BattleNextVcam.PlayCameraWork(0, true);		
-
-		//敵配置コルーチン呼び出し
-		StartCoroutine(StandByCoroutine(() => 
-		{
-			//カメラワーク終了
-			BattleNextVcam.KeepCameraFlag = false;
-
-			//イベント中フラグを下す
-			GameManagerScript.Instance.EventFlag = false;
-
-			//プレイヤーキャラクターの戦闘継続処理実行
-			PlayerCharacter.GetComponent<PlayerScript>().BattleContinue();
-
-		}));
-	}
-
-	//フィールド解放コルーチン
-	private IEnumerator ReleaseBattleFieldCoroutine()
+	//勝利処理コルーチン
+	private IEnumerator VictoryCoroutine()
 	{
 		//ゲームマネージャーの戦闘フラグを下す
 		GameManagerScript.Instance.BattleFlag = false;
@@ -190,6 +156,47 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 		//自身を削除
 		Destroy(gameObject);
+	}
+
+	//次のウェーブ移行処理関数
+	private void NextWave()
+	{
+		//次のウェーブ移行処理コルーチン呼び出し
+		StartCoroutine(NextWaveCoroutine());
+	}
+	private IEnumerator NextWaveCoroutine()
+	{
+		//チョイ待機
+		yield return new WaitForSeconds(2);
+
+		//イベント中フラグを立てる
+		GameManagerScript.Instance.EventFlag = true;
+
+		//プレイヤーキャラクターの戦闘継続処理実行
+		PlayerCharacter.GetComponent<PlayerScript>().BattleNext(gameObject);
+
+		//演出カメラの注視オブジェクト設定
+		BattleNextVcam.CameraWorkList[0].GetComponent<CameraWorkScript>().LookAtOBJ = DeepFind(PlayerCharacter, "NeckBone");
+
+		//トランスフォームをキャラクターと同期させる
+		BattleNextVcam.transform.position = PlayerCharacter.transform.position;
+
+		//バーチャルカメラ再生
+		BattleNextVcam.PlayCameraWork(0, true);
+
+		//敵配置コルーチン呼び出し
+		StartCoroutine(StandByCoroutine(() =>
+		{			
+			//カメラワーク終了
+			BattleNextVcam.KeepCameraFlag = false;
+
+			//イベント中フラグを下す
+			GameManagerScript.Instance.EventFlag = false;
+
+			//プレイヤーキャラクターの戦闘継続処理実行
+			PlayerCharacter.GetComponent<PlayerScript>().BattleContinue();
+
+		}));
 	}
 
 	//敵配置コルーチン

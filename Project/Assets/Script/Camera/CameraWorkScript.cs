@@ -20,13 +20,14 @@ public class CameraWorkScript : GlobalClass
 	[Header("次のカメラワークモード"), Tooltip("　0　次のインデックス　\n　1　最初に戻る　\n　2　ランダム　\n　3　インデックス指定　\n　10　ここで終わり")]
 	public int NextCameraWorkMode;
 
+	//カメラをどこに戻すかモード
+	[Header("カメラをどこに戻すかモード"), Tooltip("　0　そのまま　\n　1　開始時の位置　\n　2　キャラ背面")]
+	public int ReturnPositionMode;
+
 	//持っているVcamの中からランダムで再生する
 	[Header("持っているVcamの中からランダムで再生するフラグ")]
 	public bool RandomFlag;
 
-	//カメラワーク開始時のポジションにカメラを戻すフラグ
-	[Header("カメラワーク開始時のポジションにカメラを戻すフラグ")]
-	public bool ReturnPositionFlag = true;
 	[Space(15)]
 
 	//イージング時間

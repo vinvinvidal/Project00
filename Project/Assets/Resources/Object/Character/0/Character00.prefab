@@ -387,7 +387,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 1
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &1150242887817978780
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,7 +573,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 0.75
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!114 &2229811079649191088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1315,7 +1315,7 @@ MonoBehaviour:
   EasingTime: 1
   KeepTime: 0
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &5721431190450149513
 GameObject:
   m_ObjectHideFlags: 0
@@ -1456,7 +1456,7 @@ MonoBehaviour:
   EasingTime: 1
   KeepTime: 0
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &6060904190478834449
 GameObject:
   m_ObjectHideFlags: 0
@@ -1769,7 +1769,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0.25
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &6466883124500307158
 GameObject:
   m_ObjectHideFlags: 0
@@ -1849,7 +1849,7 @@ MonoBehaviour:
   EasingTime: 0.5
   KeepTime: 0
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &6636619013266374178
 GameObject:
   m_ObjectHideFlags: 0
@@ -1929,7 +1929,7 @@ MonoBehaviour:
   EasingTime: 0.5
   KeepTime: 0
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &6723867451610493212
 GameObject:
   m_ObjectHideFlags: 0
@@ -2171,7 +2171,7 @@ MonoBehaviour:
   SuperGauge: 1
   Idling0_Anim: {fileID: 7400000, guid: 9af0a8d9a346a3c4184eeba2be240c53, type: 2}
   Idling1_Anim: {fileID: 7400000, guid: 41281075286e4124e9c4ee42fa5cc42e, type: 2}
-  Idling2_Anim: {fileID: 7400000, guid: 499b1261fd0b77949afa244f14e1e508, type: 2}
+  Idling2_Anim: {fileID: 7400000, guid: e65b5db54073fb945a8c205a3755b42e, type: 2}
   Idling3_Anim: {fileID: 7400000, guid: e65b5db54073fb945a8c205a3755b42e, type: 2}
   Idling4_Anim: {fileID: 7400000, guid: 12d1c2d62f1630c46a5edb2570c22c3f, type: 2}
   Walk_Anim: {fileID: 7400000, guid: 65bb97f5c7602f443a32d76da6951eaf, type: 2}
@@ -2502,7 +2502,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0.25
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!114 &7412633532723777565
 MonoBehaviour:
   m_ObjectHideFlags: 0

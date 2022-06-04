@@ -1570,16 +1570,26 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//カメラの画角に収まってるかbool
 			bool InCameraViewBool = false;
 
+			//死んでるかbool
+			bool DestroyBool = false;
+
 			//まずカメラに収まっているか判定
 			foreach (GameObject e in AllActiveEnemyList.Where(e => e != null))
-			{				
-				//カメラの画角収まってるか関数呼び出し、変数に代入。
-				ExecuteEvents.Execute<EnemyCharacterInterface>(e, null, (reciever, eventData) => InCameraViewBool = reciever.GetOnCameraBool());
+			{
+				//死んでるか判定
+				ExecuteEvents.Execute<EnemyCharacterInterface>(e, null, (reciever, eventData) => DestroyBool = reciever.GetDestroyFlag());
 
-				//画面内にいたらリストに追加
-				if(InCameraViewBool)
+				//死んでる奴はロック対象から外す
+				if(!DestroyBool)
 				{
-					LockEnemyList.Add(e);
+					//カメラの画角収まってるか関数呼び出し、変数に代入。
+					ExecuteEvents.Execute<EnemyCharacterInterface>(e, null, (reciever, eventData) => InCameraViewBool = reciever.GetOnCameraBool());
+
+					//画面内にいたらリストに追加
+					if (InCameraViewBool)
+					{
+						LockEnemyList.Add(e);
+					}
 				}
 			}
 
@@ -1765,9 +1775,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//呼び出してきたエネミーをリストに追加
 		AllActiveEnemyList.Add(i);
 
-		//プレイアブルキャラクターの戦闘中フラグを立てる
-		//ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.SetFightingFlag(true));
-
 		//呼び出してきたエネミーにリストのインデックスを送る
 		return AllActiveEnemyList.Count - 1;
 	}
@@ -1777,13 +1784,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	{
 		//退場したエネミーをリストから削除する、Removeを使うとインデックスがズレるのでnullを入れる
 		AllActiveEnemyList[i] = null;
-
-		//敵がいなくなったら戦闘中フラグを下ろす
-		if(AllActiveEnemyList.All(a => a == null))
-		{
-			//プレイアブルキャラクターの戦闘中フラグを下ろす
-			//ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.SetFightingFlag(false));
-		}
 	}
 
 	//ミニマップ表示切り替え

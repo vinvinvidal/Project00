@@ -705,9 +705,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//行動抽選関数呼び出し
 				BehaviorFunc();
 			}
-
-			//死亡監視関数呼び出し
-			//DeadFunc();
 		}
 	}
 
@@ -1054,6 +1051,19 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			//死亡フラグを立てる
 			DestroyFlag = true;
+
+			//死んでる
+			if (DestroyFlag)
+			{
+				//コライダ無効化
+				DamageCol.enabled = false;
+
+				//ゲームマネージャーのListから自身を削除
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
+
+				//オブジェクト削除コルーチン呼び出し
+				StartCoroutine(VanishCoroutine());
+			}
 		}
 
 		//攻撃用コライダを無効化
@@ -1552,19 +1562,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 					//ダウン制御コルーチン呼び出し
 					StartCoroutine(DownCoroutine());
 				}
-
-				//死んでる
-				if (DestroyFlag)
-				{
-					//コライダ無効化
-					DamageCol.enabled = false;
-
-					//ゲームマネージャーのListから自身を削除
-					ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
-
-					//オブジェクト削除コルーチン呼び出し
-					StartCoroutine(VanishCoroutine());
-				}
 			}
 			//起き上がりになった瞬間の処理
 			else if (CurrentState.Contains("-> GetUp"))
@@ -1883,12 +1880,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 		}
-	}
-
-	//死亡監視関数使わない？
-	private void DeadFunc()
-	{
-
 	}
 
 	//行動中に移動させる、前後だけ、アニメーションクリップから呼ばれる

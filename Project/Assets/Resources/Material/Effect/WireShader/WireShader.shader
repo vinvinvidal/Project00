@@ -48,6 +48,10 @@
 
 			fixed4 _LightColor0;				//ライトカラー
 
+			vector VartexVector;
+
+			float WaveNum = 0;
+
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
 			{
@@ -56,6 +60,12 @@
 
 				// 法線情報を取得
 				half3 normal : NORMAL;
+
+				//頂点ID
+				uint vid : SV_VertexID;
+
+				//頂点カラー
+				float4 vertColor : COLOR;
 
 				// テクスチャ座標を取得
 				float2 uv : TEXCOORD0;
@@ -82,6 +92,15 @@
 
 				//UVを格納
 				re.uv = v.uv;
+
+				//頂点をワールド座標に変換
+				v.pos = mul(unity_ObjectToWorld, v.pos);
+
+				//波打ちアニメーション
+				v.pos.y += (sin(round(v.vertColor.r * 10) + (-_Time.z * 10)) * 1.25) * v.vertColor.g;
+
+				//頂点をオブジェクト座標に戻す
+				v.pos = mul(unity_WorldToObject, v.pos);
 
 				//頂点座標を格納 UnityObjectToClipPos()に頂点座標を渡すと画面上ピクセル座標を返してくる
 				re.pos = UnityObjectToClipPos(v.pos);

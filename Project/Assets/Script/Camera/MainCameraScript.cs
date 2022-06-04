@@ -460,7 +460,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		CameraResetFlag = true;
 
 		//1フレームだとたまにシケるのでちょっと待機
-		yield return new WaitForSeconds(0.1f);
+		yield return new WaitForSeconds(0.01f);
 
 		//カメラリセットフラグを下ろす
 		CameraResetFlag = false;
