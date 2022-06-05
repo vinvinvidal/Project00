@@ -44,8 +44,11 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//コライダ　
 	private SphereCollider BattleFieldCol;
 
-	//演出用ヴァーチャルカメラ
+	//戦闘継続演出用ヴァーチャルカメラ
 	private CinemachineCameraScript BattleNextVcam;
+
+	//戦闘勝利演出用ヴァーチャルカメラ
+	private CinemachineCameraScript BattleVictoryVcam;
 
 	private void Start()
 	{
@@ -58,8 +61,11 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//壁素材オブジェクト取得
 		WallMaterial = new List<GameObject>(WallOBJ.GetComponentsInChildren<Rigidbody>().Select(a => a.gameObject).ToList());
 
-		//演出用ヴァーチャルカメラ取得
+		//演戦闘継続演出用ヴァーチャルカメラ取得
 		BattleNextVcam = DeepFind(gameObject, "BattleFieldCamera_Next").GetComponent<CinemachineCameraScript>();
+
+		//演戦闘勝利演出用ヴァーチャルカメラ取得
+		BattleVictoryVcam = DeepFind(gameObject, "BattleFieldCamera_Victory").GetComponent<CinemachineCameraScript>();
 
 		//コライダ取得
 		BattleFieldCol = GetComponent<SphereCollider>();
@@ -147,6 +153,28 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			//外側に力を与えて壁を崩す
 			i.AddForce((i.transform.position - gameObject.transform.position + Vector3.up) * 2.5f, ForceMode.Impulse);
 		}
+
+		//演出カメラの注視オブジェクト設定
+		BattleVictoryVcam.CameraWorkList[0].GetComponent<CameraWorkScript>().LookAtOBJ = DeepFind(PlayerCharacter, "NeckBone");
+
+		//演出カメラを演出位置に移動
+		BattleVictoryVcam.gameObject.transform.position = (PlayerCharacter.transform.forward * 3) + (PlayerCharacter.transform.right * 1.25f) + PlayerCharacter.transform.position + new Vector3(0,0.75f,0);
+
+		//バーチャルカメラ再生
+		BattleVictoryVcam.PlayCameraWork(0, true);
+
+		//フェードエフェクト呼び出し
+		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
+
+		//ズームエフェクト呼び出し
+		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.05f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
+
+		//スローモーション演出
+		GameManagerScript.Instance.TimeScaleChange(1.5f, 0.1f, () => 
+		{
+			//カメラワーク終了
+			BattleVictoryVcam.KeepCameraFlag = false;
+		});
 
 		//壁オブジェクトが全部消えるまでループ
 		while (!OBJList.All(a => a == null))

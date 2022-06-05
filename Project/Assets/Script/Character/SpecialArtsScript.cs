@@ -258,7 +258,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					(GameObject Player, GameObject Enemy) =>
 					{
 						//スローモーション
-						GameManagerScript.Instance.TimeScaleChange(0.5f, 0.05f);
+						GameManagerScript.Instance.TimeScaleChange(0.5f, 0.05f, () => { });
 					}
 				);
 

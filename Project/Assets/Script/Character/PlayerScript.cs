@@ -2319,8 +2319,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempEffect.transform.localPosition = Vector3.zero;
 
 		//時間をゆっくりにして入力待ち
-		GameManagerScript.Instance.TimeScaleChange(0, 0.05f);
-		
+		GameManagerScript.Instance.TimeScaleChange(0, 0.05f, () => { });
+
 		//待機時間が経過するか入力があるまで待機
 		while (SpecialSuccessFlag)
 		{
@@ -2367,7 +2367,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		SpecialLoopDamage:;
 
 		//タイムスケールを戻す
-		GameManagerScript.Instance.TimeScaleChange(0.1f, 1);
+		GameManagerScript.Instance.TimeScaleChange(0.1f, 1, () => { });
 
 		//フラグを下す
 		SpecialSuccessFlag = false;
@@ -3316,7 +3316,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (UseArts.HitStop[AttackIndex] != 0)
 			{
 				//ヒットストップ処理
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.1f));
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.1f, () => { }));
 			}
 
 			//地上突進技が当たったらその場で停止させる
@@ -3382,7 +3382,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (ChargeLevel == 3)
 			{
 				//ヒットストップ処理
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0.5f, 0.1f));
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0.5f, 0.1f, () => { }));
 
 				//フェードエフェクト呼び出し
 				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
@@ -3709,7 +3709,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//スローモーション
-		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f);
+		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f, () => { });
 	}
 
 	//パンツを下ろす、アニメーションクリップから呼ばれる
@@ -3742,7 +3742,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//スローモーション
-		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f);
+		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f, () => { });
 	}
 
 	//スケベ状態を解除する、アニメーションクリップから呼ばれる

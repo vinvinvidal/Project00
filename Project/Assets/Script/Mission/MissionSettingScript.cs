@@ -63,7 +63,7 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 		MissionSetting(0);
 
 		//処理が終わるまで時間を止める
-		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0,0));
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0,0, () => { }));
 	}
 
 	//ミッションに参加するキャラクターを全て読み込むコルーチン
@@ -143,7 +143,7 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.MiniMapSwitch(true));
 
 		//読み込み完了したら時間を進める
-		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0, 1));
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0, 1, () => { }));
 
 		//スクリーンエフェクトで白フェード
 		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) =>{ g.GetComponent<Renderer>().enabled = false; }));

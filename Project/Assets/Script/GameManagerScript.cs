@@ -48,7 +48,7 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	void EasingVcamera();
 
 	//タイムスケール変更
-	void TimeScaleChange(float t, float s);
+	void TimeScaleChange(float t, float s, Action act);
 
 	//スカイボックス取得、シーンの最初に呼び出す
 	void SetSkyBox();
@@ -1350,15 +1350,15 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//タイムスケール係数を入れる
-	public void TimeScaleChange(float t , float s)
+	public void TimeScaleChange(float t, float s, Action act)
 	{
 		//タイムスケールを変更
 		TimeScaleNum = s;
 
 		//タイムスケール持続コルーチン呼び出し
-		StartCoroutine(TimeScaleChangeCoroutine(t));
+		StartCoroutine(TimeScaleChangeCoroutine(t, act));
 	}
-	IEnumerator TimeScaleChangeCoroutine(float t)
+	IEnumerator TimeScaleChangeCoroutine(float t, Action act)
 	{
 		//現在の時間をキャッシュ
 		float HitTime = Time.time;
@@ -1375,6 +1375,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//タイムスケールを元に戻す
 			TimeScaleNum = 1;
 		}
+
+		//匿名関数実行
+		act();
 	}
 
 	//カメラワークの遷移でイージングをするためヴァーチャルカメラを制御する
