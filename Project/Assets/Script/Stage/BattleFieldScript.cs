@@ -324,6 +324,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	{
 		if (ColHit.gameObject.layer == LayerMask.NameToLayer("Player"))
 		{
+			//侵入してきたプレイアブルキャラクター取得
+			SetPlayerCharacter(ColHit.gameObject);
+
 			//ゲームマネージャーの戦闘フラグを立てる
 			GameManagerScript.Instance.BattleFlag = true;
 

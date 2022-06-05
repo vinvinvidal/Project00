@@ -97,7 +97,7 @@
 				v.pos = mul(unity_ObjectToWorld, v.pos);
 
 				//波打ちアニメーション
-				v.pos.y += (sin(round(v.vertColor.r * 10) + (-_Time.z * 10)) * 1.25) * v.vertColor.g * WaveNum;
+				v.pos.y += (sin(round(v.vertColor.r * 10) + (-_Time.z * 10)) * 0.9) * v.vertColor.g * WaveNum;
 
 				//頂点をオブジェクト座標に戻す
 				v.pos = mul(unity_WorldToObject, v.pos);
