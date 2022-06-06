@@ -1950,7 +1950,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//空中で叩きつけを喰らった時に着地を待つ、アニメーションクリップから呼ばれる
 	public void FallWait()
 	{
-		StartCoroutine(FallWaitCoroutine());
+		if(!OnGround)
+		{
+			StartCoroutine(FallWaitCoroutine());
+		}		
 	}
 	IEnumerator FallWaitCoroutine()
 	{
@@ -1967,6 +1970,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//着地したらモーションを再生
 		CurrentAnimator.SetFloat("DamageMotionSpeed0", 1);
 		CurrentAnimator.SetFloat("DamageMotionSpeed1", 1);
+
+		//エフェクトのインスタンスを生成
+		GameObject TempAttackEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect" + PlayerCharacter.GetComponent<CharacterSettingScript>().ID + "1").ToArray()[0]);
+
+		//自身の子にする
+		TempAttackEffect.transform.parent = gameObject.transform;
+
+		//位置を設定
+		TempAttackEffect.transform.localPosition = new Vector3(0, 0, 0);
+
+		//回転値を設定
+		TempAttackEffect.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
 	}
 
 	//キャラクターコントローラコライダヒット

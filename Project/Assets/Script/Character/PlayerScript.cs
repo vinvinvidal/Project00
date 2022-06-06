@@ -89,6 +89,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//攻撃時にロックした敵オブジェクト
 	private GameObject LockEnemy;
 
+	//必中ターゲット
+	public GameObject TargetEnemy { get; set; } = null;
+
 	//敵の飛び道具
 	private GameObject EnemyWeapon;
 
@@ -2950,6 +2953,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//移動値をリセット
 		EndAttackMove();
 
+		//必中ターゲットを破棄
+		TargetEnemy = null;
+
 		//使用技を破棄
 		UseArts = null;
 	}	
@@ -3004,8 +3010,35 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//攻撃コライダ移動開始処理、アニメーションクリップのイベントから呼ばれる
 	private void StartAttackCol(int n)
 	{
-		//攻撃用コライダーのコライダ移動関数呼び出し、インデックスとコライダ移動タイプを渡す
-		ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackCol.gameObject, null, (reciever, eventData) => reciever.ColStart(n, UseArts));
+		//必中ターゲット専用
+		if(UseArts.ColType[n] == 100)
+		{
+			//必中ターゲットがいる
+			if (TargetEnemy != null)
+			{
+				//敵側の処理呼び出し、直接技を当てる
+				ExecuteEvents.Execute<EnemyCharacterInterface>(TargetEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(UseArts, n));
+
+				//使用するヒットエフェクトのインスタンス生成
+				GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == UseArts.HitEffectList[n]).ToArray()[0]);
+
+				//キャラクターから敵までのベクトルを正面とする
+				//Vector3 EffectForward = (TargetEnemy.transform.root.gameObject.transform.position - gameObject.transform.position).normalized;
+
+				//ローカル座標で回転を設定
+				HitEffect.transform.rotation = Quaternion.LookRotation(transform.forward);
+				HitEffect.transform.rotation *= Quaternion.Euler(new Vector3(UseArts.HitEffectAngleList[n].x, UseArts.HitEffectAngleList[n].y, UseArts.HitEffectAngleList[n].z));
+
+				//位置を指定、敵からの相対位置で出す
+				HitEffect.transform.position = TargetEnemy.transform.root.gameObject.transform.position + (transform.forward * UseArts.HitEffectPosList[n].z) + new Vector3(0, UseArts.HitEffectPosList[n].y, 0);
+			}
+		}
+		//必中ターゲット専用ではない
+		else
+		{
+			//攻撃用コライダーのコライダ移動関数呼び出し、インデックスとコライダ移動タイプを渡す
+			ExecuteEvents.Execute<PlayerAttackCollInterface>(AttackCol.gameObject, null, (reciever, eventData) => reciever.ColStart(n, UseArts));
+		}
 	}
 
 	//攻撃コライダ終了処理、アニメーションクリップのイベントから呼ばれる
@@ -3304,6 +3337,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (UseArts.ColType[AttackIndex] != 4 && UseArts.ColType[AttackIndex] != 5 && UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
 			{
 				LockEnemy = e;
+			}
+
+			//必中ターゲット指定
+			if (UseArts.ColType[AttackIndex] == 10)
+			{
+				TargetEnemy = e;
 			}
 
 			//メインカメラにもロック対象を渡す
@@ -4826,6 +4865,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//ロックを解除
 			LockEnemy = null;
+
+			//必中ターゲットを解除
+			TargetEnemy = null;
 		}
 		//Damageから抜けた瞬間の処理
 		else if (s.Contains("Damage ->"))
@@ -5325,6 +5367,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//アイドリングモーション切り替え
 		StartCoroutine(IdlingChangeCoroutine(2, 1, 0.5f));
+
+		//視線をオートモードにする
+		AutoEye();
 
 		//強制的に入力フラグを更新
 		FlagManager(CurrentState);

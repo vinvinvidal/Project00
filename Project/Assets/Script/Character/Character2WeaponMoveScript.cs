@@ -270,7 +270,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			//トランスフォームリセット
 			ResetTransform(BoneList[5]);
 		}
-		//武器を投げる
+		//武器を投げる、特殊攻撃用
 		else if (n == 1)
 		{
 			//一旦収納位置に戻す
@@ -313,6 +313,30 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			ResetTransform(BoneList[2]);
 			ResetTransform(BoneList[1]);
 		}
+		//必中ターゲットの首に巻き付ける
+		else if (n == 4)
+		{
+			//一旦収納位置に戻す
+			MoveWire(100);
+
+			//必中ターゲット取得
+			GameObject Target = gameObject.GetComponent<PlayerScript>().TargetEnemy;
+
+			//居れば実行
+			if (Target != null)
+			{
+				//親を右手にする
+				BoneList[4].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
+
+				//敵の首にアタッチ
+				BoneList[5].transform.parent = DeepFind(Target, "NeckBone").transform;
+
+				//トランスフォームリセット
+				ResetTransform(BoneList[4]);
+				ResetTransform(BoneList[5]);
+			}
+		}
+
 		//収納する
 		else if (n == 100)
 		{
