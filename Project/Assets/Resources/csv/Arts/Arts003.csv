@@ -5,6 +5,7 @@ Anim,Motion_0_AirAttack01
 MoveVec,0*1*0*0.25|0*1*0*1
 Damage,1
 Stun,1
+Deadly,1
 ColVec,0*1*1*2
 KnockBackVec,0*-20*0*0.5
 Introduction,空中から両手で叩き落とす。

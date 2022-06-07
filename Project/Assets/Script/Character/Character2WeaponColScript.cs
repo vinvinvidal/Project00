@@ -73,7 +73,7 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 			if (Hit.gameObject.layer == LayerMask.NameToLayer("EnemyDamageCol"))
 			{
 				//架空の技を作成
-				ArtsClass TempArts = MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0) }, new List<float>() { 0 }, new List<int>() { 41 }, new List<int>() { 0 }, new List<int>() { 8 });
+				ArtsClass TempArts = MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0) }, new List<float>() { 0 }, new List<int>() { 0 }, new List<int>() { 41 }, new List<int>() { 0 }, new List<int>() { 8 });
 
 				//攻撃判定bool
 				bool TempBool = false;
@@ -145,7 +145,7 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 			if (Hit.gameObject.layer == LayerMask.NameToLayer("EnemyDamageCol"))
 			{
 				//架空の技を作成
-				ArtsClass TempArts = MakeInstantArts(new List<Color>() { new Color(0, 2, 0, 0.1f) }, new List<float>() { 100 }, new List<int>() { 11 }, new List<int>() { 1 }, new List<int>() { 0 });
+				ArtsClass TempArts = MakeInstantArts(new List<Color>() { new Color(0, 2, 0, 0.1f) }, new List<float>() { 1 }, new List<int>() { 1 }, new List<int>() { 11 }, new List<int>() { 1 }, new List<int>() { 0 });
 
 				//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
 				ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(TempArts, 0));

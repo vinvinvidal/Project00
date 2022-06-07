@@ -653,7 +653,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(0,0,0));
 
 						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0.5f, 15, 0.1f) }, new List<float>() { Arts.Damage }, new List<int>() { Arts.DamageIndex }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0.5f, 15, 0.1f) }, new List<float>() { Arts.Damage }, new List<int>() { 1 }, new List<int>() { Arts.DamageIndex }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
 					}
 				);
 			}
@@ -985,7 +985,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 								if (Vector3.SqrMagnitude(Weapon.transform.position - ii.transform.position) < 10)
 								{
 									//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-									ExecuteEvents.Execute<EnemyCharacterInterface>(ii, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -1, 0.1f) }, new List<float>() { 0 }, new List<int>() { 3 }, new List<int>() { 1 }, new List<int>() { 0 }), 0));
+									ExecuteEvents.Execute<EnemyCharacterInterface>(ii, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -1, 0.1f) }, new List<float>() { 1 }, new List<int>() { 1 }, new List<int>() { 3 }, new List<int>() { 1 }, new List<int>() { 0 }), 0));
 								}
 							}
 						}
@@ -1287,7 +1287,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(45, 0, 0));
 
 						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 1, 0.1f) }, new List<float>() { 0 }, new List<int>() { 3 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 1, 0.1f) }, new List<float>() { 0 }, new List<int>() { 0 }, new List<int>() { 3 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
 					}
 				);
 
@@ -1306,7 +1306,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(-45, 0, 0));
 
 						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 1, 0.1f) }, new List<float>() { 0 }, new List<int>() { 4 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 1, 0.1f) }, new List<float>() { 5 }, new List<int>() { 0 }, new List<int>() { 4 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
 					}
 				);
 
@@ -1328,7 +1328,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
 
 						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0.1f) }, new List<float>() { 0 }, new List<int>() { 6 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0.1f) }, new List<float>() { 10 }, new List<int>() { 0 }, new List<int>() { 6 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
 					}
 				);
 

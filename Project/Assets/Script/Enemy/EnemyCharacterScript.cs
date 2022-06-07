@@ -1005,8 +1005,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		bool re = true;
 
 		//ヒット条件を満たしているか判定
-		if
-		(
+		if(
+			//死んでる
+			DestroyFlag
+			||
 			//ダウン中にダウンに当たらない攻撃が当たった
 			(DownFlag && Arts.DownEnable[n] != 1)
 			||
@@ -1046,15 +1048,19 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//タメ攻撃の係数を掛ける
 		Life -= Arts.ChargeDamage[n] * PlayerCharacter.GetComponent<PlayerScript>().ChargeLevel;
 
-		//死んだら
-		if (Life <= 0)
+		//ライフが無くなった
+		if (Life < 0)
 		{
-			//死亡フラグを立てる
-			DestroyFlag = true;
-
-			//死んでる
-			if (DestroyFlag)
+			//致命不可だったらライフをゼロに保つ
+			if (Arts.Deadly[n] == 0)
 			{
+				Life = 0;
+			}
+			else
+			{
+				//死亡フラグを立てる
+				DestroyFlag = true;
+
 				//コライダ無効化
 				DamageCol.enabled = false;
 
@@ -1970,6 +1976,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//着地したらモーションを再生
 		CurrentAnimator.SetFloat("DamageMotionSpeed0", 1);
 		CurrentAnimator.SetFloat("DamageMotionSpeed1", 1);
+
+		//架空の技を渡して技が当たった事にする
+		PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0.1f) }, new List<float>() { 10 }, new List<int>() { 1 }, new List<int>() { 6 }, new List<int>() { 0 }, new List<int>() { 0 }), 0);
 
 		//エフェクトのインスタンスを生成
 		GameObject TempAttackEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect" + PlayerCharacter.GetComponent<CharacterSettingScript>().ID + "1").ToArray()[0]);

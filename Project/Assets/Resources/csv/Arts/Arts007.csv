@@ -5,6 +5,7 @@ Anim,Motion_0_GroundAttack03
 MoveVec,0*0*1*1
 Damage,1
 Stun,1
+Deadly,1
 ColVec,0*0*9*0.1
 KnockBackVec,0*0*1*0.1
 Introduction,鏡を掌底に宛がって前方に発勁、射程が長い。

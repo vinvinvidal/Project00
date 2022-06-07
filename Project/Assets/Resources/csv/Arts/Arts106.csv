@@ -5,6 +5,7 @@ Anim,Motion_1_GroundAttack04
 MoveVec,0*0*1*2|0*0*1*5.5
 Damage,1
 Stun,1
+Deadly,1
 ColVec,2.5*0.25*225*360
 KnockBackVec,0*-2.5*5*0.1
 Introduction,低い軌道で周囲をなぎ払う。巻き込み。

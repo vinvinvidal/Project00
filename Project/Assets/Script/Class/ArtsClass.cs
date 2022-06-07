@@ -31,6 +31,9 @@ public class ArtsClass
 	//スタン値
 	public List<int> Stun;
 
+	//致命タイプ
+	public List<int> Deadly;
+
 	//技の移動タイプ
 	public List<int> MoveType;
 
@@ -190,6 +193,8 @@ public class ArtsClass
 
 		List<int> st,
 
+		List<int> dl,
+
 		List<Color> cv,
 
 		List<Color> kb,
@@ -246,6 +251,8 @@ public class ArtsClass
 		Damage = new List<float>(dm);
 
 		Stun = new List<int>(st);
+
+		Deadly = new List<int>(dl);
 
 		ColVec = new List<Color>(cv);
 

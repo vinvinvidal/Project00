@@ -52,7 +52,7 @@ public class GlobalClass : MonoBehaviour
 	}
 
 	//適当なArtsClassを作って返す関数
-	public ArtsClass MakeInstantArts(List<Color> KBV, List<float> DML, List<int> ATI, List<int> DEN, List<int> CTP)
+	public ArtsClass MakeInstantArts(List<Color> KBV, List<float> DML, List<int> DLY, List<int> ATI, List<int> DEN, List<int> CTP)
 	{
 		//架空の技Classを作る
 		ArtsClass temparts = new ArtsClass
@@ -64,6 +64,7 @@ public class GlobalClass : MonoBehaviour
 			new List<Color>(),
 			DML,
 			new List<int>() { 0 },
+			DLY,
 			new List<Color>(),
 			KBV,
 			"",

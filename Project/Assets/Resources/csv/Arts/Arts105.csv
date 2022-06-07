@@ -5,6 +5,7 @@ Anim,Motion_1_AirAttack01
 MoveVec,0*2*1*1|0*-15*0*1|0*0*0*0|0*0*-1*1.5
 Damage,0|0|0
 Stun,1|1|1
+Deadly,1|1|1
 ColVec,0*0.5*0.5*1|0*0*0.5*1|0*0*0.5*1
 KnockBackVec,0*-20*0*0.1|0*0*0*0|0*0*0*0
 Introduction,真下に向かって急降下し、突き刺してドリル

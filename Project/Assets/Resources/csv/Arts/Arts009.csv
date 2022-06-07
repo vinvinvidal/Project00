@@ -5,6 +5,7 @@ Anim,Motion_0_GroundAttack04
 MoveVec,0*0*1*30
 Damage,100
 Stun,1
+Deadly,1
 ColVec,0*1*0.75*0.5
 KnockBackVec,0*0*5*0.1
 Introduction,高速で相手に接近して肘

@@ -5,6 +5,7 @@ Anim,Motion_0_GroundAttack08
 MoveVec,0*0*0*0
 Damage,1|10
 Stun,1|1
+Deadly,1|1
 ColVec,0*0*0*0.5|0*0*0*5
 KnockBackVec,0*0*0*0|0*0*3*0.1
 Introduction,大地を打ち付けて周囲に衝撃波を放つ。

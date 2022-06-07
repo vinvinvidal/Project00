@@ -832,6 +832,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				List<Color> mv = new List<Color>();
 				List<float> dm = new List<float>();
 				List<int> st = new List<int>();
+				List<int> dl = new List<int>();
 				List<Color> cv = new List<Color>();
 				List<Color> kb = new List<Color>();
 				string intro = "";
@@ -896,6 +897,15 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 							foreach (var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
 							{
 								st.Add(int.Parse(iii));
+							}
+
+							break;
+
+						case "Deadly":
+
+							foreach (var iii in ii.Split(',').ToList().ElementAt(1).Split('|'))
+							{
+								dl.Add(int.Parse(iii));
 							}
 
 							break;
@@ -1059,7 +1069,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				}
 
 				//ListにAdd
-				AllArtsList.Add(new ArtsClass(nc, nh, uc, an, mv, dm, st, cv, kb, intro, lk, mt, at, de, ct, tt, ch, he, hp, ha, hs, cg, hl, lf, hse));
+				AllArtsList.Add(new ArtsClass(nc, nh, uc, an, mv, dm, st, dl, cv, kb, intro, lk, mt, at, de, ct, tt, ch, he, hp, ha, hs, cg, hl, lf, hse));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る

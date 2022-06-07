@@ -5,6 +5,7 @@ Anim,Motion_0_AirAttack03
 MoveVec,0*1.5*1*1|0*-0.5*0.8*15|0*0*1*7.5|0*0*1*5
 Damage,1
 Stun,1
+Deadly,1
 ColVec,0*0.5*0.5*1
 KnockBackVec,0*-2.5*10*0.1
 Introduction,ライダーキック。
