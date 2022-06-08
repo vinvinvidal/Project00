@@ -3,7 +3,7 @@ NameH,べきばき
 UseCharacter,0
 ArtsIndex,1
 DamageIndex,2
-Damage,1
+Damage,100
 AnimName,Motion_0_Special1
 EffectPos,L_ElbowBone
 Trigger,0

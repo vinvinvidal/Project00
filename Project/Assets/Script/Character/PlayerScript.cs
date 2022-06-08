@@ -2370,7 +2370,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		SpecialLoopDamage:;
 
 		//タイムスケールを戻す
-		GameManagerScript.Instance.TimeScaleChange(0.1f, 1, () => { });
+		GameManagerScript.Instance.TimeScaleChange(0.01f, 1, () => { });
 
 		//フラグを下す
 		SpecialSuccessFlag = false;
@@ -3421,7 +3421,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (ChargeLevel == 3)
 			{
 				//ヒットストップ処理
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0.5f, 0.1f, () => { }));
+				//ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0.5f, 0.1f, () => { }));
 
 				//フェードエフェクト呼び出し
 				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));

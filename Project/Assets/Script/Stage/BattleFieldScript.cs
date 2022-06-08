@@ -169,20 +169,35 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//演出カメラ位置基準オブジェクトを取得
 		GameObject PosOBJ = LastEnemy != null ? LastEnemy : PlayerCharacter;
 
-		//演出カメラを演出位置に移動
-		BattleVictoryVcam.gameObject.transform.position = PlayerCharacter.transform.position + ((PlayerCharacter.transform.position - PosOBJ.transform.position).normalized * 2) + (PlayerCharacter.transform.right * 0.5f);
-
-		//地面にめり込まないようにする
-		if(BattleVictoryVcam.gameObject.transform.position.y < PlayerCharacter.transform.position.y)
+		//相手が下にいる
+		if(PlayerCharacter.transform.position.y - PosOBJ.transform.position.y > 1.5f)
 		{
-			BattleVictoryVcam.gameObject.transform.position = new Vector3(BattleVictoryVcam.gameObject.transform.position.x, PlayerCharacter.transform.position.y + 0.1f, BattleVictoryVcam.gameObject.transform.position.z);
+			//演出カメラを演出位置に移動
+			BattleVictoryVcam.gameObject.transform.position = DeepFind(PlayerCharacter, "PelvisBone").transform.position + ((DeepFind(PlayerCharacter, "PelvisBone").transform.position - PosOBJ.transform.position).normalized * 2.5f);
+
+			//演出カメラを注視点に向ける
+			BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "PelvisBone").transform.position + PlayerCharacter.transform.right);
+
+			//演出カメラを演出位置に移動
+			BattleVictoryVcam.gameObject.transform.position += (BattleVictoryVcam.gameObject.transform.right * -1.25f);
+
+			//演出カメラを注視点に向ける
+			BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "PelvisBone").transform.position + PlayerCharacter.transform.right);
 		}
+		else
+		{
+			//演出カメラを演出位置に移動
+			BattleVictoryVcam.gameObject.transform.position = PosOBJ.transform.position + (PlayerCharacter.transform.forward * 1.5f) + (PlayerCharacter.transform.right * -0.75f) + new Vector3(0, 0.25f, 0);
 
-		//演出カメラを注視点に向ける
-		BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "NeckBone").transform.position);
+			//注視点をプレイヤーキャラクターにする
+			PosOBJ = PlayerCharacter;
 
-		//Z軸に傾ける
-		BattleVictoryVcam.gameObject.transform.localRotation *= Quaternion.Euler(0,0,30);
+			//演出カメラを注視点に向ける
+			BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "NeckBone").transform.position);
+
+			//Z軸に傾ける
+			BattleVictoryVcam.gameObject.transform.localRotation *= Quaternion.Euler(0, 0, 40);
+		}
 
 		//バーチャルカメラ再生
 		BattleVictoryVcam.PlayCameraWork(0, true);
@@ -389,6 +404,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 			//ゲームマネージャーに自身を送る
 			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetBattleFieldOBJ(gameObject));
+
+			//メインカメラの戦闘開始処理を呼び出す
+			ExecuteEvents.Execute<MainCameraScript>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot").gameObject, null, (reciever, eventData) => reciever.BattleStart());
 
 			//進入コライダを無効化
 			gameObject.GetComponent<SphereCollider>().enabled = false;

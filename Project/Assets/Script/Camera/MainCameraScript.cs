@@ -34,6 +34,9 @@ public interface MainCameraScriptInterface : IEventSystemHandler
 
 	//トレースカメラモード
 	void TraceCameraMode(bool b);
+
+	//戦闘開始処理
+	void BattleStart();
 }
 
 public class MainCameraScript : GlobalClass, MainCameraScriptInterface
@@ -135,6 +138,9 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 	//超必殺技フラグ
 	private bool SuperArtsFlag;
 
+	//戦闘開始フラグ
+	private bool BattleStartFlag;
+
 	//クローズアップカメラフラグ
 	private bool CloseUpCameraFlag;
 
@@ -187,6 +193,9 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 
 		//超必殺技フラグ初期化
 		SuperArtsFlag = false;
+
+		//戦闘開始フラグ初期化
+		BattleStartFlag = false;
 
 		//画面揺らしフラグ初期化
 		CameraShakeFlag = false;
@@ -337,6 +346,12 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 			//ターゲットダミーをプレイヤー後方に移動
 			MainCameraTargetOBJ.transform.position = PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * CameraNearLimit) + new Vector3(0, 1.5f, 0);
 		}
+		//戦闘開始処理
+		if(BattleStartFlag)
+		{
+			//ターゲットダミーを前方に移動
+			MainCameraTargetOBJ.transform.position += MainCameraTargetOBJ.transform.forward;
+		}
 		//視線が通ってない
 		else if (RayHitFlag)
 		{
@@ -444,8 +459,12 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 				MainCameraTargetPos += -MainCameraTargetOBJ.transform.up;
 			}
 
-			//ターゲットダミー移動
-			MainCameraTargetOBJ.transform.position += MainCameraTargetPos * CameraMoveSpeed * 2 * Time.deltaTime;
+			//移動値を足切りして細かすぎる移動をカット
+			if(MainCameraTargetPos.sqrMagnitude > 0.5f)
+			{
+				//ターゲットダミー移動
+				MainCameraTargetOBJ.transform.position += MainCameraTargetPos * CameraMoveSpeed * 2 * Time.deltaTime;
+			}
 		}
 	}
 
@@ -464,6 +483,30 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 
 		//カメラリセットフラグを下ろす
 		CameraResetFlag = false;
+	}
+
+	//戦闘開始処理
+	public void BattleStart()
+	{
+		//コルーチン呼び出し
+		StartCoroutine(BattleStartCoroutine());
+	}
+	private IEnumerator BattleStartCoroutine()
+	{
+		//フラグを立ててターゲットダミーを移動
+		BattleStartFlag = true;
+
+		//ターゲットダミーがプレイヤーキャラクターに接近するまでループ
+		while ((MainCameraTargetOBJ.transform.position - PlayerCharacter.transform.position).sqrMagnitude > 16)
+		{
+			yield return null;
+		}
+
+		//カメラ距離を再設定
+		MainCameraTargetDistance = Vector3.Distance(MainCameraTargetOBJ.transform.position, PlayerCharacter.transform.position);
+
+		//フラグを下してカメラ移動終了
+		BattleStartFlag = false;
 	}
 
 	//トレースカメラモード
