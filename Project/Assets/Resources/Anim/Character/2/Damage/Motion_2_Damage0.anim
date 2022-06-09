@@ -89514,7 +89514,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.033333335
     functionName: ChangeFace
-    data: Reset
+    data: Motion_2_Face06,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -89526,6 +89526,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0.083333336
+    functionName: MoveWire
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 100
+    messageOptions: 0
   - time: 0.48333332
     functionName: EndDamageMove
     data: 
@@ -89535,7 +89542,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.5
     functionName: ChangeFace
-    data: Reset
+    data: Motion_2_Face07,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -89549,7 +89556,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.8333333
     functionName: ChangeFace
-    data: Motion_0_Face03,0.1
+    data: Motion_2_Face01,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

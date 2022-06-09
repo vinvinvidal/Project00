@@ -133659,7 +133659,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.81666666
     functionName: BlurEffect
-    data: 0.1,2,d
+    data: 0.075,1.5,d
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

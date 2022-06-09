@@ -228,40 +228,45 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//次のウェーブ移行処理関数
 	private void NextWave()
 	{
-		//次のウェーブ移行処理コルーチン呼び出し
+		//コルーチン呼び出し
 		StartCoroutine(NextWaveCoroutine());
 	}
 	private IEnumerator NextWaveCoroutine()
 	{
-		//チョイ待機
-		yield return new WaitForSeconds(2);
+		//敵が消滅するまで待機
+		while(!EnemyList.All(a => a == null))
+		{
+			yield return null;
+		}
 
 		//イベント中フラグを立てる
 		GameManagerScript.Instance.EventFlag = true;
 
 		//プレイヤーキャラクターの戦闘継続処理実行
-		PlayerCharacter.GetComponent<PlayerScript>().BattleNext(gameObject);
+		ExecuteEvents.Execute<PlayerScriptInterface>(PlayerCharacter, null, (reciever, eventData) => reciever.BattleNext(PlayerPosOBJ, gameObject, () =>
+		{
+			//演出カメラの注視オブジェクト設定
+			BattleNextVcam.CameraWorkList[0].GetComponent<CameraWorkScript>().LookAtOBJ = DeepFind(PlayerCharacter, "NeckBone");
 
-		//演出カメラの注視オブジェクト設定
-		BattleNextVcam.CameraWorkList[0].GetComponent<CameraWorkScript>().LookAtOBJ = DeepFind(PlayerCharacter, "NeckBone");
+			//トランスフォームをキャラクターと同期させる
+			BattleNextVcam.transform.position = PlayerCharacter.transform.position;
 
-		//トランスフォームをキャラクターと同期させる
-		BattleNextVcam.transform.position = PlayerCharacter.transform.position;
+			//バーチャルカメラ再生
+			BattleNextVcam.PlayCameraWork(0, true);
 
-		//バーチャルカメラ再生
-		BattleNextVcam.PlayCameraWork(0, true);
+			//敵配置コルーチン呼び出し
+			StartCoroutine(StandByCoroutine(() =>
+			{
+				//カメラワーク終了
+				BattleNextVcam.KeepCameraFlag = false;
 
-		//敵配置コルーチン呼び出し
-		StartCoroutine(StandByCoroutine(() =>
-		{			
-			//カメラワーク終了
-			BattleNextVcam.KeepCameraFlag = false;
+				//イベント中フラグを下す
+				GameManagerScript.Instance.EventFlag = false;
 
-			//イベント中フラグを下す
-			GameManagerScript.Instance.EventFlag = false;
+				//プレイヤーキャラクターの戦闘継続処理実行
+				PlayerCharacter.GetComponent<PlayerScript>().BattleContinue();
 
-			//プレイヤーキャラクターの戦闘継続処理実行
-			PlayerCharacter.GetComponent<PlayerScript>().BattleContinue();
+			}));
 		}));
 	}
 
@@ -365,6 +370,22 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		}
 		else
 		{
+			//チョイ待機
+			yield return new WaitForSeconds(2);
+
+			//カメラポジション変数宣言
+			float n = 0;
+
+			//カメラが背面に回るまで待機
+			while (Mathf.Round(n) - (Mathf.Round(n / 4) * 4) != -1)
+			{
+				//カメラポジション変数取得
+				n = BattleNextVcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition;
+
+				//1フレーム待機
+				yield return null;
+			}
+
 			//敵に戦闘開始フラグを送る
 			foreach (var i in EnemyList.Where(a => a != null).ToList())
 			{

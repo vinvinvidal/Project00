@@ -39,7 +39,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	void BattleStart();
 
 	//戦闘継続処理
-	void BattleNext(GameObject Pos);
+	void BattleNext(GameObject Pos, GameObject Look, Action Act);
 	void BattleContinue();
 
 	//戦闘終了処理
@@ -5336,7 +5336,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//戦闘継続処理
-	public void BattleNext(GameObject Pos)
+	public void BattleNext(GameObject Pos, GameObject Look, Action Act)
 	{
 		//ボタン押しっぱなしフラグ解除
 		HoldButtonFlag = false;
@@ -5350,17 +5350,34 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.Play(0);
 		}
 
+		//コルーチン呼び出し
+		StartCoroutine(BattleNextCoroutine(Pos, Look, Act));
+	}
+	private IEnumerator BattleNextCoroutine(GameObject Pos, GameObject Look, Action Act)
+	{
+		//アイドリングモーションになるまで待機
+		while(CurrentState != "Idling")
+		{
+			yield return null;
+		}
+
 		//キャラクターコントローラ無効化
 		Controller.enabled = false;
-		
+
+		//待機位置に移動
+		transform.position = Pos.transform.position;
+
 		//敵のスポーン位置に向ける
-		transform.LookAt(new Vector3(GameManagerScript.Instance.GetBattleFieldOBJ().transform.position.x, transform.position.y, GameManagerScript.Instance.GetBattleFieldOBJ().transform.position.z));
+		transform.LookAt(new Vector3(Look.transform.position.x, transform.position.y, Look.transform.position.z));
 
 		//キャラクターコントローラ有効化
 		Controller.enabled = true;
 
 		//強制的に入力フラグを更新
 		FlagManager(CurrentState);
+
+		//匿名関数実行
+		Act();
 	}
 	//戦闘継続処理
 	public void BattleContinue()

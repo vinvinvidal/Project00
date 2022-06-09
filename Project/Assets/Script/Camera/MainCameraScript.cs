@@ -460,7 +460,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 			}
 
 			//移動値を足切りして細かすぎる移動をカット
-			if(MainCameraTargetPos.sqrMagnitude > 0.5f)
+			if(MainCameraTargetPos.sqrMagnitude > 0.75f)
 			{
 				//ターゲットダミー移動
 				MainCameraTargetOBJ.transform.position += MainCameraTargetPos * CameraMoveSpeed * 2 * Time.deltaTime;
@@ -479,7 +479,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		CameraResetFlag = true;
 
 		//1フレームだとたまにシケるのでちょっと待機
-		yield return new WaitForSeconds(0.01f);
+		yield return new WaitForSeconds(0.05f);
 
 		//カメラリセットフラグを下ろす
 		CameraResetFlag = false;
@@ -538,24 +538,6 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		//メインカメラを指定されたオブジェクトに向ける
 		MainCamera.transform.LookAt(look.transform.position);
 
-		//ズーム係数で位置を調整
-		//MainCamera.transform.position += MainCamera.transform.forward * zoom;
-		
-		//移動開始地点
-		//Vector3 StartPos = MainCamera.transform.right * 0.5f;
-
-		//移動終了地点
-		//Vector3 EndPos = -MainCamera.transform.right * 0.5f;
-
-		//カメラのレイヤーマスクをキャッシュ
-		//LayerMask templayer = MainCamera.GetComponent<Camera>().cullingMask;
-
-		//プレイヤーだけ映す
-		//MainCamera.GetComponent<Camera>().cullingMask = LayerMask.GetMask("Player" , "Enemy" , "Effect");
-
-		//背景を黒にする
-		//MainCamera.GetComponent<Camera>().clearFlags = CameraClearFlags.SolidColor;
-
 		//クローズアップ演出エフェクトインスタンス生成
 		GameObject CloseUpEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "CloseUpEffect").ToArray()[0]);
 
@@ -563,8 +545,6 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		CloseUpEffect.transform.parent = MainCamera.transform;
 
 		//ローカル座標回転設定
-		//CloseUpEffect.transform.localPosition *= 0;
-		//CloseUpEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 		ResetTransform(CloseUpEffect);
 
 		//エフェクト再生
@@ -585,12 +565,6 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 
 		//エフェクトを消す
 		Destroy(CloseUpEffect);
-
-		//レイヤーマスクを元に戻す
-		//MainCamera.GetComponent<Camera>().cullingMask = templayer;
-
-		//背景をスカイボックスに戻す
-		//MainCamera.GetComponent<Camera>().clearFlags = CameraClearFlags.Skybox;
 
 		//メインカメラを元の座標に移動
 		MainCamera.transform.position = repos;
@@ -659,7 +633,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		{
 			//Rayのヒットフラグを降ろす
 			RayHitFlag = false;
-		}	
+		}
 
 		//毎フレーム呼ばなくてもよいかな
 		yield return null;
