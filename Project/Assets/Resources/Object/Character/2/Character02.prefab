@@ -213,9 +213,7 @@ MonoBehaviour:
   SuperGauge: 1
   Idling0_Anim: {fileID: 7400000, guid: f12363614e6ebf64097deb4758b662fe, type: 2}
   Idling1_Anim: {fileID: 7400000, guid: d4490231f37c9e845a1e66f76665f0fc, type: 2}
-  Idling2_Anim: {fileID: 0}
-  Idling3_Anim: {fileID: 0}
-  Idling4_Anim: {fileID: 0}
+  Idling2_Anim: {fileID: 7400000, guid: ce3d313fc39ebb04e8dc74fd17e13910, type: 2}
   Walk_Anim: {fileID: 7400000, guid: b3680b8f4465d1f4abd0e5ea392b5eaf, type: 2}
   Run_Anim: {fileID: 7400000, guid: 762ddb132bcfede4a9f498a924795bbc, type: 2}
   Dash_Anim: {fileID: 7400000, guid: e2c5681505f52c743b10c68cb0696ef0, type: 2}
@@ -299,7 +297,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BoneList: []
-  BombOBJ: {fileID: 0}
   LockEnemy: {fileID: 0}
   EnemyHitFlag: 0
   WallHitFlag: 0
@@ -690,12 +687,12 @@ MonoBehaviour:
   KeepMode: 0
   TransrationMode: 0
   NextCameraWorkMode: 3
+  ReturnPositionMode: 0
   RandomFlag: 0
-  ReturnPositionFlag: 1
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 1
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &1607264541485915000
 GameObject:
   m_ObjectHideFlags: 0
@@ -934,12 +931,12 @@ MonoBehaviour:
   KeepMode: 0
   TransrationMode: 1
   NextCameraWorkMode: 10
+  ReturnPositionMode: 0
   RandomFlag: 0
-  ReturnPositionFlag: 1
   EasingTime: 0.5
   KeepTime: 0
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &2303141523044125876
 GameObject:
   m_ObjectHideFlags: 0
@@ -1160,12 +1157,12 @@ MonoBehaviour:
   KeepMode: 0
   TransrationMode: 1
   NextCameraWorkMode: 3
+  ReturnPositionMode: 0
   RandomFlag: 1
-  ReturnPositionFlag: 1
   EasingTime: 1
   KeepTime: 0
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!114 &5436212336228964371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1488,12 +1485,12 @@ MonoBehaviour:
   KeepMode: 0
   TransrationMode: 1
   NextCameraWorkMode: 10
+  ReturnPositionMode: 0
   RandomFlag: 0
-  ReturnPositionFlag: 1
   EasingTime: 0.5
   KeepTime: 0
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &4947065565102491961
 GameObject:
   m_ObjectHideFlags: 0
@@ -1729,12 +1726,12 @@ MonoBehaviour:
   KeepMode: 0
   TransrationMode: 0
   NextCameraWorkMode: 3
+  ReturnPositionMode: 0
   RandomFlag: 0
-  ReturnPositionFlag: 1
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 0.75
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &5535034308791030247
 GameObject:
   m_ObjectHideFlags: 0
@@ -2042,12 +2039,12 @@ MonoBehaviour:
   KeepMode: 0
   TransrationMode: 0
   NextCameraWorkMode: 3
+  ReturnPositionMode: 0
   RandomFlag: 0
-  ReturnPositionFlag: 1
   EasingTime: 0
   KeepTime: 0.25
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &5888693936807489374
 GameObject:
   m_ObjectHideFlags: 0
@@ -2183,12 +2180,12 @@ MonoBehaviour:
   KeepMode: 0
   TransrationMode: 1
   NextCameraWorkMode: 3
+  ReturnPositionMode: 0
   RandomFlag: 1
-  ReturnPositionFlag: 1
   EasingTime: 1
   KeepTime: 0
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!114 &199859306282252563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2695,12 +2692,12 @@ MonoBehaviour:
   KeepMode: 0
   TransrationMode: 0
   NextCameraWorkMode: 3
+  ReturnPositionMode: 0
   RandomFlag: 0
-  ReturnPositionFlag: 1
   EasingTime: 0
   KeepTime: 0.25
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &8776186354908683233
 GameObject:
   m_ObjectHideFlags: 0
