@@ -134607,6 +134607,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0.16666667
+    functionName: ChangeFace
+    data: Motion_2_Face02,0.1
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 0.33333334
     functionName: StartAttackTrail
     data: 
@@ -134649,6 +134656,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 4
     messageOptions: 0
+  - time: 0.75
+    functionName: ChangeFace
+    data: Motion_2_Face01,0.1
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 0.81666666
     functionName: StartAttackMove
     data: 
@@ -134687,6 +134701,13 @@ AnimationClip:
   - time: 1
     functionName: EndAttackCol
     data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 1.1666666
+    functionName: ChangeFace
+    data: Reset
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

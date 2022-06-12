@@ -5390,6 +5390,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//自身を有効化
 		gameObject.SetActive(true);
 
+		//消える時に削除が間に合わなかったエフェクトを消す
+		foreach(var i in gameObject.GetComponentsInChildren<ParticleSystem>().Where(a => a.name.Contains("Trail")).ToList())
+		{
+			Destroy(i.gameObject);
+		}
+
 		//接地判定
 		if(G)
 		{
