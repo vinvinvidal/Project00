@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 4913634773495464616}
   - component: {fileID: 1065012233195983275}
   - component: {fileID: -5672723479194924848}
+  - component: {fileID: 3156656867291981973}
+  - component: {fileID: 4143967559820465032}
   m_Layer: 0
   m_Name: WeaponSE
   m_TagString: Untagged
@@ -88,7 +90,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -140,5 +142,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 102bc0a6f83119d4aa7614a31cc4e2a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AudioName: Weapon
+  AudioName: Weapon0
+  AudioList: []
+--- !u!114 &3156656867291981973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5385012866548817772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 102bc0a6f83119d4aa7614a31cc4e2a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AudioName: Weapon1
+  AudioList:
+  - {fileID: 8300000, guid: d39b448b0d9b8364e9c22a908dff7232, type: 3}
+  - {fileID: 8300000, guid: de71e5cf86e5d5543934c8b6b30d30c6, type: 3}
+--- !u!114 &4143967559820465032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5385012866548817772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 102bc0a6f83119d4aa7614a31cc4e2a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AudioName: Weapon2
   AudioList: []

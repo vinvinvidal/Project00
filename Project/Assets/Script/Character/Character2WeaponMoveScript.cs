@@ -34,6 +34,12 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	//燐糞オブジェクト
 	public GameObject BombOBJ { get; set; }
 
+	//タバコオブジェクト
+	public GameObject CigaretteOBJ { get; set; }
+
+	//タバコのアタッチ先List
+	private List<GameObject> CigaretteAttachList = new List<GameObject>();
+
 	//燐糞オブジェクトインスタンス
 	private GameObject BombInst;
 
@@ -45,6 +51,24 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 
 	//壁にヒットしたフラグ
 	public bool WallHitFlag = false;
+
+	private void Start()
+	{
+		//タバコのアタッチ先List取得
+		CigaretteAttachList.Add(DeepFind(gameObject, "CigaretteBone"));
+		CigaretteAttachList.Add(DeepFind(gameObject, "R_CigaretteBone"));
+		CigaretteAttachList.Add(DeepFind(gameObject, "L_CigaretteBone"));		
+	}
+
+	//タバコのアタッチ先を変更する
+	public void CigaretteAttach(int n)
+	{
+		//タバコオブジェクトのアタッチ先を変更
+		CigaretteOBJ.transform.parent = CigaretteAttachList[n].transform;
+
+		//トランスフォームリセット
+		ResetTransform(CigaretteOBJ);
+	}
 
 	//燐糞を生成する
 	public void CreateBomb()

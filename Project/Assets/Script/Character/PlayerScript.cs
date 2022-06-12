@@ -107,23 +107,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//モザイクオブジェクト
 	private GameObject MosaicOBJ;
 
-	//足音SE
-	private List<SoundEffectScript> FootStepSEList;
-
-	//攻撃ヒット音SE
-	private List<SoundEffectScript> AttackImpactSEList;
-
-	//攻撃スイング音SE
-	private List<SoundEffectScript> AttackSwingSEList;
-
-	//武器SE
-	private List<SoundEffectScript> WeaponSEList;
-
-	//汎用SE
-	private List<SoundEffectScript> GenericSEList;
-
-
-
 	//--- UI ---//
 
 
@@ -864,21 +847,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベエフェクト00取得
 		H_Effect00 = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "H_Effect00").ToArray()[0];
 
-		//足音オブジェクト取得
-		FootStepSEList = new List<SoundEffectScript>(DeepFind(gameObject, "FootStepSE").GetComponents<SoundEffectScript>());
-
-		//攻撃ヒット音オブジェクト取得
-		AttackImpactSEList = new List<SoundEffectScript>(DeepFind(gameObject, "AttackImpactSE").GetComponents<SoundEffectScript>());
-
-		//攻撃スイング音オブジェクト取得
-		AttackSwingSEList = new List<SoundEffectScript>(DeepFind(gameObject, "AttackSwingSE").GetComponents<SoundEffectScript>());
-
-		//武器SEオブジェクト取得
-		WeaponSEList = new List<SoundEffectScript>(DeepFind(gameObject, "WeaponSE").GetComponents<SoundEffectScript>());
-
-		//汎用SEオブジェクト取得
-		GenericSEList = new List<SoundEffectScript>(DeepFind(gameObject, "GenericSE").GetComponents<SoundEffectScript>());
-
 		//超必殺技装備
 		foreach (var i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
 		{
@@ -1487,7 +1455,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void OnCharacterChange(InputValue i)
 	{
 		//キャラチェンジ入力許可条件判定
-		if (PermitInputBoolDic["ChangeBefore"])
+		if (PermitInputBoolDic["ChangeBefore"] && (!GameManagerScript.Instance.AllActiveEnemyList.All(a => a == null) || !GameManagerScript.Instance.BattleFlag))
 		{
 			//入力フラグを立てる
 			ChangeInput = true;
@@ -3324,7 +3292,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//ヒットSEを鳴らす
 			{
-				foreach (SoundEffectScript i in AttackImpactSEList)
+				foreach (SoundEffectScript i in GameManagerScript.Instance.AttackImpactSEList)
 				{
 					if (i.AudioName.Contains(UseArts.HitSE[AttackIndex]))
 					{
@@ -3547,7 +3515,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TrailEffect.transform.localRotation = TrailEffect.transform.rotation;
 
 		//スイング音を再生
-		AttackSwingSEList[0].PlayRandomList();
+		GameManagerScript.Instance.AttackSwingSE.PlayRandomList();
 	}
 
 	//足元の衝撃エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
@@ -3999,7 +3967,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//武器のSEを鳴らす
 	private void WeaponSE(int n)
 	{
-		WeaponSEList[0].PlaySoundEffect(n);
+		GameManagerScript.Instance.WeaponSEList[CharacterID].PlaySoundEffect(n);
 	}
 
 	//武器を移動させる
@@ -5237,7 +5205,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//足音を鳴らす
 	public void PlayFootSetp()
 	{
-		foreach(var i in FootStepSEList)
+		foreach(var i in GameManagerScript.Instance.FootStepSEList)
 		{
 			if(i.AudioName.Contains(GroundSurface))
 			{
@@ -5249,7 +5217,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//汎用SEを鳴らす
 	public void PlayGenericSE(int i)
 	{
-		GenericSEList[0].PlaySoundEffect(i);
+		GameManagerScript.Instance.GenericSE.PlaySoundEffect(i);
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる

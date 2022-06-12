@@ -88,7 +88,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -141,4 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AudioName: AttackSwing
-  AudioList: []
+  AudioList:
+  - {fileID: 8300000, guid: 507ed26389abbc041940ca73a6189568, type: 3}
+  - {fileID: 8300000, guid: 89d957da2d4f2144c8cabc628421b4cc, type: 3}
+  - {fileID: 8300000, guid: c3964b8aeaf5d484f96e141d2bd64eb6, type: 3}

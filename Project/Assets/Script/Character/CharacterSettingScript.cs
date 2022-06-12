@@ -138,14 +138,17 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					//泉の武器を登録する
 					if(ID == 2)
 					{
-						//ワイヤーのボーン
-						for (int count = 0; count <= 5; count ++)
-						{
-							gameObject.GetComponent<Character2WeaponMoveScript>().BoneList.Add(DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_1_Bone0" + count));
-						}
+						//タバコオブジェクト
+						gameObject.GetComponent<Character2WeaponMoveScript>().CigaretteOBJ = DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_0");
 
 						//ワイヤーオブジェクト
 						gameObject.GetComponent<Character2WeaponMoveScript>().WireOBJ = DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_1_Mesh");
+
+						//ワイヤーのボーン
+						for (int count = 0; count <= 5; count++)
+						{
+							gameObject.GetComponent<Character2WeaponMoveScript>().BoneList.Add(DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_1_Bone0" + count));
+						}
 
 						//燐糞オブジェクト
 						gameObject.GetComponent<Character2WeaponMoveScript>().BombOBJ = DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_2");

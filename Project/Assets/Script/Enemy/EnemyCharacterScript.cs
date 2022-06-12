@@ -1980,17 +1980,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//架空の技を渡して技が当たった事にする
 		PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0.1f) }, new List<float>() { 10 }, new List<int>() { 1 }, new List<int>() { 6 }, new List<int>() { 0 }, new List<int>() { 0 }), 0);
 
-		//エフェクトのインスタンスを生成
-		GameObject TempAttackEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect" + PlayerCharacter.GetComponent<CharacterSettingScript>().ID + "1").ToArray()[0]);
-
-		//自身の子にする
-		TempAttackEffect.transform.parent = gameObject.transform;
-
-		//位置を設定
-		TempAttackEffect.transform.localPosition = new Vector3(0, 0, 0);
-
-		//回転値を設定
-		TempAttackEffect.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
+		//衝撃エフェクト再生
+		FootImpact(90);
 	}
 
 	//キャラクターコントローラコライダヒット
@@ -2421,6 +2412,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//エフェクトを再生
 			i.Play();
 		}
+
+		//SEを再生
+		GameManagerScript.Instance.GenericSE.PlaySoundEffect(2);
 	}
 
 	//歩調に合わせるサインカーブ生成に使う数リセット、アニメーションクリップから呼ばれる

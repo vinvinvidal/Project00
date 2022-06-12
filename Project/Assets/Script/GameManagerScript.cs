@@ -188,6 +188,20 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//存在している全ての敵飛び道具オブジェクトList
 	public List<GameObject> AllEnemyWeaponList { get; set; } = new List<GameObject>();
 
+	//汎用SE
+	public SoundEffectScript GenericSE { get; set; }
+
+	//足音SE
+	public List<SoundEffectScript> FootStepSEList { get; set; }
+
+	//攻撃スイング音SE
+	public SoundEffectScript AttackSwingSE { get; set; }
+
+	//攻撃ヒット音SE
+	public List<SoundEffectScript> AttackImpactSEList { get; set; }
+
+	//武器固有SE
+	public List<SoundEffectScript> WeaponSEList { get; set; }
 
 
 	//全てのキャラクター情報を持ったList
@@ -345,6 +359,22 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//野外ライト取得
 		OutDoorLight = DeepFind(gameObject , "OutDoorLight").GetComponent<Light>();
+
+		//攻撃ヒット音オブジェクト取得
+		AttackImpactSEList = new List<SoundEffectScript>(DeepFind(gameObject, "AttackImpactSE").GetComponents<SoundEffectScript>());
+
+		//攻撃スイング音オブジェクト取得
+		AttackSwingSE = DeepFind(gameObject, "AttackSwingSE").GetComponent<SoundEffectScript>();
+
+		//足音SE取得
+		FootStepSEList = new List<SoundEffectScript>(DeepFind(gameObject, "FootStepSE").GetComponents<SoundEffectScript>());
+
+		//汎用SE取得
+		GenericSE = DeepFind(gameObject, "GenericSE").GetComponent<SoundEffectScript>();
+
+		//武器SE取得
+		WeaponSEList = new List<SoundEffectScript>(DeepFind(gameObject, "WeaponSE").GetComponents<SoundEffectScript>());
+
 
 		//FPS測定用変数初期化
 		FPS = 0;

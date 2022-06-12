@@ -90,7 +90,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -143,7 +143,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AudioName: AttackImpact_L
-  AudioList: []
+  AudioList:
+  - {fileID: 8300000, guid: d64c7da55a074494e9ee08f98d336659, type: 3}
+  - {fileID: 8300000, guid: 03f732823ee137e4482048b7b559f71b, type: 3}
 --- !u!114 &9075428507293338646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,7 +159,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AudioName: AttackImpact_M
-  AudioList: []
+  AudioList:
+  - {fileID: 8300000, guid: 0fb846f784064614b9f06479a6da3f22, type: 3}
+  - {fileID: 8300000, guid: 52b4b180f1aca9d41a47a713e6ff4605, type: 3}
 --- !u!114 &3200144299474684620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,4 +175,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AudioName: AttackImpact_H
-  AudioList: []
+  AudioList:
+  - {fileID: 8300000, guid: 95169bf2088dd294eab547c2cf0a1543, type: 3}
