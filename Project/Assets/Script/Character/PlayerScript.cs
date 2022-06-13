@@ -2990,15 +2990,19 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//攻撃ヒット処理呼び出し
 				HitAttack(TargetEnemy, n);
 
-				//使用するヒットエフェクトのインスタンス生成
-				GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == UseArts.HitEffectList[n]).ToArray()[0]);
+				//ヒットエフェクトがある
+				if(UseArts.HitEffectList[n] != "N")
+				{
+					//使用するヒットエフェクトのインスタンス生成
+					GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == UseArts.HitEffectList[n]).ToArray()[0]);
 
-				//ローカル座標で回転を設定
-				HitEffect.transform.rotation = Quaternion.LookRotation(transform.forward);
-				HitEffect.transform.rotation *= Quaternion.Euler(new Vector3(UseArts.HitEffectAngleList[n].x, UseArts.HitEffectAngleList[n].y, UseArts.HitEffectAngleList[n].z));
+					//ローカル座標で回転を設定
+					HitEffect.transform.rotation = Quaternion.LookRotation(transform.forward);
+					HitEffect.transform.rotation *= Quaternion.Euler(new Vector3(UseArts.HitEffectAngleList[n].x, UseArts.HitEffectAngleList[n].y, UseArts.HitEffectAngleList[n].z));
 
-				//位置を指定、敵からの相対位置で出す
-				HitEffect.transform.position = TargetEnemy.transform.root.gameObject.transform.position + (transform.forward * UseArts.HitEffectPosList[n].z) + new Vector3(0, UseArts.HitEffectPosList[n].y, 0);
+					//位置を指定、敵からの相対位置で出す
+					HitEffect.transform.position = TargetEnemy.transform.root.gameObject.transform.position + (transform.forward * UseArts.HitEffectPosList[n].z) + new Vector3(0, UseArts.HitEffectPosList[n].y, 0);
+				}
 			}
 		}
 		//必中ターゲット専用ではない

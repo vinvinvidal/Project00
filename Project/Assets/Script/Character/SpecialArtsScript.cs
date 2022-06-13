@@ -1101,6 +1101,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//移動ベクトルを設定
 						Player.GetComponent<PlayerScript>().SpecialMoveVector = -gameObject.transform.forward * 5;
+
+						//SEを鳴らす
+						GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(0);
 					}
 				);
 
@@ -1185,6 +1188,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				(
 					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
+						//SEを鳴らす
+						GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(0);
+
 						//移動ベクトルを設定
 						Player.GetComponent<PlayerScript>().SpecialMoveVector = gameObject.transform.forward * 4;
 					}

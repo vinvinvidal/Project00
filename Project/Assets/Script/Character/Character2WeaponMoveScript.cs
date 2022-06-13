@@ -352,6 +352,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			//居れば実行
 			if (Target != null)
 			{
+				//SEを鳴らす
+				GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(0);
+
 				//敵の首にアタッチ
 				BoneList[5].transform.parent = DeepFind(Target, "NeckBone").transform;
 			}
@@ -394,6 +397,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			//居れば実行
 			if (Target != null)
 			{
+				//SEを鳴らす
+				GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(0);
+
 				//敵の首にアタッチ
 				BoneList[5].transform.parent = DeepFind(Target, "NeckBone").transform;
 			}

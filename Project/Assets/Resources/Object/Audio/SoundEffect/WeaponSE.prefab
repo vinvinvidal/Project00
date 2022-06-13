@@ -173,4 +173,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AudioName: Weapon2
-  AudioList: []
+  AudioList:
+  - {fileID: 8300000, guid: 07244b4cc6cb85349aa4e7fc05f5d340, type: 3}
