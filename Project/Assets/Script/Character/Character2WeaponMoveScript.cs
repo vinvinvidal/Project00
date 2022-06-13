@@ -43,6 +43,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	//燐糞オブジェクトインスタンス
 	private GameObject BombInst;
 
+	//メインカメラ
+	private GameObject MainCamera = null;
+
 	//ロック中の敵
 	public GameObject LockEnemy = null;
 
@@ -52,12 +55,31 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	//壁にヒットしたフラグ
 	public bool WallHitFlag = false;
 
+	//ビルボードフラグ
+	private bool BillbordFlag = false;
+
 	private void Start()
 	{
+		//メインカメラ取得
+		MainCamera = DeepFind(GameManagerScript.Instance.gameObject, "MainCamera");
+
 		//タバコのアタッチ先List取得
 		CigaretteAttachList.Add(DeepFind(gameObject, "CigaretteBone"));
 		CigaretteAttachList.Add(DeepFind(gameObject, "R_CigaretteBone"));
 		CigaretteAttachList.Add(DeepFind(gameObject, "L_CigaretteBone"));		
+	}
+
+	private void Update()
+	{
+		//ワイヤーのビルボード処理
+		if (BillbordFlag)
+		{
+			//各ボーンをカメラに向ける
+			foreach (var i in BoneList)
+			{
+				i.transform.LookAt(MainCamera.transform.position, Vector3.up);
+			}
+		}
 	}
 
 	//タバコのアタッチ先を変更する
@@ -293,12 +315,18 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 
 			//トランスフォームリセット
 			ResetTransform(BoneList[5]);
+
+			//ビルボードフラグを立てる
+			BillbordFlag = true;
 		}
 		//武器を投げる、特殊攻撃用
 		else if (n == 1)
 		{
 			//一旦収納位置に戻す
 			MoveWire(100);
+
+			//ビルボードフラグを立てる
+			BillbordFlag = true;
 
 			//親を自分の直下する
 			BoneList[5].transform.parent = gameObject.transform;
@@ -317,12 +345,18 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//武器を巻き戻す
 		else if (n == 2)
 		{
+			//ビルボードフラグを立てる
+			BillbordFlag = true;
+
 			//コルーチン呼び出し
 			StartCoroutine(ReturnWireCoroutine());
 		}
 		//蔓燐糞用
 		else if (n == 3)
 		{
+			//ビルボードフラグを立てる
+			BillbordFlag = true;
+
 			//親を右腕にする
 			BoneList[4].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
 
@@ -342,6 +376,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		{
 			//一旦収納位置に戻す
 			MoveWire(100);
+
+			//ビルボードフラグを立てる
+			BillbordFlag = true;
 
 			//親を右手にする
 			BoneList[4].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
@@ -369,10 +406,13 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			//一旦収納位置に戻す
 			MoveWire(100);
 
+			//ビルボードフラグを立てる
+			BillbordFlag = true;
+
 			//各ボーンの親を設定
 			BoneList[3].transform.parent = DeepFind(gameObject, "R_HandBone").transform;			
-			BoneList[4].transform.parent = DeepFind(gameObject, "L_HandBone").transform;
-			BoneList[5].transform.parent = DeepFind(gameObject, "L_ToeBone").transform;
+			BoneList[4].transform.parent = DeepFind(gameObject, "L_ToeBone").transform;
+			BoneList[5].transform.parent = DeepFind(gameObject, "L_HandBone").transform;
 
 			//トランスフォームリセット
 			ResetTransform(BoneList[3]);
@@ -385,6 +425,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		{
 			//一旦収納位置に戻す
 			MoveWire(100);
+
+			//ビルボードフラグを立てる
+			BillbordFlag = true;
 
 			//各ボーンの親を設定
 			BoneList[2].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
@@ -414,6 +457,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//収納する
 		else if (n == 100)
 		{
+			//ビルボードフラグを下す
+			BillbordFlag = false;
+
 			for (int count = 5; count >= 1; count--)
 			{
 				//先端から一つずつ親を設定する

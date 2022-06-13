@@ -7,12 +7,12 @@ Damage,1|1
 Stun,1|1
 Deadly,0|0
 ColVec,0*0.25*0.5*0.75|0*0*0*0
-KnockBackVec,0*0*0*0|0*0*0*0
+KnockBackVec,0*0*2.5*0.1|0*0*0*0
 Introduction,蝦蟇喰を首に巻いて釣り上げる、引き起こし。
 UnLock,0|0|1
 Chain,0
 MoveType,0|0
-AttackType,0|30
+AttackType,6|30
 DownEnable,1|0
 ColType,10|100
 TimeType,100|100
