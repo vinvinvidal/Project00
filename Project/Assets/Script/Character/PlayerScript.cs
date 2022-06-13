@@ -2987,11 +2987,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//敵側の処理呼び出し、直接技を当てる
 				ExecuteEvents.Execute<EnemyCharacterInterface>(TargetEnemy, null, (reciever, eventData) => reciever.PlayerAttackHit(UseArts, n));
 
+				//攻撃ヒット処理呼び出し
+				HitAttack(TargetEnemy, n);
+
 				//使用するヒットエフェクトのインスタンス生成
 				GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == UseArts.HitEffectList[n]).ToArray()[0]);
-
-				//キャラクターから敵までのベクトルを正面とする
-				//Vector3 EffectForward = (TargetEnemy.transform.root.gameObject.transform.position - gameObject.transform.position).normalized;
 
 				//ローカル座標で回転を設定
 				HitEffect.transform.rotation = Quaternion.LookRotation(transform.forward);
@@ -3357,7 +3357,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				ForceMoveVector *= 0;
 
 				//ホールド状態フラグを立てる
-				HoldFlag = true;				
+				HoldFlag = true;
 
 				//当たった敵の方を向く
 				transform.rotation = Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject));

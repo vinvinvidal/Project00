@@ -302,7 +302,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 
 			//親を自分の直下する
 			BoneList[5].transform.parent = gameObject.transform;
-			
+
 			if (LockEnemy != null)
 			{
 				//武器投げコルーチン呼び出し
@@ -312,7 +312,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			{
 				//武器投げコルーチン呼び出し
 				StartCoroutine(MoveWireCoroutine(transform.forward * 100));
-			}			
+			}
 		}
 		//武器を巻き戻す
 		else if (n == 2)
@@ -357,6 +357,50 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			}
 
 			//トランスフォームリセット
+			ResetTransform(BoneList[4]);
+			ResetTransform(BoneList[5]);
+		}
+		//吊蛹用
+		else if (n == 5)
+		{
+			//一旦収納位置に戻す
+			MoveWire(100);
+
+			//各ボーンの親を設定
+			BoneList[3].transform.parent = DeepFind(gameObject, "R_HandBone").transform;			
+			BoneList[4].transform.parent = DeepFind(gameObject, "L_HandBone").transform;
+			BoneList[5].transform.parent = DeepFind(gameObject, "L_ToeBone").transform;
+
+			//トランスフォームリセット
+			ResetTransform(BoneList[3]);
+			ResetTransform(BoneList[4]);
+			ResetTransform(BoneList[5]);
+		}
+
+		//吊蛹ホールド用
+		else if (n == 6)
+		{
+			//一旦収納位置に戻す
+			MoveWire(100);
+
+			//各ボーンの親を設定
+			BoneList[2].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
+			BoneList[3].transform.parent = DeepFind(gameObject, "L_HandBone").transform;
+			BoneList[4].transform.parent = DeepFind(gameObject, "L_ToeBone").transform;
+
+			//必中ターゲット取得
+			GameObject Target = gameObject.GetComponent<PlayerScript>().TargetEnemy;
+
+			//居れば実行
+			if (Target != null)
+			{
+				//敵の首にアタッチ
+				BoneList[5].transform.parent = DeepFind(Target, "NeckBone").transform;
+			}
+
+			//トランスフォームリセット
+			ResetTransform(BoneList[2]);
+			ResetTransform(BoneList[3]);
 			ResetTransform(BoneList[4]);
 			ResetTransform(BoneList[5]);
 		}
