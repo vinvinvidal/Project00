@@ -2893,6 +2893,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//攻撃ボタン押しっぱなしフラグを下げる
 			HoldButtonFlag = false;
 
+			//ホールド状態解除
+			HoldBreak();
+
 			//イベント発生を止めるためモーション再生時間を止める
 			CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0f);
 
@@ -3109,7 +3112,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (UseArts.TimeType[n] == 0)
 			{
 				//現在のステートのモーション再生時間を変更、スロー再生
-				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.2f);
+				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.1f);
 
 				//接地状況でチェインブレイクのモーションを切り替える
 				CurrentAnimator.SetFloat("ChainBreakBlend", OnGroundFlag ? 0 : 1);

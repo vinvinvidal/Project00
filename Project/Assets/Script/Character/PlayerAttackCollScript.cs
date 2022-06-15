@@ -108,7 +108,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 				}
 
 				//ヒットエフェクト
-				if (HitArts.HitEffectList[AttackIndex] != "null")
+				if (HitArts.HitEffectList[AttackIndex] != "null" && HitArts.HitEffectList[AttackIndex] != "N")
 				{
 					//使用するヒットエフェクトのインスタンス生成
 					HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == HitArts.HitEffectList[AttackIndex]).ToArray()[0]);
