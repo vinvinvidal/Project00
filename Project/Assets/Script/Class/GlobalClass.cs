@@ -62,17 +62,17 @@ public class GlobalClass : MonoBehaviour
 			0,
 			"",
 			new List<Color>(),
-			DML,
+			DML,//ダメージ
 			new List<int>() { 0 },
-			DLY,
+			DLY,//トドメをさすことができるか
 			new List<Color>(),
-			KBV,
+			KBV,//ノックバックベクトル
 			"",
 			new List<int>(),
 			new List<int>(),
-			ATI,
-			DEN,
-			CTP,
+			ATI,//AttackType
+			DEN,//ダウンしている相手に当たるか
+			CTP,//コライダタイプ
 			new List<int>(),
 			false,
 			new List<string>(),

@@ -1120,7 +1120,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					while (temptime + 0.75f > Time.time && Enemy != null)
 					{
 						//目的地まで移動
-						Enemy.GetComponent<EnemyCharacterScript>().SpecialMoveVec = (Player.transform.position - Enemy.transform.position) * 2f;
+						Enemy.GetComponent<EnemyCharacterScript>().SpecialMoveVec = HorizontalVector(Player, Enemy) * 2f;
 
 						//1フレーム待機
 						yield return null;

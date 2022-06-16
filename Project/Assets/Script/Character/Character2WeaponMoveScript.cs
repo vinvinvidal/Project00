@@ -58,6 +58,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	//ビルボードフラグ
 	private bool BillbordFlag = false;
 
+	//ワイヤー移動継続フラグ
+	private bool WireMoveFlag = false;
+
 	private void Start()
 	{
 		//メインカメラ取得
@@ -213,7 +216,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			BombInst.transform.rotation *= Quaternion.Euler(ThrowVec.x, ThrowVec.y, ThrowVec.z);
 
 			//コライダ有効化
-			BombInst.GetComponent<Character2WeaponColScript>().SwitchCol(true);
+			BombInst.GetComponent<Character2WeaponColScript>().SwitchCol(true, false);
 
 			//リジッドボディ有効化
 			TempRigid.isKinematic = false;
@@ -259,7 +262,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		gameObject.GetComponent<Animator>().SetFloat("SpecialAttackSpeed", 0.1f);
 
 		//コライダ有効化
-		BombInst.GetComponent<Character2WeaponColScript>().SwitchCol(true);
+		BombInst.GetComponent<Character2WeaponColScript>().SwitchCol(true, false);
 
 		//時間をキャッシュ
 		float BombTime = Time.time;
@@ -294,7 +297,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	public void SpecialAttackMiss()
 	{
 		//コライダ無効化
-		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false));
+		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false, false));
 
 		//フラグを立てて壁に当たった事にする
 		WallHitFlag = true;
@@ -303,6 +306,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	//ワイヤーを動かす
 	public void MoveWire(int n)
 	{
+		//ワイヤー移動フラグを下す
+		WireMoveFlag = false;
+
 		//右手で武器を握る
 		if (n == 0)
 		{
@@ -400,7 +406,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			ResetTransform(BoneList[4]);
 			ResetTransform(BoneList[5]);
 		}
-		//吊蛹用
+		//繭紡用
 		else if (n == 5)
 		{
 			//一旦収納位置に戻す
@@ -410,7 +416,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			BillbordFlag = true;
 
 			//各ボーンの親を設定
-			BoneList[3].transform.parent = DeepFind(gameObject, "R_HandBone").transform;			
+			BoneList[3].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
 			BoneList[4].transform.parent = DeepFind(gameObject, "L_ToeBone").transform;
 			BoneList[5].transform.parent = DeepFind(gameObject, "L_HandBone").transform;
 
@@ -420,7 +426,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			ResetTransform(BoneList[5]);
 		}
 
-		//吊蛹ホールド用
+		//繭紡ホールド用
 		else if (n == 6)
 		{
 			//一旦収納位置に戻す
@@ -453,6 +459,72 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			ResetTransform(BoneList[4]);
 			ResetTransform(BoneList[5]);
 		}
+		//吊蛹用
+		else if (n == 7)
+		{
+			//一旦収納位置に戻す
+			MoveWire(100);
+
+			//フラグリセット
+			EnemyHitFlag = false;
+			WallHitFlag = false;
+
+			//ビルボードフラグを立てる
+			BillbordFlag = true;
+
+			//親を右手にする
+			BoneList[4].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
+
+			//トランスフォームリセット
+			ResetTransform(BoneList[4]);
+			ResetTransform(BoneList[5]);
+
+			//ロック中の敵リセット
+			LockEnemy = null;
+
+			//範囲内の敵をさがす
+			foreach (var i in GameManagerScript.Instance.AllActiveEnemyList.Where(a => a != null).Where(a => a.transform.position.y < gameObject.transform.position.y))
+			{
+				if(LockEnemy == null)
+				{
+					LockEnemy = i;
+				}
+				else if(HorizontalVector(gameObject, i).sqrMagnitude < HorizontalVector(gameObject, LockEnemy).sqrMagnitude)
+				{
+					LockEnemy = i;
+				}
+			}
+			
+			if (LockEnemy == null)
+			{
+				//武器落としコルーチン呼び出し
+				StartCoroutine(DropWireCoroutine(BoneList[4], BoneList[5]));
+			}
+			//敵が範囲内に居る
+			else if (HorizontalVector(gameObject, LockEnemy).sqrMagnitude < 4)
+			{
+				//武器落としコルーチン呼び出し
+				StartCoroutine(DropWireCoroutine(BoneList[4], LockEnemy));
+			}
+			//敵が範囲内にいない
+			else
+			{
+				//武器落としコルーチン呼び出し
+				StartCoroutine(DropWireCoroutine(BoneList[4], BoneList[5]));
+			}
+		}
+		//吊蛹打ち上げ用
+		else if (n == 8)
+		{
+			//親を右手にする
+			BoneList[4].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
+
+			//トランスフォームリセット
+			ResetTransform(BoneList[4]);
+
+			//巻き戻し
+			MoveWire(2);
+		}
 
 		//収納する
 		else if (n == 100)
@@ -469,6 +541,16 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 				ResetTransform(BoneList[count]);
 			}
 		}
+	}
+
+	//通常攻撃成功処理
+	public void HitWire(GameObject e)
+	{
+		//敵当たりフラグを立てる
+		EnemyHitFlag = true;
+
+		//必中ターゲット取得
+		gameObject.GetComponent<PlayerScript>().TargetEnemy = e;
 	}
 
 	//特殊攻撃成功処理
@@ -519,11 +601,68 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		MoveWire(100);
 	}
 
+	//落としコルーチン
+	private IEnumerator DropWireCoroutine(GameObject F, GameObject T)
+	{
+		//収納位置に戻す
+		MoveWire(100);
+
+		//親を自分の直下する
+		BoneList[5].transform.parent = gameObject.transform;
+
+		//トランスフォームリセット
+		ResetTransform(BoneList[5]);
+
+		//コライダ有効化
+		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(true, false));
+
+		//ワイヤー移動フラグを立てる
+		WireMoveFlag = true;
+
+		//武器移動
+		while (WireMoveFlag)
+		{
+			//敵に当たった
+			if (EnemyHitFlag)
+			{
+				//コライダ無効化
+				ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false, false));
+
+				//必中ターゲットが入るまで待機
+				while (gameObject.GetComponent<PlayerScript>().TargetEnemy == null)
+				{
+					yield return null;
+				}
+
+				//ワイヤー巻きつけ
+				MoveWire(4);
+
+				//ループを抜けて処理をスキップ
+				goto WeaponEnemyHit;
+			}
+
+			//1フレーム待機
+			yield return null;
+
+			//移動処理
+			if (!GameManagerScript.Instance.PauseFlag && !WallHitFlag)
+			{
+				BoneList[5].transform.position += (T.transform.position - F.transform.position).normalized * 15 * Time.deltaTime;
+			}
+		}
+
+		//敵に当たった時に抜ける先
+		WeaponEnemyHit:;
+		
+		//コライダ無効化
+		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false, false));
+	}
+
 	//投げコルーチン
 	private IEnumerator MoveWireCoroutine(Vector3 pos)
 	{
 		//コライダ有効化
-		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(true));
+		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(true, true));
 
 		//ワイヤー波打ちアニメ呼び出し
 		ExecuteEvents.Execute<WireShaderScriptInterface>(WireOBJ, null, (reciever, eventData) => reciever.WireWave(0.2f));		
@@ -544,7 +683,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 				ExecuteEvents.Execute<WireShaderScriptInterface>(WireOBJ, null, (reciever, eventData) => reciever.WireWave(-0.2f));
 
 				//ループを抜けて処理をスキップ
-				goto WeaponEnemyHit;
+				goto SpecialWeaponEnemyHit;
 			}
 			else if(!GameManagerScript.Instance.PauseFlag)
 			{
@@ -553,7 +692,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		}
 
 		//コライダ無効化
-		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false));
+		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false, false));
 
 		//ワイヤー波打ちアニメ呼び出し
 		ExecuteEvents.Execute<WireShaderScriptInterface>(WireOBJ, null, (reciever, eventData) => reciever.WireWave(-0.2f));
@@ -573,6 +712,6 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		MoveWire(100);
 
 		//敵に当たった時に抜ける先
-		WeaponEnemyHit:;
+		SpecialWeaponEnemyHit:;
 	}
 }
