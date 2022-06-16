@@ -1012,9 +1012,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//ダウン中にダウンに当たらない攻撃が当たった
 			(DownFlag && Arts.DownEnable[n] != 1)
 			||
-			//ホールド状態じゃないのに、ホールド追撃専用技が当たった
-			(!HoldFlag && Arts.ColType[n] == 6)
-			||
 			//地上限定の技が空中で当たった
 			(!OnGround && Arts.ColType[n] == 8)
 			||

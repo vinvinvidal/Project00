@@ -114,7 +114,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 					HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == HitArts.HitEffectList[AttackIndex]).ToArray()[0]);
 
 					//通常の攻撃、プレイヤーの前にヒットエフェクトを出す
-					if (HitArts.ColType[AttackIndex] == 0 || HitArts.ColType[AttackIndex] == 1 || HitArts.ColType[AttackIndex] == 6 | HitArts.ColType[AttackIndex] == 9 | HitArts.ColType[AttackIndex] == 10)
+					if (HitArts.ColType[AttackIndex] == 0 || HitArts.ColType[AttackIndex] == 1 || HitArts.ColType[AttackIndex] == 9 || HitArts.ColType[AttackIndex] == 10)
 					{
 						//キャラクターの子にする
 						HitEffect.transform.parent = gameObject.transform.root.transform;
