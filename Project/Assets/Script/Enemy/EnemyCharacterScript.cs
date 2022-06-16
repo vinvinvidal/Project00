@@ -1978,7 +1978,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CurrentAnimator.SetFloat("DamageMotionSpeed1", 1);
 
 		//架空の技を渡して技が当たった事にする
-		PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0.1f) }, new List<float>() { 10 }, new List<int>() { 1 }, new List<int>() { 6 }, new List<int>() { 0 }, new List<int>() { 0 }), 0);
+		PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0.1f) }, new List<float>() { 1 }, new List<int>() { 1 }, new List<int>() { 6 }, new List<int>() { 0 }, new List<int>() { 0 }), 0);
 
 		//衝撃エフェクト再生
 		FootImpact(90);

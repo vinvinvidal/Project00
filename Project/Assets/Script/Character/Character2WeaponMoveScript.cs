@@ -518,10 +518,12 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		{
 			//親を右手にする
 			BoneList[4].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
+			//BoneList[3].transform.parent = DeepFind(gameObject, "L_HandBone").transform;
 
 			//トランスフォームリセット
+			//ResetTransform(BoneList[3]);
 			ResetTransform(BoneList[4]);
-
+			
 			//巻き戻し
 			MoveWire(2);
 		}
@@ -592,7 +594,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//巻き戻し
 		while ((BoneList[4].transform.position - BoneList[5].transform.position).sqrMagnitude > 0.1f)
 		{
-			BoneList[5].transform.position += (BoneList[4].transform.position - BoneList[5].transform.position).normalized * 30 * Time.deltaTime;
+			BoneList[5].transform.position += (BoneList[4].transform.position - BoneList[5].transform.position).normalized * 40 * Time.deltaTime;
 
 			yield return null;
 		}
