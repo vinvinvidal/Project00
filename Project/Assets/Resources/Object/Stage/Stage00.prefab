@@ -2754,11 +2754,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: BattleField00
       objectReference: {fileID: 0}
-    - target: {fileID: 4181123511349073362, guid: 5af24504515112c4ba1d0b60e4315011,
-        type: 3}
-      propertyPath: EnemyWaveList.Array.size
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 5617224011838289723, guid: 5af24504515112c4ba1d0b60e4315011,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -2199,7 +2199,7 @@ MonoBehaviour:
   SuperGauge: 1
   Idling0_Anim: {fileID: 7400000, guid: 724c1bd9e558d94498fd52b4fd407a42, type: 2}
   Idling1_Anim: {fileID: 7400000, guid: ef0cfb421a1df4f44b46a7bd1f7fb80b, type: 2}
-  Idling2_Anim: {fileID: 0}
+  Idling2_Anim: {fileID: 7400000, guid: d79bc4c55641e504f8f472439e0b6b97, type: 2}
   Walk_Anim: {fileID: 7400000, guid: b3680b8f4465d1f4abd0e5ea392b5eaf, type: 2}
   Run_Anim: {fileID: 7400000, guid: bbd543c166428e84f82c02d288a912c9, type: 2}
   Dash_Anim: {fileID: 7400000, guid: c53ea86b43dfe934abc6da95a765c886, type: 2}

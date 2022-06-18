@@ -22,6 +22,9 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 	//爆発エフェクトオブジェクト
 	private GameObject BombEffect;
 
+	//ワイヤーヒットオブジェクト
+	private GameObject WireEffect;
+
 	//時限爆発コルーチン
 	private Coroutine BombCoroutine = null;
 
@@ -43,6 +46,9 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 
 		//爆発エフェクト取得
 		BombEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "BombEffect").ToArray()[0];
+
+		//ワイヤーヒットオブジェクト
+		WireEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "HitEffect23").ToArray()[0];
 
 		//爆発の場合はすぐにコライダを消すコルーチン呼び出し
 		if (WeaponIndex == 2)
@@ -122,6 +128,12 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 					//有効なら処理実行
 					if (TempBool && Hit.gameObject.transform.root.gameObject.GetComponent<EnemyCharacterScript>().Life >= 0)
 					{
+						//エフェクト生成
+						GameObject TempEfffect = Instantiate(WireEffect);
+
+						//位置を設定
+						TempEfffect.transform.position = gameObject.transform.position;
+
 						//当たった敵をロック対象にする
 						CharacterOBJ.GetComponent<Character2WeaponMoveScript>().LockEnemy = Hit.gameObject.transform.root.gameObject;
 

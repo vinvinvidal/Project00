@@ -35,8 +35,11 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//出現位置List
 	private List<GameObject> SpawnPosList;
 
-	//壁オブジェクト
+	//壁生成オブジェクト
 	private GameObject WallOBJ;
+
+	//コライダオブジェクト
+	private GameObject ColOBJ;
 
 	//壁素材オブジェクト
 	private List<GameObject> WallMaterial;
@@ -61,7 +64,10 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//敵出現位置List初期化
 		SpawnPosList = new List<GameObject>(gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("SpawnPos")).Select(a => a.gameObject).ToList());
 
-		//壁オブジェクト取得
+		//コライダオブジェクト取得
+		ColOBJ = DeepFind(gameObject, "ColOBJ");
+
+		//壁生成オブジェクト取得
 		WallOBJ = DeepFind(gameObject, "WallOBJ");
 
 		//壁素材オブジェクト取得
@@ -148,7 +154,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		List<GameObject> OBJList = new List<GameObject>(DeepFind(gameObject, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")).Select(b => b.gameObject).ToList());
 
 		//壁コライダ無効化
-		WallOBJ.GetComponent<MeshCollider>().enabled = false;
+		ColOBJ.GetComponent<MeshCollider>().enabled = false;
 
 		//プレイヤーキャラクターの戦闘終了処理実行
 		PlayerCharacter.GetComponent<PlayerScript>().BattleEnd();
@@ -433,7 +439,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			gameObject.GetComponent<SphereCollider>().enabled = false;
 
 			//壁コライダ有効化
-			WallOBJ.GetComponent<MeshCollider>().enabled = true;
+			ColOBJ.GetComponent<MeshCollider>().enabled = true;
 
 			//プレイヤーキャラクターの戦闘開始処理実行
 			ColHit.gameObject.GetComponent<PlayerScript>().BattleStart();
@@ -455,14 +461,11 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//ガベージ発生頂点座標List宣言
 		List<Vector3> VertexList = new List<Vector3>();
 
-		//壁メッシュコライダの地面より高い位置の頂点位置を抽出
-		foreach (var i in WallOBJ.GetComponent<MeshCollider>().sharedMesh.vertices)
+		//壁メッシュ頂点位置を抽出
+		foreach (var i in WallOBJ.GetComponent<MeshFilter>().mesh.vertices)
 		{
-			if(i.y < 5)
-			{
-				//リストにAdd
-				VertexList.Add(i);
-			}
+			//リストにAdd
+			VertexList.Add(i);			
 		}
 
 		//リストをシャッフル

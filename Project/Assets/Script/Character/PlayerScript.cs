@@ -3107,13 +3107,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			print("AttackSpeedChangeでUseArtがnull");
 		}
 		else
-		{
+		{		
 			//速度変更タイプ判定：チェイン攻撃
 			if (UseArts.TimeType[n] == 0)
 			{
 				//現在のステートのモーション再生時間を変更、スロー再生
 				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.1f);
-
+				
 				//接地状況でチェインブレイクのモーションを切り替える
 				CurrentAnimator.SetFloat("ChainBreakBlend", OnGroundFlag ? 0 : 1);
 
@@ -3161,17 +3161,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 						}
 					}
 					//ローリングかジャンプか特殊攻撃かダメージででチェイン中断
-					else if ((RollingInput && AirRollingFlag) || (JumpInput && OnGroundFlag) || SpecialInput || SuperInput || DamageFlag || H_Flag)
+					else if ((RollingInput && AirRollingFlag) || (JumpInput && OnGroundFlag) || (SpecialInput && OnGroundFlag) || (SuperInput && OnGroundFlag) || DamageFlag || H_Flag)
 					{
 						//これ以上イベントを起こさないために現在のステートを一時停止
 						CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
-
+						
 						//チェインフラグを下ろす
 						CurrentAnimator.SetBool("Chain", false);
-
+					
 						//攻撃入力フラグを下す
 						AttackInput = false;
-
+						
 						//コルーチンを抜ける
 						yield break;
 					}
@@ -3199,7 +3199,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 					//経過時間カウントアップ
 					ChainAttackWaitTime += Time.deltaTime;
-
+					
 					//1フレーム待機
 					yield return null;
 				}
@@ -3966,8 +3966,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//ローカルトランスフォームを設定
 			ResetTransform(i);
-			//i.transform.localPosition *= 0;
-			//i.transform.localRotation = Quaternion.Euler(Vector3.zero);
 		}
 	}
 
@@ -3982,7 +3980,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//引数をカンマで分割
 		List<string> templist = new List<string>(s.Split(',').ToList());
-
+		
 		//操作する武器オブジェクト
 		GameObject WeaponOBJ = WeaponOBJList[int.Parse(templist[0])];
 
