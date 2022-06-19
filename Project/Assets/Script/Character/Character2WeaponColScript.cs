@@ -9,6 +9,9 @@ public interface Character2WeaponColInterface : IEventSystemHandler
 {
 	//コライダのアクティブを切り替える
 	void SwitchCol(bool b, bool special);
+
+	//ポーズ処理
+	void Pause(bool b);
 }
 
 public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterface
@@ -34,8 +37,15 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 	//特殊攻撃判別bool
 	public bool SpecialBool = false;
 
+	//ポーズ時の加速値キャッシュ
+	private Vector3 Vvelocity = new Vector3();
 
-	// Start is called before the first frame update
+	//ポーズ時の回転値キャッシュ
+	private Vector3 Avelocity = new Vector3();
+
+	//リジッドボディ取得
+	private Rigidbody RBody;
+
 	void Start()
 	{
 		//コライダ取得
@@ -50,10 +60,50 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 		//ワイヤーヒットオブジェクト
 		WireEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "HitEffect23").ToArray()[0];
 
-		//爆発の場合はすぐにコライダを消すコルーチン呼び出し
+		//爆弾の場合処理
+		if (WeaponIndex == 1)
+		{
+			//リジッドボディ取得
+			RBody = gameObject.GetComponent<Rigidbody>();
+		}
+		//爆発の場合処理
 		if (WeaponIndex == 2)
 		{
+			//最初は消しとくコルーチン呼び出し
 			StartCoroutine(BombColCoroutine());
+		}
+	}
+
+	//ポーズ処理
+	public void Pause(bool b)
+	{
+		//爆弾かどうか
+		if(WeaponIndex == 1)
+		{
+			//ポーズ実行
+			if (b)
+			{
+				//加速度キャッシュ
+				Vvelocity = RBody.velocity;
+
+				//回転値キャッシュ
+				Avelocity = RBody.angularVelocity;
+
+				//一時停止
+				RBody.Sleep();
+			}
+			//ポーズ解除
+			else
+			{
+				//再生
+				RBody.WakeUp();
+
+				//加速度適応
+				RBody.velocity = Vvelocity;
+
+				//回転値適応
+				RBody.angularVelocity = Avelocity;
+			}
 		}
 	}
 
@@ -179,6 +229,9 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 				//時限爆発コルーチン初期化
 				BombCoroutine = null;
 
+				//自身をリストから削除
+				GameManagerScript.Instance.AllPlayerWeaponList.Remove(gameObject);
+
 				//自身を削除
 				Destroy(gameObject);
 			}
@@ -220,6 +273,9 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 
 		//位置を設定
 		TempEfffect.transform.position = gameObject.transform.position;
+
+		//自身をリストから削除
+		GameManagerScript.Instance.AllPlayerWeaponList.Remove(gameObject);
 
 		//自身を削除
 		Destroy(gameObject);

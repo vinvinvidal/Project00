@@ -376,18 +376,12 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		}
 		else
 		{
-			//チョイ待機
-			yield return new WaitForSeconds(2);
+			//パス終了値を取得
+			float EndNum = BattleNextVcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_Path.MaxPos;
 
-			//カメラポジション変数宣言
-			float n = 0;
-
-			//カメラが背面に回るまで待機
-			while (Mathf.Round(n) - (Mathf.Round(n / 4) * 4) != -1)
+			//カメラワークが終わるまで待機
+			while (EndNum > BattleNextVcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition)
 			{
-				//カメラポジション変数取得
-				n = BattleNextVcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition;
-
 				//1フレーム待機
 				yield return null;
 			}

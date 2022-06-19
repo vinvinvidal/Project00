@@ -115,6 +115,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   WeaponIndex: 0
+  SpecialBool: 0
 --- !u!1 &2952627485403191827
 GameObject:
   m_ObjectHideFlags: 0
@@ -5005,6 +5006,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   WeaponIndex: 1
+  SpecialBool: 0
 --- !u!54 &6800396791490795270
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -188,6 +188,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//存在している全ての敵飛び道具オブジェクトList
 	public List<GameObject> AllEnemyWeaponList { get; set; } = new List<GameObject>();
 
+	//存在している全てのプレイヤー飛び道具オブジェクトList
+	public List<GameObject> AllPlayerWeaponList { get; set; } = new List<GameObject>();
+
 	//汎用SE
 	public SoundEffectScript GenericSE { get; set; }
 
@@ -1469,15 +1472,25 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.Pause(true));
 
 		//敵ポーズ処理
-		foreach (GameObject i in AllActiveEnemyList)
+		foreach (GameObject i in AllActiveEnemyList.Where(a => a != null))
 		{
-			//nullチェック
-			if (i != null)
-			{
-				ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
-				ExecuteEvents.Execute<EnemyBehaviorInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
-			}
+			ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
+			ExecuteEvents.Execute<EnemyBehaviorInterface>(i, null, (reciever, eventData) => reciever.Pause(true));			
 		}
+
+		//敵飛び道具ポーズ処理
+		foreach (var i in AllEnemyWeaponList.Where(a => a != null))
+		{
+			//飛び道具オブジェクトにポーズフラグを送る
+			ExecuteEvents.Execute<ThrowWeaponScriptInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
+		}
+
+		//プレイヤー飛び道具ポーズ処理
+		foreach (var i in AllPlayerWeaponList.Where(a => a != null))
+		{
+			//飛び道具オブジェクトにポーズフラグを送る
+			ExecuteEvents.Execute<Character2WeaponColInterface>(i, null, (reciever, eventData) => reciever.Pause(true));
+		}		
 
 		while (StopTime < t)
 		{
@@ -1541,6 +1554,20 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 					ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (rec, eve) => rec.Pause(false));
 					ExecuteEvents.Execute<EnemyBehaviorInterface>(i, null, (rec, eve) => rec.Pause(false));
 				}
+			}
+
+			//飛び道具ポーズ解除
+			foreach (var i in AllEnemyWeaponList.Where(a => a != null))
+			{
+				//飛び道具オブジェクトにポーズフラグを送る
+				ExecuteEvents.Execute<ThrowWeaponScriptInterface>(i, null, (rec, eve) => rec.Pause(false));
+			}
+
+			//プレイヤー飛び道具ポーズ処理
+			foreach (var i in AllPlayerWeaponList.Where(a => a != null))
+			{
+				//飛び道具オブジェクトにポーズフラグを送る
+				ExecuteEvents.Execute<Character2WeaponColInterface>(i, null, (rec, eve) => rec.Pause(false));
 			}
 		}));
 
@@ -1793,6 +1820,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//存在している全ての敵飛び道具オブジェクトリスト初期化
 		AllEnemyWeaponList = new List<GameObject>();
+
+		//存在している全てのプレイヤー飛び道具オブジェクトリスト初期化
+		AllPlayerWeaponList = new List<GameObject>();
 	}
 
 	//追加されたキャラクターをリストに追加
@@ -1853,6 +1883,20 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				//敵にポーズフラグを送る
 				ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.Pause(PauseFlag));
 				ExecuteEvents.Execute<EnemyBehaviorInterface>(i, null, (reciever, eventData) => reciever.Pause(PauseFlag));
+			}
+
+			//存在している飛び道具を回す
+			foreach(var i in AllEnemyWeaponList.Where(e => e != null))
+			{
+				//飛び道具オブジェクトにポーズフラグを送る
+				ExecuteEvents.Execute<ThrowWeaponScriptInterface>(i, null, (reciever, eventData) => reciever.Pause(PauseFlag));
+			}
+
+			//プレイヤー飛び道具ポーズ処理
+			foreach (var i in AllPlayerWeaponList.Where(a => a != null))
+			{
+				//飛び道具オブジェクトにポーズフラグを送る
+				ExecuteEvents.Execute<Character2WeaponColInterface>(i, null, (rec, eve) => rec.Pause(PauseFlag));
 			}
 		}
 	}

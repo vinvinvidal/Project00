@@ -197,9 +197,18 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 
 			yield return null;
 		}
-		
+
+		//ポーズ待機
+		while(GameManagerScript.Instance.PauseFlag)
+		{
+			yield return null;
+		}
+
 		if (BombInst != null)
 		{
+			//ゲームマネージャーに自身を登録
+			GameManagerScript.Instance.AllPlayerWeaponList.Add(BombInst);
+
 			//リジッドボディ取得
 			Rigidbody TempRigid = BombInst.GetComponent<Rigidbody>();
 

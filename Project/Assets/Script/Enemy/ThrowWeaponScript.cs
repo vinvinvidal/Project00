@@ -3,7 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ThrowWeaponScript : GlobalClass
+//他のスクリプトから関数を呼ぶ為のインターフェイス
+public interface ThrowWeaponScriptInterface : IEventSystemHandler
+{
+	//ポーズ処理
+	void Pause(bool b);
+}
+
+public class ThrowWeaponScript : GlobalClass, ThrowWeaponScriptInterface
 {
 	//コライダ
 	private MeshCollider WeaponCol;
@@ -26,6 +33,12 @@ public class ThrowWeaponScript : GlobalClass
 	//プレイヤーにストックされた時のポジション
 	public Vector3 StockPosition;
 
+	//ポーズ時の加速値キャッシュ
+	private Vector3 Vvelocity = new Vector3();
+
+	//ポーズ時の回転値キャッシュ
+	private Vector3 Avelocity = new Vector3();
+
 	void Start()
 	{
 		//コライダ取得
@@ -33,6 +46,35 @@ public class ThrowWeaponScript : GlobalClass
 
 		//リジッドボディ取得
 		RBody = gameObject.GetComponent<Rigidbody>();
+	}
+
+	//ポーズ処理
+	public void Pause(bool b)
+	{
+		//ポーズ実行
+		if(b)
+		{
+			//加速度キャッシュ
+			Vvelocity = RBody.velocity;
+
+			//回転値キャッシュ
+			Avelocity = RBody.angularVelocity;
+
+			//一時停止
+			RBody.Sleep();
+		}
+		//ポーズ解除
+		else
+		{
+			//再生
+			RBody.WakeUp();
+
+			//加速度適応
+			RBody.velocity = Vvelocity;
+
+			//回転値適応
+			RBody.angularVelocity = Avelocity;
+		}
 	}
 
 	//オブジェクトを無害化する
