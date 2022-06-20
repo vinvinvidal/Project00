@@ -315,7 +315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6fe77711b8f1d546a53dd9922db9379, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EnemyWaveList: 0000000001000000
+  EnemyWaveList: 00000000000000000000000000000000000000000000000000000000000000000000000001000000
 --- !u!135 &8404991972556880186
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -752,11 +752,11 @@ MonoBehaviour:
     width: 0.2
   m_Looped: 0
   m_Waypoints:
-  - position: {x: -4, y: 1.25, z: 0}
-    tangent: {x: 2, y: 0, z: 0}
-    roll: 20
-  - position: {x: -1.5, y: 1, z: 0}
+  - position: {x: -2.5, y: 0.5, z: 0}
     tangent: {x: 0.1, y: 0, z: 0}
+    roll: 20
+  - position: {x: -1.25, y: 1.5, z: 0}
+    tangent: {x: 0.100000024, y: 0.1, z: 0}
     roll: 0
 --- !u!114 &1324926600291800900
 MonoBehaviour:
@@ -778,7 +778,7 @@ MonoBehaviour:
   RandomFlag: 0
   EasingTime: 2
   KeepTime: 0
-  MoveSpeed: 0.5
+  MoveSpeed: 0.25
   LookAtOBJ: {fileID: 0}
 --- !u!1 &3012848010687126539
 GameObject:
@@ -1535,8 +1535,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_NoiseProfile: {fileID: 11400000, guid: b241f91b9ccf8ff489abf204b30d3112, type: 2}
-  m_AmplitudeGain: 1
-  m_FrequencyGain: 1
+  m_AmplitudeGain: 0.5
+  m_FrequencyGain: 0.5
   mNoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1 &8614547988293452258
 GameObject:
