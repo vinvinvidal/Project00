@@ -48,6 +48,10 @@
 
 			fixed4 _LightColor0;				//ライトカラー
 
+			float VertNum;
+
+			vector OBJPos;
+
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
 			{
@@ -59,6 +63,9 @@
 
 				// テクスチャ座標を取得
 				float2 uv : TEXCOORD0;
+
+				//頂点ID
+				uint vid : SV_VertexID;
 
 				//頂点カラー
 				float4 vertColor : COLOR;
@@ -89,11 +96,24 @@
 				//UVを格納
 				re.uv = v.uv;
 
+				//法線をワールド座標系に変換
+				re.normal = UnityObjectToWorldNormal(v.normal);
+
+				//頂点をワールド座標に変換
+				v.pos = mul(unity_ObjectToWorld, v.pos);
+
+				//爆発
+				//v.pos.xyz += re.normal * (saturate(v.vid % 50) -1) * -1 * VertNum;
+
+				v.pos.xyz += normalize(v.pos.xyz - OBJPos.xyz) * (saturate(v.vid % 50) -1) * -1 * VertNum;				
+
+				//頂点をオブジェクト座標に戻す
+				v.pos = mul(unity_WorldToObject, v.pos);
+
 				//頂点座標を格納 UnityObjectToClipPos()に頂点座標を渡すと画面上ピクセル座標を返してくる
 				re.pos = UnityObjectToClipPos(v.pos);
 
-				//法線をワールド座標系に変換
-				re.normal = UnityObjectToWorldNormal(v.normal);
+
 
 				//頂点カラー
 				re.vertColor = v.vertColor;
@@ -106,16 +126,18 @@
 			fixed4 frag(vertex_output i) : SV_Target
 			{
 				//頂点カラーとライトカラー
-				fixed4 re = (tex2D(_TexParticle, i.uv) + i.vertColor) * _LightColor0;
+				//fixed4 re = (tex2D(_TexParticle, i.uv) + i.vertColor) * _LightColor0;
+
+				fixed4 re = i.vertColor;
 
 				//テクスチャのアルファ
-				re.a *= tex2D(_TexParticle, i.uv * _TexParticle_ST.xy + _TexParticle_ST.zw).a;
+				re.a *= tex2D(_TexParticle, i.uv * _TexParticle_ST.xy + _TexParticle_ST.zw).a - i.vertColor.a * 0.5f;
 
 				//光源と法線の内積を乗算
 				re.rgb *= (dot(i.normal, _WorldSpaceLightPos0) + 1) * 0.5;
 
 				//透明部分をクリップ、消滅用の乱数精製
-				clip(re.a - (tex2D(_TexParticle, i.uv).a) - (1 - i.vertColor.a));
+				clip(re.a);
 
 				//出力
 				return re;

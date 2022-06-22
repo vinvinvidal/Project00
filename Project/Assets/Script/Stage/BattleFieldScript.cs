@@ -468,6 +468,25 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//出現位置オフセット
 		float Offset = 0.5f;
 
+		//煙エフェクトリスト
+		List<GameObject> SmakeList = new List<GameObject>();
+
+		//壁の出現位置に煙を発生させる
+		foreach (var i in VertexList)
+		{
+			//煙エフェクトインスタンス作成
+			GameObject TempSmoke = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "DustEffect").ToArray()[0]);
+
+			//ポジション設定
+			TempSmoke.transform.position = i + new Vector3(0, Random.Range(0, 0.75f), 0);
+
+			//エフェクト再生
+			TempSmoke.GetComponent<ParticleSystem>().Play();
+
+			//リストにAdd
+			SmakeList.Add(TempSmoke);
+		}
+
 		//高所の頂点位置から壁素材を発生させる
 		for (int i = 0; i < 5; i++)
 		{
@@ -496,7 +515,20 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			Offset += 0.75f;
 
 			//1フレーム待機
-			yield return null;
+			yield return new WaitForSeconds(0.1f);
+		}
+
+		//チョイ待つ
+		yield return new WaitForSeconds(0.5f);
+
+		//煙エフェクトを回す
+		foreach (var i in SmakeList)
+		{
+			//メインモジュールのアクセサ取得
+			ParticleSystem.MainModule TempMainModule = i.GetComponent<ParticleSystem>().main;
+
+			//ループを切ってエフェクトを止める
+			TempMainModule.loop = false;
 		}
 	}
 
