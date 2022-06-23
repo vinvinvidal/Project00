@@ -3,7 +3,7 @@ NameH,かまどのぼり
 UseCharacter,1
 Anim,Motion_1_GroundAttack01
 MoveVec,0*0*1*1|0*0*1*5
-Damage,100
+Damage,1
 Stun,1
 Deadly,1
 ColVec,0*0.25*0.75*2

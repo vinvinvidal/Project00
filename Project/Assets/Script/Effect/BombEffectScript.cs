@@ -22,7 +22,7 @@ public class BombEffectScript : GlobalClass
 
 	private IEnumerator BombCoroutine()
 	{
-		VertNum = 2f;
+		VertNum = 1.5f;
 
 		while (VertNum > 0)
 		{
@@ -30,7 +30,7 @@ public class BombEffectScript : GlobalClass
 
 			BombMaterial.SetFloat("VertNum", VertNum);
 
-			VertNum -= 8f * Time.deltaTime;
+			VertNum -= 6f * Time.deltaTime;
 
 			yield return null;
 		}

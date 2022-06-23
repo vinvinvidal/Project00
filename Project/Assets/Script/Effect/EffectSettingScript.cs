@@ -14,10 +14,16 @@ public class EffectSettingScript : GlobalClass
 	//Ztest
 	public float ZTest;
 
+	//マテリアル
+	private List<Material> MatList;
+
 	void Start()
     {
 		//トレイルとかやるとマテリアルが複数の場合があるので、とりあえず全部に入れる
-		foreach(Material i in transform.GetComponent<Renderer>().materials)
+		MatList = new List<Material>(GetComponent<Renderer>().materials);
+
+		//回す
+		foreach (Material i in MatList)
 		{
 			//マテリアルにテクスチャをセット
 			i.SetTexture("_TexParticle", Tex);

@@ -105,7 +105,7 @@
 				//爆発
 				//v.pos.xyz += re.normal * (saturate(v.vid % 50) -1) * -1 * VertNum;
 
-				v.pos.xyz += normalize(v.pos.xyz - OBJPos.xyz) * (saturate(v.vid % 50) -1) * -1 * VertNum;				
+				v.pos.xyz += normalize(v.pos.xyz - OBJPos.xyz) * (saturate(v.vid % 40) -1) * -1 * VertNum;				
 
 				//頂点をオブジェクト座標に戻す
 				v.pos = mul(unity_WorldToObject, v.pos);

@@ -227,6 +227,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			yield return null;
 		}
 
+		//メモリ開放関数呼び出し
+		AssetsUnload();
+
 		//自身を削除
 		Destroy(gameObject);
 	}

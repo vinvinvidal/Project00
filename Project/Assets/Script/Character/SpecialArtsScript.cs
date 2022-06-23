@@ -459,6 +459,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//揺れ物をバタバタを止める
 						Player.GetComponent<PlayerScript>().EndClothShake();
 
+						//エフェクト削除スクリプトを追加、これをしないと削除したあとにOnDestroyが呼ばれずメモリリークする
+						SuperLightEffect.AddComponent<EffectDestroyScript>();
+
 						//エフェクトインスタンス削除
 						Destroy(SuperLightEffect);
 						Destroy(SuperChargeEffect);

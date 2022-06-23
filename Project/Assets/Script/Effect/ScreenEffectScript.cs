@@ -146,5 +146,5 @@ public class ScreenEffectScript : GlobalClass, ScreenEffectScriptInterface
 
 		//引数で受け取った関数実行
 		a(transform.gameObject);
-	}
+	}	
 }

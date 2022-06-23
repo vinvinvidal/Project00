@@ -15,6 +15,9 @@ public class GlobalClass : MonoBehaviour
 	//シーン遷移関数
 	public void NextScene(string scene)
 	{
+		//アセット開放
+		AssetsUnload();
+
 		//引数で受け取った名前のシーンを読み込む
 		SceneManager.LoadScene(scene);
 	}
@@ -88,22 +91,66 @@ public class GlobalClass : MonoBehaviour
 		return temparts;
 	}
 
+	//使用していないアセットを開放する、ちょいちょい呼ぶといいらしい
+	public void AssetsUnload()
+	{
+		StartCoroutine(AssetsUnloadCoroutine());
+	}
+	private IEnumerator AssetsUnloadCoroutine()
+	{
+		//呼び出し元が消えるまで待機
+		yield return new WaitForSeconds(0.1f);
+
+		//メモリ開放
+		Resources.UnloadUnusedAssets();
+	}	
+
 	//オブジェクトが削除された時に複製したマテリアルを削除する、これをしないとメモリリークするらしい
 	private void OnDestroy()
 	{
 		foreach (var i in GetComponents<Renderer>())
 		{
-			foreach (var ii in i.materials)
+			for (int ii = 0; ii < i.materials.Length; ii++)
 			{
-				Destroy(ii);
+				if(i.materials[ii] != null)
+				{
+					Destroy(i.materials[ii]);
+
+					i.materials[ii] = null;
+				}
 			}
+		}
+
+		foreach (var i in GetComponents<MeshFilter>())
+		{
+			if (i.mesh != null)
+			{
+				Destroy(i.mesh);
+
+				i.mesh = null;
+			}	
 		}
 
 		foreach (var i in GetComponentsInChildren<Renderer>())
 		{
-			foreach(var ii in i.materials)
+			for (int ii = 0; ii < i.materials.Length; ii++)
 			{
-				Destroy(ii);;
+				if (i.materials[ii] != null)
+				{
+					Destroy(i.materials[ii]);
+
+					i.materials[ii] = null;
+				}
+			}
+		}
+
+		foreach (var i in GetComponentsInChildren<MeshFilter>())
+		{
+			if (i.mesh != null)
+			{
+				Destroy(i.mesh);
+
+				i.mesh = null;
 			}
 		}
 	}

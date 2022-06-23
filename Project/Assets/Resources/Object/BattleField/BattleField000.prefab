@@ -315,7 +315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6fe77711b8f1d546a53dd9922db9379, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EnemyWaveList: 00000000000000000000000000000000000000000000000000000000000000000000000001000000
+  EnemyWaveList: 0000000001000000
 --- !u!135 &8404991972556880186
 SphereCollider:
   m_ObjectHideFlags: 0
