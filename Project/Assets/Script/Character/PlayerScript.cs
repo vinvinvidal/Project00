@@ -1591,8 +1591,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8)
-		{
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 4 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8)
+		{			
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
 			{
@@ -1601,7 +1601,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				{
 					//敵接触フラグを立てる
 					EnemyContactFlag = true;
-
+					
 					//敵と自分までのベクトルで強制移動
 					ForceMoveVector += Controller.transform.position - new Vector3(i.transform.position.x, transform.position.y, i.transform.position.z);
 				}
@@ -3332,7 +3332,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//ヒットストップ処理
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.1f, () => { }));
 			}
-
+	
 			//地上突進技が当たったらその場で停止させる
 			if (AttackMoveType == 4)
 			{
@@ -3357,12 +3357,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					CurrentAnimator.SetBool("Rolling", true);
 				}
 			}
+
 			//引き起こし攻撃が当たった
-			else if (UseArts.AttackType[AttackIndex] == 30)
+			if (UseArts.AttackType[AttackIndex] == 30)
 			{
 				//強制移動ベクトル初期化
 				ForceMoveVector *= 0;
-
+				
 				//ホールド状態フラグを立てる
 				HoldFlag = true;
 
