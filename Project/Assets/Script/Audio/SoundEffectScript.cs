@@ -13,17 +13,25 @@ public class SoundEffectScript : GlobalClass
 	//オーディオソース
 	private AudioSource Source;
 
+	//ボリューム初期値
+	private float VolumeNum;
+
     void Start()
     {
 		//オーディオソース取得
 		Source = GetComponent<AudioSource>();
+
+		//ボリュームキャッシュ
+		VolumeNum = Source.volume;
 	}
 
 	//指定されたインデックスの音を鳴らす
-	public void PlaySoundEffect(int i)
+	public void PlaySoundEffect(int i , float v)
 	{
 		if(!GameManagerScript.Instance.SoundOffSwicth)
 		{
+			Source.volume = VolumeNum + v;
+
 			Source.PlayOneShot(AudioList[i]);
 		}		
 	}

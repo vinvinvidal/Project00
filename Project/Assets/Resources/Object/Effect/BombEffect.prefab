@@ -9848,7 +9848,7 @@ ParticleSystem:
   startDelay:
     serializedVersion: 2
     minMaxState: 0
-    scalar: 0.25
+    scalar: 0
     minScalar: 0
     maxCurve:
       serializedVersion: 2
@@ -24709,7 +24709,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1.25
+      scalar: 0.75
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -25466,15 +25466,24 @@ ParticleSystem:
         - serializedVersion: 3
           time: 0
           value: 0
-          inSlope: 2
-          outSlope: 2
+          inSlope: 7.5113115
+          outSlope: 7.5113115
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
-          outWeight: 0
+          outWeight: 0.25602406
+        - serializedVersion: 3
+          time: 0.2
+          value: 0.75
+          inSlope: 0.91208696
+          outSlope: 0.91208696
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.17336008
         - serializedVersion: 3
           time: 1
-          value: 0.75
+          value: 1
           inSlope: 0
           outSlope: 0
           tangentMode: 0
@@ -29185,9 +29194,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc4c1f961a03b71419275cd2bfe38e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VanishTime: 0.25
+  KeepTime: 0.15
+  VanishTime: 0.05
   Y_Speed: 5
   X_Speed: 1
-  FireBeat: 10
+  FireBeat: 7.5
   FireSmooth: 0.15
-  FireStrength: 0.25
+  FireStrength: 0.3

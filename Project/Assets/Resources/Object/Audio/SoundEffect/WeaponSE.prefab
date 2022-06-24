@@ -46,7 +46,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -175,3 +175,4 @@ MonoBehaviour:
   AudioName: Weapon2
   AudioList:
   - {fileID: 8300000, guid: 07244b4cc6cb85349aa4e7fc05f5d340, type: 3}
+  - {fileID: 8300000, guid: 9ba70024afe0b3c4abba150e8b40cfff, type: 3}

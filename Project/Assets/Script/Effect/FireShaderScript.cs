@@ -13,8 +13,11 @@ public class FireShaderScript : GlobalClass
 	//Yオフセット移動値
 	private float TexTureY_Offset = 0;
 
-	//消えるまでの時間
-	public float VanishTime = 0;
+	//消えはじめるまでの時間
+	public float KeepTime = 0;
+
+	//消える速度
+	public float VanishTime = 0.05f;
 
 	//Y移動速度
 	public float Y_Speed;
@@ -54,7 +57,7 @@ public class FireShaderScript : GlobalClass
 		FireMaterial.SetFloat("FireStrength", FireStrength);
 
 		//消火コルーチン呼び出し、時間が0なら消さない
-		if(VanishTime != 0f)
+		if(KeepTime != 0f)
 		{
 			StartCoroutine(VanishCoroutine());
 		}
@@ -74,13 +77,13 @@ public class FireShaderScript : GlobalClass
 	private IEnumerator VanishCoroutine()
 	{
 		//指定された時間だけ待機
-		yield return new WaitForSeconds(VanishTime);		
+		yield return new WaitForSeconds(KeepTime);		
 
 		float VanishNum = 1;
 
 		while(VanishNum > -1)
 		{
-			VanishNum -= 0.05f;
+			VanishNum -= VanishTime;
 
 			FireMaterial.SetTextureOffset("_FireVanishTex", new Vector2(0, VanishNum));
 

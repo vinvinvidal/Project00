@@ -217,6 +217,9 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 				//爆発エフェクト生成
 				GameObject TempEfffect = Instantiate(BombEffect);
 
+				//SEを鳴らす
+				GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(1, 0.25f);
+
 				//位置を設定
 				TempEfffect.transform.position = gameObject.transform.position;
 
@@ -270,6 +273,9 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 
 		//爆発エフェクト生成
 		GameObject TempEfffect = Instantiate(BombEffect);
+
+		//SEを鳴らす
+		GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(1, 0.25f);
 
 		//位置を設定
 		TempEfffect.transform.position = gameObject.transform.position;

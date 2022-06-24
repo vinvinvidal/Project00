@@ -3338,8 +3338,28 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				AttackMoveVector *= 0;
 			}
+
+			//引き起こし攻撃が当たった
+			if (UseArts.AttackType[AttackIndex] == 30)
+			{
+				//強制移動ベクトル初期化
+				ForceMoveVector *= 0;
+
+				//ホールド状態フラグを立てる
+				HoldFlag = true;
+
+				//当たった敵の方を向く
+				transform.rotation = Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject));
+
+				//回転制御フラグを立てる
+				NoRotateFlag = true;
+
+				//ホールド状態維持コルーチン呼び出し
+				StartCoroutine(KeepHold());
+			}
+
 			//ある程度の高度で空中突進技が当たった
-			else if (AttackMoveType == 5 && GroundDistance > 1.25f)
+			if (AttackMoveType == 5 && GroundDistance > 1.25f)
 			{
 				//これ以上イベントを起こさないために現在のステートを一時停止
 				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
@@ -3356,25 +3376,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					//ローリングフラグを立てて強制的にローリング実行
 					CurrentAnimator.SetBool("Rolling", true);
 				}
-			}
-
-			//引き起こし攻撃が当たった
-			if (UseArts.AttackType[AttackIndex] == 30)
-			{
-				//強制移動ベクトル初期化
-				ForceMoveVector *= 0;
-				
-				//ホールド状態フラグを立てる
-				HoldFlag = true;
-
-				//当たった敵の方を向く
-				transform.rotation = Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject));
-
-				//回転制御フラグを立てる
-				NoRotateFlag = true;
-
-				//ホールド状態維持コルーチン呼び出し
-				StartCoroutine(KeepHold());
 			}
 
 			//踏みつけ攻撃が当たった
@@ -3973,7 +3974,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//武器のSEを鳴らす
 	private void WeaponSE(int n)
 	{
-		GameManagerScript.Instance.WeaponSEList[CharacterID].PlaySoundEffect(n);
+		GameManagerScript.Instance.WeaponSEList[CharacterID].PlaySoundEffect(n, 0);
 	}
 
 	//武器を移動させる
@@ -5223,7 +5224,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//汎用SEを鳴らす
 	public void PlayGenericSE(int i)
 	{
-		GameManagerScript.Instance.GenericSE.PlaySoundEffect(i);
+		GameManagerScript.Instance.GenericSE.PlaySoundEffect(i, 0);
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる

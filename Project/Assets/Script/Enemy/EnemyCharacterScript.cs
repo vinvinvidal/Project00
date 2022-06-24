@@ -2411,7 +2411,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 
 		//SEを再生
-		GameManagerScript.Instance.GenericSE.PlaySoundEffect(2);
+		GameManagerScript.Instance.GenericSE.PlaySoundEffect(2, 0);
 	}
 
 	//歩調に合わせるサインカーブ生成に使う数リセット、アニメーションクリップから呼ばれる
