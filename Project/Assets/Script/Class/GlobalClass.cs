@@ -105,7 +105,7 @@ public class GlobalClass : MonoBehaviour
 		Resources.UnloadUnusedAssets();
 	}	
 
-	//オブジェクトが削除された時に複製したマテリアルを削除する、これをしないとメモリリークするらしい
+	//オブジェクトが削除された時にインスタンス化したマテリアルやメッシュを削除する、これをしないとメモリリークする
 	private void OnDestroy()
 	{
 		foreach (var i in GetComponents<Renderer>())
@@ -131,6 +131,19 @@ public class GlobalClass : MonoBehaviour
 			}	
 		}
 
+		foreach (var i in GetComponents<ParticleSystemRenderer>())
+		{
+			for (int ii = 0; ii < i.materials.Length; ii++)
+			{
+				if (i.materials[ii] != null)
+				{
+					Destroy(i.materials[ii]);
+
+					i.materials[ii] = null;
+				}
+			}
+		}
+
 		foreach (var i in GetComponentsInChildren<Renderer>())
 		{
 			for (int ii = 0; ii < i.materials.Length; ii++)
@@ -151,6 +164,19 @@ public class GlobalClass : MonoBehaviour
 				Destroy(i.mesh);
 
 				i.mesh = null;
+			}
+		}
+
+		foreach (var i in GetComponentsInChildren<ParticleSystemRenderer>())
+		{
+			for (int ii = 0; ii < i.materials.Length; ii++)
+			{
+				if (i.materials[ii] != null)
+				{
+					Destroy(i.materials[ii]);
+	
+					i.materials[ii] = null;
+				}
 			}
 		}
 	}

@@ -102,9 +102,7 @@
 				//頂点をワールド座標に変換
 				v.pos = mul(unity_ObjectToWorld, v.pos);
 
-				//爆発
-				//v.pos.xyz += re.normal * (saturate(v.vid % 50) -1) * -1 * VertNum;
-
+				//爆発アニメーション
 				v.pos.xyz += normalize(v.pos.xyz - OBJPos.xyz) * (saturate(v.vid % 40) -1) * -1 * VertNum;				
 
 				//頂点をオブジェクト座標に戻す

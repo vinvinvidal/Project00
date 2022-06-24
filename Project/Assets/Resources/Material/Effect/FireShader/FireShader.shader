@@ -4,8 +4,7 @@
     {
 		_FireMainTex ("_FireMainTex", 2D) = "white" {}		//火のメインテクスチャ
 		_FireNormalTex("_FireNormalTex", 2D) = "bump" {}	//火の法線テクスチャ
-
-		_FadeCount("_FadeCount", Range(0.0, 1.0)) = 1.0		//フェードに使う数値
+		_FireVanishTex("_FireVanishTex", 2D) = "white" {}	//火の消火テクスチャ
     }
 
     SubShader
@@ -47,12 +46,19 @@
 			//変数宣言
 			sampler2D _FireMainTex;				//火のメインテクスチャ
 			sampler2D _FireNormalTex;			//火の法線テクスチャ
+			sampler2D _FireVanishTex;			//火の消火テクスチャ
+
 			float4 _FireMainTex_ST;				//火のメインテクスチャのタイリングとオフセット
 			float4 _FireNormalTex_ST;			//火の法線テクスチャのタイリングとオフセット
-
-			float _FadeCount;					//フェードに使う数値
+			float4 _FireVanishTex_ST;			//火の消火テクスチャのタイリングとオフセット
 
 			fixed4 _LightColor0;				//ライトカラー
+
+			float FireBeat;						//ゆらめきの速さ
+
+			float FireSmooth;					//ゆらめきの滑らかさ
+
+			float FireStrength;					//ゆらめきの大きさ
 
 			//float4x4 _CameraMatrix;			//スクリプトから受け取るカメラのマトリクス、Matcapに使用
 			
@@ -75,6 +81,9 @@
 
 				//頂点カラー
 				float4 vertColor : COLOR;
+
+				//頂点ID
+				uint vid : SV_VertexID;
 			};
 
 			//頂点シェーダーからフラグメントシェーダーに情報を渡す構造体を宣言
@@ -106,28 +115,37 @@
 			};
 
 			//頂点シェーダ
-			vertex_output vert(vertex_input i)
+			vertex_output vert(vertex_input v)
 			{
 				//return用output構造体宣言
 				vertex_output re;
 
 				//UVを格納
-				re.uv = i.uv;
+				re.uv = v.uv;
+
+				//頂点をワールド座標に変換
+				v.pos = mul(unity_ObjectToWorld, v.pos);
+
+				//ゆらめきアニメーション
+				v.pos.xyz += (v.normal) * sin((_Time.z * FireBeat) + v.vid * FireSmooth) * FireStrength;				
+
+				//頂点をオブジェクト座標に戻す
+				v.pos = mul(unity_WorldToObject, v.pos);
 
 				//頂点座標を格納 UnityObjectToClipPos()に頂点座標を渡すと画面上ピクセル座標を返してくる
-				re.pos = UnityObjectToClipPos(i.pos);
+				re.pos = UnityObjectToClipPos(v.pos);
 
 				//法線をワールド座標系に変換
-				re.normal = UnityObjectToWorldNormal(i.normal);
+				re.normal = UnityObjectToWorldNormal(v.normal);
 
 				//頂点カラー
-				re.vertColor = i.vertColor;
+				re.vertColor = v.vertColor;
 
 				//正接
-				re.tangent = mul((float3x3)UNITY_MATRIX_MV, i.tangent.xyz);
+				re.tangent = mul((float3x3)UNITY_MATRIX_MV, v.tangent.xyz);
 
 				//従法線
-				re.binormal = normalize(cross(i.normal.xyz, i.tangent.xyz) * i.tangent.w * unity_WorldTransformParams.w);
+				re.binormal = normalize(cross(v.normal.xyz, v.tangent.xyz) * v.tangent.w * unity_WorldTransformParams.w);
 
 				//ビューベクトル
 				//re.ViewVec = normalize(_WorldSpaceCameraPos - mul(unity_ObjectToWorld, i.pos).xyz);
@@ -156,10 +174,12 @@
 				
 				//頂点カラーを乗算
 				re *= i.vertColor;
-				//re *= lerp(1, _LightColor0, _LightColor0.a);
+
+				//消火テクスチャの透明度を適応
+				re *= tex2D(_FireVanishTex, MatCapUV * _FireVanishTex_ST.xy + _FireVanishTex_ST.zw);
 
 				//出力
-				return re * _FadeCount;
+				return re;
 
 				
 
