@@ -26,6 +26,12 @@ public class ScreenEffectScript : GlobalClass, ScreenEffectScriptInterface
 	//シェーダーに送る色
 	Color EffectColor;
 
+	private void Start()
+	{
+		//マテリアル取得
+		mat = gameObject.GetComponent<Renderer>().sharedMaterial;
+	}
+
 	//ズーム
 	public void Zoom(bool z, float p, float t, Action<GameObject> a)
 	{
@@ -35,9 +41,6 @@ public class ScreenEffectScript : GlobalClass, ScreenEffectScriptInterface
 	{
 		//有効化
 		gameObject.GetComponent<Renderer>().enabled = true;
-
-		//マテリアル取得
-		mat = gameObject.GetComponent<Renderer>().material;
 
 		//補完値宣言初期化
 		float tm = t;
@@ -99,9 +102,6 @@ public class ScreenEffectScript : GlobalClass, ScreenEffectScriptInterface
 	{
 		//有効化
 		gameObject.GetComponent<Renderer>().enabled = true;
-
-		//マテリアル取得
-		mat = gameObject.GetComponent<Renderer>().material;
 
 		//補完値宣言初期化
 		float tm = t;

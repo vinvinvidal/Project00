@@ -46,7 +46,7 @@ Material:
     - _FireMainTex:
         m_Texture: {fileID: 2800000, guid: 7887025b8f440a24d985521109152244, type: 3}
         m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+        m_Offset: {x: 0.79334563, y: 0}
     - _FireMatCapTex:
         m_Texture: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -54,7 +54,7 @@ Material:
     - _FireNormalTex:
         m_Texture: {fileID: 2800000, guid: 8251f6b55afdf3c468fe5120bb4e8ae9, type: 3}
         m_Scale: {x: 10, y: 2}
-        m_Offset: {x: 0, y: 0}
+        m_Offset: {x: 0, y: -4.001023}
     - _FireSubTex:
         m_Texture: {fileID: 2800000, guid: ff39c4fa3e513e747801f448f51183e4, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -62,7 +62,7 @@ Material:
     - _FireVanishTex:
         m_Texture: {fileID: 2800000, guid: 27ee9e523a9382d40aa61c12a1ac810c, type: 3}
         m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 1}
+        m_Offset: {x: 0, y: -1.0000002}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}

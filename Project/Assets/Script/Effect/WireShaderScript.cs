@@ -20,7 +20,7 @@ public class WireShaderScript : GlobalClass, WireShaderScriptInterface
     void Start()
     {
 		//マテリアル取得
-		WireMaterial = GetComponent<Renderer>().material;
+		WireMaterial = GetComponent<Renderer>().sharedMaterial;
 	}
 
 	void Update()

@@ -100619,7 +100619,7 @@ AnimationClip:
     messageOptions: 0
   - time: 1.2333333
     functionName: WeaponMove
-    data: 0,0,1,0,0.2
+    data: 0,0,1,0,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

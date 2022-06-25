@@ -15,7 +15,7 @@ public class BombEffectScript : GlobalClass
     {
 		BombRenderer = GetComponent<Renderer>();
 
-		BombMaterial = BombRenderer.material;
+		BombMaterial = BombRenderer.sharedMaterial;
 
 		StartCoroutine(BombCoroutine());
 	}

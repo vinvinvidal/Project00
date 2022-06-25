@@ -641,13 +641,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		EyeOBJ = gameObject.GetComponentsInChildren<Renderer>().Where(i => i.name.Contains("Eye")).ToArray()[0].gameObject;
 
 		//視線を動かすための目マテリアル取得
-		EyeMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Eye")).ToArray()[0].material;
+		EyeMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Eye")).ToArray()[0].sharedMaterial;
 
 		//視線を向ける先のポジション初期化
 		CharacterLookAtPos = Vector3.zero;
 
 		//頬を赤らめるための顔マテリアル取得
-		FaceMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Face")).ToArray()[0].material;
+		FaceMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Face")).ToArray()[0].sharedMaterial;
 
 		//攻撃コライダを非アクティブ化しておく
 		AttackCol.enabled = false;
@@ -5435,7 +5435,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//レンダラーを回す
 		foreach (Renderer i in RendList)
 		{
-			foreach (var ii in i.materials)
+			foreach (var ii in i.sharedMaterials)
 			{
 				//マテリアルの描画順を変更してアウトラインを消す
 				ii.renderQueue = 3000;
@@ -5451,7 +5451,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//マテリアルを回して消滅用数値を入れる
 			foreach (Renderer i in RendList)
 			{
-				foreach (var ii in i.materials)
+				foreach (var ii in i.sharedMaterials)
 				{
 					ii.SetFloat("_VanishNum", 1 - AppearTime / t);
 				}
@@ -5467,7 +5467,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//レンダラーを回して描画順と透明度を戻す
 		foreach (Renderer i in RendList)
 		{
-			foreach (var ii in i.materials)
+			foreach (var ii in i.sharedMaterials)
 			{
 				ii.SetFloat("_VanishNum", 0);
 				ii.renderQueue = 2450;
@@ -5495,7 +5495,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//レンダラーのシャドウを切る
 			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
-			foreach (var ii in i.materials)
+			foreach (var ii in i.sharedMaterials)
 			{
 				//マテリアルの描画順を変更
 				ii.renderQueue = 3000;
@@ -5508,7 +5508,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//マテリアルを回して消滅用数値を入れる
 			foreach (Renderer i in RendList)
 			{
-				foreach (var ii in i.materials)
+				foreach (var ii in i.sharedMaterials)
 				{
 					ii.SetFloat("_VanishNum", VanishTime / t);
 				}
@@ -5524,7 +5524,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//マテリアルを回して完全に消す
 		foreach (Renderer i in RendList)
 		{
-			foreach (var ii in i.materials)
+			foreach (var ii in i.sharedMaterials)
 			{
 				ii.SetFloat("_VanishNum", 1);
 			}
@@ -5539,7 +5539,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//レンダラーのシャドウを入れる
 			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 
-			foreach (var ii in i.materials)
+			foreach (var ii in i.sharedMaterials)
 			{
 				ii.SetFloat("_VanishNum", 0);
 				ii.renderQueue = 2450;

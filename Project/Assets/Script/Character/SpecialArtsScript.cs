@@ -1220,7 +1220,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					while (SpecialAction210Flag)
 					{
 						//目的地まで移動
-						Player.GetComponent<PlayerScript>().SpecialMoveVector = transform.forward * ((Enemy.transform.position - gameObject.transform.position).magnitude + 0.01f) * 4;
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = transform.forward * (((Enemy.transform.position - (gameObject.transform.forward * 0.5f)) - gameObject.transform.position).magnitude) * 5;
 	
 						//1フレーム待機
 						yield return null;
@@ -1247,6 +1247,26 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 				re.Add
 				(					
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//ヒットエフェクトインスタンス生成
+						GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect20").ToList()[0]);
+
+						//プレイヤーの子にする
+						HitEffect.transform.parent = Player.transform;
+
+						//PRS設定
+						HitEffect.transform.position = Enemy.transform.position + new Vector3(0, 0.75f, 0);
+						HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
+
+						//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
+						ExecuteEvents.Execute<EnemyCharacterInterface>(Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 1, 0.1f) }, new List<float>() { 10 }, new List<int>() { 1 }, new List<int>() { 1 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
+					}
+				);
+
+
+				re.Add
+				(
 					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
 						//移動ベクトルをリセット
