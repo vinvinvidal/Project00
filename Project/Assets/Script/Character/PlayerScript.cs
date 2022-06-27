@@ -5068,6 +5068,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 		}
 
+		//ダメージ用コライダを有効化
+		DamageCol.enabled = true;
+
 		//入力フラグを全て下す関数呼び出し
 		InputReset();
 
