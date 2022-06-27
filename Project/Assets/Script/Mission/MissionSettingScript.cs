@@ -50,6 +50,9 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 			CharacterCompleteFlagDic.Add(i, false);
 		}
 
+		//UIスクリプトにミッションクラスを送る
+		GameObject.Find("MissionUI").GetComponent<MissionUIScript>().SettingArtsMatrix(UseMissionClass);
+
 		//野外ライトのライトカラーを設定する
 		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.GradientChange(UseMissionClass.LightColorIndexList[0] , UseMissionClass.LightColorPosList[0]));
 

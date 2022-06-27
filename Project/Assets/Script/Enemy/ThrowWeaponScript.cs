@@ -30,6 +30,9 @@ public class ThrowWeaponScript : GlobalClass, ThrowWeaponScriptInterface
 	//プレイヤーにストックされているフラグ
 	public bool StockFlag { get; set; } = false;
 
+	//賎祓いフラグ
+	private bool Special110Flag = false;
+
 	//プレイヤーにストックされた時のポジション
 	public Vector3 StockPosition;
 
@@ -97,6 +100,74 @@ public class ThrowWeaponScript : GlobalClass, ThrowWeaponScriptInterface
 		gameObject.layer = LayerMask.NameToLayer("PlayerWeaponCol");
 	}
 
+	//賎祓い用処理
+	public void SpecialArts110(List<GameObject> EnemyList)
+	{
+		//賎祓いフラグを立てる
+		Special110Flag = true;
+
+		//プレイヤーの武器にする
+		PlyaerAttack();
+
+		//飛び道具のRigidBody有効化
+		RBody.isKinematic = false;
+
+		//コルーチン呼び出し
+		StartCoroutine(SpecialArts110Coroutine(EnemyList));
+	}
+	private IEnumerator SpecialArts110Coroutine(List<GameObject> EnemyList)
+	{
+		//ループカウント
+		int count = 0;
+
+		//開始時間キャッシュ
+		float StartTime = Time.time;
+
+		//周囲の敵を回す
+		foreach(var i in EnemyList)
+		{
+			//速度をリセット
+			RBody.velocity = Vector3.zero;
+
+			//飛び道具を回転させる
+			RBody.AddTorque(transform.right, ForceMode.Impulse);
+
+			//当たるまで待機
+			while (((i.transform.position + (Vector3.up * 0.75f)) - transform.position).sqrMagnitude > 1.5f)
+			{
+				//飛び道具を敵に飛ばす
+				RBody.AddForce(((i.transform.position + (Vector3.up * 0.75f)) - transform.position).normalized * 5, ForceMode.Impulse);
+
+				//1フレーム待機
+				yield return null;
+			}
+
+			//ヒットエフェクトインスタンス生成
+			GameObject TempHitEffect = Instantiate(HitEffect);
+
+			//子にする
+			TempHitEffect.transform.parent = gameObject.transform;
+
+			//トランスフォームリセット
+			ResetTransform(TempHitEffect);
+
+			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
+			ExecuteEvents.Execute<EnemyCharacterInterface>(i, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { UseArts.PlyaerUseKnockBackVec }, new List<float>() { UseArts.PlyaerUseDamage }, new List<int>() { 1 }, new List<int>() { UseArts.PlyaerUseDamageType }, new List<int>() { 1 }, new List<int>() { 0 }), 0));
+			
+			//最後の一匹かどうか
+			if (EnemyList.Count - count == 1)
+			{
+				//消失処理
+				BrokenWeapon();
+			}
+			else
+			{
+				//ループカウントアップ
+				count++;
+			}			
+		}
+	}
+
 	//オブジェクトを叩きつけた時に呼ばれる
 	public void BrokenWeapon()
 	{
@@ -108,6 +179,9 @@ public class ThrowWeaponScript : GlobalClass, ThrowWeaponScriptInterface
 
 		//オブジェクトを無害化
 		PhysicOBJ();
+
+		//飛び道具のRigidBody有効化
+		RBody.isKinematic = false;
 
 		//速度をリセット
 		RBody.velocity = Vector3.zero;
@@ -128,8 +202,13 @@ public class ThrowWeaponScript : GlobalClass, ThrowWeaponScriptInterface
 		//攻撃が有効か判定する変数宣言
 		bool AttackEnable = false;
 
+		//賎祓い用処理
+		if (Special110Flag)
+		{
+			//何もしない
+		}
 		//プレイヤーにヒットした
-		if (LayerMask.LayerToName(Hit.gameObject.layer) == "PlayerDamageCol")
+		else if (LayerMask.LayerToName(Hit.gameObject.layer) == "PlayerDamageCol")
 		{
 			//プレイヤーキャラクターのスクリプトを呼び出して攻撃が有効か判定
 			ExecuteEvents.Execute<PlayerScriptInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => AttackEnable = reciever.AttackEnable(false));
@@ -158,16 +237,14 @@ public class ThrowWeaponScript : GlobalClass, ThrowWeaponScriptInterface
 
 			//自身をゲームマネージャーのListから消す
 			GameManagerScript.Instance.AllEnemyWeaponList.Remove(gameObject);
-
+			
 			//ヒットエフェクトインスタンス生成
 			GameObject TempHitEffect = Instantiate(HitEffect);
 
 			//子にする
 			TempHitEffect.transform.parent = gameObject.transform;
 
-			//PRS設定
-			//TempHitEffect.transform.localPosition = Vector3.zero;
-			//TempHitEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//トランスフォームリセット
 			ResetTransform(TempHitEffect);
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする

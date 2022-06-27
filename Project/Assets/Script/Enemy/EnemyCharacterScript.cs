@@ -1267,8 +1267,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//壁激突フラグを立てる
 			WallClashFlag = true;
 
-			//使用するモーションに差し替え
-			OverRideAnimator["Damage_Void_" + DamageState % 2] = DamageAnimList[9];
+			//死んでたらモーション差し替え
+			if(DestroyFlag)
+			{
+				//ダウンモーションに切り替え
+				OverRideAnimator["Damage_Void_" + DamageState % 2] = DamageAnimList[1];
+			}
+			else
+			{
+				//壁当たりモーション差し替え
+				OverRideAnimator["Damage_Void_" + DamageState % 2] = DamageAnimList[9];
+			}		
 
 			//再生フレームを最初にする
 			CurrentAnimator.Play("Damage0" + DamageState % 2, 0, 0);

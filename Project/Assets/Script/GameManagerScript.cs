@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 //メッセージシステムでイベントを受け取るためのインターフェイス
@@ -116,6 +117,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	public bool PauseFlag { get; set; } = false;
 
 
+
+
+
 	//セーブロードするセーブデータ
 	public UserDataClass UserData { get; set; } = null;
 
@@ -157,6 +161,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//バーチャルカメラ
 	private CinemachineVirtualCamera VCamera;
 
+	//ミッションUIスクリプト
+	private MissionUIScript MissionUI;
+
 	//ロケーションによって切り替える野外ライト
 	private Light OutDoorLight;
 
@@ -177,6 +184,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//使用中のスカイボックス
 	private Material SkyBoxMaterial;
+
+
+
 
 
 	//存在している全てのキャラクターリスト
@@ -205,6 +215,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//武器固有SE
 	public List<SoundEffectScript> WeaponSEList { get; set; }
+
+
+
 
 
 	//全てのキャラクター情報を持ったList
@@ -359,6 +372,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//バーチャルカメラ取得
 		VCamera = DeepFind(gameObject , "MasterVcam").GetComponent<CinemachineVirtualCamera>();
+
+		//ミッションUIスクリプト取得
+		MissionUI = DeepFind(gameObject, "MissionUI").GetComponent<MissionUIScript>();
 
 		//野外ライト取得
 		OutDoorLight = DeepFind(gameObject , "OutDoorLight").GetComponent<Light>();
@@ -1805,6 +1821,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			ExecuteEvents.Execute<BattleFieldScriptInterface>(BattleFieldOBJ, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));
 		}
 
+		//UIを切り替える
+		MissionUI.CharacterChange(NextIndex);
+
 		//プレイヤーキャラクターを更新
 		SetPlayableCharacterOBJ(NextCharacter);
 	}
@@ -1823,6 +1842,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//存在している全てのプレイヤー飛び道具オブジェクトリスト初期化
 		AllPlayerWeaponList = new List<GameObject>();
+
+		//チャプターID初期化
+		SelectedMissionChapter = 0;
 	}
 
 	//追加されたキャラクターをリストに追加
@@ -1898,6 +1920,17 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				//飛び道具オブジェクトにポーズフラグを送る
 				ExecuteEvents.Execute<Character2WeaponColInterface>(i, null, (rec, eve) => rec.Pause(PauseFlag));
 			}
+		}
+	}
+
+	//デバッグキーを押した時
+	private void OnDebug(InputValue inputValue)
+	{
+		//開発フラグが立っていたら処理
+		if (DevSwicth)
+		{
+			//敵の攻撃を喰らった事にする
+			ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.HitEnemyAttack(new EnemyAttackClass("", "", "", "", 0f, 0, 0, 0, 0, new Color(0, 0, 0, 0), ""), gameObject, null));
 		}
 	}
 

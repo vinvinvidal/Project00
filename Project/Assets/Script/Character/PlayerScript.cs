@@ -2035,6 +2035,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//敵の攻撃が当たった時の処理
 	public void HitEnemyAttack(EnemyAttackClass arts, GameObject enemy, GameObject Weapon)
 	{
+		//ダメージ用コライダを無効化
+		DamageCol.enabled = false;
+
 		//当身に当たった
 		if (SpecialTryFlag && SpecialArtsList[0].Trigger == arts.AttackType)
 		{
@@ -2059,30 +2062,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//ライフを減らす
 			L_Gauge -= arts.Damage;
-
-			//特殊攻撃失敗処理呼び出し
-			ExecuteEvents.Execute<SpecialArtsScript>(gameObject, null, (reciever, eventData) => reciever.SpecialAttackMiss(CharacterID));
-
+	
 			//飛び道具を喰らった時の処理
 			if (Weapon != null)
 			{
-				//オブジェクトに消失用スクリプト追加
-				Weapon.AddComponent<WallVanishScript>();
-
-				//飛び道具ををゲームマネージャーのListから消す
-				GameManagerScript.Instance.AllEnemyWeaponList.Remove(Weapon);
-
-				//オブジェクトを無害化
-				Weapon.GetComponent<ThrowWeaponScript>().PhysicOBJ();
-
-				//RigidBodyの補完を有効化
-				Weapon.GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.Interpolate;
-
-				//速度をリセット
-				Weapon.GetComponent<Rigidbody>().velocity = Vector3.zero;
-
-				//跳ね返りの加速度を加える
-				Weapon.GetComponent<Rigidbody>().AddForce((Weapon.transform.position - gameObject.transform.root.gameObject.transform.position).normalized * 5, ForceMode.Impulse);
+				//飛び道具消失処理
+				Weapon.GetComponent<ThrowWeaponScript>().BrokenWeapon();
 			}
 
 			//接地を判別、ongroundじゃなくアニメーターのフラグを使う
@@ -2104,7 +2089,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//接地していたら
 			else
 			{
-				//ダメージモーションインデクスに反映
+				//ダメージモーションインデックスに反映
 				DamageAnimIndex = arts.DamageType;
 			}
 
@@ -2315,6 +2300,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ダメージを受けたらブレーク
 			if(DamageFlag)
 			{
+				//特殊攻撃用フラグを下す
+				SpecialTryFlag = false;
+				SpecialSuccessFlag = false;
+
+				//特殊攻撃失敗処理呼び出し
+				ExecuteEvents.Execute<SpecialArtsScript>(gameObject, null, (reciever, eventData) => reciever.SpecialAttackMiss(CharacterID, EnemyWeapon));
+
+				//処理を回避して抜ける
 				goto SpecialLoopDamage;
 			}
 
@@ -2425,16 +2418,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void EndDamageMove()
 	{
 		DamageMoveVector *= 0;
-	}
-
-	//ダメージフラグを下す、アニメーションクリップから呼ばれる
-	public void EndDamage()
-	{
-		//ダメージフラグを下す
-		DamageFlag = false;
-
-		//表情を戻す
-		ChangeFace("Reset");
 	}
 
 	//立ちモーションループ
@@ -4828,7 +4811,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//入力フラグを全て下す関数呼び出し
 			InputReset();
-			
+
 			//遷移フラグを全て下す関数呼び出し
 			TransitionReset();
 
@@ -4843,12 +4826,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//必中ターゲットを解除
 			TargetEnemy = null;
-		}
-		//Damageから抜けた瞬間の処理
-		else if (s.Contains("Damage ->"))
-		{
-			//ダメージフラグを下す
-			DamageFlag = false;
 		}
 		//SpecialTryになった瞬間の処理
 		else if (s.Contains("-> SpecialTry"))
@@ -4987,6 +4964,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//キャラ交代フラグを下す
 			ChangeFlag = false;
 		}
+		//Damageから遷移した瞬間の処理
+		else if (s.Contains("Damage ->"))
+		{
+			//ダメージフラグを下す
+			DamageFlag = false;
+
+			//ダメージ用コライダを有効化
+			DamageCol.enabled = true;
+
+			//表情を戻す
+			ChangeFace("Reset");
+		}
 	}
 	private IEnumerator SuperArtsSyncCoroutine()
 	{
@@ -5078,7 +5067,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//メインカメラのロックも外す
 			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 		}
-		
+
 		//入力フラグを全て下す関数呼び出し
 		InputReset();
 

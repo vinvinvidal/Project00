@@ -287,7 +287,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		if (LockEnemy != null)
 		{
 			//注視点をキャラクターとロック対象の中間点に設定
-			LookAtPos = ((LockEnemy.transform.position + PlayerCharacter.transform.position) * 0.5f) + LookAtOffset;
+			LookAtPos = ((LockEnemy.transform.position + PlayerCharacter.transform.position) * 0.5f) + LookAtOffset + ((PlayerCharacter.transform.position - LockEnemy.transform.position) * 0.2f);
 		}
 		//通常処理
 		else

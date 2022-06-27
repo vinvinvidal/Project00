@@ -3,7 +3,7 @@ Title,ようこそ明羅漢学園
 Introduction,乗り込むぞ
 MissionCharacter,0|1|2
 ChapterCharacter,0*1*2|0
-FirstCharacter,0|1|2
+FirstCharacter,2|0|2
 ChapterStage,Stage00
 PlayerPos,13*0*0
 CameraPos,5*2*0

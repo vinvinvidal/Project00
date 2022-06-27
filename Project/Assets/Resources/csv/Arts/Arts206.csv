@@ -11,9 +11,9 @@ KnockBackVec,0*0*0*0|0*0*0*0|0*0*0*0|0*0*0*0
 Introduction,首を掴みデスロール
 UnLock,0|1|1
 Chain,0
-MoveType,4
+MoveType,0
 AttackType,30|4|3|14
-DownEnable,1|0
+DownEnable,0|0
 ColType,10|100|100|100
 TimeType,100|100|100|100
 HitEffect,HitEffect20|HitEffect20|HitEffect20|HitEffect21
