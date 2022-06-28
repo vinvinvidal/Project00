@@ -941,9 +941,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//プレイヤーのフラグを立てる
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
 
-						//特殊攻撃制御フラグを立てる
-						SpecialAction110Flag = true;
-
 						//飛び道具の関数を呼び出して無害化
 						Weapon.GetComponent<ThrowWeaponScript>().PhysicOBJ();
 
@@ -967,35 +964,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 								}
 							}
 						}
-
-						//プレイヤー移動コルーチン呼び出し
-						StartCoroutine(PlayerSpecialAction110(Player));
-					}
-				);
-
-				//プレイヤー行動コルーチン
-				IEnumerator PlayerSpecialAction110(GameObject Player)
-				{
-					//フラグが降りるまでループ
-					while (SpecialAction110Flag)
-					{
-						//目的地まで移動
-						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 15f;
-
-						//1フレーム待機
-						yield return null;
-					}
-
-					//プレイヤーの移動ベクトル初期化
-					Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
-				}
-
-				re.Add
-				(
-					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
-					{
-						//特殊攻撃制御フラグを下す
-						SpecialAction110Flag = false;
 
 						//エフェクトのインスタンス生成
 						GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0]);
@@ -1047,6 +1015,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
 					}
 				);
+
 			}
 			//幣帛召し
 			else if (i == 2)
@@ -1054,7 +1023,47 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				re.Add
 				(
 					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
-					{						
+					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+						//特殊攻撃制御フラグを立てる
+						SpecialAction110Flag = true;
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction110(Player));
+					}
+				);
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSpecialAction110(GameObject Player)
+				{
+					//フラグが降りるまでループ
+					while (SpecialAction110Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 10f;
+
+						//1フレーム待機
+						yield return null;
+					}
+
+					//プレイヤーの移動ベクトル初期化
+					Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//特殊攻撃制御フラグを立てる
+						SpecialAction110Flag = false;
+
+						//エフェクトのインスタンス生成
+						GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0]);
+
+						//エフェクトを飛び道具の場所に移動
+						HitEffect.transform.position = Weapon.transform.position;
+
 						//ストックしてる飛び道具がなければストック
 						if (StockWeapon == null)
 						{

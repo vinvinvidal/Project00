@@ -3572,6 +3572,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ダイナミックボーンList
 		List<DynamicBone> tempBoneList = new List<DynamicBone>(transform.GetComponentsInChildren<DynamicBone>().Where(a => !a.m_Root.name.Contains("Breast")));
 
+		//ダイナミックボーンのForceキャッシュしておくList
+		List<Vector3> BoneForceList = new List<Vector3>();
+
+		//ダイナミックボーンのForceをキャッシュ
+		foreach (var i in tempBoneList)
+		{
+			//ListにAdd
+			BoneForceList.Add(i.m_Force);
+		}
+
 		//クロスにベクトルを与える
 		foreach (Cloth i in tempClothList)
 		{
@@ -3603,10 +3613,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			i.randomAcceleration = new Vector3(0, 0, 0);
 		}
 
-		//DynamicBoneに力を加えるのをやめる
-		foreach (DynamicBone i in tempBoneList)
+		//DynamicBoneのForceを戻す
+		for (int n = 0; n < tempBoneList.Count; n++)
 		{
-			i.m_Force *= 0;
+			tempBoneList[n].m_Force = BoneForceList[n];
 		}
 	}
 
