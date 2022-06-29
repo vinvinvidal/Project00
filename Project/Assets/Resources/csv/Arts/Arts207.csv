@@ -17,7 +17,7 @@ DownEnable,1
 ColType,0
 TimeType,100
 HitEffect,HitEffect21
-HitEffectPos,0*1.5*1
+HitEffectPos,0*1*0.75
 HitEffectAngle,45*0*0
 HitStop,0
 Charge,1
