@@ -165,9 +165,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//キャラクター交代入力フラグ
 	private bool ChangeInput = false;
 
-	//オートコンボ入力フラグ
-	private bool AutoComboInput = false;
-
 
 
 	//--- 状態フラグ ---//
@@ -234,6 +231,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//踏みつけフラグ
 	private bool StompingFlag = false;
+
+	//クールダウンフラグ
+	private bool CoolDownFlag = false;
 
 
 	//--- 移動値 ---//
@@ -1380,7 +1380,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//オートコンボボタンを押した時
 	private void OnPlayerAutoCombo(InputValue i)
 	{
-		AutoComboInput = i.isPressed;
+		//押した時にture、離した時にfalseが入る
+		HoldButtonFlag = i.isPressed;
+
+		if (i.isPressed)
+		{
+			//オートコンボで技を探す
+			AttackInputFunc(100);
+		}
 	}
 
 	//特殊攻撃を押した時
@@ -1591,7 +1598,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 4 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8)
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8)
 		{			
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
@@ -1601,7 +1608,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				{
 					//敵接触フラグを立てる
 					EnemyContactFlag = true;
-					
+
 					//敵と自分までのベクトルで強制移動
 					ForceMoveVector += Controller.transform.position - new Vector3(i.transform.position.x, transform.position.y, i.transform.position.z);
 				}
@@ -2506,8 +2513,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//オートコンボしている
-		if (AutoComboInput)
+		if (AttackButton == 100)
 		{
+			//ロックしている敵が倒れているか
+			bool EnemyDown = false;
+
+			//ロックしている敵が居たら状況を調べる
+			if (LockEnemy != null)
+			{
+				//倒れているか
+				EnemyDown = LockEnemy.GetComponent<EnemyCharacterScript>().DownFlag;
+			}
+
 			//チェイン中はとりあえずチェイン続行
 			if (CurrentAnimator.GetBool("Chain"))
 			{
@@ -2518,37 +2535,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				AttackStick = UseArts.UseLocation["Stick"];
 				AttackButton = UseArts.UseLocation["Button"];
 			}
-			//地上で入力
-			else if (AttackLocation != 2)
-			{
-				//入力ボタンを初期化してループ
-				for (int iii = 0; iii <= 2; iii++)
-				{
-					//距離を初期化してループ
-					for (int i = 0; i <= 1; i++)
-					{
-						//レバー入れを初期化してループ
-						for (int ii = 0; ii <= 1; ii++)
-						{
-							//使用済み判定
-							if (ArtsStateMatrix[i][ii][iii] != 10000 && ArtsMatrix[i][ii][iii] != null)
-							{
-								//入力情報を更新
-								AttackLocation = i;
-								AttackStick = ii;
-								AttackButton = iii;
-
-								//技確定
-								ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
-
-								//ループを抜ける
-								goto ArtsLoopBreak;
-							}
-						}
-					}
-				}
-			}
-			//空中で入力
 			else
 			{
 				//入力ボタンを初期化してループ
@@ -2557,18 +2543,100 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					//レバー入れを初期化してループ
 					for (int ii = 0; ii <= 1; ii++)
 					{
-						//使用済み判定
-						if (ArtsStateMatrix[AttackLocation][ii][iii] != 10000 && ArtsMatrix[AttackLocation][ii][iii] != null)
+						//nullとクールダウン判定
+						if(ArtsMatrix[AttackLocation][ii][iii] != null && !ArtsMatrix[AttackLocation][ii][iii].CoolDownFlag)
 						{
-							//入力情報を更新
-							AttackStick = ii;
-							AttackButton = iii;
+							//相手がダウンしてたら
+							if (EnemyDown)
+							{
+								//ダウンに当たる攻撃か調べる
+								if (ArtsMatrix[AttackLocation][ii][iii].DownEnable[0] == 1)
+								{
+									//技確定
+									ReserveArts = ArtsMatrix[AttackLocation][ii][iii];
+								}
+								//単発技じゃ無ければ２発目も調べる
+								else if (ArtsMatrix[AttackLocation][ii][iii].DownEnable.Count > 1)
+								{
+									if (ArtsMatrix[AttackLocation][ii][iii].DownEnable[1] == 1)
+									{
+										//技確定
+										ReserveArts = ArtsMatrix[AttackLocation][ii][iii];
+									}
+								}
+							}
+							else
+							{
+								//技確定
+								ReserveArts = ArtsMatrix[AttackLocation][ii][iii];
+							}
 
-							//技確定
-							ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+							//技があったらロケーションを保存してループを抜ける
+							if (ReserveArts != null)
+							{
+								//入力情報を更新
+								AttackLocation = int.Parse(ArtsMatrix[AttackLocation][ii][iii].MatrixPos[0].ToString());
+								AttackStick = int.Parse(ArtsMatrix[AttackLocation][ii][iii].MatrixPos[1].ToString());
+								AttackButton = int.Parse(ArtsMatrix[AttackLocation][ii][iii].MatrixPos[2].ToString());
 
-							//ループを抜ける
-							goto ArtsLoopBreak;
+								//ループを抜ける
+								goto ArtsLoopBreak;
+							}
+						}
+					}
+				}
+
+				//近距離で見つからなかったら遠距離にしてもう一度
+				if (AttackLocation == 0)
+				{
+					AttackLocation = 1;
+
+					//入力ボタンを初期化してループ
+					for (int iii = 0; iii <= 2; iii++)
+					{
+						//レバー入れを初期化してループ
+						for (int ii = 0; ii <= 1; ii++)
+						{
+							//nullとクールダウン判定
+							if (ArtsMatrix[AttackLocation][ii][iii] != null && !ArtsMatrix[AttackLocation][ii][iii].CoolDownFlag)
+							{
+								//相手がダウンしてたら
+								if (EnemyDown)
+								{
+									//ダウンに当たる攻撃か調べる
+									if (ArtsMatrix[AttackLocation][ii][iii].DownEnable[0] == 1)
+									{
+										//技確定
+										ReserveArts = ArtsMatrix[AttackLocation][ii][iii];
+									}
+									//単発技じゃ無ければ２発目も調べる
+									else if (ArtsMatrix[AttackLocation][ii][iii].DownEnable.Count > 1)
+									{
+										if (ArtsMatrix[AttackLocation][ii][iii].DownEnable[1] == 1)
+										{
+											//技確定
+											ReserveArts = ArtsMatrix[AttackLocation][ii][iii];
+										}
+									}
+								}
+								else
+								{
+									//技確定
+									ReserveArts = ArtsMatrix[AttackLocation][ii][iii];
+								}
+
+								//技があったらロケーションを保存してループを抜ける
+								if (ReserveArts != null)
+								{
+									//入力情報を更新
+									AttackLocation = int.Parse(ArtsMatrix[AttackLocation][ii][iii].MatrixPos[0].ToString());
+									AttackStick = int.Parse(ArtsMatrix[AttackLocation][ii][iii].MatrixPos[1].ToString());
+									AttackButton = int.Parse(ArtsMatrix[AttackLocation][ii][iii].MatrixPos[2].ToString());
+
+									//ループを抜ける
+									goto ArtsLoopBreak;
+								}
+							}
 						}
 					}
 				}
@@ -2912,6 +2980,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//使用技を破棄
 		UseArts = null;
+
+		//クールダウンフラグを下す
+		CoolDownFlag = false;
 	}	
 
 	//攻撃移動開始処理、アニメーションクリップのイベントから呼ばれる
@@ -2965,7 +3036,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void StartAttackCol(int n)
 	{
 		//必中ターゲット専用
-		if(UseArts.ColType[n] == 100)
+		if (UseArts.ColType[n] == 100)
 		{
 			//必中ターゲットがいる
 			if (TargetEnemy != null)
@@ -3136,7 +3207,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 							//次の遷移フラグを立てる
 							CurrentAnimator.SetBool("Attack0" + ComboState % 2, true);
 
-							//攻撃終了処理関数
+							//攻撃を強制終了
 							EndAttack();
 
 							//コルーチンを抜ける
@@ -3154,7 +3225,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					
 						//攻撃入力フラグを下す
 						AttackInput = false;
-						
+
+						//攻撃を強制終了
+						EndAttack();
+
 						//コルーチンを抜ける
 						yield break;
 					}
@@ -3175,6 +3249,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 						//移動値をリセット
 						EndAttackMove();
+
+						//攻撃を強制終了
+						EndAttack();
 
 						//コルーチンを抜ける
 						yield break;
@@ -3308,6 +3385,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//攻撃ステート制御リストに使用済み数値を入れる
 			ArtsStateMatrix[UseArts.UseLocation["Location"]][UseArts.UseLocation["Stick"]][UseArts.UseLocation["Button"]] = 10000;
+
+			//同じ技の途中か判断する処理
+			if(!CoolDownFlag)
+			{
+				//クールダウンフラグを立てる
+				CoolDownFlag = true;
+
+				//使用した技のクールダウン開始
+				GameManagerScript.Instance.ArtsCoolDown(UseArts, ArtsMatrix);
+			}
 
 			//ヒットストップに値が入っていたら演出
 			if (UseArts.HitStop[AttackIndex] != 0)
@@ -3901,7 +3988,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 						{
 							if (iiii.NameC == GameManagerScript.Instance.UserData.ArtsMatrix[CharacterID][i][ii][iii])
 							{
+								//マトリクスの場所を入れておく
+								iiii.MatrixPos = "" + i + ii + iii;
+
+								//ListにAdd
 								ArtsMatrix[i][ii][iii] = iiii;
+
+								//UIにArtsClassを送る
+								GameManagerScript.Instance.MissionUI.SetArtsClass(CharacterID, ArtsMatrix[i][ii][iii]);
 							}
 						}
 					}
@@ -4713,8 +4807,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//技が無かったら
 			if (UseArts == null)
 			{
-				//オートコンボを切る
-				AutoComboInput = false;
+				//ボタン入力を適当にする
+				AttackButton = UnityEngine.Random.Range(0, 2);
 
 				//もう一度技を探す
 				UseArts = SelectionArts();
@@ -4947,6 +5041,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//口パクフラグを下ろす
 			MouthMoveFlag = false;
 
+			//クールダウンフラグを下す
+			CoolDownFlag = false;
+
 			//脱出用レバガチャカウントリセット
 			BreakCount = 0;
 
@@ -4979,6 +5076,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//ダメージフラグを下す
 			DamageFlag = false;
+
+			//クールダウンフラグを下す
+			CoolDownFlag = false;
 
 			//ダメージ用コライダを有効化
 			DamageCol.enabled = true;

@@ -162,7 +162,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	private CinemachineVirtualCamera VCamera;
 
 	//ミッションUIスクリプト
-	private MissionUIScript MissionUI;
+	public MissionUIScript MissionUI { get; set; }
 
 	//ロケーションによって切り替える野外ライト
 	private Light OutDoorLight;
@@ -900,6 +900,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				List<Vector3> hl = new List<Vector3>();
 				int lf = 0;
 				List<string> hse = new List<string>();
+				float mct = 0;
 
 				//改行で分割して回す
 				foreach (string ii in i.Split('\n').ToList())
@@ -1114,11 +1115,15 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 							}
 
 							break;
+
+						case "CoolDownTime":
+							mct = float.Parse(ii.Split(',').ToList().ElementAt(1));
+							break;
 					}
 				}
 
 				//ListにAdd
-				AllArtsList.Add(new ArtsClass(nc, nh, uc, an, mv, dm, st, dl, cv, kb, intro, lk, mt, at, de, ct, tt, ch, he, hp, ha, hs, cg, hl, lf, hse));
+				AllArtsList.Add(new ArtsClass(nc, nh, uc, an, mv, dm, st, dl, cv, kb, intro, lk, mt, at, de, ct, tt, ch, he, hp, ha, hs, cg, hl, lf, hse, mct));
 			}
 
 			//アニメーションクリップ読み込み完了判定Dicを作る
@@ -1761,7 +1766,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//バトルフィールドをセットするインターフェイス
 	public void SetBattleFieldOBJ(GameObject obj)
 	{
-		//プレイアブルキャラクターを代入
+		//バトルフィールドを代入
 		BattleFieldOBJ = obj;
 	}
 
@@ -1885,6 +1890,50 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	public void MiniMapSwitch(bool s)
 	{
 		DeepFind(gameObject, "MiniMap").GetComponent<RawImage>().enabled = s;
+	}
+
+	//技クールダウンコルーチン
+	public void ArtsCoolDown(ArtsClass Arts, List<List<List<ArtsClass>>> ArtsMatrix)
+	{
+		StartCoroutine(ArtsCoolDownCoroutine(Arts, ArtsMatrix));
+	}
+	private IEnumerator ArtsCoolDownCoroutine(ArtsClass Arts, List<List<List<ArtsClass>>> ArtsMatrix)
+	{
+		//マトリクスの場所取得
+		int pos0 = int.Parse(Arts.MatrixPos[0].ToString());
+		int pos1 = int.Parse(Arts.MatrixPos[1].ToString());
+		int pos2 = int.Parse(Arts.MatrixPos[2].ToString());
+
+		//クールダウンタイム設定
+		ArtsMatrix[pos0][pos1][pos2].CoolDownTime = Arts.MaxCoolDownTime;
+
+		//重複実行を防ぐ処理
+		if (ArtsMatrix[pos0][pos1][pos2].CoolDownFlag)
+		{
+			yield break;
+		}
+
+		//クールダウンフラグを立てる
+		ArtsMatrix[pos0][pos1][pos2].CoolDownFlag = true;
+
+		//クールダウン処理
+		while (ArtsMatrix[pos0][pos1][pos2].CoolDownTime > 0)
+		{
+			if (!GameManagerScript.Instance.PauseFlag)
+			{
+				//クールダウン時間減算
+				ArtsMatrix[pos0][pos1][pos2].CoolDownTime -= Time.deltaTime;		
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//クールダウン時間をゼロにリセット
+		ArtsMatrix[pos0][pos1][pos2].CoolDownTime = 0;
+
+		//クールダウンフラグを下す
+		ArtsMatrix[pos0][pos1][pos2].CoolDownFlag = false;
 	}
 
 	//ポーズボタンを押した時

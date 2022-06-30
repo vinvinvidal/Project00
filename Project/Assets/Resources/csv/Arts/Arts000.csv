@@ -24,3 +24,4 @@ Charge,0|0|0|0|0
 HoldPos,0*0*0
 LocationFlag,0
 HitSE,_L|_L|_L|_M|_M
+CoolDownTime,30

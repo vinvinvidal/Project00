@@ -57,35 +57,26 @@ public class MissionUIScript : GlobalClass
 
 			//ヒエラルキーを上げて描画順を変更、とりあえずインデックスが若い順になる
 			ArtsMatrixDic[n].GetComponent<Transform>().SetAsFirstSibling();
-
-			//UserDataから装備中の技を取得
-			for (int i = 0; i <= GameManagerScript.Instance.UserData.ArtsMatrix[n].Count - 1; i++)
-			{
-				for (int ii = 0; ii <= GameManagerScript.Instance.UserData.ArtsMatrix[n][i].Count - 1; ii++)
-				{
-					for (int iii = 0; iii <= GameManagerScript.Instance.UserData.ArtsMatrix[n][i][ii].Count - 1; iii++)
-					{
-						if(GameManagerScript.Instance.UserData.ArtsMatrix[n][i][ii][iii] != null)
-						{
-							DeepFind(ArtsMatrixDic[n],"Arts" + i + ii + iii).GetComponentInChildren<Text>().text = GameManagerScript.Instance.UserData.ArtsMatrix[n][i][ii][iii];
-						}					
-					}
-				}
-			}
 		}
 
 		//初期操作キャラクターのマトリクスを前面にする
 		ChangeArtsMatrixHierarchy(mission.FirstCharacterList[GameManagerScript.Instance.SelectedMissionChapter]);
 	}
 
+	//技マトリクスに技をとスクリプトをセットする、プレイヤースクリプトの初期処理から呼ばれる
+	public void SetArtsClass(int c, ArtsClass Arts)
+	{
+		DeepFind(ArtsMatrixDic[c], "Arts" + Arts.MatrixPos).AddComponent<MissionUIArtsCoolDownScript>().Arts = Arts;
+	}
+
 	//キャラクターチェンジ処理
 	public void CharacterChange(int n)
 	{
-		//技マトリクス変更
+		//技マトリクスのヒエラルキーを変更
 		ChangeArtsMatrixHierarchy(n);
 	}
 
-	//技マトリクスのヒエラルキーを変更する、Whileを使うので一応コルーチンにしておく
+	//技マトリクスのヒエラルキーを変更する、将来的にはアニメーションさせる
 	public void ChangeArtsMatrixHierarchy(int n)
 	{
 		//ループカウント

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -6,7 +7,6 @@ using UnityEngine;
 //技の情報を格納するクラス
 public class ArtsClass
 {
-
 	//技の名前
 	public string NameC;
 
@@ -90,6 +90,18 @@ public class ArtsClass
 
 	//ロケーションフラグ
 	public int LocationFlag;
+
+	//クールダウンタイム最大値
+	public float MaxCoolDownTime;
+
+	//クールダウンタイム
+	public float CoolDownTime = 0;
+
+	//クールダウン中フラグ
+	public bool CoolDownFlag = false;
+
+	//使用しているマトリクスの場所
+	public string MatrixPos;
 
 	/*
 	MoveType 技の移動タイプ
@@ -229,7 +241,9 @@ public class ArtsClass
 
 		int lf,
 
-		List<string> hse
+		List<string> hse,
+
+		float mct
 	)
 	{
 
@@ -289,5 +303,7 @@ public class ArtsClass
 		LocationFlag = lf;
 
 		HitSE = new List<string>(hse);
+
+		MaxCoolDownTime = mct;
 	}
 }
