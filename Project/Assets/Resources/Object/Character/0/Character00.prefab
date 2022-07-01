@@ -589,8 +589,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 8818240087e0c89448eafe25b207bfdb, type: 3}
   _TexNormal: {fileID: 2800000, guid: 6faefeb246d376541a1341a6485bb228, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 6b1616fcc182a1b499b1738e7d8547b8, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 6b55b06d7186e8e43af581f164973c8d, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &2719170773694126440
 GameObject:
   m_ObjectHideFlags: 0
@@ -799,6 +799,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _SkinColor: {r: 1, g: 0.92156863, b: 0.8627451, a: 1}
   _TexFaceBase: {fileID: 2800000, guid: ac17eea194a1f3c4eaa21b4d23fcb91b, type: 3}
+  _TexFaceBlush: {fileID: 2800000, guid: 649f84f0c20d24a43af2a1b86e092f2c, type: 3}
   _TexFaceHiLight: {fileID: 2800000, guid: 00376caeb5da45f4591c77245f25e8a9, type: 3}
   _TexFaceHiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729,
     type: 3}
@@ -2200,6 +2201,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StockWeapon: {fileID: 0}
+  AroundEnemyList: []
 --- !u!143 &2097141605791399922
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2511,8 +2513,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 8818240087e0c89448eafe25b207bfdb, type: 3}
   _TexNormal: {fileID: 2800000, guid: 6faefeb246d376541a1341a6485bb228, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 6b1616fcc182a1b499b1738e7d8547b8, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 6b55b06d7186e8e43af581f164973c8d, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!114 &5313920557198517649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2528,8 +2530,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 2233048890627264687cfaeb8dfbeff8, type: 3}
   _TexNormal: {fileID: 2800000, guid: aa18d5e7e4f211d469b4eed01c724729, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 6e31bbbfc8a854044856af7e1303360b, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
   _TexLine: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
 --- !u!1 &8790117469217697028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2933,6 +2935,26 @@ PrefabInstance:
       value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -7831707945452022532, guid: 2e5f213f6acfe544cae1db83280b7576,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: -7815949335979043500, guid: 2e5f213f6acfe544cae1db83280b7576,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -7815949335979043500, guid: 2e5f213f6acfe544cae1db83280b7576,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7815949335979043500, guid: 2e5f213f6acfe544cae1db83280b7576,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -7815949335979043500, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -90

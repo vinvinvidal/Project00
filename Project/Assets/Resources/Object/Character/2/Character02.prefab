@@ -279,6 +279,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StockWeapon: {fileID: 0}
+  AroundEnemyList: []
 --- !u!114 &1463793792044343918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1172,6 +1173,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _SkinColor: {r: 0.8784314, g: 0.6862745, b: 0.5764706, a: 1}
   _TexFaceBase: {fileID: 2800000, guid: d526d6457e150f44895b42eebe0f3363, type: 3}
+  _TexFaceBlush: {fileID: 2800000, guid: 6959c270e0975ed41b25f847d6f055e7, type: 3}
   _TexFaceHiLight: {fileID: 2800000, guid: a0051b461e6c9754198a4a63993c9894, type: 3}
   _TexFaceHiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729,
     type: 3}
@@ -2196,8 +2198,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 15af00a53a383be4fb1d0d485e31d6ce, type: 3}
   _TexNormal: {fileID: 2800000, guid: f843bb114534b5a4e8bbb8e01d55014b, type: 3}
   _TexHiLight: {fileID: 2800000, guid: b20d9fd22d8622446b916e91d4a50a18, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: 9ed7d28e35d2d3444a8b77fd4f9447f3, type: 3}
   _TexLine: {fileID: 2800000, guid: 9ed7d28e35d2d3444a8b77fd4f9447f3, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: 9ed7d28e35d2d3444a8b77fd4f9447f3, type: 3}
 --- !u!1 &6174931448228190829
 GameObject:
   m_ObjectHideFlags: 0
@@ -2468,8 +2470,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 38c42abe7fe21284fb66d40f1ee38755, type: 3}
   _TexNormal: {fileID: 2800000, guid: a9ecd1092bed18b4f9769e264e4ec692, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 9638ff5c0c8e60a4ab338bccdb7e85fc, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 988f0f09d46b6014b8279a99ecfe8b18, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &7862229442150685480
 GameObject:
   m_ObjectHideFlags: 0

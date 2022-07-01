@@ -294,8 +294,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: eafeaa00dfc6e4b4fb28e30c61406e41, type: 3}
   _TexNormal: {fileID: 2800000, guid: 9e0c78524badf6049942e78a0917f17e, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 4bba8c49d1fbde04ba87ef28fce13317, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: af7ff1f7be451e048a53bf779173c858, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &1958257063227680362
 GameObject:
   m_ObjectHideFlags: 0
@@ -663,8 +663,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 3a65761ed2f85114c9ecc0c7409bb24d, type: 3}
   _TexNormal: {fileID: 2800000, guid: e5c6ae0b5fc2a8f47bf0143b8eb8135a, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 5716e5bb94f65cd4eaf0f6e98be35096, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: bc3352ce8bf0d784480cb5d988d79ea7, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &2690450078308341083
 GameObject:
   m_ObjectHideFlags: 0
@@ -916,8 +916,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: cfc7ee1d3ab3ed34e801c377c8d104a9, type: 3}
   _TexNormal: {fileID: 2800000, guid: 8ae4464b4d8c58a46b5cbf948e72ea87, type: 3}
   _TexHiLight: {fileID: 2800000, guid: c09dcf1991c88fe429dbb27a1ee6fe1e, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 5f7f3f9cb9a469c46ad5aceff411858d, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!183 &5615717651871793488
 Cloth:
   m_ObjectHideFlags: 0
@@ -3079,8 +3079,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: d167229943f078848ae0be1a0f63288a, type: 3}
   _TexNormal: {fileID: 2800000, guid: b9e2edca552334c4a9de9e9b8690bf1b, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 67e7f4859f0372e419e254cac835206b, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: c9c199bd3ee7aa744ba3e5622005e67e, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &5070078634618577625
 GameObject:
   m_ObjectHideFlags: 0
@@ -3287,8 +3287,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 15eb1d8f8b9f6e4439eee5c27d6fa553, type: 3}
   _TexNormal: {fileID: 2800000, guid: 4143e76a830719340827a8c395455d1d, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 7bc03fadda0e45140816a41b09e61af1, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 42b54756a4cecf44e9694c40b1b665e5, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &5312556117480715660
 GameObject:
   m_ObjectHideFlags: 0
@@ -3495,8 +3495,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: c25256559412e8f4fbbb6e6775809f0c, type: 3}
   _TexNormal: {fileID: 2800000, guid: 38b1c237a8b60b64a82dd28d9f7f94a8, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 4af4d1982c606ff4195fbe7b9844e990, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 70e8f347abd72a6468a823cceed54426, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &6191528951406903665
 GameObject:
   m_ObjectHideFlags: 0
@@ -3747,8 +3747,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: c25256559412e8f4fbbb6e6775809f0c, type: 3}
   _TexNormal: {fileID: 2800000, guid: 38b1c237a8b60b64a82dd28d9f7f94a8, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 4af4d1982c606ff4195fbe7b9844e990, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 70e8f347abd72a6468a823cceed54426, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &6950019299208315453
 GameObject:
   m_ObjectHideFlags: 0
@@ -3999,8 +3999,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: c25256559412e8f4fbbb6e6775809f0c, type: 3}
   _TexNormal: {fileID: 2800000, guid: 38b1c237a8b60b64a82dd28d9f7f94a8, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 4af4d1982c606ff4195fbe7b9844e990, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 70e8f347abd72a6468a823cceed54426, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &8054918476739227632
 GameObject:
   m_ObjectHideFlags: 0
@@ -4207,8 +4207,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: eafeaa00dfc6e4b4fb28e30c61406e41, type: 3}
   _TexNormal: {fileID: 2800000, guid: 9e0c78524badf6049942e78a0917f17e, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 4bba8c49d1fbde04ba87ef28fce13317, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: af7ff1f7be451e048a53bf779173c858, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &8516641013559949426
 GameObject:
   m_ObjectHideFlags: 0
@@ -4415,8 +4415,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: c25256559412e8f4fbbb6e6775809f0c, type: 3}
   _TexNormal: {fileID: 2800000, guid: 38b1c237a8b60b64a82dd28d9f7f94a8, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 4af4d1982c606ff4195fbe7b9844e990, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 70e8f347abd72a6468a823cceed54426, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &8924486057129893319
 GameObject:
   m_ObjectHideFlags: 0
@@ -4623,8 +4623,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: b34e46fec46e5cd4d968a5cc7aa16902, type: 3}
   _TexNormal: {fileID: 2800000, guid: f179622782124c6498fbe76f1887e964, type: 3}
   _TexHiLight: {fileID: 2800000, guid: a7b83f207f749a445bbe195a7a1e6c62, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 79a972318b0aa764aa77994f3d695a47, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &9042318529595623676
 GameObject:
   m_ObjectHideFlags: 0
@@ -4884,5 +4884,5 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: eafeaa00dfc6e4b4fb28e30c61406e41, type: 3}
   _TexNormal: {fileID: 2800000, guid: 9e0c78524badf6049942e78a0917f17e, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 4bba8c49d1fbde04ba87ef28fce13317, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: af7ff1f7be451e048a53bf779173c858, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}

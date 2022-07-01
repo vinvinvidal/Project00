@@ -100,18 +100,16 @@
 				re.normal = UnityObjectToWorldNormal(v.normal);
 
 				//頂点をワールド座標に変換
-				v.pos = mul(unity_ObjectToWorld, v.pos);
+				//v.pos = mul(unity_ObjectToWorld, v.pos);
 
 				//爆発アニメーション
-				v.pos.xyz += normalize(v.pos.xyz - OBJPos.xyz) * (saturate(v.vid % 40) -1) * -1 * VertNum;				
+				//v.pos.xyz += normalize(v.pos.xyz - OBJPos.xyz) * (saturate(v.vid % 40) -1) * -1 * VertNum;				
 
 				//頂点をオブジェクト座標に戻す
-				v.pos = mul(unity_WorldToObject, v.pos);
+				//v.pos = mul(unity_WorldToObject, v.pos);
 
 				//頂点座標を格納 UnityObjectToClipPos()に頂点座標を渡すと画面上ピクセル座標を返してくる
 				re.pos = UnityObjectToClipPos(v.pos);
-
-
 
 				//頂点カラー
 				re.vertColor = v.vertColor;
@@ -123,9 +121,7 @@
 			//フラグメントシェーダ
 			fixed4 frag(vertex_output i) : SV_Target
 			{
-				//頂点カラーとライトカラー
-				//fixed4 re = (tex2D(_TexParticle, i.uv) + i.vertColor) * _LightColor0;
-
+				//頂点カラー
 				fixed4 re = i.vertColor;
 
 				//テクスチャのアルファ
@@ -133,6 +129,9 @@
 
 				//光源と法線の内積を乗算
 				re.rgb *= (dot(i.normal, _WorldSpaceLightPos0) + 1) * 0.5;
+
+				//ライトカラー
+				re.rgb *= lerp(1, _LightColor0, _LightColor0.a);
 
 				//透明部分をクリップ、消滅用の乱数精製
 				clip(re.a);

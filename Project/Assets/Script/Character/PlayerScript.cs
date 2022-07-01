@@ -492,12 +492,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//頬を赤らめるための顔マテリアル
 	private Material FaceMaterial;
 
-	//顔テクスチャ
-	public Texture2D FaceBaseTex { get; set; }
-
-	//赤頬テクスチャ		
-	public Texture2D FaceCheekTex { get; set; }
-
 	//スケベ用カメラワークオブジェクト
 	private GameObject H_CameraOBJ;
 
@@ -1090,9 +1084,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//アニメーターのフラグを立てる
 			CurrentAnimator.SetBool("H_Break", true);
-
-			//頬テクスチャを顔テクスチャに差し替え
-			FaceMaterial.SetTexture("_TexFaceBase", FaceBaseTex);
 
 			//オーバーライドコントローラにアニメーションクリップをセット
 			OverRideAnimator["H_Break_void"] = H_BreakAnimList.Where(a => a.name.Contains(H_Location)).ToArray()[0];
@@ -2138,9 +2129,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//スケベ攻撃をしてきた敵の近くにいた敵代入
 		H_SubEnemy = S_Enemy;
-
-		//顔テクスチャを頬テクスチャに差し替え
-		FaceMaterial.SetTexture("_TexFaceBase", FaceCheekTex);
 
 		//アニメーターのフラグを立てる
 		CurrentAnimator.SetBool("H_Hit", true);

@@ -2169,7 +2169,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				{
 					yield return null;
 				}
-
+				
 				//ロードが終わったらreturn用変数に追加
 				re = LoadBundleRequest.assetBundle.LoadAsset(File);
 

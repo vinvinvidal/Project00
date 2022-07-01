@@ -2,60 +2,11 @@
 {
 	Properties
 	{
-		//肌色
-		_SkinColor("_SkinColor", Color) = (1, 1, 1, 1)						
-
-		//顔ベーステクスチャ
-		_TexFaceBase("_TexFaceBase", 2D) = "white" {}
-
-		//顔ハイライトのテクスチャ
-		_TexFaceHiLight("_TexFaceHiLight", 2D) = "white" {}
-
-		//ハイライトのmatcapテクスチャ
-		_TexFaceHiLightMatCap("_TexFaceHiLightMatCap", 2D) = "black" {}
-
 		_SunnyH("_SunnyH", Range(0.0, 1.0)) = 0.0						//日向の色相
 		_SunnyS("_SunnyS", Range(-1.0, 1.0)) = 0.0						//日向の彩度
 		_SunnyV("_SunnyV", Range(-1.0, 1.0)) = 0.0						//日向の輝度
 
-		_SunnyVol("_SunnyVol", Range(0, 1.0)) = 0						//日向のかかり具合
-		_SunnyGradation("_SunnyGradation", Range(0.0, 1.0)) = 0.0		//日向のグラデーション具合
-
-		//前方光源からの影
-		_TexFaceShadowFront("_TexFaceShadowFront", 2D) = "white" {}
-		_TexFaceShadowFrontTop("_TexFaceShadowFrontTop", 2D) = "white" {}
-		_TexFaceShadowFrontLeft("_TexFaceShadowFrontLeft", 2D) = "white" {}
-		_TexFaceShadowFrontRight("_TexFaceShadowFrontRight", 2D) = "white" {}
-		_TexFaceShadowFrontBottom("_TexFaceShadowFrontBottom", 2D) = "white" {}
-
-		//後方光源からの影
-		_TexFaceShadowBack("_TexFaceShadowBack", 2D) = "white" {}
-		_TexFaceShadowBackTop("_TexFaceShadowBackTop", 2D) = "white" {}
-		_TexFaceShadowBackLeft("_TexFaceShadowBackLeft", 2D) = "white" {}
-		_TexFaceShadowBackRight("_TexFaceShadowBackRight", 2D) = "white" {}
-		_TexFaceShadowBackBottom("_TexFaceShadowBackBottom", 2D) = "white" {}
-
-		//左方光源からの影
-		_TexFaceShadowLeft("_TexFaceShadowLeft", 2D) = "white" {}
-		_TexFaceShadowLeftTop("_TexFaceShadowLeftTop", 2D) = "white" {}
-		_TexFaceShadowLeftBottom("_TexFaceShadowLeftBottom", 2D) = "white" {}
-
-		//右方光源からの影
-		_TexFaceShadowRight("_TexFaceShadowRight", 2D) = "white" {}
-		_TexFaceShadowRightTop("_TexFaceShadowRightTop", 2D) = "white" {}
-		_TexFaceShadowRightBottom("_TexFaceShadowRightBottom", 2D) = "white" {}
-
-		//上方光源からの影
-		_TexFaceShadowTop("_TexFaceShadowTop", 2D) = "white" {}
-
-		//下方光源からの影
-		_TexFaceShadowBottom("_TexFaceShadowBottom", 2D) = "white" {}
-
-		//背景からの影色
-		_DropShadowColor("_DropShadowColor", Color) = (1, 1, 1, 1)
-		
-		//消滅用係数
-		_VanishNum("_VanishNum",float) = 0
+		//_BlushNum("_BlushNum", Range(0.0, 1.0)) = 1.0			
 	}
 
 	SubShader
@@ -97,9 +48,24 @@
 
 			fixed4 _SkinColor;					//肌色
 
-			sampler2D _TexFaceBase;				//顔テクスチャ
-			sampler2D _TexFaceHiLight;			//顔ハイライトのテクスチャ
-			sampler2D _TexFaceHiLightMatCap;	//ハイライトのmatcap
+			sampler2D _TexFaceAtlas;			//統合テクスチャ
+
+			vector _TexFaceBaseRectPos;			//ベーステクスチャのポジション
+			vector _TexFaceBaseRectSize;		//ベーステクスチャのサイズ
+
+			vector _TexFaceBlushRectPos;		//赤面テクスチャのポジション
+			vector _TexFaceBlushRectSize;		//赤面テクスチャのサイズ
+
+			vector _TexFaceHiLightRectPos;		//ハイライトテクスチャのポジション
+			vector _TexFaceHiLightRectSize;		//ハイライトテクスチャのサイズ
+
+			vector _TexFaceMatCapRectPos;		//Matcapテクスチャのポジション
+			vector _TexFaceMatCapRectSize;		//Matcapテクスチャのサイズ
+
+			//sampler2D _TexFaceBase;			//顔テクスチャ
+			//sampler2D _TexFaceBlush;			//赤面テクスチャ
+			//sampler2D _TexFaceHiLight;		//顔ハイライトのテクスチャ
+			//sampler2D _TexFaceHiLightMatCap;	//ハイライトのmatcap
 
 			float4x4 _LightMatrix;				//スクリプトから受け取るディレクショナルライトのマトリクス、ハイライトのmatcapに使用
 
@@ -128,15 +94,12 @@
 			float _SunnyH;					//日向色相
 			float _SunnyS;					//日向彩度
 			float _SunnyV;					//日向明度
-			float _SunnyVol;				//日向のレベル
-			float _SunnyGradation;			//日向のグラデーション具合
-			fixed4 SunnyArea;				//日向の範囲
 
-			fixed4 _LightColor0;			//ライトカラー
-
+			float _BlushNum;				//赤面用係数
 			float _VanishNum;				//消滅用係数
 
-			sampler2D _GrabTex;
+			fixed4 _LightColor0;			//ライトカラー
+			sampler2D _GrabTex;				//グラブテクスチャ
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -240,10 +203,13 @@
 				re = lerp(re, _SunnyColor, SHADOW_ATTENUATION(i));
 
 				//顔テクスチャを乗算
-				re *= tex2D(_TexFaceBase, i.uv);
+				re *= tex2D(_TexFaceAtlas, i.uv * _TexFaceBaseRectSize + _TexFaceBaseRectPos);
 
+				//赤面テクスチャを乗算
+				re *= lerp(1, tex2D(_TexFaceAtlas, i.uv * _TexFaceBlushRectSize + _TexFaceBlushRectPos), _BlushNum);			
+				
 				//顔のハイライトを加算
-				re.rgb += lerp(0, tex2D(_TexFaceHiLight, i.uv), tex2D(_TexFaceHiLightMatCap, i.hilightuv)) * saturate(dot(i.normal, _WorldSpaceLightPos0));
+				re.rgb += lerp(0, tex2D(_TexFaceAtlas, i.uv * _TexFaceHiLightRectSize + _TexFaceHiLightRectPos), tex2D(_TexFaceAtlas, i.hilightuv * _TexFaceMatCapRectSize + _TexFaceMatCapRectPos)) * saturate(dot(i.normal, _WorldSpaceLightPos0));
 
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);		

@@ -208,8 +208,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 8818240087e0c89448eafe25b207bfdb, type: 3}
   _TexNormal: {fileID: 2800000, guid: 6faefeb246d376541a1341a6485bb228, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 6b1616fcc182a1b499b1738e7d8547b8, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 6b55b06d7186e8e43af581f164973c8d, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &762873825653342065
 GameObject:
   m_ObjectHideFlags: 0
@@ -487,8 +487,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: e02ea62fc07d20741982ce1b59f89c20, type: 3}
   _TexNormal: {fileID: 2800000, guid: 27b66d4e04ced6b4699a8043b85019b5, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 2da531513ed43c24fbb5b2bc265c47c8, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: 9e1820ecb4feb5f4f9abfe3a76c31a99, type: 3}
   _TexLine: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: 9e1820ecb4feb5f4f9abfe3a76c31a99, type: 3}
 --- !u!1 &2170834611348978462
 GameObject:
   m_ObjectHideFlags: 0
@@ -689,6 +689,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _SkinColor: {r: 1, g: 0.92156863, b: 0.8627451, a: 1}
   _TexFaceBase: {fileID: 2800000, guid: eaa84d311f9b8fb46b8034ac6f92794a, type: 3}
+  _TexFaceBlush: {fileID: 2800000, guid: 1afd52dc676df714da4acb7f70188108, type: 3}
   _TexFaceHiLight: {fileID: 2800000, guid: b248561c3c204804daad65e95e6e65ae, type: 3}
   _TexFaceHiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729,
     type: 3}
@@ -2233,6 +2234,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StockWeapon: {fileID: 0}
+  AroundEnemyList: []
 --- !u!143 &2097141605791399922
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2387,8 +2389,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 016d5aa39cc054c49900f6943387b587, type: 3}
   _TexNormal: {fileID: 2800000, guid: d7ba16e72815df54eaacf72fcfd1568a, type: 3}
   _TexHiLight: {fileID: 2800000, guid: eaa80e861d4327b4195d13bb508147b9, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: f768326b3be84cf4ca54196f40b0a936, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
 --- !u!1 &8259613036537220640
 GameObject:
   m_ObjectHideFlags: 0

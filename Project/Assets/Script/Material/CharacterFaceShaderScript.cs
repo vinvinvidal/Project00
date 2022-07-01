@@ -22,6 +22,9 @@ public class CharacterFaceShaderScript : GlobalClass, CharacterFaceShaderScriptI
 	//顔ベーステクスチャ
 	public Texture2D _TexFaceBase;
 
+	//赤面テクスチャ
+	public Texture2D _TexFaceBlush;
+
 	//顔ハイライトのテクスチャ
 	public Texture2D _TexFaceHiLight;
 
@@ -71,9 +74,8 @@ public class CharacterFaceShaderScript : GlobalClass, CharacterFaceShaderScriptI
 	private float ObjDotLigntY;             //オブジェクトとライトのY軸内積
 	private float ObjDotLigntZ;             //オブジェクトとライトのZ軸内積
 
-	private float LightPosX;                //X軸方向のライト位置
-	private float LightPosY;                //Y軸方向のライト位置
-	private float LightPosZ;                //Z軸方向のライト位置
+	private Vector3 LightAngle;             //ライトがある方角
+	private Vector3 LightAngleCache;        //ライトがある方角のキャッシュ
 
 	private float MaxBlendRatio;            //各軸の内積の合計、ブレンド比率の最大値
 
@@ -95,33 +97,41 @@ public class CharacterFaceShaderScript : GlobalClass, CharacterFaceShaderScriptI
 		//肌色をセット
 		FaceMaterial.SetColor("_SkinColor", _SkinColor);
 
+		//統合用テクスチャ
+		Texture2D _TexFaceAtlas = new Texture2D(1024, 1024, TextureFormat.RGBA32, false);
+
+		//使用するテクスチャを配列に入れる
+		Texture2D[] Textures = { _TexFaceBase, _TexFaceBlush, _TexFaceHiLight, _TexFaceHiLightMatCap };
+
+		//テクスチャ統合、Rectを受け取る
+		Rect[] TexRect = _TexFaceAtlas.PackTextures(Textures, 0, 1024, true);
+
+		//マテリアルに統合テクスチャを渡す
+		FaceMaterial.SetTexture("_TexFaceAtlas", _TexFaceAtlas);
+
+		//ベーステクスチャのRectを渡す
+		FaceMaterial.SetVector("_TexFaceBaseRectPos", TexRect[0].position);
+		FaceMaterial.SetVector("_TexFaceBaseRectSize", TexRect[0].size);
+
+		//赤面テクスチャのRectを渡す
+		FaceMaterial.SetVector("_TexFaceBlushRectPos", TexRect[1].position);
+		FaceMaterial.SetVector("_TexFaceBlushRectSize", TexRect[1].size);
+
+		//ハイライトテクスチャのRectを渡す
+		FaceMaterial.SetVector("_TexFaceHiLightRectPos", TexRect[2].position);
+		FaceMaterial.SetVector("_TexFaceHiLightRectSize", TexRect[2].size);
+
+		//マットキャップテクスチャのRectを渡す
+		FaceMaterial.SetVector("_TexFaceMatCapRectPos", TexRect[3].position);
+		FaceMaterial.SetVector("_TexFaceMatCapRectSize", TexRect[3].size);
+
+		/*
 		//各テクスチャをシェーダーにセット
 		FaceMaterial.SetTexture("_TexFaceBase", _TexFaceBase);
+		FaceMaterial.SetTexture("_TexFaceBlush", _TexFaceBlush);
 		FaceMaterial.SetTexture("_TexFaceHiLight", _TexFaceHiLight);
 		FaceMaterial.SetTexture("_TexFaceHiLightMatCap", _TexFaceHiLightMatCap);
-
-		FaceMaterial.SetTexture("_TexFaceShadowFront", _TexFaceShadowFront);
-		FaceMaterial.SetTexture("_TexFaceShadowFrontTop", _TexFaceShadowFrontTop);
-		FaceMaterial.SetTexture("_TexFaceShadowFrontLeft", _TexFaceShadowFrontLeft);
-		FaceMaterial.SetTexture("_TexFaceShadowFrontRight", _TexFaceShadowFrontRight);
-		FaceMaterial.SetTexture("_TexFaceShadowFrontBottom", _TexFaceShadowFrontBottom);
-
-		FaceMaterial.SetTexture("_TexFaceShadowBack", _TexFaceShadowBack);
-		FaceMaterial.SetTexture("_TexFaceShadowBackTop", _TexFaceShadowBackTop);
-		FaceMaterial.SetTexture("_TexFaceShadowBackLeft", _TexFaceShadowBackLeft);
-		FaceMaterial.SetTexture("_TexFaceShadowBackRight", _TexFaceShadowBackRight);
-		FaceMaterial.SetTexture("_TexFaceShadowBackBottom", _TexFaceShadowBackBottom);
-
-		FaceMaterial.SetTexture("_TexFaceShadowLeft", _TexFaceShadowLeft);
-		FaceMaterial.SetTexture("_TexFaceShadowLeftTop", _TexFaceShadowLeftTop);
-		FaceMaterial.SetTexture("_TexFaceShadowLeftBottom", _TexFaceShadowLeftBottom);
-
-		FaceMaterial.SetTexture("_TexFaceShadowRight", _TexFaceShadowRight);
-		FaceMaterial.SetTexture("_TexFaceShadowRightTop", _TexFaceShadowRightTop);
-		FaceMaterial.SetTexture("_TexFaceShadowRightBottom", _TexFaceShadowRightBottom);
-
-		FaceMaterial.SetTexture("_TexFaceShadowTop", _TexFaceShadowTop);
-		FaceMaterial.SetTexture("_TexFaceShadowBottom", _TexFaceShadowBottom);
+		*/
 
 		//顔アングルのトランスフォーム取得
 		FaceTransform = DeepFind(transform.root.gameObject, "HeadAngle").transform;
@@ -148,9 +158,9 @@ public class CharacterFaceShaderScript : GlobalClass, CharacterFaceShaderScriptI
 		ObjDotLigntZ = Mathf.Clamp(Vector3.Dot(FaceTransform.forward, LightTransform.forward), -1.0f, 1.0f);
 
 		//位置関係判定のため内積の正負を求める
-		LightPosX = Mathf.Sign(ObjDotLigntX);
-		LightPosY = Mathf.Sign(ObjDotLigntY);
-		LightPosZ = Mathf.Sign(ObjDotLigntZ);
+		LightAngle.x = Mathf.Sign(ObjDotLigntX);
+		LightAngle.z = Mathf.Sign(ObjDotLigntY);
+		LightAngle.y = Mathf.Sign(ObjDotLigntZ);
 
 		//各軸の内積を合計してブレンド比率の最大値を求める
 		MaxBlendRatio = Mathf.Abs(ObjDotLigntX) + Mathf.Abs(ObjDotLigntY) + Mathf.Abs(ObjDotLigntZ);
@@ -179,129 +189,136 @@ public class CharacterFaceShaderScript : GlobalClass, CharacterFaceShaderScriptI
 		FaceMaterial.SetFloat("TextureBlendYZ", TextureBlendYZ);
 		FaceMaterial.SetFloat("TextureBlendXY", TextureBlendXY);
 
-		//テクスチャ決定用連想配列に光源位置を入れて関数呼び出し、使用テクスチャをシェーダーに渡す
-		TextureSetDic[new Vector3(LightPosX, LightPosZ, LightPosY)]();
+		//キャッシュと比較してアングルが変わっていたら処理
+		if (LightAngle != LightAngleCache)
+		{
+			//テクスチャ決定用連想配列に光源位置を入れて関数呼び出し、使用テクスチャをシェーダーに渡す
+			TextureSetDic[LightAngle]();
+
+			//アングルをキャッシュ
+			LightAngleCache = LightAngle;
+		}
 	}
 
 	//テクスチャ決定用連想配列から呼び出される関数、光源の位置によって使用テクスチャをシェーダーに渡す
 	void TextureSetLeftFrontTop()
 	{
-		FaceMaterial.SetTexture("texXX", FaceMaterial.GetTexture("_TexFaceShadowLeft"));
+		FaceMaterial.SetTexture("texXX", _TexFaceShadowLeft);
 
-		FaceMaterial.SetTexture("texYY", FaceMaterial.GetTexture("_TexFaceShadowTop"));
+		FaceMaterial.SetTexture("texYY", _TexFaceShadowTop);
 
-		FaceMaterial.SetTexture("texZZ", FaceMaterial.GetTexture("_TexFaceShadowFront"));
+		FaceMaterial.SetTexture("texZZ", _TexFaceShadowFront);
 
-		FaceMaterial.SetTexture("texXY", FaceMaterial.GetTexture("_TexFaceShadowLeftTop"));
+		FaceMaterial.SetTexture("texXY", _TexFaceShadowLeftTop);
 
-		FaceMaterial.SetTexture("texXZ", FaceMaterial.GetTexture("_TexFaceShadowFrontLeft"));
+		FaceMaterial.SetTexture("texXZ", _TexFaceShadowFrontLeft);
 
-		FaceMaterial.SetTexture("texYZ", FaceMaterial.GetTexture("_TexFaceShadowFrontTop"));
+		FaceMaterial.SetTexture("texYZ", _TexFaceShadowFrontTop);
 	}
 
 	void TextureSetRightFrontTop()
 	{
-		FaceMaterial.SetTexture("texXX", FaceMaterial.GetTexture("_TexFaceShadowRight"));
+		FaceMaterial.SetTexture("texXX", _TexFaceShadowRight);
 
-		FaceMaterial.SetTexture("texYY", FaceMaterial.GetTexture("_TexFaceShadowTop"));
+		FaceMaterial.SetTexture("texYY", _TexFaceShadowTop);
 
-		FaceMaterial.SetTexture("texZZ", FaceMaterial.GetTexture("_TexFaceShadowFront"));
+		FaceMaterial.SetTexture("texZZ", _TexFaceShadowFront);
 
-		FaceMaterial.SetTexture("texXY", FaceMaterial.GetTexture("_TexFaceShadowRightTop"));
+		FaceMaterial.SetTexture("texXY", _TexFaceShadowRightTop);
 
-		FaceMaterial.SetTexture("texXZ", FaceMaterial.GetTexture("_TexFaceShadowFrontRight"));
+		FaceMaterial.SetTexture("texXZ", _TexFaceShadowFrontRight);
 
-		FaceMaterial.SetTexture("texYZ", FaceMaterial.GetTexture("_TexFaceShadowFrontTop"));
+		FaceMaterial.SetTexture("texYZ", _TexFaceShadowFrontTop);
 	}
 
 	void TextureSetLeftFrontBottom()
 	{
-		FaceMaterial.SetTexture("texXX", FaceMaterial.GetTexture("_TexFaceShadowLeft"));
+		FaceMaterial.SetTexture("texXX", _TexFaceShadowLeft);
 
-		FaceMaterial.SetTexture("texYY", FaceMaterial.GetTexture("_TexFaceShadowBottom"));
+		FaceMaterial.SetTexture("texYY", _TexFaceShadowBottom);
 
-		FaceMaterial.SetTexture("texZZ", FaceMaterial.GetTexture("_TexFaceShadowFront"));
+		FaceMaterial.SetTexture("texZZ", _TexFaceShadowFront);
 
-		FaceMaterial.SetTexture("texXY", FaceMaterial.GetTexture("_TexFaceShadowLeftBottom"));
+		FaceMaterial.SetTexture("texXY", _TexFaceShadowLeftBottom);
 
-		FaceMaterial.SetTexture("texXZ", FaceMaterial.GetTexture("_TexFaceShadowFrontLeft"));
+		FaceMaterial.SetTexture("texXZ", _TexFaceShadowFrontLeft);
 
-		FaceMaterial.SetTexture("texYZ", FaceMaterial.GetTexture("_TexFaceShadowFrontBottom"));
+		FaceMaterial.SetTexture("texYZ", _TexFaceShadowFrontBottom);
 	}
 
 	void TextureSetRightFrontBottom()
 	{
-		FaceMaterial.SetTexture("texXX", FaceMaterial.GetTexture("_TexFaceShadowRight"));
+		FaceMaterial.SetTexture("texXX", _TexFaceShadowRight);
 
-		FaceMaterial.SetTexture("texYY", FaceMaterial.GetTexture("_TexFaceShadowBottom"));
+		FaceMaterial.SetTexture("texYY", _TexFaceShadowBottom);
 
-		FaceMaterial.SetTexture("texZZ", FaceMaterial.GetTexture("_TexFaceShadowFront"));
+		FaceMaterial.SetTexture("texZZ", _TexFaceShadowFront);
 
-		FaceMaterial.SetTexture("texXY", FaceMaterial.GetTexture("_TexFaceShadowRightBottom"));
+		FaceMaterial.SetTexture("texXY", _TexFaceShadowRightBottom);
 
-		FaceMaterial.SetTexture("texXZ", FaceMaterial.GetTexture("_TexFaceShadowFrontRight"));
+		FaceMaterial.SetTexture("texXZ", _TexFaceShadowFrontRight);
 
-		FaceMaterial.SetTexture("texYZ", FaceMaterial.GetTexture("_TexFaceShadowFrontBottom"));
+		FaceMaterial.SetTexture("texYZ", _TexFaceShadowFrontBottom);
 	}
 
 	void TextureSetLeftBackBottom()
 	{
-		FaceMaterial.SetTexture("texXX", FaceMaterial.GetTexture("_TexFaceShadowLeft"));
+		FaceMaterial.SetTexture("texXX", _TexFaceShadowLeft);
 
-		FaceMaterial.SetTexture("texYY", FaceMaterial.GetTexture("_TexFaceShadowBottom"));
+		FaceMaterial.SetTexture("texYY", _TexFaceShadowBottom);
 
-		FaceMaterial.SetTexture("texZZ", FaceMaterial.GetTexture("_TexFaceShadowBack"));
+		FaceMaterial.SetTexture("texZZ", _TexFaceShadowBack);
 
-		FaceMaterial.SetTexture("texXY", FaceMaterial.GetTexture("_TexFaceShadowLeftBottom"));
+		FaceMaterial.SetTexture("texXY", _TexFaceShadowLeftBottom);
 
-		FaceMaterial.SetTexture("texXZ", FaceMaterial.GetTexture("_TexFaceShadowBackLeft"));
+		FaceMaterial.SetTexture("texXZ", _TexFaceShadowBackLeft);
 
-		FaceMaterial.SetTexture("texYZ", FaceMaterial.GetTexture("_TexFaceShadowBackBottom"));
+		FaceMaterial.SetTexture("texYZ", _TexFaceShadowBackBottom);
 	}
 
 	void TextureSetRightBackBottom()
 	{
-		FaceMaterial.SetTexture("texXX", FaceMaterial.GetTexture("_TexFaceShadowRight"));
+		FaceMaterial.SetTexture("texXX", _TexFaceShadowRight);
 
-		FaceMaterial.SetTexture("texYY", FaceMaterial.GetTexture("_TexFaceShadowBottom"));
+		FaceMaterial.SetTexture("texYY", _TexFaceShadowBottom);
 
-		FaceMaterial.SetTexture("texZZ", FaceMaterial.GetTexture("_TexFaceShadowBack"));
+		FaceMaterial.SetTexture("texZZ", _TexFaceShadowBack);
 
-		FaceMaterial.SetTexture("texXY", FaceMaterial.GetTexture("_TexFaceShadowRightBottom"));
+		FaceMaterial.SetTexture("texXY", _TexFaceShadowRightBottom);
 
-		FaceMaterial.SetTexture("texXZ", FaceMaterial.GetTexture("_TexFaceShadowBackRight"));
+		FaceMaterial.SetTexture("texXZ", _TexFaceShadowBackRight);
 
-		FaceMaterial.SetTexture("texYZ", FaceMaterial.GetTexture("_TexFaceShadowBackBottom"));
+		FaceMaterial.SetTexture("texYZ", _TexFaceShadowBackBottom);
 	}
 
 	void TextureSetLeftBackTop()
 	{
-		FaceMaterial.SetTexture("texXX", FaceMaterial.GetTexture("_TexFaceShadowLeft"));
+		FaceMaterial.SetTexture("texXX", _TexFaceShadowLeft);
 
-		FaceMaterial.SetTexture("texYY", FaceMaterial.GetTexture("_TexFaceShadowTop"));
+		FaceMaterial.SetTexture("texYY", _TexFaceShadowTop);
 
-		FaceMaterial.SetTexture("texZZ", FaceMaterial.GetTexture("_TexFaceShadowBack"));
+		FaceMaterial.SetTexture("texZZ", _TexFaceShadowBack);
 
-		FaceMaterial.SetTexture("texXY", FaceMaterial.GetTexture("_TexFaceShadowLeftTop"));
+		FaceMaterial.SetTexture("texXY", _TexFaceShadowLeftTop);
 
-		FaceMaterial.SetTexture("texXZ", FaceMaterial.GetTexture("_TexFaceShadowBackLeft"));
+		FaceMaterial.SetTexture("texXZ", _TexFaceShadowBackLeft);
 
-		FaceMaterial.SetTexture("texYZ", FaceMaterial.GetTexture("_TexFaceShadowBackTop"));
+		FaceMaterial.SetTexture("texYZ", _TexFaceShadowBackTop);
 	}
 
 	void TextureSetRightBackTop()
 	{
-		FaceMaterial.SetTexture("texXX", FaceMaterial.GetTexture("_TexFaceShadowRight"));
+		FaceMaterial.SetTexture("texXX", _TexFaceShadowRight);
 
-		FaceMaterial.SetTexture("texYY", FaceMaterial.GetTexture("_TexFaceShadowTop"));
+		FaceMaterial.SetTexture("texYY", _TexFaceShadowTop);
 
-		FaceMaterial.SetTexture("texZZ", FaceMaterial.GetTexture("_TexFaceShadowBack"));
+		FaceMaterial.SetTexture("texZZ", _TexFaceShadowBack);
 
-		FaceMaterial.SetTexture("texXY", FaceMaterial.GetTexture("_TexFaceShadowRightTop"));
+		FaceMaterial.SetTexture("texXY", _TexFaceShadowRightTop);
 
-		FaceMaterial.SetTexture("texXZ", FaceMaterial.GetTexture("_TexFaceShadowBackRight"));
+		FaceMaterial.SetTexture("texXZ", _TexFaceShadowBackRight);
 
-		FaceMaterial.SetTexture("texYZ", FaceMaterial.GetTexture("_TexFaceShadowBackTop"));
+		FaceMaterial.SetTexture("texYZ", _TexFaceShadowBackTop);
 	}
 
 	//ディレクショナルライトを切り替える、演出時に使う

@@ -9,12 +9,16 @@ public class StageShader_PaintTextureScript : GlobalClass
 
 	void Start()
     {
+		//ループカウント
 		int count = 0;
 
+		//マテリアルを回す
         foreach(Material i in GetComponent<Renderer>().materials)
 		{
+			//ペイントテクスチャをセット
 			i.SetTexture("_TexPaint", TexPaint[count]);
 
+			//カウントアップ
 			count++;
 		}
     }
