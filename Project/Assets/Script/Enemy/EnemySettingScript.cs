@@ -10,6 +10,21 @@ public class EnemySettingScript : GlobalClass
 	//このキャラクターのID
 	public string ID;
 
+	//敵キャラクタースクリプト
+	private EnemyCharacterScript TempEnemyScript;
+
+	//メッシュ結合で使うCharacterBodyMaterial
+	private Material BodyMaterial;
+
+	//結合するメッシュの元になるスキンメッシュレンダラー
+	private SkinnedMeshRenderer CostumeRenderer;
+
+	//統合するスキンメッシュレンダラー
+	private List<SkinnedMeshRenderer> CombineRendererList = new List<SkinnedMeshRenderer>();
+
+	//結合した後に消すオブジェクトList
+	private List<GameObject> DestroyOBJList = new List<GameObject>();
+	
 	//セッティング完了フラグ
 	public bool AllReadyFlag { get; set; }
 
@@ -54,8 +69,17 @@ public class EnemySettingScript : GlobalClass
 		//準備完了待機コルーチン呼び出し
 		StartCoroutine(AllReadyCoroutine());
 
+		//敵キャラクタースクリプト取得
+		TempEnemyScript = gameObject.GetComponent<EnemyCharacterScript>();
+
+		//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
+		CostumeRenderer = DeepFind(gameObject, "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
+
+		//Bodyに仕込んであるCostumeのボディマテリアル取得
+		BodyMaterial = CostumeRenderer.material;
+
 		//レンダラーを切って非表示にする
-		foreach(SkinnedMeshRenderer i in GetComponentsInChildren<SkinnedMeshRenderer>())
+		foreach (SkinnedMeshRenderer i in GetComponentsInChildren<SkinnedMeshRenderer>())
 		{
 			i.enabled = false;
 		}
@@ -63,23 +87,20 @@ public class EnemySettingScript : GlobalClass
 		//EnemyClass読み込み
 		EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => e.EnemyID == ID).ToList()[0];
 
-		//本体のスクリプト取得
-		EnemyCharacterScript tempscript = gameObject.GetComponent<EnemyCharacterScript>();
-
 		//ライフ読み込み
-		tempscript.Life = tempclass.Life;
+		TempEnemyScript.Life = tempclass.Life;
 
 		//スタン値読み込み
-		tempscript.Stun = tempclass.Stun;
+		TempEnemyScript.Stun = tempclass.Stun;
 
 		//移動速度読み込み
-		tempscript.MoveSpeed = tempclass.MoveSpeed;
+		TempEnemyScript.MoveSpeed = tempclass.MoveSpeed;
 
 		//旋回速度読み込み
-		tempscript.TurnSpeed = tempclass.TurnSpeed;
+		TempEnemyScript.TurnSpeed = tempclass.TurnSpeed;
 
 		//ダウン時間読み込み
-		tempscript.DownTime = tempclass.DownTime;
+		TempEnemyScript.DownTime = tempclass.DownTime;
 
 		//敵攻撃情報Listを敵スクリプトに送る
 		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetAttackClassList(new List<EnemyAttackClass>(GameManagerScript.Instance.AllEnemyAttackList.Where(i => i.UserID == ID).ToList())));
@@ -205,9 +226,7 @@ public class EnemySettingScript : GlobalClass
 				//ボーンを親にする
 				i.gameObject.transform.parent = DeepFind(gameObject, "R_LowerArmBone").transform;
 
-				//ローカルTRSをリセット
-				//i.gameObject.transform.localPosition = Vector3.zero;
-				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//トランスフォームリセット
 				ResetTransform(i.gameObject);
 			}
 			//右手
@@ -216,9 +235,7 @@ public class EnemySettingScript : GlobalClass
 				//ボーンを親にする
 				i.gameObject.transform.parent = DeepFind(gameObject, "R_HandBone").transform;
 
-				//ローカルTRSをリセット
-				//i.gameObject.transform.localPosition = Vector3.zero;
-				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//トランスフォームリセット
 				ResetTransform(i.gameObject);
 			}
 			//左腕
@@ -227,9 +244,7 @@ public class EnemySettingScript : GlobalClass
 				//ボーンを親にする
 				i.gameObject.transform.parent = DeepFind(gameObject, "L_LowerArmBone").transform;
 
-				//ローカルTRSをリセット
-				//i.gameObject.transform.localPosition = Vector3.zero;
-				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//トランスフォームリセット
 				ResetTransform(i.gameObject);
 			}
 			//左手
@@ -238,9 +253,7 @@ public class EnemySettingScript : GlobalClass
 				//ボーンを親にする
 				i.gameObject.transform.parent = DeepFind(gameObject, "L_HandBone").transform;
 
-				//ローカルTRSをリセット
-				//i.gameObject.transform.localPosition = Vector3.zero;
-				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//トランスフォームリセット
 				ResetTransform(i.gameObject);
 			}
 			else if (i.gameObject.name.Contains("_Head"))
@@ -248,9 +261,7 @@ public class EnemySettingScript : GlobalClass
 				//ボーンを親にする
 				i.gameObject.transform.parent = DeepFind(gameObject, "HeadBone").transform;
 
-				//ローカルTRSをリセット
-				//i.gameObject.transform.localPosition = Vector3.zero;
-				//i.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//トランスフォームリセット
 				ResetTransform(i.gameObject);
 			}
 		}
@@ -267,9 +278,7 @@ public class EnemySettingScript : GlobalClass
 				//性器オブジェクトの子にする
 				mosaicOBJ.transform.parent = ii.gameObject.transform;
 
-				//ローカルTransform設定
-				//mosaicOBJ.transform.localPosition *= 0;
-				//mosaicOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+				//トランスフォームリセット
 				ResetTransform(mosaicOBJ);
 
 				//最初は消しとく
@@ -278,9 +287,6 @@ public class EnemySettingScript : GlobalClass
 
 			}
 		}
-
-		//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
-		SkinnedMeshRenderer CostumeRenderer = DeepFind(gameObject, "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
 
 		//髪オブジェクト読み込み
 		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Enemy/" + ID + "/Hair/", "prefab", (List<object> OBJList) =>
@@ -297,9 +303,7 @@ public class EnemySettingScript : GlobalClass
 			//頭ボーンの子にする
 			HairOBJ.transform.parent = DeepFind(gameObject, "HeadBone").transform;
 
-			//ローカルtransformをゼロに
-			//HairOBJ.transform.localPosition *= 0;
-			//HairOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//トランスフォームリセット
 			ResetTransform(HairOBJ);
 
 			//読み込み完了フラグを立てる
@@ -313,18 +317,10 @@ public class EnemySettingScript : GlobalClass
 			//読み込んだオブジェクトからランダムで選びインスタンス化
 			GameObject UnderWearOBJ = Instantiate(OBJList[Random.Range(0, OBJList.Count)] as GameObject);
 
-			//レンダラーを切って非表示にする
-			foreach (SkinnedMeshRenderer i in UnderWearOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				i.enabled = false;
-			}
-
 			//自身の子にする
 			UnderWearOBJ.transform.parent = gameObject.transform;
 
-			//ローカルtransformをゼロに
-			//UnderWearOBJ.transform.localPosition *= 0;
-			//UnderWearOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//トランスフォームリセット
 			ResetTransform(UnderWearOBJ);
 
 			//プレハブ内のスキニングメッシュレンダラーを全て取得
@@ -332,7 +328,13 @@ public class EnemySettingScript : GlobalClass
 			{
 				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
 				ii.bones = CostumeRenderer.bones;
-			}			
+
+				//ListにAdd
+				CombineRendererList.Add(ii);
+			}
+
+			//オブジェクトを削除Listに入れる
+			DestroyOBJList.Add(UnderWearOBJ);
 
 			//読み込み完了フラグを立てる
 			UnderWearLoadCompleteFlag = true;
@@ -345,18 +347,10 @@ public class EnemySettingScript : GlobalClass
 			//読み込んだオブジェクトからランダムで選びインスタンス化
 			GameObject InnerOBJ = Instantiate(OBJList[Random.Range(0, OBJList.Count)] as GameObject);
 
-			//レンダラーを切って非表示にする
-			foreach (SkinnedMeshRenderer i in InnerOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				i.enabled = false;
-			}
-
 			//自身の子にする
 			InnerOBJ.transform.parent = gameObject.transform;
 
-			//ローカルtransformをゼロに
-			//InnerOBJ.transform.localPosition *= 0;
-			//InnerOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//トランスフォームリセット
 			ResetTransform(InnerOBJ);
 
 			//プレハブ内のスキニングメッシュレンダラーを全て取得
@@ -364,7 +358,13 @@ public class EnemySettingScript : GlobalClass
 			{
 				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
 				ii.bones = CostumeRenderer.bones;
+
+				//ListにAdd
+				CombineRendererList.Add(ii);
 			}
+
+			//オブジェクトを削除Listに入れる
+			DestroyOBJList.Add(InnerOBJ);
 
 			//読み込み完了フラグを立てる
 			InnerLoadCompleteFlag = true;
@@ -377,6 +377,26 @@ public class EnemySettingScript : GlobalClass
 			//読み込んだオブジェクトからランダムで選びインスタンス化
 			GameObject SocksOBJ = Instantiate(OBJList[Random.Range(0, OBJList.Count)] as GameObject);
 
+			//自身の子にする
+			SocksOBJ.transform.parent = gameObject.transform;
+
+			//トランスフォームリセット
+			ResetTransform(SocksOBJ);
+
+			//プレハブ内のスキニングメッシュレンダラーを全て取得
+			foreach (SkinnedMeshRenderer ii in SocksOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
+			{
+				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
+				ii.bones = CostumeRenderer.bones;
+
+				//ListにAdd
+				CombineRendererList.Add(ii);
+			}
+
+			//オブジェクトを削除Listに入れる
+			DestroyOBJList.Add(SocksOBJ);
+
+			/*
 			//レンダラーを切って非表示にする
 			foreach (SkinnedMeshRenderer i in SocksOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
 			{
@@ -386,17 +406,28 @@ public class EnemySettingScript : GlobalClass
 			//自身の子にする
 			SocksOBJ.transform.parent = gameObject.transform;
 
-			//ローカルtransformをゼロに
-			SocksOBJ.transform.localPosition *= 0;
-			SocksOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//トランスフォームリセット
+			ResetTransform(SocksOBJ);
 
 			//プレハブ内のスキニングメッシュレンダラーを全て取得
 			foreach (SkinnedMeshRenderer ii in SocksOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
 			{
 				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
 				ii.bones = CostumeRenderer.bones;
-			}
 
+				//結合用メッシュ宣言
+				CombineInstance tempmesh = new CombineInstance();
+
+				//メッシュを適応
+				tempmesh.mesh = ii.sharedMesh;
+
+				//トランスフォームを適応
+				tempmesh.transform = ii.gameObject.transform.localToWorldMatrix;
+
+				//ListにAdd
+				CombineRendererList.Add(ii);
+			}
+			*/
 			//読み込み完了フラグを立てる
 			SocksLoadCompleteFlag = true;
 
@@ -408,18 +439,10 @@ public class EnemySettingScript : GlobalClass
 			//読み込んだオブジェクトからランダムで選びインスタンス化
 			GameObject BottomsOBJ = Instantiate(OBJList[Random.Range(0, OBJList.Count)] as GameObject);
 
-			//レンダラーを切って非表示にする
-			foreach (SkinnedMeshRenderer i in BottomsOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				i.enabled = false;
-			}
-
 			//自身の子にする
 			BottomsOBJ.transform.parent = gameObject.transform;
 
-			//ローカルtransformをゼロに
-			//BottomsOBJ.transform.localPosition *= 0;
-			//BottomsOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//トランスフォームリセット
 			ResetTransform(BottomsOBJ);
 
 			//プレハブ内のスキニングメッシュレンダラーを全て取得
@@ -427,7 +450,13 @@ public class EnemySettingScript : GlobalClass
 			{
 				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
 				ii.bones = CostumeRenderer.bones;
+
+				//ListにAdd
+				CombineRendererList.Add(ii);
 			}
+
+			//オブジェクトを削除Listに入れる
+			DestroyOBJList.Add(BottomsOBJ);
 
 			//読み込み完了フラグを立てる
 			BottomsLoadCompleteFlag = true;
@@ -440,18 +469,10 @@ public class EnemySettingScript : GlobalClass
 			//読み込んだオブジェクトからランダムで選びインスタンス化
 			GameObject ShoesOBJ = Instantiate(OBJList[Random.Range(0, OBJList.Count)] as GameObject);
 
-			//レンダラーを切って非表示にする
-			foreach (SkinnedMeshRenderer i in ShoesOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				i.enabled = false;
-			}
-
 			//自身の子にする
 			ShoesOBJ.transform.parent = gameObject.transform;
 
-			//ローカルtransformをゼロに
-			//ShoesOBJ.transform.localPosition *= 0;
-			//ShoesOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
+			//トランスフォームリセット
 			ResetTransform(ShoesOBJ);
 
 			//プレハブ内のスキニングメッシュレンダラーを全て取得
@@ -459,7 +480,13 @@ public class EnemySettingScript : GlobalClass
 			{
 				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
 				ii.bones = CostumeRenderer.bones;
+
+				//ListにAdd
+				CombineRendererList.Add(ii);
 			}
+
+			//オブジェクトを削除Listに入れる
+			DestroyOBJList.Add(ShoesOBJ);
 
 			//読み込み完了フラグを立てる
 			ShoesLoadCompleteFlag = true;
@@ -486,6 +513,147 @@ public class EnemySettingScript : GlobalClass
 		{
 			yield return null;
 		}
+
+		//統合用オブジェクト宣言
+		GameObject CombineMeshOBJ = new GameObject();
+
+		//親を設定
+		CombineMeshOBJ.transform.parent = gameObject.transform;
+
+		//名前を設定
+		CombineMeshOBJ.name = "EnemyCombineMeshOBJ";
+
+		//レイヤーをEnemyにする
+		CombineMeshOBJ.layer = LayerMask.NameToLayer("Enemy");
+
+		//結合するCombineInstanceList
+		List<CombineInstance> CombineInstanceList = new List<CombineInstance>();
+
+		//ボーンList
+		List<Transform> BoneList = new List<Transform>();
+
+		//ウェイトList
+		List<BoneWeight> BoneWeightList = new List<BoneWeight>();
+
+		//バインドボーズList
+		List<Matrix4x4> BindPoseList = new List<Matrix4x4>();
+
+		//名前とインデックスのハッシュテーブル
+		Hashtable BoneHash = new Hashtable();
+
+		//インデックスに使うループカウント
+		int count = 0;
+
+		//サンプルからボーン情報を取る
+		foreach (Transform bone in CostumeRenderer.bones)
+		{
+			//ボーンを取得
+			BoneList.Add(bone);
+
+			//名前とインデクスをハッシュテーブルに入れる
+			BoneHash.Add(bone.name, count);
+
+			//カウントアップ
+			count ++;
+		}
+
+		//ループカウント初期化
+		count = 0;
+
+		//ボーンのバインドポーズを取得
+		foreach(var i in BoneList)
+		{
+			BindPoseList.Add(BoneList[count].worldToLocalMatrix * transform.worldToLocalMatrix);
+
+			//カウントアップ
+			count++;
+		}
+
+		//統合するメッシュレンダラーを回す
+		foreach (var i in CombineRendererList)
+		{
+			//ウェイトを回す
+			foreach (BoneWeight ii in i.sharedMesh.boneWeights)
+			{
+				//リマップ用ウェイト
+				BoneWeight TempWeight = ii;
+
+				//ハッシュテーブルを元にボーンをリマップ
+				TempWeight.boneIndex0 = (int)BoneHash[i.bones[ii.boneIndex0].name];
+				TempWeight.boneIndex1 = (int)BoneHash[i.bones[ii.boneIndex1].name];
+				TempWeight.boneIndex2 = (int)BoneHash[i.bones[ii.boneIndex2].name];
+				TempWeight.boneIndex3 = (int)BoneHash[i.bones[ii.boneIndex3].name];
+
+				//ListにAdd
+				BoneWeightList.Add(TempWeight);
+			}
+
+			//メッシュ統合用CombineInstance
+			CombineInstance TempCombineInstance = new CombineInstance();
+
+			//引数のメッシュレンダラーからメッシュを取得
+			TempCombineInstance.mesh = i.sharedMesh;
+
+			//引数のメッシュレンダラーからトランスフォームを取得
+			TempCombineInstance.transform = i.transform.localToWorldMatrix;
+
+			//ListにAdd
+			CombineInstanceList.Add(TempCombineInstance);
+		}
+
+		//メッシュレンダラーを付ける
+		SkinnedMeshRenderer CombineMeshRenderer = CombineMeshOBJ.AddComponent<SkinnedMeshRenderer>();
+
+		//マテリアル設定
+		CombineMeshRenderer.material = BodyMaterial;
+
+		//空メッシュを入れる
+		CombineMeshRenderer.sharedMesh = new Mesh();
+
+		//メッシュを結合
+		CombineMeshRenderer.sharedMesh.CombineMeshes(CombineInstanceList.ToArray());
+
+		//ボーン設定
+		CombineMeshRenderer.bones = BoneList.ToArray();
+
+		//ボーンウェイト設定
+		CombineMeshRenderer.sharedMesh.boneWeights = BoneWeightList.ToArray();
+
+		//バインドポーズ設定
+		CombineMeshRenderer.sharedMesh.bindposes = BindPoseList.ToArray();
+
+		//バウンディングボックスを設定
+		CombineMeshRenderer.sharedMesh.RecalculateBounds();
+
+		//不要になった統合前のオブジェクトを消す
+		foreach(var i in DestroyOBJList)
+		{
+			Destroy(i);
+		}
+
+		/*
+		Vector2[] uvs;
+
+		List<Vector2> totalUVs = new List<Vector2>();
+
+		SkinnedMeshRenderer smrBody = smRenderers[0];
+
+		uvs = smrBody.sharedMesh.uv;
+
+		for (int n = 0; n < uvs.Length; n++)
+		{
+			uvs[n] = new Vector2(uvs[n].x * 0.5f, uvs[n].y);
+		}
+			
+
+		//smrBody.sharedMesh.uv = uvs;
+		totalUVs.AddRange(uvs);
+		*/
+
+
+
+		//アニメーター有効化
+		gameObject.GetComponent<Animator>().enabled = true;
 
 		//セッティング完了フラグを立てる
 		AllReadyFlag = true;

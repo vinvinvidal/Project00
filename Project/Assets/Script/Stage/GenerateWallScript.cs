@@ -13,17 +13,18 @@ public class GenerateWallScript : GlobalClass
 		//リジッドボディ取得
 		R_body = GetComponent<Rigidbody>();
 
+		//物理を切る
+		R_body.isKinematic = true;
+
 		//壁生成コルーチン呼び出し
-		StartCoroutine(GenerateWallCoroutine());
+		//StartCoroutine(GenerateWallCoroutine());
 	}
 
 	private IEnumerator GenerateWallCoroutine()
 	{
+
 		//壁にするために水平方向の移動をフリーズ
 		R_body.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
-
-		//真下に加速度を加える
-		//R_body.AddForce(Vector3.down * 10, ForceMode.Impulse);
 
 		//ちょっと動かす為に1秒待機
 		yield return new WaitForSeconds(1);

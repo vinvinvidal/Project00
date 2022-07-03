@@ -25,6 +25,9 @@ public interface Character2WeaponMoveInterface : IEventSystemHandler
 
 public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInterface
 {
+	//プレイヤースクリプト
+	private PlayerScript PScript;
+
 	//ボーンList
 	public List<GameObject> BoneList = new List<GameObject>();
 
@@ -63,6 +66,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 
 	private void Start()
 	{
+		//プレイヤースクリプト取得
+		PScript = gameObject.transform.root.gameObject.GetComponent<PlayerScript>();
+
 		//メインカメラ取得
 		MainCamera = DeepFind(GameManagerScript.Instance.gameObject, "MainCamera");
 
@@ -308,8 +314,8 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//コライダ無効化
 		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false, false));
 
-		//フラグを立てて壁に当たった事にする
-		WallHitFlag = true;
+		//収納位置に戻す
+		MoveWire(100);
 	}
 
 	//ワイヤーを動かす
@@ -527,10 +533,8 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		{
 			//親を右手にする
 			BoneList[4].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
-			//BoneList[3].transform.parent = DeepFind(gameObject, "L_HandBone").transform;
 
 			//トランスフォームリセット
-			//ResetTransform(BoneList[3]);
 			ResetTransform(BoneList[4]);
 			
 			//巻き戻し
@@ -633,8 +637,17 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//武器移動
 		while (WireMoveFlag)
 		{
+			//ダメージを受けた
+			if(PScript.DamageFlag)
+			{
+				//コライダ無効化
+				ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false, false));
+
+				//収納位置に戻す
+				MoveWire(100);
+			}
 			//敵に当たった
-			if (EnemyHitFlag)
+			else if (EnemyHitFlag)
 			{
 				//コライダ無効化
 				ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false, false));
@@ -676,16 +689,22 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(true, true));
 
 		//ワイヤー波打ちアニメ呼び出し
-		ExecuteEvents.Execute<WireShaderScriptInterface>(WireOBJ, null, (reciever, eventData) => reciever.WireWave(0.2f));		
-
+		ExecuteEvents.Execute<WireShaderScriptInterface>(WireOBJ, null, (reciever, eventData) => reciever.WireWave(0.2f));
+	
 		//武器移動
 		while ((gameObject.transform.position - BoneList[5].transform.position).sqrMagnitude < 150 && !WallHitFlag)
 		{
 			//1フレーム待機
 			yield return null;
 
+			//ダメージを受けた
+			if(PScript.DamageFlag)
+			{	
+				//ループを抜けて処理をスキップ
+				break;
+			}
 			//敵に当たった
-			if (EnemyHitFlag)
+			else if (EnemyHitFlag)
 			{
 				//特殊攻撃成功処理実行
 				SpecialAttackHit();
@@ -696,6 +715,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 				//ループを抜けて処理をスキップ
 				goto SpecialWeaponEnemyHit;
 			}
+			//移動処理
 			else if(!GameManagerScript.Instance.PauseFlag)
 			{
 				BoneList[5].transform.position += (pos - BoneList[4].transform.position).normalized * 30 * Time.deltaTime;

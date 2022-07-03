@@ -317,6 +317,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//プレイヤーキャラクター取得
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => PlayerCharacter = reciever.GetPlayableCharacterOBJ());
 
+		//行動List取得コルーチン呼び出し
+		StartCoroutine(GetBehaviorListCoroutine());
+
 		//OnCamera判定用スクリプトを持っているオブジェクトを検索して取得
 		foreach (Transform i in GetComponentsInChildren<Transform>())
 		{
@@ -592,7 +595,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void LateUpdate()
 	{
-		if (!H_Flag)
+		if (!H_Flag && BattleFlag)
 		{
 			//ループカウント
 			int count = 0;
@@ -690,18 +693,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//アニメーションステートを監視する関数呼び出し
 			StateMonitor();
 
-			//接地判定用のRayを飛ばす関数呼び出し
-			GroundRayCast();
-
-			//他キャラめり込み防止関数呼び出し
-			EnemyAround();
-
-			//移動制御関数呼び出し
-			MoveFunc();
-
-			//戦闘中だけ行動抽選
+			//戦闘中だけ行動
 			if (BattleFlag)
 			{
+				//接地判定用のRayを飛ばす関数呼び出し
+				GroundRayCast();
+
+				//他キャラめり込み防止関数呼び出し
+				EnemyAround();
+
+				//移動制御関数呼び出し
+				MoveFunc();
+
 				//行動抽選関数呼び出し
 				BehaviorFunc();
 			}
@@ -2449,6 +2452,19 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public void SetBehaviorList(List<EnemyBehaviorClass> i)
 	{
 		BehaviorList = new List<EnemyBehaviorClass>(i);
+	}
+
+	//ビヘイビアリストを受け取る
+	private IEnumerator GetBehaviorListCoroutine()
+	{
+		BehaviorList = null;
+
+		while (BehaviorList == null)
+		{
+			ExecuteEvents.Execute<EnemyBehaviorInterface>(gameObject, null, (reciever, eventData) => BehaviorList = reciever.GetBehaviorList());			
+
+			yield return null;
+		}
 	}
 
 	//スケベヒットモーションListを受け取る、セッティングスクリプトから呼ばれる

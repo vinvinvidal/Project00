@@ -105,8 +105,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 2e89666046ffe0c4ba8c613f751de009, type: 3}
   _TexNormal: {fileID: 0}
   _TexHiLight: {fileID: 0}
-  _HiLightMatCap: {fileID: 0}
   _TexLine: {fileID: 0}
+  _HiLightMatCap: {fileID: 0}
 --- !u!114 &893399504628437803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,8 +240,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 2e89666046ffe0c4ba8c613f751de009, type: 3}
   _TexNormal: {fileID: 0}
   _TexHiLight: {fileID: 0}
-  _HiLightMatCap: {fileID: 0}
   _TexLine: {fileID: 0}
+  _HiLightMatCap: {fileID: 0}
 --- !u!1 &4721323982884120892
 GameObject:
   m_ObjectHideFlags: 0
@@ -331,8 +331,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 2e89666046ffe0c4ba8c613f751de009, type: 3}
   _TexNormal: {fileID: 0}
   _TexHiLight: {fileID: 0}
-  _HiLightMatCap: {fileID: 0}
   _TexLine: {fileID: 0}
+  _HiLightMatCap: {fileID: 0}
 --- !u!114 &902120894093547755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -544,7 +544,7 @@ CharacterController:
   m_GameObject: {fileID: 7156904247328693316}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Height: 1.75
   m_Radius: 0.5
@@ -561,7 +561,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7156904247328693316}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: 2cb50b67c0ef79e439776b09c0d1a21f, type: 2}
   m_Controller: {fileID: 9100000, guid: 99f7b52ef9e447b418ddce51d3c2b804, type: 2}
   m_CullingMode: 0
@@ -584,35 +584,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4366857a141749e42b0b7ca95249dba5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ttt:
-    serializedVersion: 2
-    key0: {r: 0, g: 0, b: 0, a: 1}
-    key1: {r: 0.21960784, g: 0.21960784, b: 0.2509804, a: 1}
-    key2: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0}
-    key3: {r: 0.9098039, g: 0.9098039, b: 0.84705883, a: 0}
-    key4: {r: 1, g: 1, b: 1, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 45875
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
 --- !u!114 &7466940719819522203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -960,6 +931,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
+      objectReference: {fileID: 2100000, guid: fd18bfe1f42f05145bcceed001c805b0, type: 2}
+    - target: {fileID: -7497716666708280226, guid: 765c8e90030d80b4181e20a218ad5681,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7311943167374641550, guid: 765c8e90030d80b4181e20a218ad5681,
         type: 3}

@@ -191,7 +191,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private bool EnemyContactFlag = false;
 
 	//ダメージ状態フラグ
-	private bool DamageFlag = false;
+	public bool DamageFlag { get; set; } = false;
 
 	//ダッシュフラグ
 	private bool DashFlag = false;
@@ -2297,6 +2297,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				//特殊攻撃用フラグを下す
 				SpecialTryFlag = false;
+				SpecialSuccessFlag = false;
+
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("SpecialSuccess", false);
+
+				//特殊攻撃成功フラグを下ろす
 				SpecialSuccessFlag = false;
 
 				//特殊攻撃失敗処理呼び出し

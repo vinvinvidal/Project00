@@ -16,13 +16,16 @@ public interface EnemyBehaviorInterface : IEventSystemHandler
 
 	//使用している攻撃を受け取る
 	void SetArts(EnemyAttackClass Arts);
+
+	//行動Listを送る
+	List<EnemyBehaviorClass> GetBehaviorList();
 }
 
 public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 {
 	//自身のアニメーターコントローラ
 	private Animator CurrentAnimator;
-
+	
 	//自身のEnemyCharacterScrpt
 	private EnemyCharacterScript EnemyScript;
 
@@ -68,9 +71,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	//行動List	
 	private List<EnemyBehaviorClass> EnemyBehaviorList = new List<EnemyBehaviorClass>();
 
-	//準備完了フラグ
-	private bool AllReadyFlag = false;
-
 	//ポーズフラグ
 	private bool PauseFlag = false;
 
@@ -108,9 +108,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//プレイヤーキャラクターをコルーチンで確実に取得する
 		StartCoroutine(SetPlayerCharacterCoroutine());
-
-		//準備完了待ちコルーチン呼び出し
-		StartCoroutine(AllReadyFlagCoroutine());
 
 		///---行動追加---///
 
@@ -209,7 +206,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			if (re)
 			{
 				//高低差が無く射程距離内で攻撃中じゃなくてスケベ中じゃない
-				if (PlayerverticalDistance < 0.25f && PlayerHorizontalDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
+				if (PlayerverticalDistance != 0 && PlayerverticalDistance < 0.25f && PlayerHorizontalDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
 				{
 					re = true;
 				}
@@ -223,7 +220,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			return re;
 
 		}));
-
+		/*
 		//攻撃01
 		EnemyBehaviorList.Add(new EnemyBehaviorClass("Attack01", 500, () =>
 		//攻撃01の処理
@@ -258,7 +255,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			return re;
 
 		}));
-
+		*/
 		//スケベ攻撃
 		EnemyBehaviorList.Add(new EnemyBehaviorClass("H_Attack", 500, () =>
 		//スケベ攻撃の処理
@@ -297,19 +294,19 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			return re;
 
 		}));
-
-		//スクリプトに全ての行動Listを送る
-		ExecuteEvents.Execute<EnemyCharacterInterface>(gameObject, null, (reciever, eventData) => reciever.SetBehaviorList(EnemyBehaviorList));
 	}
 
 	void Update()
     {
-		//常にプレイヤーキャラクターとの距離を測定する
-		PlayerHorizontalDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
-		PlayerverticalDistance = Mathf.Abs(PlayerCharacter.transform.position.y - gameObject.transform.position.y);
+		if(EnemyScript.BattleFlag)
+		{
+			//常にプレイヤーキャラクターとの距離を測定する
+			PlayerHorizontalDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
+			PlayerverticalDistance = Mathf.Abs(PlayerCharacter.transform.position.y - gameObject.transform.position.y);
 
-		//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
-		PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
+			//常にプレイヤーキャラクターとの角度を測定する、高低差は無視
+			PlayerAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject));
+		}
 	}
 
 	//待機コルーチン
@@ -983,24 +980,16 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		GameManagerScript.Instance.AllEnemyWeaponList.Add(WeaponOBJ);
 	}
 
-	//準備完了待ちコルーチン
-	IEnumerator AllReadyFlagCoroutine()
-	{
-		//準備完了するまでループ
-		while (!AllReadyFlag)
-		{
-			//セッティングスクリプトからフラグを参照
-			AllReadyFlag = SettingScript.AllReadyFlag;
-
-			//1フレーム待機
-			yield return null;
-		}
-	}
-
 	//ポーズ処理
 	public void Pause(bool b)
 	{
 		//ポーズフラグ引数で受け取ったboolをフラグに代入
 		PauseFlag = b;
+	}
+
+	//行動リストを返す
+	public List<EnemyBehaviorClass> GetBehaviorList()
+	{
+		return EnemyBehaviorList;
 	}
 }

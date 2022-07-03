@@ -333,11 +333,24 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			//インスタンス生成
 			GameObject TempEnemy = Instantiate(i);
 
+			//セッティングスクリプト取得
+			EnemySettingScript TempSettingScript = TempEnemy.GetComponent<EnemySettingScript>();
+
+			//エネミースクリプト取得
+			EnemyCharacterScript TempEnemyScript = TempEnemy.GetComponent<EnemyCharacterScript>();
+
+			//トランスフォームリセット
+			ResetTransform(TempEnemy);
+
+			//同じ敵を同時に出現させるとSettingで読み込み重複が起こり、原点から外れるとメッシュ結合が上手くいなないので終わるまで待機
+			while (!TempSettingScript.AllReadyFlag)
+			{
+				//１フレーム待機
+				yield return null;
+			}
+
 			//親をバトルフィールドにする
 			TempEnemy.transform.parent = gameObject.transform;
-
-			//座標を直で変更するためキャラクターコントローラを無効化
-			TempEnemy.GetComponent<CharacterController>().enabled = false;
 
 			//配置用変数算出
 			PlacementPoint = (float)EnemyCount / GameManagerScript.Instance.AllEnemyWaveList[EnemyWaveList[WaveCount]].EnemyList.Count * (2.0f * Mathf.PI);
@@ -356,16 +369,6 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 			//敵出現カウントアップ
 			EnemyCount++;
-
-			//セッティングスクリプト取得
-			EnemySettingScript TempScript = TempEnemy.GetComponent<EnemySettingScript>();
-
-			//同じ敵を同時に出現させるとSettingで読み込み重複が起こるので終わるまで待機
-			while (!TempScript.AllReadyFlag)
-			{
-				//１フレーム待機
-				yield return null;
-			}
 
 			//敵リストにAdd
 			EnemyList.Add(TempEnemy);
@@ -490,19 +493,25 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			SmakeList.Add(TempSmoke);
 		}
 
-		//高所の頂点位置から壁素材を発生させる
-		for (int i = 0; i < 5; i++)
+		// メッシュ結合する時に使うList
+		List<CombineInstance> WallMeshList = new List<CombineInstance>();
+
+		//頂点位置から壁素材を発生させる
+		for (int i = 0; i < 10; i++)
 		{
 			foreach (var ii in VertexList)
 			{
 				//壁素材をインスタンス化
 				GameObject TempWallMat = Instantiate(WallMaterial[Random.Range(0, WallMaterial.Count)]);
 
+				//物理を切る
+				TempWallMat.GetComponent<Rigidbody>().isKinematic = true;
+
 				//親を設定
 				TempWallMat.transform.parent = DeepFind(gameObject, "WallOBJ").transform;
 
 				//発生位置に移動
-				TempWallMat.transform.position = ii + new Vector3(Random.Range(-0.5f, 0.5f), Offset, Random.Range(-0.5f, 0.5f));
+				TempWallMat.transform.position = ii + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f) + Offset, Random.Range(-0.5f, 0.5f));
 
 				//ランダムに回転
 				TempWallMat.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
@@ -510,16 +519,46 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				//活性化
 				TempWallMat.SetActive(true);
 
+				//結合用メッシュ宣言
+				CombineInstance tempmesh = new CombineInstance();
+
+				//メッシュを適応
+				tempmesh.mesh = TempWallMat.GetComponentInChildren<MeshFilter>().sharedMesh;
+
+				//トランスフォームを適応
+				tempmesh.transform = TempWallMat.transform.localToWorldMatrix;
+
+				//ListにAdd
+				WallMeshList.Add(tempmesh);
+
 				//壁生成スクリプトを付ける
-				TempWallMat.AddComponent<GenerateWallScript>();
+				//TempWallMat.AddComponent<GenerateWallScript>();
 			}
 
 			//オフセット位置を上げる
-			Offset += 0.75f;
+			Offset += 0.2f;
 
 			//1フレーム待機
-			yield return new WaitForSeconds(0.1f);
+			yield return null;
 		}
+
+		//統合用オブジェクト宣言
+		GameObject WallCombineOBJ = new GameObject();
+
+		//統合用メッシュ宣言
+		Mesh WallMesh = new Mesh();
+
+		//メッシュフィルターを付ける
+		WallCombineOBJ.AddComponent<MeshFilter>().mesh = WallMesh;
+
+		//メッシュレンダラーを付ける
+		WallCombineOBJ.AddComponent<MeshRenderer>().material = WallMaterial[0].GetComponentInChildren<Renderer>().sharedMaterial;
+
+		//メッシュ結合
+		WallMesh.CombineMeshes(WallMeshList.ToArray(), true);
+
+		//インスタンス化
+		//Instantiate(WallCombineOBJ);
 
 		//チョイ待つ
 		yield return new WaitForSeconds(0.5f);
