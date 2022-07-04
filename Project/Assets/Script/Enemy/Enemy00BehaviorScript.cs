@@ -206,7 +206,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			if (re)
 			{
 				//高低差が無く射程距離内で攻撃中じゃなくてスケベ中じゃない
-				if (PlayerverticalDistance != 0 && PlayerverticalDistance < 0.25f && PlayerHorizontalDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
+				if (Mathf.Abs(PlayerverticalDistance) < 0.25f && PlayerHorizontalDistance > 0 && PlayerHorizontalDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
 				{
 					re = true;
 				}
@@ -220,7 +220,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			return re;
 
 		}));
-		/*
+
 		//攻撃01
 		EnemyBehaviorList.Add(new EnemyBehaviorClass("Attack01", 500, () =>
 		//攻撃01の処理
@@ -255,7 +255,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			return re;
 
 		}));
-		*/
+
 		//スケベ攻撃
 		EnemyBehaviorList.Add(new EnemyBehaviorClass("H_Attack", 500, () =>
 		//スケベ攻撃の処理
@@ -279,7 +279,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 				if (re)
 				{
 					//高低差が無く射程距離でスケベ中じゃない
-					if (PlayerverticalDistance < 0.25f && PlayerHorizontalDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
+					if (Mathf.Abs(PlayerverticalDistance) < 0.25f && PlayerHorizontalDistance < AttackDistance && !GameManagerScript.Instance.H_Flag)
 					{
 						re = true;
 					}
@@ -300,8 +300,10 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
     {
 		if(EnemyScript.BattleFlag)
 		{
-			//常にプレイヤーキャラクターとの距離を測定する
+			//常にプレイヤーキャラクターとの水平距離を測定する
 			PlayerHorizontalDistance = HorizontalVector(PlayerCharacter, gameObject).magnitude;
+
+			//常にプレイヤーキャラクターとの高低差を測定する
 			PlayerverticalDistance = Mathf.Abs(PlayerCharacter.transform.position.y - gameObject.transform.position.y);
 
 			//常にプレイヤーキャラクターとの角度を測定する、高低差は無視

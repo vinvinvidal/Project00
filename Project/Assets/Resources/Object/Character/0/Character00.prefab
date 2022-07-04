@@ -2531,7 +2531,7 @@ MonoBehaviour:
   _TexNormal: {fileID: 2800000, guid: aa18d5e7e4f211d469b4eed01c724729, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 6e31bbbfc8a854044856af7e1303360b, type: 3}
   _TexLine: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: 2ee0077bfaf7220419121b376f4bd692, type: 3}
 --- !u!1 &8790117469217697028
 GameObject:
   m_ObjectHideFlags: 0

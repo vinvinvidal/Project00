@@ -220,6 +220,7 @@
 			{
 				//return用変数を宣言、ベースtextureを貼る
 				fixed4 re = tex2D(_TexAtlas, i.uv * _TexBaseRectSize + _TexBaseRectPos);
+				//fixed4 re = tex2D(_TexAtlas, i.uv);
 
 				//ベーステクスチャから色をサンプリングして日向の色を作る
 				_SunnyColor = float4(HSV2RGB(float3(RGB2HSV(re.rgb).r + _SunnyH, RGB2HSV(re.rgb).g + _SunnyS, RGB2HSV(re.rgb).b + _SunnyV)), re.a);

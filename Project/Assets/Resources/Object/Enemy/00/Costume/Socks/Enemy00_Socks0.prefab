@@ -203,10 +203,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _TexBase: {fileID: 2800000, guid: 7c9f89c30e10ac945acf99ad2107edc5, type: 3}
-  _TexNormal: {fileID: 0}
-  _TexHiLight: {fileID: 0}
-  _HiLightMatCap: {fileID: 0}
-  _TexLine: {fileID: 0}
+  _TexNormal: {fileID: 2800000, guid: 54055fe2475a2ef4fb78cba07789c33b, type: 3}
+  _TexHiLight: {fileID: 2800000, guid: 19e7a68bc7516594494e168e1f381465, type: 3}
+  _TexLine: {fileID: 2800000, guid: 6b0215a1273a52e4ba2ab6d04c88b64c, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b2aefe5aa12892c48bb5b4a8f71ab1cb, type: 3}
 --- !u!1 &8044160576613697752
 GameObject:
   m_ObjectHideFlags: 0

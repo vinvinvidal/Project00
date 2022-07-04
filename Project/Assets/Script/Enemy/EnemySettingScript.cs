@@ -22,6 +22,21 @@ public class EnemySettingScript : GlobalClass
 	//統合するスキンメッシュレンダラー
 	private List<SkinnedMeshRenderer> CombineRendererList = new List<SkinnedMeshRenderer>();
 
+	//統合するベーステクスチャ
+	private List<Texture2D> PackBaseTextureList = new List<Texture2D>();
+
+	//統合する法線テクスチャ
+	private List<Texture2D> PackNormalTextureList = new List<Texture2D>();
+
+	//統合するハイライトテクスチャ
+	private List<Texture2D> PackHiLightTextureList = new List<Texture2D>();
+
+	//統合する線画テクスチャ
+	private List<Texture2D> PackLineTextureList = new List<Texture2D>();
+
+	//統合するマットキャップテクスチャ
+	private List<Texture2D> PackMatCapTextureList = new List<Texture2D>();
+
 	//結合した後に消すオブジェクトList
 	private List<GameObject> DestroyOBJList = new List<GameObject>();
 	
@@ -78,9 +93,44 @@ public class EnemySettingScript : GlobalClass
 		//Bodyに仕込んであるCostumeのボディマテリアル取得
 		BodyMaterial = CostumeRenderer.material;
 
-		//レンダラーを切って非表示にする
+		//スキンメッシュレンダラーを回す
 		foreach (SkinnedMeshRenderer i in GetComponentsInChildren<SkinnedMeshRenderer>())
 		{
+			//ボディ部分のメッシュを統合Listに入れる
+			if (i.name.Contains("Body") || i.name.Contains("Face") || i.name.Contains("Others"))
+			{
+				//トランスフォームリセット
+				ResetTransform(i.gameObject); 
+
+				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
+				i.bones = CostumeRenderer.bones;
+
+				//ListにAdd
+				CombineRendererList.Add(i);
+
+				//オブジェクトを削除Listに入れる
+				DestroyOBJList.Add(i.gameObject);
+
+				//シェーダースクリプト取得
+				CharacterBodyShaderScript tempscript = i.gameObject.GetComponent<CharacterBodyShaderScript>();
+
+				//ベーステクチャを取得
+				PackBaseTextureList.Add(tempscript._TexBase);
+
+				//法線テクスチャを取得
+				PackNormalTextureList.Add(tempscript._TexNormal);
+
+				//ハイライトテクスチャを取得
+				PackHiLightTextureList.Add(tempscript._TexHiLight);
+
+				//線画テクスチャを取得
+				PackLineTextureList.Add(tempscript._TexLine);
+
+				//マットキャップテクスチャを取得
+				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
+			}			
+
+			//レンダラーを切って非表示にする
 			i.enabled = false;
 		}
 
@@ -331,6 +381,24 @@ public class EnemySettingScript : GlobalClass
 
 				//ListにAdd
 				CombineRendererList.Add(ii);
+
+				//シェーダースクリプト取得
+				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
+
+				//ベーステクチャを取得
+				PackBaseTextureList.Add(tempscript._TexBase);
+
+				//法線テクスチャを取得
+				PackNormalTextureList.Add(tempscript._TexNormal);
+
+				//ハイライトテクスチャを取得
+				PackHiLightTextureList.Add(tempscript._TexHiLight);
+
+				//線画テクスチャを取得
+				PackLineTextureList.Add(tempscript._TexLine);
+
+				//マットキャップテクスチャを取得
+				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
 			}
 
 			//オブジェクトを削除Listに入れる
@@ -361,6 +429,24 @@ public class EnemySettingScript : GlobalClass
 
 				//ListにAdd
 				CombineRendererList.Add(ii);
+
+				//シェーダースクリプト取得
+				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
+
+				//ベーステクチャを取得
+				PackBaseTextureList.Add(tempscript._TexBase);
+
+				//法線テクスチャを取得
+				PackNormalTextureList.Add(tempscript._TexNormal);
+
+				//ハイライトテクスチャを取得
+				PackHiLightTextureList.Add(tempscript._TexHiLight);
+
+				//線画テクスチャを取得
+				PackLineTextureList.Add(tempscript._TexLine);
+
+				//マットキャップテクスチャを取得
+				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
 			}
 
 			//オブジェクトを削除Listに入れる
@@ -391,6 +477,24 @@ public class EnemySettingScript : GlobalClass
 
 				//ListにAdd
 				CombineRendererList.Add(ii);
+
+				//シェーダースクリプト取得
+				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
+
+				//ベーステクチャを取得
+				PackBaseTextureList.Add(tempscript._TexBase);
+
+				//法線テクスチャを取得
+				PackNormalTextureList.Add(tempscript._TexNormal);
+
+				//ハイライトテクスチャを取得
+				PackHiLightTextureList.Add(tempscript._TexHiLight);
+
+				//線画テクスチャを取得
+				PackLineTextureList.Add(tempscript._TexLine);
+
+				//マットキャップテクスチャを取得
+				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
 			}
 
 			//オブジェクトを削除Listに入れる
@@ -453,6 +557,24 @@ public class EnemySettingScript : GlobalClass
 
 				//ListにAdd
 				CombineRendererList.Add(ii);
+
+				//シェーダースクリプト取得
+				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
+
+				//ベーステクチャを取得
+				PackBaseTextureList.Add(tempscript._TexBase);
+
+				//法線テクスチャを取得
+				PackNormalTextureList.Add(tempscript._TexNormal);
+
+				//ハイライトテクスチャを取得
+				PackHiLightTextureList.Add(tempscript._TexHiLight);
+
+				//線画テクスチャを取得
+				PackLineTextureList.Add(tempscript._TexLine);
+
+				//マットキャップテクスチャを取得
+				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
 			}
 
 			//オブジェクトを削除Listに入れる
@@ -483,6 +605,24 @@ public class EnemySettingScript : GlobalClass
 
 				//ListにAdd
 				CombineRendererList.Add(ii);
+
+				//シェーダースクリプト取得
+				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
+
+				//ベーステクチャを取得
+				PackBaseTextureList.Add(tempscript._TexBase);
+
+				//法線テクスチャを取得
+				PackNormalTextureList.Add(tempscript._TexNormal);
+
+				//ハイライトテクスチャを取得
+				PackHiLightTextureList.Add(tempscript._TexHiLight);
+
+				//線画テクスチャを取得
+				PackLineTextureList.Add(tempscript._TexLine);
+
+				//マットキャップテクスチャを取得
+				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
 			}
 
 			//オブジェクトを削除Listに入れる
@@ -526,8 +666,17 @@ public class EnemySettingScript : GlobalClass
 		//レイヤーをEnemyにする
 		CombineMeshOBJ.layer = LayerMask.NameToLayer("Enemy");
 
+		//カメラに収まってるか調べるスクリプトを付ける
+		CombineMeshOBJ.AddComponent<OnCameraScript>();
+
+		//スクリプトのOnCameraObjectに代入
+		TempEnemyScript.OnCameraObject = CombineMeshOBJ;
+
 		//結合するCombineInstanceList
 		List<CombineInstance> CombineInstanceList = new List<CombineInstance>();
+
+		//結合するUV
+		List<Vector2[]> CombineUVList = new List<Vector2[]>();
 
 		//ボーンList
 		List<Transform> BoneList = new List<Transform>();
@@ -588,6 +737,9 @@ public class EnemySettingScript : GlobalClass
 				BoneWeightList.Add(TempWeight);
 			}
 
+			//統合するUVを格納
+			CombineUVList.Add(i.sharedMesh.uv);
+
 			//メッシュ統合用CombineInstance
 			CombineInstance TempCombineInstance = new CombineInstance();
 
@@ -625,32 +777,102 @@ public class EnemySettingScript : GlobalClass
 		//バウンディングボックスを設定
 		CombineMeshRenderer.sharedMesh.RecalculateBounds();
 
+		//統合用ベーステクスチャ
+		Texture2D PackBaseTexture =new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//統合用法線テクスチャ
+		Texture2D PackNormalTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//統合用ハイライトテクスチャ
+		Texture2D PackHiLightTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//統合用線画テクスチャ
+		Texture2D PackLineTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//統合用マットキャップテクスチャ
+		Texture2D PackMatCapTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//不足分のテクスチャを入れてムリヤリ16枚にする
+		while (PackBaseTextureList.Count < 16)
+		{
+			PackBaseTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+		while (PackNormalTextureList.Count < 16)
+		{
+			PackNormalTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+		while (PackHiLightTextureList.Count < 16)
+		{
+			PackHiLightTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+		while (PackLineTextureList.Count < 16)
+		{
+			PackLineTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+		while (PackMatCapTextureList.Count < 16)
+		{
+			PackMatCapTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+
+		//テクスチャをパックしてRectを受け取る
+		Rect[] TexBaseRect = PackBaseTexture.PackTextures(PackBaseTextureList.ToArray(), 0, 512, false);
+
+		PackNormalTexture.PackTextures(PackNormalTextureList.ToArray(), 0, 512, false);
+		PackHiLightTexture.PackTextures(PackHiLightTextureList.ToArray(), 0, 512, false);
+		PackLineTexture.PackTextures(PackLineTextureList.ToArray(), 0, 512, false);
+		PackMatCapTexture.PackTextures(PackMatCapTextureList.ToArray(), 0, 512, false);
+
+		//統合用UV宣言
+		List<Vector2> CombineUV = new List<Vector2>();
+
+		//ループカウント初期化
+		count = 0;
+
+		//UVListを回す
+		foreach (var i in CombineUVList)
+		{
+			//格納用UVList宣言
+			List<Vector2> tempUV = new List<Vector2>();
+
+			//パックしたテクスチャのRectを元にUVを16マスに配置する
+			foreach (var ii in i)
+			{
+				tempUV.Add(new Vector2((ii.x * 0.25f) + TexBaseRect[count].position.x, (ii.y * 0.25f) + TexBaseRect[count].position.y));
+			}
+
+			//UVを追加
+			CombineUV.AddRange(tempUV);
+
+			//カウントアップ
+			count++;
+		}
+
+		//UVを設定
+		CombineMeshRenderer.sharedMesh.uv = CombineUV.ToArray();
+
+		//キャラクターボディシェーダースクリプトを付ける
+		CombineMeshOBJ.AddComponent<CharacterBodyShaderScript>();
+
+		//ベーステクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexBase = PackBaseTexture;
+
+		//法線テクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexNormal = PackNormalTexture;
+
+		//ハイライトテクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexHiLight = PackHiLightTexture;
+
+		//線画テクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexLine = PackLineTexture;
+
+		//マットキャップテクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._HiLightMatCap = PackMatCapTexture;
+
 		//不要になった統合前のオブジェクトを消す
-		foreach(var i in DestroyOBJList)
+		foreach (var i in DestroyOBJList)
 		{
 			Destroy(i);
 		}
-
-		/*
-		Vector2[] uvs;
-
-		List<Vector2> totalUVs = new List<Vector2>();
-
-		SkinnedMeshRenderer smrBody = smRenderers[0];
-
-		uvs = smrBody.sharedMesh.uv;
-
-		for (int n = 0; n < uvs.Length; n++)
-		{
-			uvs[n] = new Vector2(uvs[n].x * 0.5f, uvs[n].y);
-		}
-			
-
-		//smrBody.sharedMesh.uv = uvs;
-		totalUVs.AddRange(uvs);
-		*/
-
-
 
 		//アニメーター有効化
 		gameObject.GetComponent<Animator>().enabled = true;
@@ -663,5 +885,25 @@ public class EnemySettingScript : GlobalClass
 		{
 			i.enabled = true;
 		}
+	}
+
+	Texture2D duplicateTexture(Texture2D source)
+	{
+		RenderTexture renderTex = RenderTexture.GetTemporary(
+					source.width,
+					source.height,
+					0,
+					RenderTextureFormat.Default,
+					RenderTextureReadWrite.Linear);
+
+		Graphics.Blit(source, renderTex);
+		RenderTexture previous = RenderTexture.active;
+		RenderTexture.active = renderTex;
+		Texture2D readableText = new Texture2D(source.width, source.height);
+		readableText.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
+		readableText.Apply();
+		RenderTexture.active = previous;
+		RenderTexture.ReleaseTemporary(renderTex);
+		return readableText;
 	}
 }

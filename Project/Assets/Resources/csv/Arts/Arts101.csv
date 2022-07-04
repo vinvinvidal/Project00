@@ -7,7 +7,7 @@ Damage,1
 Stun,1
 Deadly,1
 ColVec,0*0.25*0.75*2
-KnockBackVec,0*9*0*0.1
+KnockBackVec,0*8*0*0.1
 Introduction,回転しながら踏み込み切り上げる。打ち上げ。
 UnLock,0|0|2
 Chain,0

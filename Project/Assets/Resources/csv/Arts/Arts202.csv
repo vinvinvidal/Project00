@@ -7,7 +7,7 @@ Damage,1|1|1
 Stun,1|1|1
 Deadly,1|1|1
 ColVec,0*1*1*1|0*1*1*1|0*1*1*1
-KnockBackVec,0*2*0*0.1|0*3*0*0.1|0*1*4*0.1
+KnockBackVec,0*2*0*0.1|0*3*0*0.1|0*2*2*0.1
 Introduction,空中で基本の連打攻撃。
 UnLock,2|0|0
 Chain,1
@@ -18,7 +18,7 @@ ColType,0|0|0
 TimeType,0|0
 HitEffect,HitEffect20|HitEffect20|HitEffect20
 HitEffectPos,0*0.5*1|0*0.75*1|0*0.75*1
-HitEffectAngle,-30*45*0|-30*45*0|0*45*0
+HitEffectAngle,-30*45*0|0*45*0|0*45*0
 HitStop,0|0|0
 Charge,0|0|0
 HoldPos,0*0*0

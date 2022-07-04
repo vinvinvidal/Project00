@@ -78,8 +78,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//プレイヤーキャラクター
 	public GameObject PlayerCharacter { get; set; }
 
-	//OnCamera判定用スクリプトを持っているオブジェクト
-	private GameObject OnCameraObject;
+	//OnCamera判定用スクリプトを持っているオブジェクト、セッティングでメッシュを統合した奴が入ってくる
+	public GameObject OnCameraObject { get; set; }
 
 	//自身を追加したマネージャーのリストのインデックス
 	public int ListIndex { get; set; }
@@ -319,15 +319,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//行動List取得コルーチン呼び出し
 		StartCoroutine(GetBehaviorListCoroutine());
-
-		//OnCamera判定用スクリプトを持っているオブジェクトを検索して取得
-		foreach (Transform i in GetComponentsInChildren<Transform>())
-		{
-			if (i.GetComponent<OnCameraScript>() != null)
-			{
-				OnCameraObject = i.gameObject;
-			}
-		}
 
 		//敵の管理をするマネージャーが持っているリストに自身を追加、戻り値でリストのインデックスを受け取る
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => ListIndex = reciever.AddAllActiveEnemyList(gameObject));
@@ -875,6 +866,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 					}
 					else
 					{
+
 						//発生比率を加算
 						BehaviorRatio += i.Priority;
 					}

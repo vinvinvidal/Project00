@@ -234,7 +234,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _TexBase: {fileID: 2800000, guid: c5e4eacd8cc98494db494a6f2befcb52, type: 3}
-  _TexNormal: {fileID: 0}
-  _TexHiLight: {fileID: 0}
-  _HiLightMatCap: {fileID: 0}
-  _TexLine: {fileID: 0}
+  _TexNormal: {fileID: 2800000, guid: 3b9ffd3f279779a4e88f9e5d238a06cd, type: 3}
+  _TexHiLight: {fileID: 2800000, guid: 684009c5dc496a24d97478c2cf8df0d9, type: 3}
+  _TexLine: {fileID: 2800000, guid: 7872a1501c234144ea9d17fd69b5b0f1, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: 5fe8431b7b19f4c439e49c4bc8424c9d, type: 3}
