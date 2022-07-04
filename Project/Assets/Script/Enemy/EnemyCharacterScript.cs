@@ -1030,7 +1030,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//プレイヤーが武器をストックしている
 		if (PlayerCharacter.GetComponent<SpecialArtsScript>().StockWeapon != null && Arts.NameC != "")
 		{			
-			//ストック武器のダケージを加算
+			//ストック武器のダメージを加算
 			Damage += PlayerCharacter.GetComponent<SpecialArtsScript>().StockWeapon.GetComponent<ThrowWeaponScript>().UseArts.PlyaerUseDamage * 0.1f;
 		}
 
@@ -1372,7 +1372,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			CurrentAnimator.SetBool("Down_Prone", true);
 
 			//キャラクターコントローラの大きさを変える
-			CharaControllerReset("Down");
+			//CharaControllerReset("Down");
 		}
 
 		//ノックバックフラグを入れる
@@ -1742,7 +1742,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		DownTime = 2;
 
 		//キャラクターコントローラの大きさを変える
-		CharaControllerReset("Down");
+		//CharaControllerReset("Down");
 
 		//ダウンしている、打ち上げられてない、ホールドされてない、ダウンタイムがある
 		while (DownFlag && !RiseFlag && !HoldFlag && DownTime > 0)

@@ -142,9 +142,6 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	//泉の爆弾投げ
 	public void BombThrow(string t)
 	{
-		//燐糞を生成
-		CreateBomb();
-
 		//アタッチする先
 		string AttachOBJ = t.Split(',').ToList()[0];
 
@@ -160,19 +157,47 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//投げ速度
 		float ThrowPow = float.Parse(t.Split(',').ToList()[6]);		
 
-		//左手に持たせる
-		if (AttachOBJ == "L")
+		//即爆発
+		if (AttachOBJ == "S")
 		{
-			SettingBombPos(DeepFind(gameObject, "L_HandBone").transform, new Vector3(-0.02f, 0.05f, -0.07f));
+			//SEを鳴らす
+			GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(1, 0.25f);
+
+			//爆発エフェクト取得
+			GameObject BombEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "BombEffect").ToArray()[0]);
+
+			//親を設定
+			BombEffect.transform.parent = gameObject.transform;
+
+			//トランスフォームリセット
+			ResetTransform(BombEffect);
+
+			//位置を設定
+			BombEffect.transform.localPosition = ThrowVec;
+
+			//親を解除
+			BombEffect.transform.parent = null;
 		}
-		else if (AttachOBJ == "R")
+		else
 		{
-			//右手に持たせる
-			SettingBombPos(DeepFind(gameObject, "R_HandBone").transform, new Vector3(0, 0.07f, -0.07f));
+			//燐糞を生成
+			CreateBomb();
+
+			//左手に持たせる
+			if (AttachOBJ == "L")
+			{
+				SettingBombPos(DeepFind(gameObject, "L_HandBone").transform, new Vector3(-0.02f, 0.05f, -0.07f));
+			}
+			else if (AttachOBJ == "R")
+			{
+				//右手に持たせる
+				SettingBombPos(DeepFind(gameObject, "R_HandBone").transform, new Vector3(0, 0.07f, -0.07f));
+			}
+
+			//爆弾投げコルーチン呼び出し
+			StartCoroutine(BombThrowCoroutine(IgnitionTime, ThrowTime, ThrowVec, ThrowPow));
 		}
 
-		//爆弾投げコルーチン呼び出し
-		StartCoroutine(BombThrowCoroutine(IgnitionTime, ThrowTime, ThrowVec, ThrowPow));
 	}
 	private IEnumerator BombThrowCoroutine(float IgnitionTime, float ThrowTime, Vector3 ThrowVec, float ThrowPow)
 	{

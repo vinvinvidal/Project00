@@ -1467,7 +1467,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void ContinueSituation(GameObject e, bool g, float t, bool a, bool f, float d)
 	{
 		//ロック中の敵を引き継ぎ
-		LockEnemy = e;
+		EnemyLock(e);
 
 		//キャラ交代時間引き継ぎ
 		ChangeTime = t;
@@ -2230,10 +2230,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	IEnumerator SpecialArtsSuccess(GameObject enemy)
 	{
 		//対象の敵をロック
-		LockEnemy = enemy;
-
-		//メインカメラにもロック対象を渡す
-		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+		EnemyLock(enemy);
 
 		//特殊攻撃成功フラグを立てる
 		SpecialSuccessFlag = true;
@@ -3325,7 +3322,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetBool("SuperArts", true);
 
 			//当たった敵をロックする
-			LockEnemy = e;
+			EnemyLock(e);
 
 			//攻撃対象ポーズ解除
 			if (e != null)
@@ -3365,7 +3362,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//巻き込み攻撃でなければ当たった敵をロックする
 			if (UseArts.ColType[AttackIndex] != 4 && UseArts.ColType[AttackIndex] != 5 && UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
 			{
-				LockEnemy = e;
+				EnemyLock(e);
 			}
 
 			//必中ターゲット指定
@@ -3373,9 +3370,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				TargetEnemy = e;
 			}
-
-			//メインカメラにもロック対象を渡す
-			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 
 			//攻撃ステート制御リストに使用済み数値を入れる
 			ArtsStateMatrix[UseArts.UseLocation["Location"]][UseArts.UseLocation["Stick"]][UseArts.UseLocation["Button"]] = 10000;
@@ -3485,10 +3479,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (tempbool)
 			{
 				//敵のロックを外す	
-				LockEnemy = null;
-
-				//メインカメラのロックも外す
-				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+				EnemyLock(null);
 			}
 		}
 	}
@@ -4561,6 +4552,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			||
 			s == "ChangeAfter"
 			||
+			s == "Damage"
+			||
 			s.Contains("-> Idling")
 			||
 			s.Contains("-> Run")
@@ -4667,6 +4660,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//時間をキャッシュ
 			ChangeTime = Time.time;
 
+			//攻撃コライダを無効化
+			EndAttackCol();
+
 			//キャラ交代処理を呼び出す
 			GameManagerScript.Instance.ChangePlayableCharacter
 			(
@@ -4755,6 +4751,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//Rolling遷移フラグを下す
 			CurrentAnimator.SetBool("Rolling", false);
 
+			//ロック解除
+			EnemyLock(null);
+
 			//ホールド状態フラグを下す
 			HoldFlag = false;
 
@@ -4818,7 +4817,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				CurrentAnimator.SetBool("Attack0" + ComboState % 2, false);
 
 				//敵のロックを外す
-				LockEnemy = null;
+				EnemyLock(null);
 
 				//メインカメラのロックも外す
 				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
@@ -4920,10 +4919,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			HoldBreak();
 
 			//ロックを解除
-			LockEnemy = null;
+			EnemyLock(null);
 
 			//必中ターゲットを解除
 			TargetEnemy = null;
+
+			//ストックしている武器を落とす処理呼び出し
+			ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => reciever.DropStockWeapon());
+
 		}
 		//SpecialTryになった瞬間の処理
 		else if (s.Contains("-> SpecialTry"))
@@ -4943,7 +4946,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//特殊攻撃対象オブジェクトがいたらロック
 			if (tempOBJ != null)
 			{
-				LockEnemy = tempOBJ;
+				EnemyLock(tempOBJ);
 			}
 		}
 		//SpecialSuccessになった瞬間の処理
@@ -4986,7 +4989,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			HoldBreak();
 
 			//ロックを解除
-			LockEnemy = null;
+			EnemyLock(null);
 		}
 		//H_Damageになった瞬間の処理
 		else if (s.Contains("-> H_Damage"))
@@ -5165,11 +5168,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//攻撃入力されていない、これをしないと攻撃入力後にここが呼ばれてロックできない場合がある
 		if (!AttackInput)
 		{
-			//敵のロックを外す
-			LockEnemy = null;
-
-			//メインカメラのロックも外す
-			ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+			EnemyLock(null);
 		}
 
 		//ダメージ用コライダを有効化
@@ -5716,5 +5715,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			r.BlurEffect(t,l,v);			
 		}
+	}
+
+	//敵のロック状況を制御する
+	private void EnemyLock(GameObject Enemy)
+	{
+		//引数で受け取った敵をロックする、nullが入っていたらロック解除になる
+		LockEnemy = Enemy;
+
+		//メインカメラにもロック状況を渡す
+		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 	}
 }

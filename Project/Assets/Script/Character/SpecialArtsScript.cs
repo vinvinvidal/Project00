@@ -20,6 +20,9 @@ public interface SpecialArtsScriptInterface : IEventSystemHandler
 
 	//特殊攻撃中に攻撃を喰らった時に呼び出すインターフェイス
 	void SpecialAttackMiss(int i, GameObject Weapon);
+
+	//ストックしている武器を落とすインターフェイス
+	void DropStockWeapon();
 }
 
 public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
@@ -159,6 +162,17 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 		{
 			//特殊攻撃失敗処理呼び出し
 			ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.SpecialAttackMiss());
+		}
+	}
+
+	//ストックしている武器を落とすインターフェイス
+	public void DropStockWeapon()
+	{
+		if(StockWeapon != null)
+		{
+			StockWeapon.GetComponent<ThrowWeaponScript>().BrokenWeapon();
+
+			StockWeapon = null;
 		}
 	}
 
@@ -871,7 +885,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					StockWeapon.transform.parent = null;
 
 					//飛び道具のストックフラグを下ろす
-					StockWeapon.GetComponent<ThrowWeaponScript>().StockFlag = false;
+					//StockWeapon.GetComponent<ThrowWeaponScript>().StockFlag = false;
 
 					//飛び道具のコライダー有効化
 					StockWeapon.GetComponent<MeshCollider>().enabled = true;
@@ -1074,7 +1088,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 							Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
 
 							//飛び道具のストックフラグを立てる
-							Weapon.GetComponent<ThrowWeaponScript>().StockFlag = true;
+							//Weapon.GetComponent<ThrowWeaponScript>().StockFlag = true;
 
 							//飛び道具の関数を呼び出して無害化
 							Weapon.GetComponent<ThrowWeaponScript>().PhysicOBJ();

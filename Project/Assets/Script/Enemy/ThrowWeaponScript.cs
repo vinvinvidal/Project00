@@ -28,7 +28,7 @@ public class ThrowWeaponScript : GlobalClass, ThrowWeaponScriptInterface
 	public GameObject HitEffect { get; set; }
 
 	//プレイヤーにストックされているフラグ
-	public bool StockFlag { get; set; } = false;
+	//public bool StockFlag { get; set; } = false;
 
 	//賎祓いフラグ
 	private bool Special110Flag = false;
