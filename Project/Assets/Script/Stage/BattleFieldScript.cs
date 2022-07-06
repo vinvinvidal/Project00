@@ -458,6 +458,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//壁生成コルーチン
 	private IEnumerator GeneraeteWallCoroutine()
 	{
+		//画面揺らし
+		ExecuteEvents.Execute<MainCameraScriptInterface>(GameManagerScript.Instance.GetCameraOBJ(), null, (reciever, eventData) => reciever.CameraShake(1f));
+
 		//ガベージ発生頂点座標List宣言
 		List<Vector3> VertexList = new List<Vector3>();
 
@@ -474,32 +477,17 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//出現位置オフセット
 		float Offset = 0.5f;
 
-		//煙エフェクトリスト
-		List<GameObject> SmakeList = new List<GameObject>();
+		//煙エフェクト取得
+		GameObject TempSmoke = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "GenerateWall").ToArray()[0];
 
-		//壁の出現位置に煙を発生させる
-		foreach (var i in VertexList)
-		{
-			//煙エフェクトインスタンス作成
-			GameObject TempSmoke = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "DustEffect").ToArray()[0]);
-
-			//ポジション設定
-			TempSmoke.transform.position = i + new Vector3(0, Random.Range(0, 0.75f), 0);
-
-			//エフェクト再生
-			TempSmoke.GetComponent<ParticleSystem>().Play();
-
-			//リストにAdd
-			SmakeList.Add(TempSmoke);
-		}
-
-		// メッシュ結合する時に使うList
-		List<CombineInstance> WallMeshList = new List<CombineInstance>();
+		//ループカウント
+		int count = 0;
 
 		//頂点位置から壁素材を発生させる
 		for (int i = 0; i < 10; i++)
 		{
-			foreach (var ii in VertexList)
+			//頂点位置を重複を省いてループ、
+			foreach (var ii in VertexList.Distinct())
 			{
 				//壁素材をインスタンス化
 				GameObject TempWallMat = Instantiate(WallMaterial[Random.Range(0, WallMaterial.Count)]);
@@ -511,7 +499,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				TempWallMat.transform.parent = DeepFind(gameObject, "WallOBJ").transform;
 
 				//発生位置に移動
-				TempWallMat.transform.position = ii + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f) + Offset, Random.Range(-0.5f, 0.5f));
+				TempWallMat.transform.position = ii;
 
 				//ランダムに回転
 				TempWallMat.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
@@ -519,20 +507,24 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				//活性化
 				TempWallMat.SetActive(true);
 
-				//結合用メッシュ宣言
-				CombineInstance tempmesh = new CombineInstance();
+				//壁生成スクリプトを付けて壁生成関数を呼び出す
+				TempWallMat.AddComponent<GenerateWallScript>().GenerateWall(ii, ii + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f) + Offset, Random.Range(-0.5f, 0.5f)));
 
-				//メッシュを適応
-				tempmesh.mesh = TempWallMat.GetComponentInChildren<MeshFilter>().sharedMesh;
+				//カウントアップ
+				count++;
 
-				//トランスフォームを適応
-				tempmesh.transform = TempWallMat.transform.localToWorldMatrix;
+				//エフェクトを出す、半分だけでいいかな
+				if(count % 2 == 0)
+				{
+					//煙エフェクトインスタンスを生成
+					GameObject tempeffect = Instantiate(TempSmoke);
 
-				//ListにAdd
-				WallMeshList.Add(tempmesh);
+					//壁オブジェクトの子にする
+					tempeffect.transform.parent = TempWallMat.transform;
 
-				//壁生成スクリプトを付ける
-				//TempWallMat.AddComponent<GenerateWallScript>();
+					//トランスフォームリセット
+					ResetTransform(tempeffect);
+				}
 			}
 
 			//オフセット位置を上げる
@@ -542,36 +534,8 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			yield return null;
 		}
 
-		//統合用オブジェクト宣言
-		GameObject WallCombineOBJ = new GameObject();
-
-		//統合用メッシュ宣言
-		Mesh WallMesh = new Mesh();
-
-		//メッシュフィルターを付ける
-		WallCombineOBJ.AddComponent<MeshFilter>().mesh = WallMesh;
-
-		//メッシュレンダラーを付ける
-		WallCombineOBJ.AddComponent<MeshRenderer>().material = WallMaterial[0].GetComponentInChildren<Renderer>().sharedMaterial;
-
-		//メッシュ結合
-		WallMesh.CombineMeshes(WallMeshList.ToArray(), true);
-
-		//インスタンス化
-		//Instantiate(WallCombineOBJ);
-
 		//チョイ待つ
 		yield return new WaitForSeconds(0.5f);
-
-		//煙エフェクトを回す
-		foreach (var i in SmakeList)
-		{
-			//メインモジュールのアクセサ取得
-			ParticleSystem.MainModule TempMainModule = i.GetComponent<ParticleSystem>().main;
-
-			//ループを切ってエフェクトを止める
-			TempMainModule.loop = false;
-		}
 	}
 
 	//プレイヤーキャラクター取得コルーチン

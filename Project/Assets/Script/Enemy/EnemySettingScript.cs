@@ -775,7 +775,7 @@ public class EnemySettingScript : GlobalClass
 		CombineMeshRenderer.sharedMesh.bindposes = BindPoseList.ToArray();
 
 		//バウンディングボックスを設定
-		CombineMeshRenderer.sharedMesh.RecalculateBounds();
+		CombineMeshRenderer.localBounds = new Bounds(new Vector3(0, 1, 0), new Vector3(2, 2, 2));
 
 		//統合用ベーステクスチャ
 		Texture2D PackBaseTexture =new Texture2D(512, 512, TextureFormat.RGBA32, false);

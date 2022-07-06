@@ -221,7 +221,7 @@ MonoBehaviour:
   AirRolling_Anim: {fileID: 7400000, guid: bf46f1652c21dfd4b8d8f36d96219bf8, type: 2}
   SpecialTry_Anim: {fileID: 7400000, guid: a31f61ae32e0bf449883893270264f94, type: 2}
   SpecialSuccess_Anim: {fileID: 7400000, guid: 4298bdbd55a22fe45bd90a16f574ef09, type: 2}
-  Down_Anim: {fileID: 7400000, guid: ae58e5ead1f71fe45891e4d834e095b9, type: 2}
+  Down_Anim: {fileID: 7400000, guid: eec9019c70f68e545aa3a92f258af174, type: 2}
   BaseFace_Anim: {fileID: 7400000, guid: 1466b9e3c8b13f747afdaf4972a608d6, type: 2}
   EyeClose_Anim: {fileID: 7400000, guid: f31907015dd825547aaff57ee8cef4e9, type: 2}
   MouthClose_Anim: {fileID: 0}

@@ -638,7 +638,7 @@ MonoBehaviour:
   LookAtOffset: {x: 0, y: 1.2, z: 0}
   RayMask:
     serializedVersion: 2
-    m_Bits: 2
+    m_Bits: 8194
 --- !u!114 &7573615692549627452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2839,8 +2839,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4746529839733997480}
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: -8.931943, y: 5.0000005, z: 2.0000002}
+  m_LocalRotation: {x: 0.28523436, y: 0.4244435, z: -0.22436485, w: -0.8295478}
+  m_LocalPosition: {x: 0.94193804, y: 0.2750002, z: 0.2628528}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3656975654689240531}
@@ -2874,7 +2874,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 40
+  field of view: 39.467545
   orthographic: 0
   orthographic size: 5
   m_Depth: 10
@@ -3376,7 +3376,7 @@ MonoBehaviour:
   SoundOffSwicth: 0
   SexualSwicth: 0
   ScreenAspect: {x: 16, y: 9}
-  ScreenResolution: 64
+  ScreenResolution: 16
   FrameRate: 60
   FPS: 0
 --- !u!1 &6488590484783934711

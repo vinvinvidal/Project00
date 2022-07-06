@@ -5,41 +5,25 @@ using UnityEngine;
 
 public class GenerateWallScript : GlobalClass
 {
-	//リジッドボディ
-	private Rigidbody R_body;
-
-	private void Start()
+	public void GenerateWall(Vector3 from, Vector3 to)
 	{
-		//リジッドボディ取得
-		R_body = GetComponent<Rigidbody>();
-
-		//物理を切る
-		R_body.isKinematic = true;
-
 		//壁生成コルーチン呼び出し
-		//StartCoroutine(GenerateWallCoroutine());
+		StartCoroutine(GenerateWallCoroutine(from, to));
 	}
 
-	private IEnumerator GenerateWallCoroutine()
+	private IEnumerator GenerateWallCoroutine(Vector3 from, Vector3 to)
 	{
-
-		//壁にするために水平方向の移動をフリーズ
-		R_body.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
-
-		//ちょっと動かす為に1秒待機
-		yield return new WaitForSeconds(1);
+		float StartTime = Time.time;
 
 		//停止するまでループ
-		while (R_body.velocity.sqrMagnitude > 0.001f)
+		while (Time.time - StartTime < 0.5f)
 		{
+			transform.position += (to - from) * Time.deltaTime * 2;
+
+			transform.rotation *= Quaternion.Euler(new Vector3(Random.Range(-5f, 5f), Random.Range(-5f, 5f), Random.Range(-5f, 5f)));
+
 			yield return null;			
 		}
-
-		//物理を切る
-		R_body.isKinematic = true;
-
-		//フリーズポジションを解除
-		R_body.constraints = RigidbodyConstraints.None;
 
 		//このスクリプトを無効化
 		GetComponent<GenerateWallScript>().enabled = false;

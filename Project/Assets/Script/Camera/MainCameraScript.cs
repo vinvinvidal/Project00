@@ -123,8 +123,11 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 	//プレイヤーがロックしている敵オブジェクト
 	private GameObject LockEnemy;
 
-	//カメラ視線障害物フラグ
-	private bool RayHitFlag;
+	//カメラ視線障害物フラグ、地形
+	private bool RayHitStageFlag = false;
+
+	//カメラ視線障害物フラグ、敵
+	private bool RayHitEnemyFlag = false;
 
 	//カメラリセットフラグ
 	private bool CameraResetFlag;
@@ -180,7 +183,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		PlayerTraceList = new List<Vector3>();
 
 		//カメラ視線障害物フラグ初期化
-		RayHitFlag = false;
+		RayHitStageFlag = false;
 
 		//カメラリセットフラグ初期化
 		CameraResetFlag = false;
@@ -235,7 +238,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 					CameraMove();
 
 					//障害物回避処理
-					if (RayHitFlag)
+					if (RayHitStageFlag)
 					{
 						//カメラの速度を変更、トレースポイントが溜まっているほど早くする
 						TraceCameraMoveSpeed = 0.1f * PlayerTraceList.Count;
@@ -352,8 +355,8 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 			//ターゲットダミーを前方に移動
 			MainCameraTargetOBJ.transform.position += MainCameraTargetOBJ.transform.forward;
 		}
-		//視線が通ってない
-		else if (RayHitFlag)
+		//視線が地形に遮られた
+		else if (RayHitStageFlag && CameraMoveinputValue.sqrMagnitude == 0)
 		{
 			//トレースポイントが２以上ある場合処理、カメラ操作で隠れた場合にガクガクさせないため
 			if (PlayerTraceList.Count > 1)
@@ -367,6 +370,12 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 					PlayerTraceList.RemoveAt(0);
 				}
 			}
+		}
+		//視線が敵に遮られていてカメラ移動入力なし
+		else if (RayHitEnemyFlag && CameraMoveinputValue.sqrMagnitude == 0)
+		{
+			//遮った敵が左右どちらに寄ってるか求めてカメラターゲットを移動させる
+			MainCameraTargetOBJ.transform.position += MainCameraTargetOBJ.transform.right * Mathf.Sign(Mathf.Clamp(Vector3.Dot(MainCameraTargetOBJ.transform.right, MainCameraTargetOBJ.transform.position - CameraRayHit.collider.gameObject.transform.position) * Time.deltaTime, -1.0f, 1.0f)) * Time.deltaTime * CameraMoveSpeed * 0.5f;
 		}
 		//通常カメラ処理
 		else
@@ -626,13 +635,24 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		//レイキャスト関数呼び出し、キャラクターからカメラに向かって撃つ
 		if (CameraRaycast(PlayerCharacter.transform.position + new Vector3(0, 0.8f, 0) , MainCamera.transform.position - (PlayerCharacter.transform.position + new Vector3(0, 0.8f, 0)) , Vector3.Distance(PlayerCharacter.transform.position + new Vector3(0, 0.8f, 0), MainCamera.transform.position)))
 		{
-			//Rayのヒットフラグを立てる
-			RayHitFlag = true;
+			//地面と当たった
+			if(CameraRayHit.collider.gameObject.layer == LayerMask.NameToLayer("TransparentFX"))
+			{
+				//Rayのヒットフラグを立てる
+				RayHitStageFlag = true;
+			}
+			//敵と当たった
+			else if (CameraRayHit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+			{
+				//Rayのヒットフラグを立てる
+				RayHitEnemyFlag = true;
+			}
 		}
 		else
 		{
 			//Rayのヒットフラグを降ろす
-			RayHitFlag = false;
+			RayHitStageFlag = false;
+			RayHitEnemyFlag = false;
 		}
 
 		//毎フレーム呼ばなくてもよいかな
@@ -649,7 +669,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		CameraRay.direction = vec;
 
 		//レイ可視化
-		Debug.DrawRay(ori, vec, Color.green , 0.1f);
+		//Debug.DrawRay(ori, vec, Color.green , 0.1f);
 
 		//発射
 		return Physics.Raycast(CameraRay, out CameraRayHit , dis, RayMask);

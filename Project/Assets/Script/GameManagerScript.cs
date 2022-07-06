@@ -33,6 +33,9 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	//現在のプレイアブルキャラクターを返すインターフェイス
 	GameObject GetPlayableCharacterOBJ();
 
+	//カメラルート返すインターフェイス
+	GameObject GetCameraOBJ();
+
 	//交代可能な参加メンバーをセットするインターフェイス
 	void SetMissionCharacterDic(Dictionary<int, GameObject> MCD);
 
@@ -1755,6 +1758,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	public GameObject GetPlayableCharacterOBJ()
 	{
 		return PlayableCharacterOBJ;
+	}
+
+	//カメラルート返すインターフェイス
+	public GameObject GetCameraOBJ()
+	{
+		return MainCamera;
 	}
 
 	//交代可能な参加メンバーをセットするインターフェイス
