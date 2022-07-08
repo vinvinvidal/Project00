@@ -2188,6 +2188,7 @@ MonoBehaviour:
   NippleElect_Anim: {fileID: 7400000, guid: e7f88ae60051bd547bc321e5b41425ef, type: 2}
   GenitalBase_Anim: {fileID: 7400000, guid: ad63d64b317789147bddddb40a4b2481, type: 2}
   GenitalElect_Anim: {fileID: 7400000, guid: bca69d93f3d83c543bae429828a8c1ab, type: 2}
+  Abduction_Anim: {fileID: 7400000, guid: 5f7dcb2e8d1456b40a2290e4376cdc4b, type: 2}
 --- !u!114 &8553641901371823811
 MonoBehaviour:
   m_ObjectHideFlags: 0

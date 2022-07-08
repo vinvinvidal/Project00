@@ -152,6 +152,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//現在のプレイアブルキャラクター
 	private GameObject PlayableCharacterOBJ;
 
+	//ダウンしているキャラクター
+	public List<GameObject> DownCharacterList { get; set; } = new List<GameObject>();
+
 	//現在のバトルフィールドオブジェクト
 	private GameObject BattleFieldOBJ;
 
@@ -1786,30 +1789,56 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//操作キャラクターを交代する
-	public void ChangePlayableCharacter(int c, int n, GameObject e, bool g, float t, bool a, bool f, float d)
+	public void ChangePlayableCharacter(bool DownFlag, int c, int n, GameObject e, bool g, float t, bool a, bool f, float d)
 	{
-		//現在のキャラクターのインデックスを取得
-		int CurrentIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].IndexOf(c);
-
 		//交代するキャラクターのインデックス宣言
-		int NextIndex = CurrentIndex + n;
+		int NextIndex = c + n;
 
-		//条件分け
-		if(NextIndex < 0)
+		//交代するキャラクター
+		GameObject NextCharacter = null;
+
+		//ループカウント
+		int count = 0;
+
+		//キャラの数だけ回す
+		while(count != AllActiveCharacterList.Count - 1)
 		{
-			NextIndex = AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].Count - 1;
+			if(NextIndex < 0)
+			{
+				NextIndex = AllActiveCharacterList.Count - 1;
+			}
+			else if(NextIndex > AllActiveCharacterList.Count - 1)
+			{
+				NextIndex = 0;
+			}
+
+			//キャラを探して取得、見つかったらブレーク
+			if (AllActiveCharacterList[NextIndex] != null)
+			{
+				NextCharacter = AllActiveCharacterList[NextIndex];
+
+				break;
+			}
+
+			//カウント増減
+			NextIndex += n;
+
+			//カウントアップ
+			count++;
 		}
-		else if(AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter].Count <= NextIndex)
+		
+		if(DownFlag)
 		{
-			NextIndex = 0;
+			//ダウンでの交代ならバトルフィールドの初期位置に移動
+			NextCharacter.transform.position = DeepFind(BattleFieldOBJ, "PlayerPosOBJ").transform.position;
+			NextCharacter.transform.rotation = Quaternion.LookRotation(HorizontalVector(PlayableCharacterOBJ, NextCharacter));
 		}
-
-		//交代するキャラクター取得
-		GameObject NextCharacter = MissionCharacterDic[AllMissionList[SelectedMissionNum].ChapterCharacterList[SelectedMissionChapter][NextIndex]];
-
-		//位置を合わせる
-		NextCharacter.transform.position = PlayableCharacterOBJ.transform.position;
-		NextCharacter.transform.rotation = PlayableCharacterOBJ.transform.rotation;
+		else
+		{
+			//位置を合わせる
+			NextCharacter.transform.position = PlayableCharacterOBJ.transform.position;
+			NextCharacter.transform.rotation = PlayableCharacterOBJ.transform.rotation;
+		}
 
 		//キャラクターの出現関数呼び出し
 		NextCharacter.GetComponent<PlayerScript>().ChangeAppear(0.25f, g);
@@ -1859,6 +1888,22 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//チャプターID初期化
 		SelectedMissionChapter = 0;
+	}
+
+	//戦闘一時停止処理
+	public void StopBattle(bool b)
+	{
+		//戦闘中フラグを適応
+		BattleFlag = b;
+
+		//全ての敵に戦闘中フラグを送る
+		foreach (var i in AllActiveEnemyList)
+		{
+			if(i != null)
+			{
+				i.GetComponent<EnemyCharacterScript>().BattleFlag = b;
+			}
+		}
 	}
 
 	//追加されたキャラクターをリストに追加

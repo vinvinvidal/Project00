@@ -72,7 +72,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private int CharacterID;
 
 	//GameManagerのAllActiveCharacterListに登録されているインデックス
-	private int AllActiveCharacterListListIndex;
+	private int AllActiveCharacterListIndex;
 
 	//OnCamera判定用スクリプトを持っているオブジェクト
 	private GameObject OnCameraObject;
@@ -360,6 +360,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public AnimationClip GenitalBase_Anim;
 	public AnimationClip GenitalElect_Anim;
 
+	[Header("拉致られモーション")]
+	public AnimationClip Abduction_Anim;
+
 	//--- レイキャスト関連 ---//
 
 	//キャラクターの接地判定をするレイが当たったオブジェクトの情報を格納
@@ -605,7 +608,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	void Start()
 	{
 		//自身をGameManagerのリストに追加、インデックスを受け取る
-		AllActiveCharacterListListIndex = GameManagerScript.Instance.AddAllActiveCharacterList(gameObject);
+		AllActiveCharacterListIndex = GameManagerScript.Instance.AddAllActiveCharacterList(gameObject);
 
 		//OnCamera判定用スクリプトを持っているオブジェクトを検索して取得
 		foreach (Transform i in GetComponentsInChildren<Transform>())
@@ -680,7 +683,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//OverRideAnimator["Nipple_void"] = NippleBase_Anim;
 		OverRideAnimator["Nipple_void"] = NippleElect_Anim;	
 		OverRideAnimator["Genital_void"] = GenitalBase_Anim;
-		
+		OverRideAnimator["Abduction_void"] = Abduction_Anim;
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -910,6 +913,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		InvincibleList.Add("-> ChangeBefore");
 		InvincibleList.Add("ChangeBefore");
 		InvincibleList.Add("ChangeAfter");
+		InvincibleList.Add("Abduction");
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
 		AllStates.Add("AnyState");
@@ -939,8 +943,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AllStates.Add("SuperTry");
 		AllStates.Add("SuperArts");
 		AllStates.Add("ChangeBefore");
-		AllStates.Add("ChangeAfter");		
-
+		AllStates.Add("ChangeAfter");
+		AllStates.Add("Abduction");
+		
 		//全てのステートとトランジションをListにAdd
 		foreach (string i in AllStates)
 		{
@@ -2001,8 +2006,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//当たった攻撃が有効かを返す関数
 	public bool AttackEnable(bool H)
 	{
-		//現在が無敵ステートか調べる
-		bool re = !(InvincibleList.Any(t => CurrentState.Contains(t)) || (Time.time - JumpTime < 0.25f) || SuperInput);
+		//現在が無敵か調べる
+		bool re = !(InvincibleList.Any(t => CurrentState.Contains(t)) || (Time.time - JumpTime < 0.25f) || SuperInput || ChangeFlag);
 
 		//スケベ攻撃だった場合は攻撃コライダが有効なら喰らわない
 		if (re && H)
@@ -4666,7 +4671,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//キャラ交代処理を呼び出す
 			GameManagerScript.Instance.ChangePlayableCharacter
 			(
-				CharacterID, 
+				false,
+				//CharacterID,
+				AllActiveCharacterListIndex,
 				ChangeInputNum, 
 				LockEnemy, 
 				//BattleFlag, 
@@ -5725,5 +5732,39 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//メインカメラにもロック状況を渡す
 		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+	}
+
+	//拉致られ待機処理
+	private void StartAbduction()
+	{
+		//ゲームマネージャーのダウンしているキャラクターに自身を加える
+		GameManagerScript.Instance.DownCharacterList.Add(gameObject);
+
+		//ゲームマネージャーの操作可能キャラクターから自分を外す
+		GameManagerScript.Instance.RemoveAllActiveCharacterList(AllActiveCharacterListIndex);
+
+		//時間をキャッシュ
+		ChangeTime = Time.time;
+
+		//攻撃コライダを無効化
+		EndAttackCol();
+
+		//キャラ交代処理を呼び出す
+		GameManagerScript.Instance.ChangePlayableCharacter
+		(
+			true,
+			//CharacterID,
+			AllActiveCharacterListIndex,
+			1,
+			LockEnemy,
+			//BattleFlag, 
+			true,
+			ChangeTime,
+			CurrentAnimator.GetBool("Combo"),
+			CurrentAnimator.GetBool("Fall"),
+			GroundDistance
+		);
+
+		//一定時間守り続けたら復活させるか
 	}
 }

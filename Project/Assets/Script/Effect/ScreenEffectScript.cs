@@ -29,7 +29,7 @@ public class ScreenEffectScript : GlobalClass, ScreenEffectScriptInterface
 	private void Start()
 	{
 		//マテリアル取得
-		mat = gameObject.GetComponent<Renderer>().sharedMaterial;
+		mat = gameObject.GetComponent<Renderer>().material;
 	}
 
 	//ズーム

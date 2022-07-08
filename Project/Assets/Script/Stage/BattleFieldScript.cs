@@ -392,7 +392,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				yield return null;
 			}
 
-			//敵に戦闘開始フラグを送る
+			//敵の戦闘開始処理実行
 			foreach (var i in EnemyList.Where(a => a != null).ToList())
 			{
 				i.GetComponent<EnemyCharacterScript>().BattleStart();
@@ -428,6 +428,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 			//ゲームマネージャーの戦闘フラグを立てる
 			GameManagerScript.Instance.BattleFlag = true;
+
+			//ダウンしているキャラクター初期化
+			GameManagerScript.Instance.DownCharacterList = new List<GameObject>();
 
 			//ゲームマネージャーに自身を送る
 			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetBattleFieldOBJ(gameObject));
@@ -508,7 +511,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				TempWallMat.SetActive(true);
 
 				//壁生成スクリプトを付けて壁生成関数を呼び出す
-				TempWallMat.AddComponent<GenerateWallScript>().GenerateWall(ii, ii + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f) + Offset, Random.Range(-0.5f, 0.5f)));
+				TempWallMat.AddComponent<GenerateWallScript>().GenerateWall(ii, ii + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.25f, 0.25f) + Offset, Random.Range(-0.5f, 0.5f)));
 
 				//カウントアップ
 				count++;

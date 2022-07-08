@@ -156,6 +156,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//全ての行動List
 	public List<EnemyBehaviorClass> BehaviorList { get; set; }
 
+	//行動可能な行動List
+	private List<EnemyBehaviorClass> TempBehavioerList;
+
 	//全ての攻撃情報List
 	public List<EnemyAttackClass> AttackClassList { get; set; }
 
@@ -249,6 +252,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//スケベフラグ
 	public bool H_Flag { get; set; }
 
+	//拉致フラグ
+	public bool Abduction_Flag { get; set; }
+
 	//スタン状態フラグ
 	public bool StunFlag { get; set; }
 
@@ -314,14 +320,14 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void Start()
 	{
+		//敵の管理をするマネージャーが持っているリストに自身を追加、戻り値でリストのインデックスを受け取る
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => ListIndex = reciever.AddAllActiveEnemyList(gameObject));
+
 		//プレイヤーキャラクター取得
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => PlayerCharacter = reciever.GetPlayableCharacterOBJ());
 
 		//行動List取得コルーチン呼び出し
 		StartCoroutine(GetBehaviorListCoroutine());
-
-		//敵の管理をするマネージャーが持っているリストに自身を追加、戻り値でリストのインデックスを受け取る
-		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => ListIndex = reciever.AddAllActiveEnemyList(gameObject));
 
 		//接地フラグ初期化
 		OnGround = true;
@@ -337,6 +343,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//スケベフラグ初期化
 		H_Flag = false;
+
+		//拉致フラグ初期化
+		Abduction_Flag = false;
 
 		//スタン状態フラグ初期化
 		StunFlag = false;
@@ -515,7 +524,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		AllStates.Add("GetUp_Prone");
 		AllStates.Add("GetUp_Supine");
 		AllStates.Add("SuperDamage");
+		AllStates.Add("Abduction");
 
+		
 		//全てのステートとトランジションをListにAdd
 		foreach (string i in AllStates)
 		{
@@ -845,7 +856,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		if (!BehaviorFlag && CurrentState == "Idling")
 		{
 			//開始可能な行動を抽出
-			List<EnemyBehaviorClass> TempBehavioerList = new List<EnemyBehaviorClass>(BehaviorList.Where(b => b.BehaviorConditions()).ToList());
+			TempBehavioerList = BehaviorList.Where(b => b.BehaviorConditions()).ToList();
 
 			//行動比率
 			int BehaviorRatio = 0;

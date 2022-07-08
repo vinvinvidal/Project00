@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 //メッセージシステムでイベントを受け取るためのインターフェイス、敵ビヘイビアは全て共通のインターフェイスにする
 public interface EnemyBehaviorInterface : IEventSystemHandler
@@ -292,7 +293,43 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 			//出力
 			return re;
+		}));
 
+		//拉致
+		EnemyBehaviorList.Add(new EnemyBehaviorClass("Abduction", 100000, () =>
+		//拉致の処理
+		{
+			//拉致コルーチン呼び出し
+			StartCoroutine(AbductionCoroutine());
+
+		}, () =>
+		//拉致の条件
+		{
+			//出力用変数宣言
+			bool re = false;
+
+			//ダウンしているキャラクターがいる
+			if (GameManagerScript.Instance.DownCharacterList.Count != 0)
+			{	
+				//他に拉致している敵がいない
+				if (GameManagerScript.Instance.AllActiveEnemyList.Where(a => a != null).Where(a => a.GetComponent<EnemyCharacterScript>().Abduction_Flag).ToList().Count == 0)
+				{
+					//自分が一番近い
+					re =
+						GameManagerScript.Instance.AllActiveEnemyList
+						//nullチェック
+						.Where(e => e != null)
+						//ダメージを受けてない
+						.Where(e => !e.GetComponent<EnemyCharacterScript>().DamageFlag)
+						//距離でソート
+						.OrderBy(e => (e.transform.position - GameManagerScript.Instance.DownCharacterList[Random.Range(0, GameManagerScript.Instance.DownCharacterList.Count - 1)].transform.position).sqrMagnitude)
+						//一番近いのが自分か
+						.ToList()[0] == gameObject;
+				}				
+			}		
+
+			//出力
+			return re;
 		}));
 	}
 
@@ -389,6 +426,12 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//プレイヤーキャラクターに接近するまでループ
 		while (PlayerHorizontalDistance > ChaseDistance)
 		{
+			//戦闘中フラグが降りたらブレーク
+			if(!EnemyScript.BattleFlag)
+			{
+				break;
+			}
+
 			//プレイヤーとの距離によって走りと歩き切り替える
 			if (PlayerHorizontalDistance > RunDistance)
 			{
@@ -516,7 +559,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			EnemyScript.BehaviorMoveVec = HorizontalVector(gameObject, NearEnemy).normalized;
 
 			//最低値より離れたらブレイク
-			if (!EnemyScript.BehaviorFlag || NearEnemyDistance > Mathf.Pow(AroundDistance, 2))
+			if (!EnemyScript.BehaviorFlag || !EnemyScript.BattleFlag || NearEnemyDistance > Mathf.Pow(AroundDistance, 2) )
 			{
 				break;
 			}
@@ -917,6 +960,19 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//フラグを下ろす
 		EnemyScript.BehaviorFlag = false;
+	}
+
+	//拉致コルーチン
+	IEnumerator AbductionCoroutine()
+	{
+		//フラグを立てる
+		EnemyScript.Abduction_Flag = true;
+
+		//アニメーターフラグを立てる
+		CurrentAnimator.SetBool("Abduction", true);
+
+		//待機
+		yield return null;	
 	}
 
 	//プレイヤーキャラクター取得コルーチン
