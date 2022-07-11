@@ -4803,9 +4803,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//Rolling遷移フラグを下す
 			CurrentAnimator.SetBool("Rolling", false);
 
-			//ロック解除
-			EnemyLock(null);
-
 			//ホールド状態フラグを下す
 			HoldFlag = false;
 
@@ -4835,6 +4832,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//跳ねる
 				VerticalAcceleration = JumpPower * 0.9f;
+			}
+			//地上ローリングの場合
+			else
+			{
+				//ロック解除
+				EnemyLock(null);
 			}
 		}
 		//Attackになった瞬間の処理
