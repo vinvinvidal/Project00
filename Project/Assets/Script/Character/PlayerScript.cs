@@ -1055,7 +1055,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			AnimFunc();
 
 			//キャラ交代中はしない処理
-			if (!ChangeFlag)
+			if (!ChangeFlag && !CurrentState.Contains("Abduction"))
 			{
 				//接地判定用のRayを飛ばす関数呼び出し
 				GroundRayCast();
@@ -1081,6 +1081,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//スケベ処理
 	private void H_Func()
 	{
+		/*
 		//ブレイクカウントが達した
 		if (BreakCount > 10 && BreakInputFlag)
 		{
@@ -1167,7 +1168,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_PantsOff")).ToList()[0]), false);
 				}
 			}
-		}
+		}*/
+
 	}
 
 	//スケベカメラワークを次に進める
@@ -1594,7 +1596,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8)
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8 && CurrentState != "Down")
 		{			
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
@@ -2116,6 +2118,49 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				//アニメーターの遷移フラグを立てる
 				CurrentAnimator.SetBool("Down", true);
+			}
+		}
+	}
+
+	//拉致られ処理
+	public void PlayerAbduction(GameObject Enemy)
+	{
+		//拉致られコルーチン呼び出し
+		StartCoroutine(PlayerAbductionCoroutine(Enemy));
+	}
+	private IEnumerator PlayerAbductionCoroutine(GameObject Enemy)
+	{
+		//ダウンしてるキャラリストから自身を削除
+		GameManagerScript.Instance.DownCharacterList.Remove(gameObject);
+
+		//アニメーション遷移フラグを立てる
+		CurrentAnimator.SetBool("Abduction", true);
+
+		//敵のルートボーン取得
+		GameObject EnemyRootBoneOBJ = DeepFind(Enemy, "RootBone");
+
+		//拉致られポジション取得
+		GameObject AbductionPosOBJ = DeepFind(Enemy, "AbductionPos");
+
+		while ((AbductionPosOBJ.transform.position - gameObject.transform.position).sqrMagnitude > 0.01f)
+		{
+			//ポジションに移動
+			gameObject.transform.position += (AbductionPosOBJ.transform.position - gameObject.transform.position) * Time.deltaTime * 10;
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//敵が消えるまでループ
+		while (AbductionPosOBJ != null)
+		{
+			//1フレーム待機、これを下にすると多分Missingが起きる、削除直後では完全なNullにならないっぽい
+			yield return null;
+
+			if(AbductionPosOBJ != null)
+			{
+				//ポジションに追従
+				gameObject.transform.position = AbductionPosOBJ.transform.position;
 			}
 		}
 	}
@@ -5578,13 +5623,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラ交代時にキャラを消す関数
-	public void ChangeVanish(float t)
+	public void ChangeVanish(string Time)
 	{
+		//待機時間
+		float w = float.Parse(Time.Split(',').ToList().ElementAt(0));
+
+		//消失時間
+		float t = float.Parse(Time.Split(',').ToList().ElementAt(1));
+
 		//コルーチン呼び出し
-		StartCoroutine(ChangeVanishCoroutine(t));
+		StartCoroutine(ChangeVanishCoroutine(w, t));
 	}
-	private IEnumerator ChangeVanishCoroutine(float t)
+	private IEnumerator ChangeVanishCoroutine(float w, float t)
 	{
+		//チョイ待機
+		yield return new WaitForSeconds(w);
+
 		//経過時間
 		float VanishTime = 0;
 

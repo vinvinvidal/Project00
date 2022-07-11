@@ -315,7 +315,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 				if (GameManagerScript.Instance.AllActiveEnemyList.Where(a => a != null).Where(a => a.GetComponent<EnemyCharacterScript>().Abduction_Flag).ToList().Count == 0)
 				{
 					//自分が一番近い
-					re =
+					re = true;
+
+						/*
 						GameManagerScript.Instance.AllActiveEnemyList
 						//nullチェック
 						.Where(e => e != null)
@@ -325,6 +327,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 						.OrderBy(e => (e.transform.position - GameManagerScript.Instance.DownCharacterList[Random.Range(0, GameManagerScript.Instance.DownCharacterList.Count - 1)].transform.position).sqrMagnitude)
 						//一番近いのが自分か
 						.ToList()[0] == gameObject;
+						*/
 				}				
 			}		
 
@@ -965,11 +968,179 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 	//拉致コルーチン
 	IEnumerator AbductionCoroutine()
 	{
-		//フラグを立てる
+		//拉致フラグを立てる
 		EnemyScript.Abduction_Flag = true;
+
+		//行動中フラグを立てる
+		EnemyScript.BehaviorFlag = true;
+
+		//拉致るキャラクター
+		GameObject TargetCharacter = null;
+
+		//拉致るキャラクターとの距離
+		float TargetDistance = 1000;
+
+		//拉致るキャラクターを取得、一番近いやつ。なんかLinqでやるとエラーになるのでこれでやる
+		foreach (var i in GameManagerScript.Instance.DownCharacterList)
+		{
+			if(i != null)
+			{
+				if(TargetDistance > HorizontalVector(i, gameObject).sqrMagnitude)
+				{
+					TargetDistance = HorizontalVector(i, gameObject).sqrMagnitude;
+
+					TargetCharacter = i;
+				}				
+			}
+		}
+
+		//拉致する場所
+		Vector3 AbductionPos = TargetCharacter.transform.position + (TargetCharacter.transform.forward * 0.25f);
+
+		//キャラクターとの角度
+		float CharacterAngle = 180;
+
+		//キャラクターとの距離
+		float CharacterDistance = 10000;
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Walk", true);
+
+		//キャラクターが正面にくるまでループ
+		while (CharacterAngle > 0.1f)
+		{
+			//キャラクターとの角度測定
+			CharacterAngle = Vector3.Angle(gameObject.transform.forward, HorizontalVector(AbductionPos, gameObject));
+
+			//キャラクターに向ける
+			EnemyScript.BehaviorRotate = HorizontalVector(AbductionPos, gameObject);
+
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Walk", false);
+
+				goto AbductionBreak;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//アニメーターのフラグを下す
+		CurrentAnimator.SetBool("Walk", false);
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Run", true);
+
+		//ステートを反映させる為に１フレーム待つ
+		yield return null;
+
+		//キャラクターに接近するまでループ
+		while (CharacterDistance > 0.01f)
+		{
+			//移動ベクトル算出
+			EnemyScript.BehaviorMoveVec = HorizontalVector(AbductionPos, gameObject).normalized * Mathf.Min(CharacterDistance * 10, 1);
+
+			//キャラクターとの距離測定
+			CharacterDistance = Vector3.Distance(AbductionPos, gameObject.transform.position);
+
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Run", false);
+
+				goto AbductionBreak;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//アニメーターのフラグを下す
+		CurrentAnimator.SetBool("Run", false);
+
+		//アニメーターのフラグを立てる
+		CurrentAnimator.SetBool("Walk", true);
+
+		//角度初期化
+		CharacterAngle = 180;
+
+		//キャラクターが正面にくるまでループ
+		while (CharacterAngle > 0.1f)
+		{
+			//キャラクターとの角度測定
+			CharacterAngle = Vector3.Angle(gameObject.transform.forward, -TargetCharacter.transform.forward);
+
+			//キャラクターに向ける
+			EnemyScript.BehaviorRotate = -TargetCharacter.transform.forward;
+
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Walk", false);
+
+				goto AbductionBreak;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//アニメーターのフラグを下す
+		CurrentAnimator.SetBool("Walk", false);
 
 		//アニメーターフラグを立てる
 		CurrentAnimator.SetBool("Abduction", true);
+
+		//拉致成功までループ
+		while(!EnemyScript.AbductionSuccess_Flag)
+		{
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//アニメーターのフラグを下ろす
+				CurrentAnimator.SetBool("Abduction", false);
+
+				goto AbductionBreak;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//プレイヤーキャラクターの拉致られ処理呼び出し
+		TargetCharacter.GetComponent<PlayerScript>().PlayerAbduction(gameObject);
+
+		//ゲームマネージャーのListから自身を削除
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(EnemyScript.ListIndex));
+
+		//オブジェクト消失処理呼び出し
+		EnemyScript.AbductionVanis(1, 0.75f);
+
+		//キャラクター消失処理呼び出し
+		TargetCharacter.GetComponent<PlayerScript>().ChangeVanish("1,0.75");
+
+		//ループを抜ける先
+		AbductionBreak:;
+
+		//アニメーターのフラグを下す
+		CurrentAnimator.SetBool("Walk", false);
+
+		//アニメーターのフラグを下す
+		CurrentAnimator.SetBool("Run", false);
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Abduction", false);
+
+		//行動中フラグを下ろす
+		EnemyScript.BehaviorFlag = false;
+
+		//拉致フラグを下す
+		EnemyScript.Abduction_Flag = false;
 
 		//待機
 		yield return null;	

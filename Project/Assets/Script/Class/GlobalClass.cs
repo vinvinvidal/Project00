@@ -53,6 +53,11 @@ public class GlobalClass : MonoBehaviour
 	{
 		return new Vector3(TargetOBJ.transform.position.x, FromOBJ.transform.position.y, TargetOBJ.transform.position.z) - FromOBJ.transform.position;
 	}
+	//目標がポジションのオーバーロード
+	public Vector3 HorizontalVector(Vector3 TargetPos, GameObject FromOBJ)
+	{
+		return new Vector3(TargetPos.x, FromOBJ.transform.position.y, TargetPos.z) - FromOBJ.transform.position;
+	}
 
 	//適当なArtsClassを作って返す関数
 	public ArtsClass MakeInstantArts(List<Color> KBV, List<float> DML, List<int> DLY, List<int> ATI, List<int> DEN, List<int> CTP)

@@ -172,54 +172,58 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			i.AddForce((i.transform.position - gameObject.transform.position + Vector3.up) * 2.5f, ForceMode.Impulse);
 		}
 
-		//演出カメラ位置基準オブジェクトを取得
-		GameObject PosOBJ = LastEnemy != null ? LastEnemy : PlayerCharacter;
-
-		//相手が下にいる
-		if(PlayerCharacter.transform.position.y - PosOBJ.transform.position.y > 1.5f)
+		//拉致で終わったら演出カット
+		if(!LastEnemy.GetComponent<EnemyCharacterScript>().AbductionSuccess_Flag)
 		{
-			//演出カメラを演出位置に移動
-			BattleVictoryVcam.gameObject.transform.position = DeepFind(PlayerCharacter, "PelvisBone").transform.position + ((DeepFind(PlayerCharacter, "PelvisBone").transform.position - PosOBJ.transform.position).normalized * 2.5f);
+			//演出カメラ位置基準オブジェクトを取得
+			GameObject PosOBJ = LastEnemy != null ? LastEnemy : PlayerCharacter;
 
-			//演出カメラを注視点に向ける
-			BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "PelvisBone").transform.position + PlayerCharacter.transform.right);
+			//相手が下にいる
+			if (PlayerCharacter.transform.position.y - PosOBJ.transform.position.y > 1.5f)
+			{
+				//演出カメラを演出位置に移動
+				BattleVictoryVcam.gameObject.transform.position = DeepFind(PlayerCharacter, "PelvisBone").transform.position + ((DeepFind(PlayerCharacter, "PelvisBone").transform.position - PosOBJ.transform.position).normalized * 2.5f);
 
-			//演出カメラを演出位置に移動
-			BattleVictoryVcam.gameObject.transform.position += (BattleVictoryVcam.gameObject.transform.right * -1.25f);
+				//演出カメラを注視点に向ける
+				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "PelvisBone").transform.position + PlayerCharacter.transform.right);
 
-			//演出カメラを注視点に向ける
-			BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "PelvisBone").transform.position + PlayerCharacter.transform.right);
+				//演出カメラを演出位置に移動
+				BattleVictoryVcam.gameObject.transform.position += (BattleVictoryVcam.gameObject.transform.right * -1.25f);
+
+				//演出カメラを注視点に向ける
+				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "PelvisBone").transform.position + PlayerCharacter.transform.right);
+			}
+			else
+			{
+				//演出カメラを演出位置に移動
+				BattleVictoryVcam.gameObject.transform.position = PosOBJ.transform.position + (PlayerCharacter.transform.forward * 1.5f) + (PlayerCharacter.transform.right * -0.75f) + new Vector3(0, 0.25f, 0);
+
+				//注視点をプレイヤーキャラクターにする
+				PosOBJ = PlayerCharacter;
+
+				//演出カメラを注視点に向ける
+				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "NeckBone").transform.position);
+
+				//Z軸に傾ける
+				BattleVictoryVcam.gameObject.transform.localRotation *= Quaternion.Euler(0, 0, 40);
+			}
+
+			//バーチャルカメラ再生
+			BattleVictoryVcam.PlayCameraWork(0, true);
+
+			//フェードエフェクト呼び出し
+			ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
+
+			//ズームエフェクト呼び出し
+			ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.05f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
+
+			//スローモーション演出
+			GameManagerScript.Instance.TimeScaleChange(2.5f, 0.1f, () =>
+			{
+				//カメラワーク終了
+				BattleVictoryVcam.KeepCameraFlag = false;
+			});
 		}
-		else
-		{
-			//演出カメラを演出位置に移動
-			BattleVictoryVcam.gameObject.transform.position = PosOBJ.transform.position + (PlayerCharacter.transform.forward * 1.5f) + (PlayerCharacter.transform.right * -0.75f) + new Vector3(0, 0.25f, 0);
-
-			//注視点をプレイヤーキャラクターにする
-			PosOBJ = PlayerCharacter;
-
-			//演出カメラを注視点に向ける
-			BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "NeckBone").transform.position);
-
-			//Z軸に傾ける
-			BattleVictoryVcam.gameObject.transform.localRotation *= Quaternion.Euler(0, 0, 40);
-		}
-
-		//バーチャルカメラ再生
-		BattleVictoryVcam.PlayCameraWork(0, true);
-
-		//フェードエフェクト呼び出し
-		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
-
-		//ズームエフェクト呼び出し
-		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.05f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
-
-		//スローモーション演出
-		GameManagerScript.Instance.TimeScaleChange(2.5f, 0.1f, () => 
-		{
-			//カメラワーク終了
-			BattleVictoryVcam.KeepCameraFlag = false;
-		});
 
 		//壁オブジェクトが全部消えるまでループ
 		while (!OBJList.All(a => a == null))

@@ -255,6 +255,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//拉致フラグ
 	public bool Abduction_Flag { get; set; }
 
+	//拉致成功フラグ
+	public bool AbductionSuccess_Flag { get; set; }
+
 	//スタン状態フラグ
 	public bool StunFlag { get; set; }
 
@@ -346,6 +349,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//拉致フラグ初期化
 		Abduction_Flag = false;
+
+		//拉致成功フラグ初期化
+		AbductionSuccess_Flag = false;
 
 		//スタン状態フラグ初期化
 		StunFlag = false;
@@ -924,7 +930,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		ForceMoveVector *= 0;
 
 		//スケベ、もしくは超必殺技中じゃない
-		if (!H_Flag && !SuperFlag)
+		if (!H_Flag && !Abduction_Flag && !SuperFlag)
 		{
 			//他の敵を避ける処理
 			if (HitEnemy != null)
@@ -1015,6 +1021,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//死んでる
 			DestroyFlag
 			||
+			//拉致が成功ている
+			AbductionSuccess_Flag
+			||
 			//ダウン中にダウンに当たらない攻撃が当たった
 			(DownFlag && Arts.DownEnable[n] != 1)
 			||
@@ -1071,7 +1080,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
 
 				//オブジェクト削除コルーチン呼び出し
-				StartCoroutine(VanishCoroutine());
+				StartCoroutine(VanishCoroutine(1, 1));
 			}
 		}
 
@@ -2535,17 +2544,30 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 	}
 
+	//拉致成功処理
+	public void AbductionSuccess()
+	{
+		//フラグを立てる
+		AbductionSuccess_Flag = true;
+	}
+
+	//拉致成功時に呼ばれるオブジェクト削除コルーチン
+	public void AbductionVanis(float w, float t)
+	{
+		StartCoroutine(VanishCoroutine(w, t));
+	}
+
 	//オブジェクト削除コルーチン
-	private IEnumerator VanishCoroutine()
+	private IEnumerator VanishCoroutine(float w,float t)
 	{
 		//チョイ待機
-		yield return new WaitForSeconds(1);
-
-		//消滅用カウント
-		float VanishCount = 0;
+		yield return new WaitForSeconds(w);
 
 		//Enemyレイヤーのレンダラー取得
 		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Enemy")).ToList());
+
+		//消滅用カウント
+		float VanishCount = 0;
 
 		//レンダラーを回す
 		foreach (var i in RendList)
@@ -2560,14 +2582,14 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			i.material.renderQueue = 3000;
 		}
 
-		while (VanishCount < 1)
+		while (VanishCount < t)
 		{
 			//マテリアルを回して消滅用数値を入れる
 			foreach (var i in RendList)
 			{
 				foreach (var ii in i.materials)
 				{
-					ii.SetFloat("_VanishNum", VanishCount);
+					ii.SetFloat("_VanishNum", VanishCount / t);
 				}
 			}
 
