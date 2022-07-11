@@ -13,33 +13,13 @@ public class EnemySettingScript : GlobalClass
 	//敵キャラクタースクリプト
 	private EnemyCharacterScript TempEnemyScript;
 
-	//メッシュ結合で使うCharacterBodyMaterial
-	private Material BodyMaterial;
-
 	//結合するメッシュの元になるスキンメッシュレンダラー
 	private SkinnedMeshRenderer CostumeRenderer;
 
-	//統合するスキンメッシュレンダラー
-	private List<SkinnedMeshRenderer> CombineRendererList = new List<SkinnedMeshRenderer>();
+	//統合するスキンメッシュレンダラーを持っているゲームオブジェクト
+	private List<GameObject> CombineRendererOBJList = new List<GameObject>();
 
-	//統合するベーステクスチャ
-	private List<Texture2D> PackBaseTextureList = new List<Texture2D>();
 
-	//統合する法線テクスチャ
-	private List<Texture2D> PackNormalTextureList = new List<Texture2D>();
-
-	//統合するハイライトテクスチャ
-	private List<Texture2D> PackHiLightTextureList = new List<Texture2D>();
-
-	//統合する線画テクスチャ
-	private List<Texture2D> PackLineTextureList = new List<Texture2D>();
-
-	//統合するマットキャップテクスチャ
-	private List<Texture2D> PackMatCapTextureList = new List<Texture2D>();
-
-	//結合した後に消すオブジェクトList
-	private List<GameObject> DestroyOBJList = new List<GameObject>();
-	
 	//セッティング完了フラグ
 	public bool AllReadyFlag { get; set; }
 
@@ -89,50 +69,6 @@ public class EnemySettingScript : GlobalClass
 
 		//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
 		CostumeRenderer = DeepFind(gameObject, "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
-
-		//Bodyに仕込んであるCostumeのボディマテリアル取得
-		BodyMaterial = CostumeRenderer.material;
-
-		//スキンメッシュレンダラーを回す
-		foreach (SkinnedMeshRenderer i in GetComponentsInChildren<SkinnedMeshRenderer>())
-		{
-			//ボディ部分のメッシュを統合Listに入れる
-			if (i.name.Contains("Body") || i.name.Contains("Face") || i.name.Contains("Others"))
-			{
-				//トランスフォームリセット
-				ResetTransform(i.gameObject); 
-
-				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
-				i.bones = CostumeRenderer.bones;
-
-				//ListにAdd
-				CombineRendererList.Add(i);
-
-				//オブジェクトを削除Listに入れる
-				DestroyOBJList.Add(i.gameObject);
-
-				//シェーダースクリプト取得
-				CharacterBodyShaderScript tempscript = i.gameObject.GetComponent<CharacterBodyShaderScript>();
-
-				//ベーステクチャを取得
-				PackBaseTextureList.Add(tempscript._TexBase);
-
-				//法線テクスチャを取得
-				PackNormalTextureList.Add(tempscript._TexNormal);
-
-				//ハイライトテクスチャを取得
-				PackHiLightTextureList.Add(tempscript._TexHiLight);
-
-				//線画テクスチャを取得
-				PackLineTextureList.Add(tempscript._TexLine);
-
-				//マットキャップテクスチャを取得
-				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
-			}			
-
-			//レンダラーを切って非表示にする
-			i.enabled = false;
-		}
 
 		//EnemyClass読み込み
 		EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => e.EnemyID == ID).ToList()[0];
@@ -266,7 +202,6 @@ public class EnemySettingScript : GlobalClass
 		DeepFind(gameObject, "R_FootBone").GetComponent<PositionConstraint>().AddSource(R_FootConstraint);
 		DeepFind(gameObject, "L_FootBone").GetComponent<PositionConstraint>().AddSource(L_FootConstraint);
 
-
 		//クロス用コライダを腕に仕込む
 		foreach(CapsuleCollider i in gameObject.GetComponentsInChildren<CapsuleCollider>())
 		{
@@ -361,6 +296,23 @@ public class EnemySettingScript : GlobalClass
 		
 		}));
 
+		//スキンメッシュレンダラーを回す
+		foreach (SkinnedMeshRenderer i in GetComponentsInChildren<SkinnedMeshRenderer>())
+		{
+			//ボディ部分のメッシュを統合Listに入れる
+			if (i.name.Contains("Body") || i.name.Contains("Face") || i.name.Contains("Others"))
+			{
+				//トランスフォームリセット
+				ResetTransform(i.gameObject);
+
+				//メッシュ統合ListにAdd
+				CombineRendererOBJList.Add(i.gameObject);
+			}
+
+			//レンダラーを切って非表示にする
+			i.enabled = false;
+		}
+
 		//下着オブジェクト読み込み
 		StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Enemy/" + ID + "/Costume/UnderWear/", "prefab", (List<object> OBJList) =>
 		{
@@ -373,36 +325,8 @@ public class EnemySettingScript : GlobalClass
 			//トランスフォームリセット
 			ResetTransform(UnderWearOBJ);
 
-			//プレハブ内のスキニングメッシュレンダラーを全て取得
-			foreach (SkinnedMeshRenderer ii in UnderWearOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
-				ii.bones = CostumeRenderer.bones;
-
-				//ListにAdd
-				CombineRendererList.Add(ii);
-
-				//シェーダースクリプト取得
-				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
-
-				//ベーステクチャを取得
-				PackBaseTextureList.Add(tempscript._TexBase);
-
-				//法線テクスチャを取得
-				PackNormalTextureList.Add(tempscript._TexNormal);
-
-				//ハイライトテクスチャを取得
-				PackHiLightTextureList.Add(tempscript._TexHiLight);
-
-				//線画テクスチャを取得
-				PackLineTextureList.Add(tempscript._TexLine);
-
-				//マットキャップテクスチャを取得
-				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
-			}
-
-			//オブジェクトを削除Listに入れる
-			DestroyOBJList.Add(UnderWearOBJ);
+			//メッシュ統合ListにAdd
+			CombineRendererOBJList.Add(UnderWearOBJ);
 
 			//読み込み完了フラグを立てる
 			UnderWearLoadCompleteFlag = true;
@@ -421,36 +345,8 @@ public class EnemySettingScript : GlobalClass
 			//トランスフォームリセット
 			ResetTransform(InnerOBJ);
 
-			//プレハブ内のスキニングメッシュレンダラーを全て取得
-			foreach (SkinnedMeshRenderer ii in InnerOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
-				ii.bones = CostumeRenderer.bones;
-
-				//ListにAdd
-				CombineRendererList.Add(ii);
-
-				//シェーダースクリプト取得
-				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
-
-				//ベーステクチャを取得
-				PackBaseTextureList.Add(tempscript._TexBase);
-
-				//法線テクスチャを取得
-				PackNormalTextureList.Add(tempscript._TexNormal);
-
-				//ハイライトテクスチャを取得
-				PackHiLightTextureList.Add(tempscript._TexHiLight);
-
-				//線画テクスチャを取得
-				PackLineTextureList.Add(tempscript._TexLine);
-
-				//マットキャップテクスチャを取得
-				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
-			}
-
-			//オブジェクトを削除Listに入れる
-			DestroyOBJList.Add(InnerOBJ);
+			//メッシュ統合ListにAdd
+			CombineRendererOBJList.Add(InnerOBJ);
 
 			//読み込み完了フラグを立てる
 			InnerLoadCompleteFlag = true;
@@ -469,69 +365,9 @@ public class EnemySettingScript : GlobalClass
 			//トランスフォームリセット
 			ResetTransform(SocksOBJ);
 
-			//プレハブ内のスキニングメッシュレンダラーを全て取得
-			foreach (SkinnedMeshRenderer ii in SocksOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
-				ii.bones = CostumeRenderer.bones;
+			//メッシュ統合ListにAdd
+			CombineRendererOBJList.Add(SocksOBJ);
 
-				//ListにAdd
-				CombineRendererList.Add(ii);
-
-				//シェーダースクリプト取得
-				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
-
-				//ベーステクチャを取得
-				PackBaseTextureList.Add(tempscript._TexBase);
-
-				//法線テクスチャを取得
-				PackNormalTextureList.Add(tempscript._TexNormal);
-
-				//ハイライトテクスチャを取得
-				PackHiLightTextureList.Add(tempscript._TexHiLight);
-
-				//線画テクスチャを取得
-				PackLineTextureList.Add(tempscript._TexLine);
-
-				//マットキャップテクスチャを取得
-				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
-			}
-
-			//オブジェクトを削除Listに入れる
-			DestroyOBJList.Add(SocksOBJ);
-
-			/*
-			//レンダラーを切って非表示にする
-			foreach (SkinnedMeshRenderer i in SocksOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				i.enabled = false;
-			}
-
-			//自身の子にする
-			SocksOBJ.transform.parent = gameObject.transform;
-
-			//トランスフォームリセット
-			ResetTransform(SocksOBJ);
-
-			//プレハブ内のスキニングメッシュレンダラーを全て取得
-			foreach (SkinnedMeshRenderer ii in SocksOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
-				ii.bones = CostumeRenderer.bones;
-
-				//結合用メッシュ宣言
-				CombineInstance tempmesh = new CombineInstance();
-
-				//メッシュを適応
-				tempmesh.mesh = ii.sharedMesh;
-
-				//トランスフォームを適応
-				tempmesh.transform = ii.gameObject.transform.localToWorldMatrix;
-
-				//ListにAdd
-				CombineRendererList.Add(ii);
-			}
-			*/
 			//読み込み完了フラグを立てる
 			SocksLoadCompleteFlag = true;
 
@@ -549,36 +385,8 @@ public class EnemySettingScript : GlobalClass
 			//トランスフォームリセット
 			ResetTransform(BottomsOBJ);
 
-			//プレハブ内のスキニングメッシュレンダラーを全て取得
-			foreach (SkinnedMeshRenderer ii in BottomsOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
-				ii.bones = CostumeRenderer.bones;
-
-				//ListにAdd
-				CombineRendererList.Add(ii);
-
-				//シェーダースクリプト取得
-				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
-
-				//ベーステクチャを取得
-				PackBaseTextureList.Add(tempscript._TexBase);
-
-				//法線テクスチャを取得
-				PackNormalTextureList.Add(tempscript._TexNormal);
-
-				//ハイライトテクスチャを取得
-				PackHiLightTextureList.Add(tempscript._TexHiLight);
-
-				//線画テクスチャを取得
-				PackLineTextureList.Add(tempscript._TexLine);
-
-				//マットキャップテクスチャを取得
-				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
-			}
-
-			//オブジェクトを削除Listに入れる
-			DestroyOBJList.Add(BottomsOBJ);
+			//メッシュ統合ListにAdd
+			CombineRendererOBJList.Add(BottomsOBJ);
 
 			//読み込み完了フラグを立てる
 			BottomsLoadCompleteFlag = true;
@@ -597,36 +405,8 @@ public class EnemySettingScript : GlobalClass
 			//トランスフォームリセット
 			ResetTransform(ShoesOBJ);
 
-			//プレハブ内のスキニングメッシュレンダラーを全て取得
-			foreach (SkinnedMeshRenderer ii in ShoesOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-			{
-				//ボーン構成をコピーしてキャラクターのボーンと紐付ける
-				ii.bones = CostumeRenderer.bones;
-
-				//ListにAdd
-				CombineRendererList.Add(ii);
-
-				//シェーダースクリプト取得
-				CharacterBodyShaderScript tempscript = ii.gameObject.GetComponent<CharacterBodyShaderScript>();
-
-				//ベーステクチャを取得
-				PackBaseTextureList.Add(tempscript._TexBase);
-
-				//法線テクスチャを取得
-				PackNormalTextureList.Add(tempscript._TexNormal);
-
-				//ハイライトテクスチャを取得
-				PackHiLightTextureList.Add(tempscript._TexHiLight);
-
-				//線画テクスチャを取得
-				PackLineTextureList.Add(tempscript._TexLine);
-
-				//マットキャップテクスチャを取得
-				PackMatCapTextureList.Add(tempscript._HiLightMatCap);
-			}
-
-			//オブジェクトを削除Listに入れる
-			DestroyOBJList.Add(ShoesOBJ);
+			//メッシュ統合ListにAdd
+			CombineRendererOBJList.Add(ShoesOBJ);
 
 			//読み込み完了フラグを立てる
 			ShoesLoadCompleteFlag = true;
@@ -654,256 +434,35 @@ public class EnemySettingScript : GlobalClass
 			yield return null;
 		}
 
-		//統合用オブジェクト宣言
-		GameObject CombineMeshOBJ = new GameObject();
-
-		//親を設定
-		CombineMeshOBJ.transform.parent = gameObject.transform;
-
-		//名前を設定
-		CombineMeshOBJ.name = "EnemyCombineMeshOBJ";
-
-		//レイヤーをEnemyにする
-		CombineMeshOBJ.layer = LayerMask.NameToLayer("Enemy");
-
-		//カメラに収まってるか調べるスクリプトを付ける
-		CombineMeshOBJ.AddComponent<OnCameraScript>();
-
-		//スクリプトのOnCameraObjectに代入
-		TempEnemyScript.OnCameraObject = CombineMeshOBJ;
-
-		//結合するCombineInstanceList
-		List<CombineInstance> CombineInstanceList = new List<CombineInstance>();
-
-		//結合するUV
-		List<Vector2[]> CombineUVList = new List<Vector2[]>();
-
-		//ボーンList
-		List<Transform> BoneList = new List<Transform>();
-
-		//ウェイトList
-		List<BoneWeight> BoneWeightList = new List<BoneWeight>();
-
-		//バインドボーズList
-		List<Matrix4x4> BindPoseList = new List<Matrix4x4>();
-
-		//名前とインデックスのハッシュテーブル
-		Hashtable BoneHash = new Hashtable();
-
-		//インデックスに使うループカウント
-		int count = 0;
-
-		//サンプルからボーン情報を取る
-		foreach (Transform bone in CostumeRenderer.bones)
+		//スキンメッシュを統合する関数呼び出し
+		SkinMeshIntegration(CombineRendererOBJList, CostumeRenderer, (GameObject OBJ) =>
 		{
-			//ボーンを取得
-			BoneList.Add(bone);
+			//親を設定
+			OBJ.transform.parent = gameObject.transform;
 
-			//名前とインデクスをハッシュテーブルに入れる
-			BoneHash.Add(bone.name, count);
+			//名前を設定
+			OBJ.name = "EnemyCombineMeshOBJ";
 
-			//カウントアップ
-			count ++;
-		}
+			//レイヤーをEnemyにする
+			OBJ.layer = LayerMask.NameToLayer("Enemy");
 
-		//ループカウント初期化
-		count = 0;
+			//カメラに収まってるか調べるスクリプトを付ける
+			OBJ.AddComponent<OnCameraScript>();
 
-		//ボーンのバインドポーズを取得
-		foreach(var i in BoneList)
-		{
-			BindPoseList.Add(BoneList[count].worldToLocalMatrix * transform.worldToLocalMatrix);
+			//スクリプトのOnCameraObjectに代入
+			TempEnemyScript.OnCameraObject = OBJ;
 
-			//カウントアップ
-			count++;
-		}
+			//アニメーター有効化
+			gameObject.GetComponent<Animator>().enabled = true;
 
-		//統合するメッシュレンダラーを回す
-		foreach (var i in CombineRendererList)
-		{
-			//ウェイトを回す
-			foreach (BoneWeight ii in i.sharedMesh.boneWeights)
+			//読み込み完了したら全てのレンダラーを有効化して表示する
+			foreach (SkinnedMeshRenderer i in GetComponentsInChildren<SkinnedMeshRenderer>())
 			{
-				//リマップ用ウェイト
-				BoneWeight TempWeight = ii;
-
-				//ハッシュテーブルを元にボーンをリマップ
-				TempWeight.boneIndex0 = (int)BoneHash[i.bones[ii.boneIndex0].name];
-				TempWeight.boneIndex1 = (int)BoneHash[i.bones[ii.boneIndex1].name];
-				TempWeight.boneIndex2 = (int)BoneHash[i.bones[ii.boneIndex2].name];
-				TempWeight.boneIndex3 = (int)BoneHash[i.bones[ii.boneIndex3].name];
-
-				//ListにAdd
-				BoneWeightList.Add(TempWeight);
+				i.enabled = true;
 			}
 
-			//統合するUVを格納
-			CombineUVList.Add(i.sharedMesh.uv);
-
-			//メッシュ統合用CombineInstance
-			CombineInstance TempCombineInstance = new CombineInstance();
-
-			//引数のメッシュレンダラーからメッシュを取得
-			TempCombineInstance.mesh = i.sharedMesh;
-
-			//引数のメッシュレンダラーからトランスフォームを取得
-			TempCombineInstance.transform = i.transform.localToWorldMatrix;
-
-			//ListにAdd
-			CombineInstanceList.Add(TempCombineInstance);
-		}
-
-		//メッシュレンダラーを付ける
-		SkinnedMeshRenderer CombineMeshRenderer = CombineMeshOBJ.AddComponent<SkinnedMeshRenderer>();
-
-		//マテリアル設定
-		CombineMeshRenderer.material = BodyMaterial;
-
-		//空メッシュを入れる
-		CombineMeshRenderer.sharedMesh = new Mesh();
-
-		//メッシュを結合
-		CombineMeshRenderer.sharedMesh.CombineMeshes(CombineInstanceList.ToArray());
-
-		//ボーン設定
-		CombineMeshRenderer.bones = BoneList.ToArray();
-
-		//ボーンウェイト設定
-		CombineMeshRenderer.sharedMesh.boneWeights = BoneWeightList.ToArray();
-
-		//バインドポーズ設定
-		CombineMeshRenderer.sharedMesh.bindposes = BindPoseList.ToArray();
-
-		//バウンディングボックスを設定
-		CombineMeshRenderer.localBounds = new Bounds(new Vector3(0, 1, 0), new Vector3(2, 2, 2));
-
-		//統合用ベーステクスチャ
-		Texture2D PackBaseTexture =new Texture2D(512, 512, TextureFormat.RGBA32, false);
-
-		//統合用法線テクスチャ
-		Texture2D PackNormalTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
-
-		//統合用ハイライトテクスチャ
-		Texture2D PackHiLightTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
-
-		//統合用線画テクスチャ
-		Texture2D PackLineTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
-
-		//統合用マットキャップテクスチャ
-		Texture2D PackMatCapTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
-
-		//不足分のテクスチャを入れてムリヤリ16枚にする
-		while (PackBaseTextureList.Count < 16)
-		{
-			PackBaseTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
-		}
-		while (PackNormalTextureList.Count < 16)
-		{
-			PackNormalTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
-		}
-		while (PackHiLightTextureList.Count < 16)
-		{
-			PackHiLightTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
-		}
-		while (PackLineTextureList.Count < 16)
-		{
-			PackLineTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
-		}
-		while (PackMatCapTextureList.Count < 16)
-		{
-			PackMatCapTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
-		}
-
-		//テクスチャをパックしてRectを受け取る
-		Rect[] TexBaseRect = PackBaseTexture.PackTextures(PackBaseTextureList.ToArray(), 0, 512, false);
-
-		PackNormalTexture.PackTextures(PackNormalTextureList.ToArray(), 0, 512, false);
-		PackHiLightTexture.PackTextures(PackHiLightTextureList.ToArray(), 0, 512, false);
-		PackLineTexture.PackTextures(PackLineTextureList.ToArray(), 0, 512, false);
-		PackMatCapTexture.PackTextures(PackMatCapTextureList.ToArray(), 0, 512, false);
-
-		//統合用UV宣言
-		List<Vector2> CombineUV = new List<Vector2>();
-
-		//ループカウント初期化
-		count = 0;
-
-		//UVListを回す
-		foreach (var i in CombineUVList)
-		{
-			//格納用UVList宣言
-			List<Vector2> tempUV = new List<Vector2>();
-
-			//パックしたテクスチャのRectを元にUVを16マスに配置する
-			foreach (var ii in i)
-			{
-				tempUV.Add(new Vector2((ii.x * 0.25f) + TexBaseRect[count].position.x, (ii.y * 0.25f) + TexBaseRect[count].position.y));
-			}
-
-			//UVを追加
-			CombineUV.AddRange(tempUV);
-
-			//カウントアップ
-			count++;
-		}
-
-		//UVを設定
-		CombineMeshRenderer.sharedMesh.uv = CombineUV.ToArray();
-
-		//キャラクターボディシェーダースクリプトを付ける
-		CombineMeshOBJ.AddComponent<CharacterBodyShaderScript>();
-
-		//ベーステクスチャを設定
-		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexBase = PackBaseTexture;
-
-		//法線テクスチャを設定
-		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexNormal = PackNormalTexture;
-
-		//ハイライトテクスチャを設定
-		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexHiLight = PackHiLightTexture;
-
-		//線画テクスチャを設定
-		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexLine = PackLineTexture;
-
-		//マットキャップテクスチャを設定
-		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._HiLightMatCap = PackMatCapTexture;
-
-		//不要になった統合前のオブジェクトを消す
-		foreach (var i in DestroyOBJList)
-		{
-			Destroy(i);
-		}
-
-		//アニメーター有効化
-		gameObject.GetComponent<Animator>().enabled = true;
-
-		//セッティング完了フラグを立てる
-		AllReadyFlag = true;
-
-		//読み込み完了したら全てのレンダラーを有効化して表示する
-		foreach (SkinnedMeshRenderer i in GetComponentsInChildren<SkinnedMeshRenderer>())
-		{
-			i.enabled = true;
-		}
-	}
-
-	Texture2D duplicateTexture(Texture2D source)
-	{
-		RenderTexture renderTex = RenderTexture.GetTemporary(
-					source.width,
-					source.height,
-					0,
-					RenderTextureFormat.Default,
-					RenderTextureReadWrite.Linear);
-
-		Graphics.Blit(source, renderTex);
-		RenderTexture previous = RenderTexture.active;
-		RenderTexture.active = renderTex;
-		Texture2D readableText = new Texture2D(source.width, source.height);
-		readableText.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
-		readableText.Apply();
-		RenderTexture.active = previous;
-		RenderTexture.ReleaseTemporary(renderTex);
-		return readableText;
+			//セッティング完了フラグを立てる
+			AllReadyFlag = true;
+		});
 	}
 }

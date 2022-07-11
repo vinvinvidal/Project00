@@ -12,6 +12,274 @@ using UnityEngine.UI;
 //他のスクリプトに継承させて共通の関数を使用できるようにするClass、MonoBehaviourはこいつから継承させる
 public class GlobalClass : MonoBehaviour
 {
+	//受け取ったボディシェーダー使用のスキンメッシュを統合する関数、これをやる時は元のキャラクターがワールド原点にいて、モーション再生されていないTスタンス状態で処理すること
+	public void SkinMeshIntegration(List<GameObject> OBJList, SkinnedMeshRenderer BoneSample, Action<GameObject> Act)
+	{
+		//スキンメッシュレンダラーList宣言
+		List<SkinnedMeshRenderer> MeshList = new List<SkinnedMeshRenderer>();
+
+		//オブジェクトListのスキニングメッシュレンダラーを全て取得
+		foreach (var i in OBJList)
+		{
+			foreach(var ii in i.GetComponentsInChildren<SkinnedMeshRenderer>())
+			{
+				//ListにAdd
+				MeshList.Add(ii);
+			}
+
+			//終わったら無効化しておく
+			i.SetActive(false);
+		}
+
+		//統合用オブジェクト宣言
+		GameObject CombineMeshOBJ = new GameObject();
+
+		//メッシュレンダラーを付けて取得しておく
+		SkinnedMeshRenderer CombineMeshRenderer = CombineMeshOBJ.AddComponent<SkinnedMeshRenderer>();
+
+		//マテリアル設定、とりあえずキャラクターのボディシェーダー限定でやる
+		CombineMeshRenderer.material = MeshList[0].material;
+
+		//空メッシュを入れる
+		CombineMeshRenderer.sharedMesh = new Mesh();
+
+		//結合するCombineInstanceList
+		List<CombineInstance> CombineInstanceList = new List<CombineInstance>();
+
+		//結合するUV
+		List<Vector2[]> CombineUVList = new List<Vector2[]>();
+
+		//ボーンList
+		List<Transform> BoneList = new List<Transform>();
+
+		//ウェイトList
+		List<BoneWeight> BoneWeightList = new List<BoneWeight>();
+
+		//バインドボーズList
+		List<Matrix4x4> BindPoseList = new List<Matrix4x4>();
+
+		//名前とインデックスのハッシュテーブル
+		Hashtable BoneHash = new Hashtable();
+
+		//統合するベーステクスチャ
+		List<Texture2D> PackBaseTextureList = new List<Texture2D>();
+
+		//統合する法線テクスチャ
+		List<Texture2D> PackNormalTextureList = new List<Texture2D>();
+
+		//統合するハイライトテクスチャ
+		List<Texture2D> PackHiLightTextureList = new List<Texture2D>();
+
+		//統合する線画テクスチャ
+		List<Texture2D> PackLineTextureList = new List<Texture2D>();
+
+		//統合するマットキャップテクスチャ
+		List<Texture2D> PackMatCapTextureList = new List<Texture2D>();
+
+		//統合用ベーステクスチャ
+		Texture2D PackBaseTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//統合用法線テクスチャ
+		Texture2D PackNormalTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//統合用ハイライトテクスチャ
+		Texture2D PackHiLightTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//統合用線画テクスチャ
+		Texture2D PackLineTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//統合用マットキャップテクスチャ
+		Texture2D PackMatCapTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//インデックスに使うループカウント
+		int count = 0;
+
+		//サンプルからボーン情報を取る
+		foreach (Transform bone in BoneSample.bones)
+		{
+			//ボーンを取得
+			BoneList.Add(bone);
+
+			//名前とインデクスをハッシュテーブルに入れる
+			BoneHash.Add(bone.name, count);
+
+			//カウントアップ
+			count++;
+		}
+
+		//ループカウント初期化
+		count = 0;
+
+		//ボーンのバインドポーズを取得
+		foreach (var i in BoneList)
+		{
+			BindPoseList.Add(BoneList[count].worldToLocalMatrix * transform.worldToLocalMatrix);
+
+			//カウントアップ
+			count++;
+		}
+
+		//統合するメッシュレンダラーを回す
+		foreach (var i in MeshList)
+		{
+			//ボーン構成をコピーしてキャラクターのボーンと紐付ける
+			i.bones = BoneSample.bones;
+
+			//ウェイトを回す
+			foreach (BoneWeight ii in i.sharedMesh.boneWeights)
+			{
+				//リマップ用ウェイト
+				BoneWeight TempWeight = ii;
+
+				//ハッシュテーブルを元にボーンをリマップ
+				TempWeight.boneIndex0 = (int)BoneHash[i.bones[ii.boneIndex0].name];
+				TempWeight.boneIndex1 = (int)BoneHash[i.bones[ii.boneIndex1].name];
+				TempWeight.boneIndex2 = (int)BoneHash[i.bones[ii.boneIndex2].name];
+				TempWeight.boneIndex3 = (int)BoneHash[i.bones[ii.boneIndex3].name];
+
+				//ListにAdd
+				BoneWeightList.Add(TempWeight);
+			}
+
+			//統合するUVを格納
+			CombineUVList.Add(i.sharedMesh.uv);
+
+			//メッシュ統合用CombineInstance
+			CombineInstance TempCombineInstance = new CombineInstance();
+
+			//引数のメッシュレンダラーからメッシュを取得
+			TempCombineInstance.mesh = i.sharedMesh;
+
+			//引数のメッシュレンダラーからトランスフォームを取得
+			TempCombineInstance.transform = i.transform.localToWorldMatrix;
+
+			//ListにAdd
+			CombineInstanceList.Add(TempCombineInstance);
+
+			//シェーダースクリプト取得
+			CharacterBodyShaderScript tempscript = i.gameObject.GetComponent<CharacterBodyShaderScript>();
+
+			//ベーステクチャを取得
+			PackBaseTextureList.Add(tempscript._TexBase);
+
+			//法線テクスチャを取得
+			PackNormalTextureList.Add(tempscript._TexNormal);
+
+			//ハイライトテクスチャを取得
+			PackHiLightTextureList.Add(tempscript._TexHiLight);
+
+			//線画テクスチャを取得
+			PackLineTextureList.Add(tempscript._TexLine);
+
+			//マットキャップテクスチャを取得
+			PackMatCapTextureList.Add(tempscript._HiLightMatCap);
+		}
+
+		//メッシュを結合
+		CombineMeshRenderer.sharedMesh.CombineMeshes(CombineInstanceList.ToArray());
+
+		//ボーン設定
+		CombineMeshRenderer.bones = BoneList.ToArray();
+
+		//ボーンウェイト設定
+		CombineMeshRenderer.sharedMesh.boneWeights = BoneWeightList.ToArray();
+
+		//バインドポーズ設定
+		CombineMeshRenderer.sharedMesh.bindposes = BindPoseList.ToArray();
+
+		//バウンディングボックスを設定
+		CombineMeshRenderer.localBounds = new Bounds(new Vector3(0, 1, 0), new Vector3(2, 2, 2));
+
+
+
+
+		//各テクスチャリストをムリヤリ16枚にする
+		while (PackBaseTextureList.Count < 16)
+		{
+			PackBaseTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+		while (PackNormalTextureList.Count < 16)
+		{
+			PackNormalTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+		while (PackHiLightTextureList.Count < 16)
+		{
+			PackHiLightTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+		while (PackLineTextureList.Count < 16)
+		{
+			PackLineTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+		while (PackMatCapTextureList.Count < 16)
+		{
+			PackMatCapTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+		}
+
+		//ベーステクスチャを統合してRectを受け取る、
+		Rect[] TexBaseRect = PackBaseTexture.PackTextures(PackBaseTextureList.ToArray(), 0, 512, false);
+
+		//法線テクスチャ統合
+		PackNormalTexture.PackTextures(PackNormalTextureList.ToArray(), 0, 512, false);
+
+		//ハイライトテクスチャ統合
+		PackHiLightTexture.PackTextures(PackHiLightTextureList.ToArray(), 0, 512, false);
+
+		//線画テクスチャ統合
+		PackLineTexture.PackTextures(PackLineTextureList.ToArray(), 0, 512, false);
+
+		//マットキャップテクスチャ統合
+		PackMatCapTexture.PackTextures(PackMatCapTextureList.ToArray(), 0, 512, false);
+
+		//統合用UV宣言
+		List<Vector2> CombineUV = new List<Vector2>();
+
+		//ループカウント初期化
+		count = 0;
+
+		//UVListを回す
+		foreach (var i in CombineUVList)
+		{
+			//格納用UVList宣言
+			List<Vector2> tempUV = new List<Vector2>();
+
+			//パックしたテクスチャのRectを元にUVを16マスに配置する
+			foreach (var ii in i)
+			{
+				tempUV.Add(new Vector2((ii.x * 0.25f) + TexBaseRect[count].position.x, (ii.y * 0.25f) + TexBaseRect[count].position.y));
+			}
+
+			//UVを追加
+			CombineUV.AddRange(tempUV);
+
+			//カウントアップ
+			count++;
+		}
+
+		//UVを設定
+		CombineMeshRenderer.sharedMesh.uv = CombineUV.ToArray();
+
+		//キャラクターボディシェーダースクリプトを付ける
+		CombineMeshOBJ.AddComponent<CharacterBodyShaderScript>();
+
+		//ベーステクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexBase = PackBaseTexture;
+
+		//法線テクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexNormal = PackNormalTexture;
+
+		//ハイライトテクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexHiLight = PackHiLightTexture;
+
+		//線画テクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexLine = PackLineTexture;
+
+		//マットキャップテクスチャを設定
+		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._HiLightMatCap = PackMatCapTexture;
+
+		//匿名関数実行
+		Act(CombineMeshOBJ);
+	}
+
 	//シーン遷移関数
 	public void NextScene(string scene)
 	{

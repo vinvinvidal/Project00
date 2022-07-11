@@ -1460,7 +1460,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void OnCharacterChange(InputValue i)
 	{
 		//キャラチェンジ入力許可条件判定
-		if (PermitInputBoolDic["ChangeBefore"] && (!GameManagerScript.Instance.AllActiveEnemyList.All(a => a == null) || !GameManagerScript.Instance.BattleFlag))
+		if (PermitInputBoolDic["ChangeBefore"] && 
+			//最後の１人じゃない
+			GameManagerScript.Instance.AllActiveCharacterList.Where(a => a != null).ToList().Count != 1 && 
+			//敵がいる、もしくは戦闘中じゃない
+			(!GameManagerScript.Instance.AllActiveEnemyList.All(a => a == null) || !GameManagerScript.Instance.BattleFlag))
 		{
 			//入力フラグを立てる
 			ChangeInput = true;
@@ -5791,8 +5795,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 	}
 
-	//拉致られ待機処理
-	private void StartAbduction()
+	//ノックダウン処理
+	private void KnockDown()
 	{
 		//ゲームマネージャーのダウンしているキャラクターに自身を加える
 		GameManagerScript.Instance.DownCharacterList.Add(gameObject);
@@ -5800,28 +5804,38 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ゲームマネージャーの操作可能キャラクターから自分を外す
 		GameManagerScript.Instance.RemoveAllActiveCharacterList(AllActiveCharacterListIndex);
 
-		//時間をキャッシュ
-		ChangeTime = Time.time;
+		//全員やられた
+		if(GameManagerScript.Instance.AllActiveCharacterList.All(a => a ==null))
+		{
+			//ゲームオーバー処理呼び出し
 
-		//攻撃コライダを無効化
-		EndAttackCol();
+		}
+		else
+		{
+			//時間をキャッシュ
+			ChangeTime = Time.time;
 
-		//キャラ交代処理を呼び出す
-		GameManagerScript.Instance.ChangePlayableCharacter
-		(
-			true,
-			//CharacterID,
-			AllActiveCharacterListIndex,
-			1,
-			LockEnemy,
-			//BattleFlag, 
-			true,
-			ChangeTime,
-			CurrentAnimator.GetBool("Combo"),
-			CurrentAnimator.GetBool("Fall"),
-			GroundDistance
-		);
+			//攻撃コライダを無効化
+			EndAttackCol();
 
-		//一定時間守り続けたら復活させるか
+			//キャラ交代処理を呼び出す
+			GameManagerScript.Instance.ChangePlayableCharacter
+			(
+				true,
+				//CharacterID,
+				AllActiveCharacterListIndex,
+				1,
+				LockEnemy,
+				//BattleFlag, 
+				true,
+				ChangeTime,
+				CurrentAnimator.GetBool("Combo"),
+				CurrentAnimator.GetBool("Fall"),
+				GroundDistance
+			);
+
+			//一定時間守り続けたら復活させるか
+		}
+
 	}
 }
