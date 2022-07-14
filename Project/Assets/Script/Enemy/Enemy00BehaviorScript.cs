@@ -107,9 +107,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//プレイヤーキャラクター、とりあえずnull
 		PlayerCharacter = null;
 
-		//プレイヤーキャラクターをコルーチンで確実に取得する
-		StartCoroutine(SetPlayerCharacterCoroutine());
-
 		///---行動追加---///
 
 		//待機
@@ -1015,8 +1012,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//キャラクターに向ける
 			EnemyScript.BehaviorRotate = HorizontalVector(AbductionPos, gameObject);
 
-			//行動不能になったらブレイク
-			if (!EnemyScript.BehaviorFlag)
+			//行動不能になるかキャラクターが起き上がったらレイク
+			if (!EnemyScript.BehaviorFlag || !GameManagerScript.Instance.DownCharacterList.Any(a => a == TargetCharacter))
 			{
 				//アニメーターのフラグを下ろす
 				CurrentAnimator.SetBool("Walk", false);
@@ -1047,7 +1044,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			CharacterDistance = Vector3.Distance(AbductionPos, gameObject.transform.position);
 
 			//行動不能になったらブレイク
-			if (!EnemyScript.BehaviorFlag)
+			if (!EnemyScript.BehaviorFlag || !GameManagerScript.Instance.DownCharacterList.Any(a => a == TargetCharacter))
 			{
 				//アニメーターのフラグを下ろす
 				CurrentAnimator.SetBool("Run", false);
@@ -1078,7 +1075,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			EnemyScript.BehaviorRotate = -TargetCharacter.transform.forward;
 
 			//行動不能になったらブレイク
-			if (!EnemyScript.BehaviorFlag)
+			if (!EnemyScript.BehaviorFlag || !GameManagerScript.Instance.DownCharacterList.Any(a => a == TargetCharacter))
 			{
 				//アニメーターのフラグを下ろす
 				CurrentAnimator.SetBool("Walk", false);
@@ -1090,11 +1087,22 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			yield return null;
 		}
 
-		//アニメーターのフラグを下す
-		CurrentAnimator.SetBool("Walk", false);
+		//復活までの時間が十分にあるかチェック
+		if(TargetCharacter.GetComponent<PlayerScript>().RevivalTime > 0.5f)
+		{
+			//アニメーターのフラグを下す
+			CurrentAnimator.SetBool("Walk", false);
 
-		//アニメーターフラグを立てる
-		CurrentAnimator.SetBool("Abduction", true);
+			//アニメーターフラグを立てる
+			CurrentAnimator.SetBool("Abduction", true);
+		}
+		else
+		{
+			//アニメーターのフラグを下ろす
+			CurrentAnimator.SetBool("Abduction", false);
+
+			goto AbductionBreak;
+		}
 
 		//拉致成功までループ
 		while(!EnemyScript.AbductionSuccess_Flag)
@@ -1144,20 +1152,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//待機
 		yield return null;	
-	}
-
-	//プレイヤーキャラクター取得コルーチン
-	IEnumerator SetPlayerCharacterCoroutine()
-	{
-		//プレイヤーキャラクターを取得するまでループ
-		while (PlayerCharacter == null)
-		{
-			//プレイヤーキャラクター取得
-			PlayerCharacter = EnemyScript.PlayerCharacter;
-
-			//1フレーム待機
-			yield return null;
-		}
 	}
 
 	//プレイヤーキャラクターを更新する

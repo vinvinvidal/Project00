@@ -329,6 +329,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//プレイヤーキャラクター取得
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => PlayerCharacter = reciever.GetPlayableCharacterOBJ());
 
+		//ビヘイビアにもプレイヤーキャラクターを渡す
+		ExecuteEvents.Execute<EnemyBehaviorInterface>(gameObject, null, (reciever, eventData) => reciever.SetPlayerCharacter(PlayerCharacter));
+
 		//行動List取得コルーチン呼び出し
 		StartCoroutine(GetBehaviorListCoroutine());
 

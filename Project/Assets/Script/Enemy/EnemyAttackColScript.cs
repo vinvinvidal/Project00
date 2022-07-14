@@ -119,7 +119,7 @@ public class EnemyAttackColScript : GlobalClass, EnemyAttackCollInterface
 			case 0:
 
 				//出現位置・前方
-				AttackCol.center = new Vector3(0, 0.5f, 1.5f);
+				AttackCol.center = new Vector3(0, 0.5f, 1f);
 
 				//大きさ
 				AttackCol.size = new Vector3(0.5f, 1f, 1f);

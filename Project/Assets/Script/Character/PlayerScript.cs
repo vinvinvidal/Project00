@@ -135,6 +135,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//超必殺技を発動できるバリバリゲージしきい値
 	public float SuperGauge;
 
+	//復活にかかる時間
+	public float RevivalTime;
+
 	//--- 変動パラメータ ---//
 
 	//ライフゲージ
@@ -1606,7 +1609,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8 && CurrentState != "Down")
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8 && CurrentState != "Down" && CurrentState != "Revival" && CurrentState != "Idling")
 		{			
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
@@ -2140,9 +2143,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 	private IEnumerator PlayerAbductionCoroutine(GameObject Enemy)
 	{
-		//ダウンしてるキャラリストから自身を削除
-		GameManagerScript.Instance.DownCharacterList.Remove(gameObject);
-
 		//アニメーション遷移フラグを立てる
 		CurrentAnimator.SetBool("Abduction", true);
 
@@ -4993,6 +4993,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => reciever.DropStockWeapon());
 
 		}
+		//Downになった瞬間の処理
+		else if (s.Contains("-> Down"))
+		{
+			//アニメーターの遷移フラグを下す
+			CurrentAnimator.SetBool("Down", false);
+		}
+		//Revivalになった瞬間の処理
+		else if (s.Contains("-> Revival"))
+		{
+			//アニメーターの遷移フラグを下す
+			CurrentAnimator.SetBool("Revival", false);
+		}		
 		//SpecialTryになった瞬間の処理
 		else if (s.Contains("-> SpecialTry"))
 		{
@@ -5699,6 +5711,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 
+		//復活の場合は操作可能なキャラクターリストに自身を加える
+		if (CurrentState.Contains("Revival"))
+		{
+			GameManagerScript.Instance.AllActiveCharacterList[AllActiveCharacterListIndex] = gameObject;
+		}
+
 		//オブジェクトを無効化
 		gameObject.SetActive(false);
 
@@ -5814,7 +5832,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if(GameManagerScript.Instance.AllActiveCharacterList.All(a => a ==null))
 		{
 			//ゲームオーバー処理呼び出し
-
 		}
 		else
 		{
@@ -5840,8 +5857,42 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				GroundDistance
 			);
 
-			//一定時間守り続けたら復活させるか
+			//復活コルーチン呼び出し
+			StartCoroutine(RevivalCoroutine());
+		}
+	}
+
+	//復活処理コルーチン
+	private IEnumerator RevivalCoroutine()
+	{
+		//復活時間キャッシュ
+		float T = RevivalTime;
+
+		while(RevivalTime > 0)
+		{
+			//復活時間カウントダウン
+			RevivalTime -= Time.deltaTime;
+
+			//拉致られたら処理を飛ばしてブレーク
+			if(CurrentState.Contains("Abduction"))
+			{
+				goto Abduction;
+			}
+
+			//1フレーム待機
+			yield return null;
 		}
 
+		//アニメーターの遷移フラグを立てる
+		CurrentAnimator.SetBool("Revival", true);
+
+		//ブレーク先
+		Abduction:;
+
+		//復活時間をリセット
+		RevivalTime = T;
+		
+		//ダウンしているキャラクターリストから自身を削除
+		GameManagerScript.Instance.DownCharacterList.Remove(gameObject);
 	}
 }

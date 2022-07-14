@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.EventSystems;
@@ -190,37 +191,37 @@ public class GlobalClass : MonoBehaviour
 		//バウンディングボックスを設定
 		CombineMeshRenderer.localBounds = new Bounds(new Vector3(0, 1, 0), new Vector3(2, 2, 2));
 
-
-
+		//ムリヤリ枚数合わせ用のテクスチャ
+		Texture2D temptexture = new Texture2D(128, 128, TextureFormat.R8, false);
 
 		//各テクスチャリストをムリヤリ16枚にする
 		while (PackBaseTextureList.Count < 16)
 		{
-			PackBaseTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+			PackBaseTextureList.Add(temptexture);
 		}
 		while (PackNormalTextureList.Count < 16)
 		{
-			PackNormalTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+			PackNormalTextureList.Add(temptexture);
 		}
 		while (PackHiLightTextureList.Count < 16)
 		{
-			PackHiLightTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+			PackHiLightTextureList.Add(temptexture);
 		}
 		while (PackLineTextureList.Count < 16)
 		{
-			PackLineTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+			PackLineTextureList.Add(temptexture);
 		}
 		while (PackMatCapTextureList.Count < 16)
 		{
-			PackMatCapTextureList.Add(new Texture2D(128, 128, TextureFormat.RGBA32, false));
+			PackMatCapTextureList.Add(temptexture);
 		}
-
+	
 		//ベーステクスチャを統合してRectを受け取る、
 		Rect[] TexBaseRect = PackBaseTexture.PackTextures(PackBaseTextureList.ToArray(), 0, 512, false);
 
 		//法線テクスチャ統合
 		PackNormalTexture.PackTextures(PackNormalTextureList.ToArray(), 0, 512, false);
-
+	
 		//ハイライトテクスチャ統合
 		PackHiLightTexture.PackTextures(PackHiLightTextureList.ToArray(), 0, 512, false);
 
@@ -229,7 +230,7 @@ public class GlobalClass : MonoBehaviour
 
 		//マットキャップテクスチャ統合
 		PackMatCapTexture.PackTextures(PackMatCapTextureList.ToArray(), 0, 512, false);
-
+		
 		//統合用UV宣言
 		List<Vector2> CombineUV = new List<Vector2>();
 

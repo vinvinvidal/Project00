@@ -446,11 +446,14 @@ public class EnemySettingScript : GlobalClass
 			//レイヤーをEnemyにする
 			OBJ.layer = LayerMask.NameToLayer("Enemy");
 
-			//カメラに収まってるか調べるスクリプトを付ける
+			//カメラに収まってるか調べるスクリプトをる
 			OBJ.AddComponent<OnCameraScript>();
 
 			//スクリプトのOnCameraObjectに代入
 			TempEnemyScript.OnCameraObject = OBJ;
+
+			//キャラクターコントローラ有効化
+			gameObject.GetComponent<CharacterController>().enabled = true;
 
 			//アニメーター有効化
 			gameObject.GetComponent<Animator>().enabled = true;
@@ -461,8 +464,14 @@ public class EnemySettingScript : GlobalClass
 				i.enabled = true;
 			}
 
+			//スクリプト有効化
+			TempEnemyScript.enabled = true;
+
 			//セッティング完了フラグを立てる
 			AllReadyFlag = true;
+
+			//自身を無効化
+			gameObject.SetActive(false);
 		});
 	}
 }

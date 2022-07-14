@@ -17,6 +17,12 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//出現する敵ウェーブリスト
 	public List<int> EnemyWaveList;
 
+	//このバトルフィールドに出現する全ての敵オブジェクトList
+	private List<List<GameObject>> AllEnemyList;
+
+	//出現する全ての敵オブジェクト準備完了フラグ
+	private bool GenerateEnemyFlag = false;
+
 	//出現させた敵List
 	private List<GameObject> EnemyList;
 
@@ -64,6 +70,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//敵出現位置List初期化
 		SpawnPosList = new List<GameObject>(gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("SpawnPos")).Select(a => a.gameObject).ToList());
 
+		//このバトルフィールドに出現する全ての敵オブジェクトList初期化
+		AllEnemyList = new List<List<GameObject>>();
+
 		//コライダオブジェクト取得
 		ColOBJ = DeepFind(gameObject, "ColOBJ");
 
@@ -94,7 +103,10 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//プレイヤーキャラクター取得コルーチン呼び出し
 		StartCoroutine(GetPlayerCharacterCoroutine());
 
-		//敵初期配置コルーチン呼び出し
+		//敵オブジェクト読み込みコルーチン呼び出し
+		StartCoroutine(GenerateEnemyCoroutine());
+
+		//敵配置コルーチン呼び出し
 		StartCoroutine(StandByCoroutine(() => { }));
 	}
 
@@ -127,6 +139,58 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				}
 			}
 		}
+	}
+
+	//出現する全ての敵を生成するコルーチン
+	private IEnumerator GenerateEnemyCoroutine()
+	{
+		//全てのウェーブを回す
+		foreach (var i in EnemyWaveList)
+		{
+			//Add用敵リスト初期化
+			List<GameObject> TempEnemyList = new List<GameObject>();
+
+			//全ての敵を回す
+			foreach (var ii in GameManagerScript.Instance.AllEnemyWaveList.Where(a => a.WaveID == i).ToArray()[0].EnemyList)
+			{
+				//全ての敵リストからIDでクラスを取得
+				EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => int.Parse(e.EnemyID) == ii).ToList()[0];
+
+				//インスタンス用オブジェクト宣言
+				GameObject TempEnemy = null;
+
+				//敵オブジェクトを読み込む
+				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Enemy/" + tempclass.EnemyID + "/", tempclass.OBJname, "prefab", (object O) =>
+				{
+					//読み込んだ敵を代入
+					TempEnemy = O as GameObject;
+				}));
+
+				//読み込み完了を待つ
+				while (TempEnemy == null)
+				{
+					yield return null;
+				}
+
+				//トランスフォームリセット
+				ResetTransform(TempEnemy);
+
+				//ListにAdd
+				TempEnemyList.Add(Instantiate(TempEnemy));
+			}
+
+			//ListにAdd
+			AllEnemyList.Add(TempEnemyList);
+		}
+
+		//全ての敵の準備が終わるまで待つ
+		while(!AllEnemyList.All(a => a.All(b => b.GetComponent<EnemySettingScript>().AllReadyFlag)))
+		{
+			yield return null;
+		}
+
+		//フラグを立てる
+		GenerateEnemyFlag = true;
 	}
 
 	//プレイヤーキャラクターをセットするインターフェイス
@@ -293,6 +357,111 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			yield return null;
 		}
 
+		//敵生成完了まで待つ
+		while(!GenerateEnemyFlag)
+		{
+			//１フレーム待機
+			yield return null;
+		}
+
+		//敵リスト初期化
+		EnemyList = new List<GameObject>();
+
+		//敵カウント
+		int EnemyCount = 0;
+
+		//配置用変数
+		float PlacementPoint = 0;
+
+		//敵オブジェクトを配置する
+		foreach (GameObject i in AllEnemyList[WaveCount])
+		{
+			//セッティングスクリプト取得
+			EnemySettingScript TempSettingScript = i.GetComponent<EnemySettingScript>();
+
+			//エネミースクリプト取得
+			EnemyCharacterScript TempEnemyScript = i.GetComponent<EnemyCharacterScript>();
+
+			//トランスフォームリセット
+			ResetTransform(i);
+			/*
+			//同じ敵を同時に出現させるとSettingで読み込み重複が起こり、原点から外れるとメッシュ結合が上手くいなないので終わるまで待機
+			while (!TempSettingScript.AllReadyFlag)
+			{
+				//１フレーム待機
+				yield return null;
+			}
+			*/
+			//親をバトルフィールドにする
+			i.transform.parent = gameObject.transform;
+
+			//配置用変数算出
+			PlacementPoint = (float)EnemyCount / GameManagerScript.Instance.AllEnemyWaveList.Where(a => a.WaveID == EnemyWaveList[WaveCount]).ToArray()[0].EnemyList.Count * (2.0f * Mathf.PI);
+
+			//ポジション設定
+			i.transform.localPosition = new Vector3(Mathf.Cos(PlacementPoint) * 1.5f, 0, Mathf.Sin(PlacementPoint) * 1.5f);
+
+			//ローテンション設定
+			i.transform.LookAt(gameObject.transform.position - i.transform.localPosition);
+
+			//親を解除
+			i.transform.parent = null;
+
+			//オブジェクト有効化
+			i.SetActive(true);
+
+			//敵出現カウントアップ
+			EnemyCount++;
+
+			//敵リストにAdd
+			EnemyList.Add(i);
+		}
+
+		//敵の配置が終わってから行う処理
+		if (WaveCount == 0)
+		{
+			//コライダ有効化をする
+			BattleFieldCol.enabled = true;
+		}
+		else
+		{
+			//パス終了値を取得
+			float EndNum = BattleNextVcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_Path.MaxPos;
+
+			//カメラワークが終わるまで待機
+			while (EndNum > BattleNextVcam.GetComponentInChildren<CinemachineVirtualCamera>().GetCinemachineComponent<CinemachineTrackedDolly>().m_PathPosition)
+			{
+				//1フレーム待機
+				yield return null;
+			}
+
+			//敵の戦闘開始処理実行
+			foreach (var i in EnemyList.Where(a => a != null).ToList())
+			{
+				i.GetComponent<EnemyCharacterScript>().BattleStart();
+			}
+
+			//イベント中フラグを下す
+			GameManagerScript.Instance.EventFlag = false;
+		}
+
+		//ウェーブカウントアップ
+		WaveCount++;
+
+		//全滅チェック開始
+		EnemyCheckFlag = true;
+
+		//最後のウェーブか判別
+		if (EnemyWaveList.Count == WaveCount)
+		{
+			LastWaveFlag = true;
+		}
+
+		//匿名関数実行
+		Act();
+
+
+		/*
 		//敵リスト初期化
 		EnemyList = new List<GameObject>();
 
@@ -306,7 +475,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		List<GameObject> TempEnemyOBJList = new List<GameObject>();
 
 		//登録されている敵ウェーブリストから出現する敵のリストを回す
-		foreach (var i in GameManagerScript.Instance.AllEnemyWaveList[EnemyWaveList[WaveCount]].EnemyList)
+		foreach (var i in GameManagerScript.Instance.AllEnemyWaveList.Where(a => a.WaveID == EnemyWaveList[WaveCount]).ToArray()[0].EnemyList)
 		{
 			//全ての敵リストからIDでクラスを取得
 			EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => int.Parse(e.EnemyID) == i).ToList()[0];
@@ -357,7 +526,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			TempEnemy.transform.parent = gameObject.transform;
 
 			//配置用変数算出
-			PlacementPoint = (float)EnemyCount / GameManagerScript.Instance.AllEnemyWaveList[EnemyWaveList[WaveCount]].EnemyList.Count * (2.0f * Mathf.PI);
+			PlacementPoint = (float)EnemyCount / GameManagerScript.Instance.AllEnemyWaveList.Where(a => a.WaveID == EnemyWaveList[WaveCount]).ToArray()[0].EnemyList.Count * (2.0f * Mathf.PI);
 
 			//ポジション設定
 			TempEnemy.transform.localPosition = new Vector3(Mathf.Cos(PlacementPoint) * 1.5f, 0, Mathf.Sin(PlacementPoint) * 1.5f);
@@ -420,6 +589,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 		//匿名関数実行
 		Act();
+		*/
 	}
 
 	//プレイヤーがエリアに進入したら呼ばれる関数

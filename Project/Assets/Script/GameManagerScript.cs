@@ -193,8 +193,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 
 
-
-
 	//存在している全てのキャラクターリスト
 	public List<GameObject> AllActiveCharacterList { get; set; } = new List<GameObject>();
 
@@ -406,6 +404,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		FrameCount = 0;
 		PrevTime = 0.0f;
 		NextTime = 0.0f;
+
 
 		//ゲームデータ読み込みコルーチン呼び出し
 		StartCoroutine(LoadGameData());
