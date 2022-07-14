@@ -343,6 +343,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	[Header("ダウンモーション")]
 	public AnimationClip Down_Anim;
 
+	[Header("起き上がりモーション")]
+	public AnimationClip Revival_Anim;
+
 	[Header("基本表情モーション")]
 	public AnimationClip BaseFace_Anim;
 	
@@ -675,6 +678,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		OverRideAnimator["ChainBreak_void_0"] = Idling1_Anim;
 		OverRideAnimator["ChainBreak_void_1"] = Fall_Anim;
 		OverRideAnimator["Down_void"] = Down_Anim;
+		OverRideAnimator["Revival_void"] = Revival_Anim;
 		OverRideAnimator["SpecialTry_void"] = SpecialTry_Anim;
 		OverRideAnimator["SpecialSuccess_void"] = SpecialSuccess_Anim;
 		OverRideAnimator["BaseFace_void"] = BaseFace_Anim;
@@ -901,6 +905,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		InvincibleList.Add("Rolling");
 		InvincibleList.Add("Damage");
 		InvincibleList.Add("Down");
+		InvincibleList.Add("Revival");
 		InvincibleList.Add("-> Jump");
 		InvincibleList.Add("SpecialAttack");
 		InvincibleList.Add("SpecialSuccess");
@@ -933,6 +938,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AllStates.Add("EventAction");
 		AllStates.Add("Damage");
 		AllStates.Add("Down");
+		AllStates.Add("Revival");
 		AllStates.Add("SpecialTry");
 		AllStates.Add("SpecialSuccess");		
 		AllStates.Add("SpecialAttack");

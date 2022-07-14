@@ -2181,6 +2181,7 @@ MonoBehaviour:
   SpecialTry_Anim: {fileID: 7400000, guid: 0af4dc48f0392e947a0e3e426b314968, type: 2}
   SpecialSuccess_Anim: {fileID: 7400000, guid: 077a9aefa283a6f49953c6138b78db4d, type: 2}
   Down_Anim: {fileID: 7400000, guid: 2412d70273e3f27409cdd3cd791887f8, type: 2}
+  Revival_Anim: {fileID: 7400000, guid: 515321a4df85fb74bb1ce50d9a9991b1, type: 2}
   BaseFace_Anim: {fileID: 7400000, guid: 1e26e447ccccc8140a43593c561d1725, type: 2}
   EyeClose_Anim: {fileID: 7400000, guid: e24e2ebac5e478d4884f2b74e9b7aa73, type: 2}
   MouthClose_Anim: {fileID: 7400000, guid: 02781ea7a73430b4689e9e7c11ee8515, type: 2}
