@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 40cb037209a9f8343b61d1cf95deb49a
+guid: b58f1d63ab01d02428f0832a75d60783
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 0
   userData: 
-  assetBundleName: anim/enemy/00/generic/enemy00_motion_standby00
+  assetBundleName: anim/enemy/00/ready/enemy00_motion_ready1
   assetBundleVariant: 

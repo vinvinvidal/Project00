@@ -14,6 +14,9 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	//ダメージモーションListを受け取る、セッティングスクリプトから呼ばれる
 	void SetDamageAnimList(List<AnimationClip> i);
 
+	//たむろモーションListを受け取る、セッティングスクリプトから呼ばれる
+	void SetReadyAnimList(List<AnimationClip> i);
+
 	//スケベヒットモーションListを受け取る、セッティングスクリプトから呼ばれる
 	void SetH_HitAnimList(List<AnimationClip> i);
 
@@ -323,15 +326,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void Start()
 	{
-		//敵の管理をするマネージャーが持っているリストに自身を追加、戻り値でリストのインデックスを受け取る
-		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => ListIndex = reciever.AddAllActiveEnemyList(gameObject));
-
-		//プレイヤーキャラクター取得
-		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => PlayerCharacter = reciever.GetPlayableCharacterOBJ());
-
-		//ビヘイビアにもプレイヤーキャラクターを渡す
-		ExecuteEvents.Execute<EnemyBehaviorInterface>(gameObject, null, (reciever, eventData) => reciever.SetPlayerCharacter(PlayerCharacter));
-
 		//行動List取得コルーチン呼び出し
 		StartCoroutine(GetBehaviorListCoroutine());
 
@@ -514,6 +508,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//全てのステート名を手動でAdd、アニメーターのステート名は外部から取れない
 		AllStates.Add("AnyState");
+		AllStates.Add("Ready");
 		AllStates.Add("Idling");
 		AllStates.Add("Walk");
 		AllStates.Add("Run");
@@ -596,9 +591,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				RiseAnimNoiseSeedList.Add(new Vector3(UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f)));
 			}
 		}
-
-		//アイドリングモーションを変更
-		CurrentAnimator.SetFloat("IdlingBlend", Random.Range(2, 4));
 
 		//アニメーター停止
 		CurrentAnimator.speed = 0;
@@ -1211,22 +1203,22 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			else if (UseIndex == 30)
 			{
 				//立ち胸倉
-				OverRideAnimator["Hold_Void"] = DamageAnimList[UseIndex];
+				OverRideAnimator["Hold_void"] = DamageAnimList[UseIndex];
 
 				//仰向け胸倉
 				if (CurrentAnimator.GetBool("Down_Supine") && !RiseFlag)
 				{
-					OverRideAnimator["Hold_Void"] = DamageAnimList[31];
+					OverRideAnimator["Hold_void"] = DamageAnimList[31];
 				}
 				//うつ伏せ胸倉
 				else if (CurrentAnimator.GetBool("Down_Prone") && !RiseFlag)
 				{
-					OverRideAnimator["Hold_Void"] = DamageAnimList[32];
+					OverRideAnimator["Hold_void"] = DamageAnimList[32];
 				}
 			}
 
 			//使用するモーションに差し替え
-			OverRideAnimator["Damage_Void_" + DamageState % 2] = DamageAnimList[UseIndex];
+			OverRideAnimator["Damage_void_" + DamageState % 2] = DamageAnimList[UseIndex];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -1289,12 +1281,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			if(DestroyFlag)
 			{
 				//ダウンモーションに切り替え
-				OverRideAnimator["Damage_Void_" + DamageState % 2] = DamageAnimList[1];
+				OverRideAnimator["Damage_void_" + DamageState % 2] = DamageAnimList[1];
 			}
 			else
 			{
 				//壁当たりモーション差し替え
-				OverRideAnimator["Damage_Void_" + DamageState % 2] = DamageAnimList[9];
+				OverRideAnimator["Damage_void_" + DamageState % 2] = DamageAnimList[9];
 			}		
 
 			//再生フレームを最初にする
@@ -1905,7 +1897,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			CurrentAnimator.SetFloat("DamageMotionSpeed" + (DamageState + 1) % 2, 0);
 
 			//使用するモーションに差し替え
-			OverRideAnimator["Damage_Void_" + DamageState % 2] = DamageAnimList[1];
+			OverRideAnimator["Damage_void_" + DamageState % 2] = DamageAnimList[1];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -2332,7 +2324,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
 
 		//スケベ攻撃ヒットモーションを切り替える
-		OverRideAnimator["H_Hit_Void"] = H_HitAnimList.Where(a => a.name.Contains(H_Location)).ToList()[0];
+		OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains(H_Location)).ToList()[0];
 
 		//スケベ攻撃ヒットモーションを切り替える
 		OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains(H_Location)).ToList()[0];
@@ -2368,7 +2360,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CurrentAnimator.SetBool("H_Break", true);
 
 		//使用するモーションに差し替え
-		OverRideAnimator["H_Break_Void"] = H_BreakAnimList.Where(a => a.name.Contains(location)).ToList()[0];
+		OverRideAnimator["H_Break_void"] = H_BreakAnimList.Where(a => a.name.Contains(location)).ToList()[0];
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -2457,7 +2449,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		ExecuteEvents.Execute<EnemyBehaviorInterface>(gameObject, null, (reciever, eventData) => reciever.SetArts(UseArts));
 
 		//使用するモーションに差し替え
-		OverRideAnimator["Attack_Void"] = UseArts.Anim;
+		OverRideAnimator["Attack_void"] = UseArts.Anim;
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -2510,7 +2502,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		DamageAnimList = new List<AnimationClip>(i);
 
 		//オーバーライドコントローラにアニメーションクリップをセット、これをしないとTスタンスが見える
-		OverRideAnimator["Damage_Void_0"] = DamageAnimList[0];
+		OverRideAnimator["Damage_void_0"] = DamageAnimList[0];
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+	}
+
+	//たむろモーションListを受け取る、セッティングスクリプトから呼ばれる
+	public void SetReadyAnimList(List<AnimationClip> i)
+	{
+		//オーバーライドコントローラにアニメーションクリップをセット
+		OverRideAnimator["Ready_void"] = i[Random.Range(0, i.Count - 1)];
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -2636,7 +2638,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//アニメーター再生
 		CurrentAnimator.speed = 1;
 
-
 		//アングルを測定、プレイヤーに向くまでループ
 		while (Vector3.Angle(gameObject.transform.forward, HorizontalVector(PlayerCharacter, gameObject)) > 1)
 		{
@@ -2648,14 +2649,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 
 		//たむろモーションが終わるまで待つ
-		while (CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+		while (CurrentState == "Ready")
 		{
 			//１フレーム待機
 			yield return null;
 		}
-
-		//アイドリングモーションを変更
-		CurrentAnimator.SetFloat("IdlingBlend", 0);
 	}
 
 	//戦闘開始処理
@@ -2665,21 +2663,27 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	}
 	private IEnumerator BattleStartCoroutine()
 	{
+		//敵の管理をするマネージャーが持っているリストに自身を追加、戻り値でリストのインデックスを受け取る
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => ListIndex = reciever.AddAllActiveEnemyList(gameObject));
+
+		//プレイヤーキャラクター取得
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => PlayerCharacter = reciever.GetPlayableCharacterOBJ());
+
+		//ビヘイビアにもプレイヤーキャラクターを渡す
+		ExecuteEvents.Execute<EnemyBehaviorInterface>(gameObject, null, (reciever, eventData) => reciever.SetPlayerCharacter(PlayerCharacter));
+
 		//アニメーター再生
 		CurrentAnimator.speed = 1;
 
+		//ダメージコライダ有効化
+		DamageCol.enabled = true;
+
 		//たむろモーションが終わるまで待つ
-		while (CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+		while (CurrentState == "Ready" && !DamageFlag)
 		{
 			//１フレーム待機
 			yield return null;
 		}
-
-		//アイドリングモーションを変更
-		CurrentAnimator.SetFloat("IdlingBlend", 0);
-
-		//ダメージコライダ有効化
-		DamageCol.enabled = true;
 
 		//戦闘フラグを立てる
 		BattleFlag = true;

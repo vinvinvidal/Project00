@@ -179,6 +179,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//イベント中フラグ
 	public bool EventFlag { get; set; } = false;
 
+	//敵生成中フラグ
+	public bool GenerateEnemyFlag { get; set; } = false;
+
 	//戦闘中フラグ
 	public bool BattleFlag { get; set; } = false;
 
@@ -1887,6 +1890,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//チャプターID初期化
 		SelectedMissionChapter = 0;
+
+		//敵生成中フラグを下す
+		GenerateEnemyFlag = false;
 	}
 
 	//戦闘一時停止処理

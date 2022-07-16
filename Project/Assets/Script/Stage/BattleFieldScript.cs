@@ -29,14 +29,17 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//最後の１人
 	private GameObject LastEnemy = null;
 
+	//準備完了フラグ
+	public bool AllReadyFlag { get; set; } = false;
+
 	//全滅チェックフラグ
 	private bool EnemyCheckFlag = false;
 
-	//ウェーブカウント
-	private int WaveCount = 0;
-
 	//最後のウェーブフラグ
 	private bool LastWaveFlag = false;
+
+	//ウェーブカウント
+	private int WaveCount = 0;
 
 	//出現位置List
 	private List<GameObject> SpawnPosList;
@@ -103,6 +106,22 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//プレイヤーキャラクター取得コルーチン呼び出し
 		StartCoroutine(GetPlayerCharacterCoroutine());
 
+		//敵生成コルーチン呼び出し
+		StartCoroutine(GenerateEnemyTryCoroutine());
+	}
+
+	//敵生成コルーチン呼び出し
+	public IEnumerator GenerateEnemyTryCoroutine()
+	{
+		//ゲームマネージャーの敵生成中フラグが降りるまでループ
+		while(GameManagerScript.Instance.GenerateEnemyFlag)
+		{
+			yield return null;
+		}
+
+		//ゲームマネージャーの敵生成中フラグを立てて他のバトルフィールドの敵生成を待たせる
+		GameManagerScript.Instance.GenerateEnemyFlag = true;
+
 		//敵オブジェクト読み込みコルーチン呼び出し
 		StartCoroutine(GenerateEnemyCoroutine());
 
@@ -163,7 +182,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Enemy/" + tempclass.EnemyID + "/", tempclass.OBJname, "prefab", (object O) =>
 				{
 					//読み込んだ敵を代入
-					TempEnemy = O as GameObject;
+					TempEnemy = Instantiate(O as GameObject);
 				}));
 
 				//読み込み完了を待つ
@@ -176,21 +195,26 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				ResetTransform(TempEnemy);
 
 				//ListにAdd
-				TempEnemyList.Add(Instantiate(TempEnemy));
+				TempEnemyList.Add(TempEnemy);
+
+				EnemySettingScript TempSettingScript = TempEnemy.GetComponent<EnemySettingScript>();
+
+				//読み込み完了を待つ
+				while (!TempSettingScript.AllReadyFlag)
+				{
+					yield return null;
+				}
 			}
 
 			//ListにAdd
 			AllEnemyList.Add(TempEnemyList);
 		}
 
-		//全ての敵の準備が終わるまで待つ
-		while(!AllEnemyList.All(a => a.All(b => b.GetComponent<EnemySettingScript>().AllReadyFlag)))
-		{
-			yield return null;
-		}
-
 		//フラグを立てる
 		GenerateEnemyFlag = true;
+
+		//ゲームマネージャーの敵生成中フラグを下す
+		GameManagerScript.Instance.GenerateEnemyFlag = false;
 	}
 
 	//プレイヤーキャラクターをセットするインターフェイス
@@ -384,14 +408,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 			//トランスフォームリセット
 			ResetTransform(i);
-			/*
-			//同じ敵を同時に出現させるとSettingで読み込み重複が起こり、原点から外れるとメッシュ結合が上手くいなないので終わるまで待機
-			while (!TempSettingScript.AllReadyFlag)
-			{
-				//１フレーム待機
-				yield return null;
-			}
-			*/
+
 			//親をバトルフィールドにする
 			i.transform.parent = gameObject.transform;
 
@@ -410,6 +427,12 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			//オブジェクト有効化
 			i.SetActive(true);
 
+			//準備完了を待つ
+			while (!TempSettingScript.AllReadyFlag)
+			{
+				yield return null;
+			}
+
 			//敵出現カウントアップ
 			EnemyCount++;
 
@@ -422,6 +445,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		{
 			//コライダ有効化をする
 			BattleFieldCol.enabled = true;
+
+			//準備完了フラグを立てる
+			AllReadyFlag = true;
 		}
 		else
 		{

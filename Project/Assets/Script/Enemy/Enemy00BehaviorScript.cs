@@ -104,9 +104,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//プレイヤーキャラクターとの垂直距離初期化
 		PlayerverticalDistance = 0f;
 
-		//プレイヤーキャラクター、とりあえずnull
-		PlayerCharacter = null;
-
 		///---行動追加---///
 
 		//待機

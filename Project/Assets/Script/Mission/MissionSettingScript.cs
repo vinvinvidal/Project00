@@ -28,7 +28,7 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 	//ミッション参加キャラクター
 	private Dictionary<int, GameObject> MissionCharacterDic = new Dictionary<int, GameObject>();
 
-	void Start()
+	void Awake()
     {
 		//ゲームマネージャーの初期化関数を呼び出す
 		GameManagerScript.Instance.StartMission();
