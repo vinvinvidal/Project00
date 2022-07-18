@@ -301,9 +301,7 @@ public class EnemySettingScript : GlobalClass
 				ReadyAnimLoadCompleteFlag = true;
 
 			}));
-
-
-
+					   
 			//スケベヒットモーション読み込み
 			StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Anim/Enemy/" + ID + "/H_Hit/", "anim", (List<object> OBJList) =>
 			{

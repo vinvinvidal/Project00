@@ -472,6 +472,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Stage00
       objectReference: {fileID: 0}
+    - target: {fileID: 1102321424014965541, guid: d445d7aca89efbe48b324cdcc3ab2f11,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2128491106981193496, guid: d445d7aca89efbe48b324cdcc3ab2f11,
         type: 3}
       propertyPath: near clip plane
@@ -631,9 +636,12 @@ MonoBehaviour:
   KeepMode: 1
   TransrationMode: 0
   NextCameraWorkMode: 1
+  ReturnPositionMode: 0
+  RandomFlag: 0
+  EasingTime: 0
   KeepTime: 10
   MoveSpeed: 0.5
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &1097663345
 GameObject:
   m_ObjectHideFlags: 0
@@ -989,9 +997,12 @@ MonoBehaviour:
   KeepMode: 2
   TransrationMode: 1
   NextCameraWorkMode: 0
+  ReturnPositionMode: 0
+  RandomFlag: 0
+  EasingTime: 0
   KeepTime: 0
   MoveSpeed: 0.05
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!114 &1630432646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1092,9 +1103,12 @@ MonoBehaviour:
   KeepMode: 1
   TransrationMode: 0
   NextCameraWorkMode: 0
+  ReturnPositionMode: 0
+  RandomFlag: 0
+  EasingTime: 0
   KeepTime: 2
   MoveSpeed: 0
-  LookAtOBJName: 
+  LookAtOBJ: {fileID: 0}
 --- !u!1 &1773787311
 GameObject:
   m_ObjectHideFlags: 0
