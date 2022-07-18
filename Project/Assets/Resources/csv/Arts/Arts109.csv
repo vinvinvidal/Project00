@@ -3,7 +3,7 @@ NameH,いわとわり
 UseCharacter,1
 Anim,Motion_1_GroundAttack05
 MoveVec,0*0*-1.5*1|0*0*-4*1|0*0*2*1|0*0*7.5*1
-Damage,100
+Damage,1
 Stun,1
 Deadly,1
 ColVec,0*1*1*1.5
