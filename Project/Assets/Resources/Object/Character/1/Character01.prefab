@@ -2198,6 +2198,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BoneMoveSwitch: 1
   SuperGauge: 1
+  RevivalTime: 1.5
   Idling0_Anim: {fileID: 7400000, guid: 724c1bd9e558d94498fd52b4fd407a42, type: 2}
   Idling1_Anim: {fileID: 7400000, guid: ef0cfb421a1df4f44b46a7bd1f7fb80b, type: 2}
   Idling2_Anim: {fileID: 7400000, guid: d79bc4c55641e504f8f472439e0b6b97, type: 2}
@@ -2214,6 +2215,7 @@ MonoBehaviour:
   SpecialTry_Anim: {fileID: 7400000, guid: 378d058bd428d574f929f8971cb4d624, type: 2}
   SpecialSuccess_Anim: {fileID: 7400000, guid: c6bddb6459bddb24fbea73cb40e1e67a, type: 2}
   Down_Anim: {fileID: 7400000, guid: ae58e5ead1f71fe45891e4d834e095b9, type: 2}
+  Revival_Anim: {fileID: 7400000, guid: c8247c3439642cb4581bda72d1ecccd7, type: 2}
   BaseFace_Anim: {fileID: 7400000, guid: 4f4dff8ddda97bc408c5c2b985a79ab8, type: 2}
   EyeClose_Anim: {fileID: 7400000, guid: 3213fe5a25777f44284142aba3d60810, type: 2}
   MouthClose_Anim: {fileID: 0}
@@ -2221,6 +2223,7 @@ MonoBehaviour:
   NippleElect_Anim: {fileID: 7400000, guid: a3ba97c82a9f6a1459e99197507bd659, type: 2}
   GenitalBase_Anim: {fileID: 0}
   GenitalElect_Anim: {fileID: 0}
+  Abduction_Anim: {fileID: 0}
 --- !u!114 &8553641901371823811
 MonoBehaviour:
   m_ObjectHideFlags: 0

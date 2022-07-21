@@ -206,6 +206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BoneMoveSwitch: 1
   SuperGauge: 1
+  RevivalTime: 1.5
   Idling0_Anim: {fileID: 7400000, guid: f12363614e6ebf64097deb4758b662fe, type: 2}
   Idling1_Anim: {fileID: 7400000, guid: d4490231f37c9e845a1e66f76665f0fc, type: 2}
   Idling2_Anim: {fileID: 7400000, guid: ce3d313fc39ebb04e8dc74fd17e13910, type: 2}
@@ -222,6 +223,7 @@ MonoBehaviour:
   SpecialTry_Anim: {fileID: 7400000, guid: a31f61ae32e0bf449883893270264f94, type: 2}
   SpecialSuccess_Anim: {fileID: 7400000, guid: 4298bdbd55a22fe45bd90a16f574ef09, type: 2}
   Down_Anim: {fileID: 7400000, guid: eec9019c70f68e545aa3a92f258af174, type: 2}
+  Revival_Anim: {fileID: 0}
   BaseFace_Anim: {fileID: 7400000, guid: 1466b9e3c8b13f747afdaf4972a608d6, type: 2}
   EyeClose_Anim: {fileID: 7400000, guid: f31907015dd825547aaff57ee8cef4e9, type: 2}
   MouthClose_Anim: {fileID: 0}
@@ -229,6 +231,7 @@ MonoBehaviour:
   NippleElect_Anim: {fileID: 7400000, guid: c7718ed1b549e6244b4b490e95299516, type: 2}
   GenitalBase_Anim: {fileID: 0}
   GenitalElect_Anim: {fileID: 0}
+  Abduction_Anim: {fileID: 0}
 --- !u!143 &1470597665654347745
 CharacterController:
   m_ObjectHideFlags: 0
