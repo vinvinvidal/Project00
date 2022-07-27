@@ -1514,7 +1514,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6060904190478834449}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 85f9c4a24e474174e86ee0196de1b725, type: 3}
   m_Name: 
@@ -1581,7 +1581,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6060904190478834449}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 85f9c4a24e474174e86ee0196de1b725, type: 3}
   m_Name: 
@@ -2107,9 +2107,9 @@ GameObject:
   - component: {fileID: 1592132500438964141}
   - component: {fileID: 1361538699202930631}
   - component: {fileID: 4755438698872154326}
-  - component: {fileID: 8553641901371823811}
   - component: {fileID: 2097141605791399922}
   - component: {fileID: 8418208798332750172}
+  - component: {fileID: 8553641901371823811}
   m_Layer: 14
   m_Name: Character01
   m_TagString: Untagged
@@ -2196,7 +2196,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee9fcb5866324b04e9bd7fc813581d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BoneMoveSwitch: 1
   SuperGauge: 1
   RevivalTime: 5
   Idling0_Anim: {fileID: 7400000, guid: 724c1bd9e558d94498fd52b4fd407a42, type: 2}
@@ -2224,20 +2223,6 @@ MonoBehaviour:
   GenitalBase_Anim: {fileID: 0}
   GenitalElect_Anim: {fileID: 0}
   Abduction_Anim: {fileID: 7400000, guid: 3897e59a19dd0864cae609aa50a44cfd, type: 2}
---- !u!114 &8553641901371823811
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7479689686135416206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 620c0bbd6c8ad73478106c80b993e769, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StockWeapon: {fileID: 0}
-  AroundEnemyList: []
 --- !u!143 &2097141605791399922
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2264,7 +2249,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7479689686135416206}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: 1225aa61231d58e40b86b73f7a7fdfe0, type: 2}
   m_Controller: {fileID: 9100000, guid: 512fb955ea959d548a33b895e867c3a3, type: 2}
   m_CullingMode: 0
@@ -2275,6 +2260,20 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &8553641901371823811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7479689686135416206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 620c0bbd6c8ad73478106c80b993e769, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StockWeapon: {fileID: 0}
+  AroundEnemyList: []
 --- !u!1 &7959437557382657858
 GameObject:
   m_ObjectHideFlags: 0

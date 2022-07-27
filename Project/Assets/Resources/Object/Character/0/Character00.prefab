@@ -2165,7 +2165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BoneMoveSwitch: 1
   SuperGauge: 1
-  RevivalTime: 1.5
+  RevivalTime: 5
   Idling0_Anim: {fileID: 7400000, guid: 9af0a8d9a346a3c4184eeba2be240c53, type: 2}
   Idling1_Anim: {fileID: 7400000, guid: 41281075286e4124e9c4ee42fa5cc42e, type: 2}
   Idling2_Anim: {fileID: 7400000, guid: e65b5db54073fb945a8c205a3755b42e, type: 2}
@@ -2231,7 +2231,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7479689686135416206}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: 7da3d5bb1ce05bd4390d2e20e68562b7, type: 2}
   m_Controller: {fileID: 9100000, guid: 512fb955ea959d548a33b895e867c3a3, type: 2}
   m_CullingMode: 0

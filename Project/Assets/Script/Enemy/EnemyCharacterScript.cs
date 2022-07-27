@@ -804,7 +804,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			//移動値
 			MoveMoment = BehaviorMoveVec * MoveSpeed * Time.deltaTime;
-
+	
 			//回転値
 			RotateVec = BehaviorRotate;
 		}

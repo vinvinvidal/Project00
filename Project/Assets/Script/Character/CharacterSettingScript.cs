@@ -228,14 +228,59 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					//読み込んだオブジェクトをインスタンス化
 					GameObject CostumeOBJ = Instantiate(O as GameObject);
 
+					//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
+					SkinnedMeshRenderer CostumeRenderer = DeepFind(gameObject, "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
+
+					//ローカルトランスフォームをリセット
+					ResetTransform(CostumeOBJ);
+
+					//メッシュ統合するオブジェクトList
+					List<GameObject> IntegrationMeshList = new List<GameObject>();
+
+					//メッシュレンダラーを持っているやつを回す
+					foreach(var ii in CostumeOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
+					{
+						//クロスじゃないやつを選別
+						if(ii.GetComponent<Cloth>() == null && !ii.name.Contains("TopsOff"))
+						{
+							//ListにAdd
+							IntegrationMeshList.Add(ii.gameObject);
+
+							//無効化
+							ii.gameObject.SetActive(false);
+						}
+					}
+
+					//メッシュ結合
+					SkinMeshIntegration(IntegrationMeshList, CostumeRenderer,(GameObject OBJ) =>
+					{
+						//親を設定
+						OBJ.transform.parent = gameObject.transform;
+
+						//名前を設定
+						OBJ.name = "PlayerCombineMeshOBJ";
+
+						//レイヤーをPlayerにする
+						OBJ.layer = LayerMask.NameToLayer("Player");
+			
+						//アニメーター有効化
+						gameObject.GetComponent<Animator>().enabled = true;
+
+						//骨動かしフラグを立てる
+						gameObject.GetComponent<PlayerScript>().BoneMoveSwitch = true;
+
+						//ダイナミックボーン有効化
+						foreach(var ii in DeepFind(gameObject, "DynamicBoneOBJ").GetComponents<DynamicBone>())
+						{
+							ii.enabled = true;
+						}
+					});
+
 					//衣装を子にする
 					CostumeOBJ.transform.parent = gameObject.transform;
 
 					//ローカルトランスフォームをリセット
 					ResetTransform(CostumeOBJ);
-
-					//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
-					SkinnedMeshRenderer CostumeRenderer = DeepFind(gameObject, "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
 
 					//衣装プレハブ内のスキニングメッシュレンダラーを全て取得
 					foreach (SkinnedMeshRenderer ii in CostumeOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())

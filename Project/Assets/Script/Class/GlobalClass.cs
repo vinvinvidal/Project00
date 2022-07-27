@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -191,45 +192,49 @@ public class GlobalClass : MonoBehaviour
 		//バウンディングボックスを設定
 		CombineMeshRenderer.localBounds = new Bounds(new Vector3(0, 1, 0), new Vector3(2, 2, 2));
 
-		//ムリヤリ枚数合わせ用のテクスチャ
-		Texture2D temptexture = new Texture2D(128, 128, TextureFormat.R8, false);
+		//各テクスチャ最大サイズ取得
+		int BaseTextureSize = PackBaseTextureList.Max(a => a.width);
+		int NormalTextureSize = PackNormalTextureList.Max(a => a.width);
+		int HiLightTextureSize = PackHiLightTextureList.Max(a => a.width);
+		int LineTextureSize = PackLineTextureList.Max(a => a.width);
+		int MatCapTextureSize = PackMatCapTextureList.Max(a => a.width);
 
 		//各テクスチャリストをムリヤリ16枚にする
 		while (PackBaseTextureList.Count < 16)
 		{
-			PackBaseTextureList.Add(temptexture);
+			PackBaseTextureList.Add(new Texture2D(BaseTextureSize, BaseTextureSize, TextureFormat.R8, false));
 		}
 		while (PackNormalTextureList.Count < 16)
 		{
-			PackNormalTextureList.Add(temptexture);
+			PackNormalTextureList.Add(new Texture2D(NormalTextureSize, NormalTextureSize, TextureFormat.R8, false));
 		}
 		while (PackHiLightTextureList.Count < 16)
 		{
-			PackHiLightTextureList.Add(temptexture);
+			PackHiLightTextureList.Add(new Texture2D(HiLightTextureSize, HiLightTextureSize, TextureFormat.R8, false));
 		}
 		while (PackLineTextureList.Count < 16)
 		{
-			PackLineTextureList.Add(temptexture);
+			PackLineTextureList.Add(new Texture2D(LineTextureSize, LineTextureSize, TextureFormat.R8, false));
 		}
 		while (PackMatCapTextureList.Count < 16)
 		{
-			PackMatCapTextureList.Add(temptexture);
+			PackMatCapTextureList.Add(new Texture2D(MatCapTextureSize, MatCapTextureSize, TextureFormat.R8, false));
 		}
-	
+
 		//ベーステクスチャを統合してRectを受け取る、
-		Rect[] TexBaseRect = PackBaseTexture.PackTextures(PackBaseTextureList.ToArray(), 0, 512, false);
+		Rect[] TexBaseRect = PackBaseTexture.PackTextures(PackBaseTextureList.ToArray(), 0, BaseTextureSize * 4, false);
 
 		//法線テクスチャ統合
-		PackNormalTexture.PackTextures(PackNormalTextureList.ToArray(), 0, 512, false);
-	
+		PackNormalTexture.PackTextures(PackNormalTextureList.ToArray(), 0, NormalTextureSize * 4, false);
+
 		//ハイライトテクスチャ統合
-		PackHiLightTexture.PackTextures(PackHiLightTextureList.ToArray(), 0, 512, false);
+		PackHiLightTexture.PackTextures(PackHiLightTextureList.ToArray(), 0, HiLightTextureSize * 4, false);
 
 		//線画テクスチャ統合
-		PackLineTexture.PackTextures(PackLineTextureList.ToArray(), 0, 512, false);
+		PackLineTexture.PackTextures(PackLineTextureList.ToArray(), 0, LineTextureSize * 4, false);
 
 		//マットキャップテクスチャ統合
-		PackMatCapTexture.PackTextures(PackMatCapTextureList.ToArray(), 0, 512, false);
+		PackMatCapTexture.PackTextures(PackMatCapTextureList.ToArray(), 0, MatCapTextureSize * 4, false);
 		
 		//統合用UV宣言
 		List<Vector2> CombineUV = new List<Vector2>();

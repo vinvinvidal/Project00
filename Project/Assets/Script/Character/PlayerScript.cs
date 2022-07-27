@@ -63,9 +63,6 @@ public interface PlayerScriptInterface : IEventSystemHandler
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
 {
-	public bool BoneMoveSwitch;
-
-
 	//--- オブジェクト　コンポーネント類 ---//
 
 	//キャラクターのID
@@ -238,6 +235,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//クールダウンフラグ
 	private bool CoolDownFlag = false;
 
+	//ボーン動かしフラグ
+	public bool BoneMoveSwitch { get; set; } = false;
 
 	//--- 移動値 ---//
 
@@ -2155,7 +2154,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		while ((AbductionPosOBJ.transform.position - gameObject.transform.position).sqrMagnitude > 0.01f)
 		{
 			//ポジションに移動
-			gameObject.transform.position += (AbductionPosOBJ.transform.position - gameObject.transform.position) * Time.deltaTime * 10;
+			gameObject.transform.position += (AbductionPosOBJ.transform.position - gameObject.transform.position).normalized * Time.deltaTime * 3;
 
 			//1フレーム待機
 			yield return null;
@@ -5870,8 +5869,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		while(RevivalTime > 0)
 		{
-			//復活時間カウントダウン
-			RevivalTime -= Time.deltaTime;
+			//ポーズ処理
+			if (!PauseFlag)
+			{
+				//復活時間カウントダウン
+				RevivalTime -= Time.deltaTime;
+			}
 
 			//拉致られたら処理を飛ばしてブレーク
 			if(CurrentState.Contains("Abduction"))

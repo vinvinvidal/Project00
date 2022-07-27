@@ -217,7 +217,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}));
 
 		//攻撃01
-		EnemyBehaviorList.Add(new EnemyBehaviorClass("Attack01", 500, () =>
+		EnemyBehaviorList.Add(new EnemyBehaviorClass("Attack01", 50, () =>
 		//攻撃01の処理
 		{
 			//攻撃01コルーチン呼び出し
@@ -636,6 +636,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//フラグを下ろす
 		EnemyScript.BehaviorFlag = false;
+
+		//待機コルーチン呼び出し
+		StartCoroutine(WaitCoroutine());
 	}
 
 	//攻撃01コルーチン
@@ -1032,7 +1035,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		yield return null;
 
 		//キャラクターに接近するまでループ
-		while (CharacterDistance > 0.01f)
+		while (CharacterDistance > 0.05f)
 		{
 			//移動ベクトル算出
 			EnemyScript.BehaviorMoveVec = HorizontalVector(AbductionPos, gameObject).normalized * Mathf.Min(CharacterDistance * 10, 1);
@@ -1084,9 +1087,12 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			yield return null;
 		}
 
-		//復活までの時間が十分にあるかチェック
-		if(TargetCharacter.GetComponent<PlayerScript>().RevivalTime > 0.5f)
+		//時間が残っているかチェック
+		if(TargetCharacter.GetComponent<PlayerScript>().RevivalTime > 0)
 		{
+			//残っていたら延長して起き上がりを防ぐ
+			TargetCharacter.GetComponent<PlayerScript>().RevivalTime = 10;
+
 			//アニメーターのフラグを下す
 			CurrentAnimator.SetBool("Walk", false);
 
