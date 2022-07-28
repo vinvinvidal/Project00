@@ -234,48 +234,6 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					//ローカルトランスフォームをリセット
 					ResetTransform(CostumeOBJ);
 
-					//メッシュ統合するオブジェクトList
-					List<GameObject> IntegrationMeshList = new List<GameObject>();
-
-					//メッシュレンダラーを持っているやつを回す
-					foreach(var ii in CostumeOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-					{
-						//クロスじゃないやつを選別
-						if(ii.GetComponent<Cloth>() == null && !ii.name.Contains("TopsOff"))
-						{
-							//ListにAdd
-							IntegrationMeshList.Add(ii.gameObject);
-
-							//無効化
-							ii.gameObject.SetActive(false);
-						}
-					}
-
-					//メッシュ結合
-					SkinMeshIntegration(IntegrationMeshList, CostumeRenderer,(GameObject OBJ) =>
-					{
-						//親を設定
-						OBJ.transform.parent = gameObject.transform;
-
-						//名前を設定
-						OBJ.name = "PlayerCombineMeshOBJ";
-
-						//レイヤーをPlayerにする
-						OBJ.layer = LayerMask.NameToLayer("Player");
-			
-						//アニメーター有効化
-						gameObject.GetComponent<Animator>().enabled = true;
-
-						//骨動かしフラグを立てる
-						gameObject.GetComponent<PlayerScript>().BoneMoveSwitch = true;
-
-						//ダイナミックボーン有効化
-						foreach(var ii in DeepFind(gameObject, "DynamicBoneOBJ").GetComponents<DynamicBone>())
-						{
-							ii.enabled = true;
-						}
-					});
-
 					//衣装を子にする
 					CostumeOBJ.transform.parent = gameObject.transform;
 
@@ -486,8 +444,6 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 							MosaicOBJ.transform.parent = ii.gameObject.transform;
 
 							//ローカルTransform設定
-							//MosaicOBJ.transform.localPosition *= 0;
-							//MosaicOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
 							ResetTransform(MosaicOBJ);
 						}
 					}
@@ -514,6 +470,54 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 		{
 			yield return null;
 		}
+
+		//メッシュ結合用オブジェクトList
+		List<GameObject> CombineOBJList = new List<GameObject>();
+
+		//ボーンコピー用SkinnedMeshRenderer
+		SkinnedMeshRenderer BoneSample = DeepFind(gameObject, "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
+
+		//スキンメッシュを回して結合するメッシュを抽出
+		foreach (var i in gameObject.GetComponentsInChildren<SkinnedMeshRenderer>())
+		{
+			if(
+				i.name.Contains("Body") || 
+				i.name.Contains("Others") ||
+				i.name.Contains("Socks") || 
+				i.name.Contains("Shoes") ||
+				i.name.Contains("B_On") ||
+				i.name.Contains("P_On")
+				)
+			{
+				//ListにAdd
+				CombineOBJList.Add(i.gameObject);
+
+				//無効化
+				i.gameObject.SetActive(false);
+			}
+		}
+
+		//メッシュ統合
+		SkinMeshIntegration(CombineOBJList, BoneSample, (GameObject OBJ) => 
+		{
+			//親を設定
+			OBJ.transform.parent = gameObject.transform;
+
+			//トランスフォームリセット
+			ResetTransform(OBJ);
+
+			//名前を設定
+			OBJ.name = "PlayerCombine_AllON_MeshOBJ";
+
+			//レイヤーをEnemyにする
+			OBJ.layer = LayerMask.NameToLayer("Player");
+		});
+
+		//アニメーター有効化
+		gameObject.GetComponent<Animator>().enabled = true;
+
+		//骨揺らしフラグを入れる
+		gameObject.GetComponent<PlayerScript>().BoneMoveSwitch = true;
 
 		//自身を消しておく
 		gameObject.SetActive(false);

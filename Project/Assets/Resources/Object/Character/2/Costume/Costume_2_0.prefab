@@ -491,7 +491,7 @@ GameObject:
   - component: {fileID: 2267306341100052888}
   - component: {fileID: 6457894535965342119}
   m_Layer: 14
-  m_Name: 2_UnderWear0_PantsOn_Mesh
+  m_Name: 2_UnderWear0_P_On_Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -876,8 +876,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 0}
   m_AABB:
-    m_Center: {x: 0.000000007450581, y: -0.031089753, z: 1.1581151}
-    m_Extent: {x: 0.089003496, y: 0.11113198, z: 0.08549857}
+    m_Center: {x: 0.000000007450581, y: -0.031089753, z: 1.1581154}
+    m_Extent: {x: 0.089003496, y: 0.11113201, z: 0.08549857}
   m_DirtyAABB: 0
 --- !u!114 &3491661561367572099
 MonoBehaviour:
@@ -2045,8 +2045,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 0}
   m_AABB:
-    m_Center: {x: 0, y: -0.009182118, z: 0.9412574}
-    m_Extent: {x: 0.6006677, y: 0.12442645, z: 0.31375474}
+    m_Center: {x: 0, y: -0.009182118, z: 0.9412577}
+    m_Extent: {x: 0.6006677, y: 0.12442648, z: 0.3137548}
   m_DirtyAABB: 0
 --- !u!114 &6933994239509654943
 MonoBehaviour:
@@ -4339,7 +4339,7 @@ GameObject:
   - component: {fileID: 4883573130982220356}
   - component: {fileID: 1271452937014172605}
   m_Layer: 14
-  m_Name: 2_UnderWear0_B_Mesh
+  m_Name: 2_UnderWear0_B_On_Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

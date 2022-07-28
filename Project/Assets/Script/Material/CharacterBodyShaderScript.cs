@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CharacterBodyShaderScript : GlobalClass
@@ -33,14 +34,17 @@ public class CharacterBodyShaderScript : GlobalClass
 		//ディレクショナルライトのトランスフォーム取得
 		LightTransform = GameObject.Find("OutDoorLight").transform;
 
-		//統合用テクスチャ
-		Texture2D _TexAtlas = new Texture2D(512, 512, TextureFormat.RGBA32, false);
-
 		//使用するテクスチャを配列に入れる
 		Texture2D[] Textures = { _TexBase, _TexLine, _TexNormal, _TexHiLight, _HiLightMatCap };
 
+		//いちばん大きいサイズのテクスチャサイズを求める
+		int TexSize = Textures.Where(a => a != null).Max(a => a.width) * 2;
+
+		//統合用テクスチャ
+		Texture2D _TexAtlas = new Texture2D(TexSize, TexSize, TextureFormat.RGBA32, false);
+
 		//テクスチャ統合、Rectを受け取る
-		Rect[] TexRect = _TexAtlas.PackTextures(Textures, 0, 512, true);
+		Rect[] TexRect = _TexAtlas.PackTextures(Textures, 0, TexSize, true);
 
 		//マテリアルに統合テクスチャを渡す
 		BodyMaterial.SetTexture("_TexAtlas", _TexAtlas);

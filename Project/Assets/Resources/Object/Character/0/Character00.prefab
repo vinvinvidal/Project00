@@ -2163,7 +2163,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee9fcb5866324b04e9bd7fc813581d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BoneMoveSwitch: 1
   SuperGauge: 1
   RevivalTime: 5
   Idling0_Anim: {fileID: 7400000, guid: 9af0a8d9a346a3c4184eeba2be240c53, type: 2}
@@ -3140,17 +3139,17 @@ PrefabInstance:
     - target: {fileID: 4718126715024099053, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4718126715024099053, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -90
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4718126715024099053, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.7071068
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5266811526108890790, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
