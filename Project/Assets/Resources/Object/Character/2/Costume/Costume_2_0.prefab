@@ -895,7 +895,7 @@ MonoBehaviour:
   _TexNormal: {fileID: 2800000, guid: 558d1ad3201a5fd40bb99f248d9685fa, type: 3}
   _TexHiLight: {fileID: 2800000, guid: b224951f244312349824e3ff0338a48e, type: 3}
   _TexLine: {fileID: 2800000, guid: 92604ba2ea356b847ab3d1ebc4a50b02, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  _HiLightMatCap: {fileID: 0}
 --- !u!183 &7346484335148024503
 Cloth:
   m_ObjectHideFlags: 0
@@ -2063,8 +2063,8 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: a43b11f05dbb517468803ef236c457e7, type: 3}
   _TexNormal: {fileID: 2800000, guid: c76f1796758405b409456b22a3c1dda4, type: 3}
   _TexHiLight: {fileID: 2800000, guid: a4c21746791061a46a7c5896d20dd7fc, type: 3}
-  _TexLine: {fileID: 2800000, guid: 1072ec682bc7fc14da436c6c5afb6567, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: c4e2b960e8a533645af732324fd187e7, type: 3}
+  _TexLine: {fileID: 2800000, guid: c4e2b960e8a533645af732324fd187e7, type: 3}
+  _HiLightMatCap: {fileID: 0}
 --- !u!183 &5713128050204521389
 Cloth:
   m_ObjectHideFlags: 0

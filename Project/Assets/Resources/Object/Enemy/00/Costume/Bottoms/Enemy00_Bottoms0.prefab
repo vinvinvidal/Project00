@@ -237,4 +237,4 @@ MonoBehaviour:
   _TexNormal: {fileID: 2800000, guid: 9c0db60e498a2aa45a8a13c1f2d2da1c, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 7dec74e34beb4704a80717dea541412f, type: 3}
   _TexLine: {fileID: 2800000, guid: 93da540343c67a5459df588a359ccb39, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: d4e5d3edb27ced24192754767922cdd2, type: 3}
+  _HiLightMatCap: {fileID: 0}

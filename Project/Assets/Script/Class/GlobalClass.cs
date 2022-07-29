@@ -75,9 +75,6 @@ public class GlobalClass : MonoBehaviour
 		//統合する線画テクスチャ
 		List<Texture2D> PackLineTextureList = new List<Texture2D>();
 
-		//統合するマットキャップテクスチャ
-		List<Texture2D> PackMatCapTextureList = new List<Texture2D>();
-
 		//最終的に統合するベーステクスチャ
 		List<Texture2D> FinalPackBaseTextureList = new List<Texture2D>();
 
@@ -90,9 +87,6 @@ public class GlobalClass : MonoBehaviour
 		//最終的に統合する線画テクスチャ
 		List<Texture2D> FinalPackLineTextureList = new List<Texture2D>();
 
-		//最終的に統合するマットキャップテクスチャ
-		List<Texture2D> FinalPackMatCapTextureList = new List<Texture2D>();
-
 		//統合用ベーステクスチャ
 		Texture2D PackBaseTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
 
@@ -104,9 +98,6 @@ public class GlobalClass : MonoBehaviour
 
 		//統合用線画テクスチャ
 		Texture2D PackLineTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
-
-		//統合用マットキャップテクスチャ
-		Texture2D PackMatCapTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
 
 		//インデックスに使うループカウント
 		int count = 0;
@@ -187,9 +178,6 @@ public class GlobalClass : MonoBehaviour
 
 			//線画テクスチャを取得
 			PackLineTextureList.Add(tempscript._TexLine);
-
-			//マットキャップテクスチャを取得
-			PackMatCapTextureList.Add(tempscript._HiLightMatCap);
 		}
 
 		//メッシュを結合
@@ -212,8 +200,6 @@ public class GlobalClass : MonoBehaviour
 		int NormalTextureSize = PackNormalTextureList.Max(a => a.width);
 		int HiLightTextureSize = PackHiLightTextureList.Max(a => a.width);
 		int LineTextureSize = PackLineTextureList.Max(a => a.width);
-		int MatCapTextureSize = PackMatCapTextureList.Max(a => a.width);
-
 
 		//ベーステクスチャListを回す
 		foreach (var i in PackBaseTextureList)
@@ -221,29 +207,8 @@ public class GlobalClass : MonoBehaviour
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if (i.width < BaseTextureSize)
 			{
-				//リサイズ後のテクスチャ宣言
-				Texture2D TempTexture = new Texture2D(BaseTextureSize, BaseTextureSize);
-
-				//レンダーテクスチャ宣言
-				RenderTexture TempRenderTexture = RenderTexture.GetTemporary(BaseTextureSize, BaseTextureSize);
-
-				//小さいテクスチャをレンダーテクスチャにレンダリング
-				Graphics.Blit(i, TempRenderTexture);
-
-				//アクティブにする
-				RenderTexture.active = TempRenderTexture;
-
-				//テクスチャにアクティブなレンダーテクスチャを読み込む
-				TempTexture.ReadPixels(new Rect(0, 0, BaseTextureSize, BaseTextureSize), 0, 0);
-
-				//反映
-				TempTexture.Apply();
-
-				//レンダーテクスチャを開放
-				RenderTexture.ReleaseTemporary(TempRenderTexture);
-
-				//レンダリングしたテクスチャをListにAdd
-				FinalPackBaseTextureList.Add(TempTexture);
+				//リサイズしたテクスチャをListにAdd
+				FinalPackBaseTextureList.Add(TextureResize(i, BaseTextureSize));
 			}
 			else
 			{
@@ -258,29 +223,8 @@ public class GlobalClass : MonoBehaviour
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if(i.width < NormalTextureSize)
 			{
-				//リサイズ後のテクスチャ宣言
-				Texture2D TempTexture = new Texture2D(NormalTextureSize, NormalTextureSize);
-
-				//レンダーテクスチャ宣言
-				RenderTexture TempRenderTexture = RenderTexture.GetTemporary(NormalTextureSize, NormalTextureSize);
-
-				//小さいテクスチャをレンダーテクスチャにレンダリング
-				Graphics.Blit(i, TempRenderTexture);
-
-				//アクティブにする
-				RenderTexture.active = TempRenderTexture;
-
-				//テクスチャにアクティブなレンダーテクスチャを読み込む
-				TempTexture.ReadPixels(new Rect(0, 0, NormalTextureSize, NormalTextureSize), 0, 0);
-
-				//反映
-				TempTexture.Apply();
-
-				//レンダーテクスチャを開放
-				RenderTexture.ReleaseTemporary(TempRenderTexture);
-
-				//レンダリングしたテクスチャをListにAdd
-				FinalPackNormalTextureList.Add(TempTexture);
+				//リサイズしたテクスチャをListにAdd
+				FinalPackNormalTextureList.Add(TextureResize(i, NormalTextureSize));
 			}
 			else
 			{
@@ -295,29 +239,8 @@ public class GlobalClass : MonoBehaviour
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if (i.width < LineTextureSize)
 			{
-				//リサイズ後のテクスチャ宣言
-				Texture2D TempTexture = new Texture2D(LineTextureSize, LineTextureSize);
-
-				//レンダーテクスチャ宣言
-				RenderTexture TempRenderTexture = RenderTexture.GetTemporary(LineTextureSize, LineTextureSize);
-
-				//小さいテクスチャをレンダーテクスチャにレンダリング
-				Graphics.Blit(i, TempRenderTexture);
-
-				//アクティブにする
-				RenderTexture.active = TempRenderTexture;
-
-				//テクスチャにアクティブなレンダーテクスチャを読み込む
-				TempTexture.ReadPixels(new Rect(0, 0, LineTextureSize, LineTextureSize), 0, 0);
-
-				//反映
-				TempTexture.Apply();
-
-				//レンダーテクスチャを開放
-				RenderTexture.ReleaseTemporary(TempRenderTexture);
-
-				//レンダリングしたテクスチャをListにAdd
-				FinalPackLineTextureList.Add(TempTexture);
+				//リサイズしたテクスチャをListにAdd
+				FinalPackLineTextureList.Add(TextureResize(i, LineTextureSize));
 			}
 			else
 			{
@@ -332,29 +255,8 @@ public class GlobalClass : MonoBehaviour
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if (i.width < HiLightTextureSize)
 			{
-				//リサイズ後のテクスチャ宣言
-				Texture2D TempTexture = new Texture2D(HiLightTextureSize, HiLightTextureSize);
-
-				//レンダーテクスチャ宣言
-				RenderTexture TempRenderTexture = RenderTexture.GetTemporary(HiLightTextureSize, HiLightTextureSize);
-
-				//小さいテクスチャをレンダーテクスチャにレンダリング
-				Graphics.Blit(i, TempRenderTexture);
-
-				//アクティブにする
-				RenderTexture.active = TempRenderTexture;
-
-				//テクスチャにアクティブなレンダーテクスチャを読み込む
-				TempTexture.ReadPixels(new Rect(0, 0, HiLightTextureSize, HiLightTextureSize), 0, 0);
-
-				//反映
-				TempTexture.Apply();
-
-				//レンダーテクスチャを開放
-				RenderTexture.ReleaseTemporary(TempRenderTexture);
-
-				//レンダリングしたテクスチャをListにAdd
-				FinalPackHiLightTextureList.Add(TempTexture);
+				//リサイズしたテクスチャをListにAdd
+				FinalPackHiLightTextureList.Add(TextureResize(i, HiLightTextureSize));
 			}
 			else
 			{
@@ -363,66 +265,7 @@ public class GlobalClass : MonoBehaviour
 			}
 		}
 
-		//マットキャップテクスチャListを回す
-		foreach (var i in PackMatCapTextureList)
-		{
-			//最大サイズに合わせて小さいテクスチャをリサイズ
-			if (i.width < MatCapTextureSize)
-			{
-				//リサイズ後のテクスチャ宣言
-				Texture2D TempTexture = new Texture2D(MatCapTextureSize, MatCapTextureSize);
-
-				//レンダーテクスチャ宣言
-				RenderTexture TempRenderTexture = RenderTexture.GetTemporary(MatCapTextureSize, MatCapTextureSize);
-
-				//小さいテクスチャをレンダーテクスチャにレンダリング
-				Graphics.Blit(i, TempRenderTexture);
-
-				//アクティブにする
-				RenderTexture.active = TempRenderTexture;
-
-				//テクスチャにアクティブなレンダーテクスチャを読み込む
-				TempTexture.ReadPixels(new Rect(0, 0, MatCapTextureSize, MatCapTextureSize), 0, 0);
-
-				//反映
-				TempTexture.Apply();
-
-				//レンダーテクスチャを開放
-				RenderTexture.ReleaseTemporary(TempRenderTexture);
-
-				//レンダリングしたテクスチャをListにAdd
-				FinalPackMatCapTextureList.Add(TempTexture);
-			}
-			else
-			{
-				//ListにAdd
-				FinalPackMatCapTextureList.Add(i);
-			}
-		}
-
 		//各テクスチャリストをムリヤリ16枚にする
-		/*
-		while (PackBaseTextureList.Count < 16)
-		{
-			PackBaseTextureList.Add(new Texture2D(BaseTextureSize, BaseTextureSize, TextureFormat.R8, false));
-		}
-		while (PackNormalTextureList.Count < 16)
-		{
-			PackNormalTextureList.Add(new Texture2D(NormalTextureSize, NormalTextureSize, TextureFormat.R8, false));
-		}
-		while (PackHiLightTextureList.Count < 16)
-		{
-			PackHiLightTextureList.Add(new Texture2D(HiLightTextureSize, HiLightTextureSize, TextureFormat.R8, false));
-		}
-		while (PackLineTextureList.Count < 16)
-		{
-			PackLineTextureList.Add(new Texture2D(LineTextureSize, LineTextureSize, TextureFormat.R8, false));
-		}
-		while (PackMatCapTextureList.Count < 16)
-		{
-			PackMatCapTextureList.Add(new Texture2D(MatCapTextureSize, MatCapTextureSize, TextureFormat.R8, false));
-		}
-		*/
 		while (FinalPackBaseTextureList.Count < 16)
 		{
 			FinalPackBaseTextureList.Add(new Texture2D(BaseTextureSize, BaseTextureSize, TextureFormat.R8, false));
@@ -439,10 +282,6 @@ public class GlobalClass : MonoBehaviour
 		{
 			FinalPackLineTextureList.Add(new Texture2D(LineTextureSize, LineTextureSize, TextureFormat.R8, false));
 		}
-		while (FinalPackMatCapTextureList.Count < 16)
-		{
-			FinalPackMatCapTextureList.Add(new Texture2D(MatCapTextureSize, MatCapTextureSize, TextureFormat.R8, false));
-		}
 
 		//ベーステクスチャを統合してRectを受け取る、
 		Rect[] TexBaseRect = PackBaseTexture.PackTextures(FinalPackBaseTextureList.ToArray(), 0, BaseTextureSize * 4, false);
@@ -455,9 +294,6 @@ public class GlobalClass : MonoBehaviour
 
 		//線画テクスチャ統合
 		PackLineTexture.PackTextures(FinalPackLineTextureList.ToArray(), 0, LineTextureSize * 4, false);
-
-		//マットキャップテクスチャ統合
-		PackMatCapTexture.PackTextures(FinalPackMatCapTextureList.ToArray(), 0, MatCapTextureSize * 4, false);
 		
 		//統合用UV宣言
 		List<Vector2> CombineUV = new List<Vector2>();
@@ -502,11 +338,36 @@ public class GlobalClass : MonoBehaviour
 		//線画テクスチャを設定
 		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._TexLine = PackLineTexture;
 
-		//マットキャップテクスチャを設定
-		CombineMeshOBJ.GetComponent<CharacterBodyShaderScript>()._HiLightMatCap = PackMatCapTexture;
-
 		//匿名関数実行
 		Act(CombineMeshOBJ);
+	}
+
+	//テクスチャをリサイズする関数
+	public Texture2D TextureResize(Texture2D Texture, int Size)
+	{
+		//リサイズ後のテクスチャ宣言
+		Texture2D TempTexture = new Texture2D(Size, Size);
+
+		//レンダーテクスチャ宣言
+		RenderTexture TempRenderTexture = RenderTexture.GetTemporary(Size, Size);
+
+		//小さいテクスチャをレンダーテクスチャにレンダリング
+		Graphics.Blit(Texture, TempRenderTexture);
+
+		//アクティブにする
+		RenderTexture.active = TempRenderTexture;
+
+		//テクスチャにアクティブなレンダーテクスチャを読み込む
+		TempTexture.ReadPixels(new Rect(0, 0, Size, Size), 0, 0);
+
+		//反映
+		TempTexture.Apply();
+
+		//レンダーテクスチャを開放
+		RenderTexture.ReleaseTemporary(TempRenderTexture);
+
+		//出力
+		return TempTexture;
 	}
 
 	//シーン遷移関数

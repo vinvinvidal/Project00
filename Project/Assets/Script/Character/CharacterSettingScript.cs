@@ -483,6 +483,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 			if(
 				i.name.Contains("Body") || 
 				i.name.Contains("Others") ||
+				i.name.Contains("Glasses") ||
 				i.name.Contains("Socks") || 
 				i.name.Contains("Shoes") ||
 				i.name.Contains("B_On") ||
@@ -496,6 +497,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 				i.gameObject.SetActive(false);
 			}
 		}
+
 
 		//メッシュ統合
 		SkinMeshIntegration(CombineOBJList, BoneSample, (GameObject OBJ) => 

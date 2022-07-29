@@ -30,7 +30,7 @@
 		//_TexLine("_TexLine", 2D) = "white" {}							//線画テクスチャ
 		//_TexNormal("_TexNormal", 2D) = "bump" {}						//ノーマルマップ
 		//_TexHiLight("_TexHiLight", 2D) = "white" {}					//ハイライトのテクスチャ
-		//_HiLightMatCap("_HiLightMatCap", 2D) = "black" {}				//ハイライトのmatcap
+		_HiLightMatCap("_HiLightMatCap", 2D) = "black" {}				//ハイライトのmatcap
 
 		_VanishNum("_VanishNum",float) = 0								//消滅用係数	
 	}
@@ -90,14 +90,11 @@
 			vector _TexHiLightRectPos;		//ハイライトテクスチャのポジション
 			vector _TexHiLightRectSize;		//ハイライトテクスチャのサイズ
 
-			vector _TexMatCapRectPos;		//Matcapテクスチャのポジション
-			vector _TexMatCapRectSize;		//Matcapテクスチャのサイズ
-
-			//sampler2D _TexBase;				//ベーステクスチャ
-			//sampler2D _TexLine;				//線画テクスチャ
+			//sampler2D _TexBase;			//ベーステクスチャ
+			//sampler2D _TexLine;			//線画テクスチャ
 			//sampler2D _TexNormal;			//ノーマルマップ
-			//sampler2D _TexHiLight;			//ハイライトのテクスチャ
-			//sampler2D _HiLightMatCap;		//ハイライトのmatcap
+			//sampler2D _TexHiLight;		//ハイライトのテクスチャ
+			sampler2D _HiLightMatCap;		//ハイライトのmatcap
 
 			fixed4 _Shadow1Color;			//1影
 			float _Shadow1H;				//1影色相
@@ -253,7 +250,9 @@
 				re *= tex2D(_TexAtlas, i.uv * _TexLineRectSize + _TexLineRectPos);
 
 				//ハイライトを加算
-				re.rgb += lerp(0, tex2D(_TexAtlas, i.uv * _TexHiLightRectSize + _TexHiLightRectPos), tex2D(_TexAtlas, i.hilightuv* _TexMatCapRectSize + _TexMatCapRectPos)) * saturate(dot(i.normal, _WorldSpaceLightPos0));
+				//re.rgb += lerp(0, tex2D(_TexAtlas, i.uv * _TexHiLightRectSize + _TexHiLightRectPos), tex2D(_TexAtlas, i.hilightuv* _TexMatCapRectSize + _TexMatCapRectPos)) * saturate(dot(i.normal, _WorldSpaceLightPos0));
+				re.rgb += lerp(0, tex2D(_TexAtlas, i.uv * _TexHiLightRectSize + _TexHiLightRectPos), tex2D(_HiLightMatCap, i.hilightuv)) * saturate(dot(i.normal, _WorldSpaceLightPos0));
+
 
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);

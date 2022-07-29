@@ -5487,15 +5487,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ボタン押しっぱなしフラグ解除
 		HoldButtonFlag = false;
 
-		//アイドリングモーション切り替え
-		StartCoroutine(IdlingChangeCoroutine(1, 2, 0.5f));
-
-		//アイドリング中ならモーションを最初から再生
-		if(CurrentState == "Idling")
-		{
-			CurrentAnimator.Play(0);
-		}
-
 		//コルーチン呼び出し
 		StartCoroutine(BattleNextCoroutine(Pos, Look, Act));
 	}
@@ -5506,6 +5497,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			yield return null;
 		}
+
+		//アイドリングモーション切り替え
+		StartCoroutine(IdlingChangeCoroutine(1, 2, 0));
+
+		//モーションを最初から再生
+		CurrentAnimator.Play(0);
 
 		//キャラクターコントローラ無効化
 		Controller.enabled = false;
