@@ -462,7 +462,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			}
 
 			//敵の戦闘開始処理実行
-			foreach (var i in EnemyList.Where(a => a != null).ToList())
+			foreach (GameObject i in EnemyList.Where(a => a != null).ToList())
 			{
 				i.GetComponent<EnemyCharacterScript>().BattleStart();
 			}

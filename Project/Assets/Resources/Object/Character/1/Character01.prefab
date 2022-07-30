@@ -210,6 +210,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 6b1616fcc182a1b499b1738e7d8547b8, type: 3}
   _TexLine: {fileID: 2800000, guid: 6b55b06d7186e8e43af581f164973c8d, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &762873825653342065
 GameObject:
   m_ObjectHideFlags: 0
@@ -489,6 +490,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 2da531513ed43c24fbb5b2bc265c47c8, type: 3}
   _TexLine: {fileID: 2800000, guid: cbccb0037e62d394a8990a7a0891ea01, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: 9e1820ecb4feb5f4f9abfe3a76c31a99, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &2170834611348978462
 GameObject:
   m_ObjectHideFlags: 0
@@ -2393,6 +2395,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: eaa80e861d4327b4195d13bb508147b9, type: 3}
   _TexLine: {fileID: 2800000, guid: f768326b3be84cf4ca54196f40b0a936, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &8259613036537220640
 GameObject:
   m_ObjectHideFlags: 0

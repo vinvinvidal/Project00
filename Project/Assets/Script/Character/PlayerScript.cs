@@ -107,8 +107,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//--- UI ---//
 
 
-
-
 	//--- 固定パラメータ ---//
 
 	//キャラクターの移動スピード
@@ -851,7 +849,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_Effect00 = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "H_Effect00").ToArray()[0];
 
 		//超必殺技装備
-		foreach (var i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
+		foreach (SuperClass i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
 		{
 			//超必殺技代入
 			SuperArts = i;
@@ -1415,7 +1413,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}		
 
 		//スケベフラグを戻す処理、とりあえずなので後で消す
-		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
+		foreach (Transform ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
 			if (ii.name.Contains("TopsOff"))
 			{
@@ -1427,7 +1425,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 		}
 
-		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
+		foreach (Transform ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
 			if (ii.name.Contains("PantsOff"))
 			{
@@ -2200,13 +2198,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		AttackCol.enabled = false;
 
 		//敵のクロス用コライダを自身のクロスオブジェクトに設定
-		foreach (var i in gameObject.GetComponentsInChildren<Cloth>())
+		foreach (Cloth i in gameObject.GetComponentsInChildren<Cloth>())
 		{
 			//代入用List宣言
 			List<CapsuleCollider> tempList = new List<CapsuleCollider>();
 
 			//ListにコライダをAdd
-			foreach(var ii in M_Enemy.GetComponentsInChildren<Transform>())
+			foreach(Transform ii in M_Enemy.GetComponentsInChildren<Transform>())
 			{
 				if(ii.gameObject.name.Contains("Cloth"))
 				{
@@ -2217,7 +2215,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//複数人ならそいつのコライダもAdd
 			if (H_SubEnemy != null)
 			{
-				foreach (var ii in H_SubEnemy.GetComponentsInChildren<Transform>())
+				foreach (Transform ii in H_SubEnemy.GetComponentsInChildren<Transform>())
 				{
 					if (ii.gameObject.name.Contains("Cloth"))
 					{
@@ -3707,7 +3705,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		List<Vector3> BoneForceList = new List<Vector3>();
 
 		//ダイナミックボーンのForceをキャッシュ
-		foreach (var i in tempBoneList)
+		foreach (DynamicBone i in tempBoneList)
 		{
 			//ListにAdd
 			BoneForceList.Add(i.m_Force);
@@ -3826,7 +3824,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void TopsOff()
 	{
 		//モデルの表示切り替え
-		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
+		foreach (Transform ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
 			if (ii.name.Contains("TopsOff"))
 			{
@@ -3856,7 +3854,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void PantsOff()
 	{
 		//モデルの表示切り替え
-		foreach (var ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
+		foreach (Transform ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
 			if (ii.name.Contains("PantsOff"))
 			{
@@ -3922,7 +3920,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵のクロス用コライダを解除する
-		foreach (var i in gameObject.GetComponentsInChildren<Cloth>())
+		foreach (Cloth i in gameObject.GetComponentsInChildren<Cloth>())
 		{
 			//クロスのコライダに反映
 			i.capsuleColliders = new List<CapsuleCollider>().ToArray();
@@ -4028,7 +4026,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				{
 					if (GameManagerScript.Instance.UserData.ArtsMatrix[CharacterID][i][ii][iii] != "")
 					{
-						foreach (var iiii in GameManagerScript.Instance.AllArtsList)
+						foreach (ArtsClass iiii in GameManagerScript.Instance.AllArtsList)
 						{
 							if (iiii.NameC == GameManagerScript.Instance.UserData.ArtsMatrix[CharacterID][i][ii][iii])
 							{
@@ -4092,7 +4090,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void AttackAttachWeapon(int n)
 	{
 		//武器オブジェクトを回す
-		foreach (var i in WeaponOBJList)
+		foreach (GameObject i in WeaponOBJList)
 		{
 			//アタッチ先を変更
 			i.transform.parent = i.GetComponent<WeaponSettingScript>().WeaponAttachOBJList[n].transform;
@@ -4166,7 +4164,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//一応nullチェック
 		if(LockEnemy != null)
 		{
-			foreach(var i in WeaponOBJList)
+			foreach(GameObject i in WeaponOBJList)
 			{
 				//武器ミラーの処理呼び出し
 				i.GetComponentInChildren<MirrorShaderScript>().EnemyFaceMirror(DeepFind(LockEnemy, "HeadBone"));
@@ -4176,7 +4174,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//武器のミラーを切る
 	private void WeaponMirrorOff()
 	{
-		foreach (var i in WeaponOBJList)
+		foreach (GameObject i in WeaponOBJList)
 		{
 			//武器ミラーの処理呼び出し
 			i.GetComponentInChildren<MirrorShaderScript>().MirrorSwitch(false);
@@ -5383,7 +5381,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//足音を鳴らす
 	public void PlayFootSetp()
 	{
-		foreach(var i in GameManagerScript.Instance.FootStepSEList)
+		foreach(SoundEffectScript i in GameManagerScript.Instance.FootStepSEList)
 		{
 			if(i.AudioName.Contains(GroundSurface))
 			{
@@ -5420,7 +5418,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_BreakAnimList = new List<AnimationClip>(HBL);
 
 		//特殊攻撃処理取得
-		foreach(var i in SpecialArtsList)
+		foreach(SpecialClass i in SpecialArtsList)
 		{
 			//アンロック状況を判定
 			if(i.UnLock == 1)
@@ -5566,7 +5564,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		gameObject.SetActive(true);
 
 		//消える時に削除が間に合わなかったエフェクトを消す
-		foreach(var i in gameObject.GetComponentsInChildren<ParticleSystem>().Where(a => a.name.Contains("Trail")).ToList())
+		foreach(ParticleSystem i in gameObject.GetComponentsInChildren<ParticleSystem>().Where(a => a.name.Contains("Trail")).ToList())
 		{
 			Destroy(i.gameObject);
 		}
@@ -5603,7 +5601,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//レンダラーを回す
 		foreach (Renderer i in RendList)
 		{
-			foreach (var ii in i.sharedMaterials)
+			foreach (Material ii in i.sharedMaterials)
 			{
 				//マテリアルの描画順を変更してアウトラインを消す
 				ii.renderQueue = 3000;
@@ -5619,7 +5617,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//マテリアルを回して消滅用数値を入れる
 			foreach (Renderer i in RendList)
 			{
-				foreach (var ii in i.sharedMaterials)
+				foreach (Material ii in i.sharedMaterials)
 				{
 					ii.SetFloat("_VanishNum", 1 - AppearTime / t);
 				}
@@ -5635,7 +5633,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//レンダラーを回して描画順と透明度を戻す
 		foreach (Renderer i in RendList)
 		{
-			foreach (var ii in i.sharedMaterials)
+			foreach (Material ii in i.sharedMaterials)
 			{
 				ii.SetFloat("_VanishNum", 0);
 				ii.renderQueue = 2450;
@@ -5672,7 +5670,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//レンダラーのシャドウを切る
 			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
-			foreach (var ii in i.sharedMaterials)
+			foreach (Material ii in i.sharedMaterials)
 			{
 				//マテリアルの描画順を変更
 				ii.renderQueue = 3000;
@@ -5685,7 +5683,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//マテリアルを回して消滅用数値を入れる
 			foreach (Renderer i in RendList)
 			{
-				foreach (var ii in i.sharedMaterials)
+				foreach (Material ii in i.sharedMaterials)
 				{
 					ii.SetFloat("_VanishNum", VanishTime / t);
 				}
@@ -5701,7 +5699,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//マテリアルを回して完全に消す
 		foreach (Renderer i in RendList)
 		{
-			foreach (var ii in i.sharedMaterials)
+			foreach (Material ii in i.sharedMaterials)
 			{
 				ii.SetFloat("_VanishNum", 1);
 			}
@@ -5722,7 +5720,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//レンダラーのシャドウを入れる
 			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 
-			foreach (var ii in i.sharedMaterials)
+			foreach (Material ii in i.sharedMaterials)
 			{
 				ii.SetFloat("_VanishNum", 0);
 				ii.renderQueue = 2450;

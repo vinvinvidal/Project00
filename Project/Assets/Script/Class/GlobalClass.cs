@@ -21,9 +21,9 @@ public class GlobalClass : MonoBehaviour
 		List<SkinnedMeshRenderer> MeshList = new List<SkinnedMeshRenderer>();
 
 		//オブジェクトListのスキニングメッシュレンダラーを全て取得
-		foreach (var i in OBJList)
+		foreach (GameObject i in OBJList)
 		{
-			foreach(var ii in i.GetComponentsInChildren<SkinnedMeshRenderer>())
+			foreach(SkinnedMeshRenderer ii in i.GetComponentsInChildren<SkinnedMeshRenderer>())
 			{
 				//ListにAdd
 				MeshList.Add(ii);
@@ -119,7 +119,7 @@ public class GlobalClass : MonoBehaviour
 		count = 0;
 
 		//ボーンのバインドポーズを取得
-		foreach (var i in BoneList)
+		foreach (Transform i in BoneList)
 		{
 			BindPoseList.Add(BoneList[count].worldToLocalMatrix * transform.worldToLocalMatrix);
 
@@ -128,7 +128,7 @@ public class GlobalClass : MonoBehaviour
 		}
 
 		//統合するメッシュレンダラーを回す
-		foreach (var i in MeshList)
+		foreach (SkinnedMeshRenderer i in MeshList)
 		{
 			//ボーン構成をコピーしてキャラクターのボーンと紐付ける
 			i.bones = BoneSample.bones;
@@ -202,7 +202,7 @@ public class GlobalClass : MonoBehaviour
 		int LineTextureSize = PackLineTextureList.Max(a => a.width);
 
 		//ベーステクスチャListを回す
-		foreach (var i in PackBaseTextureList)
+		foreach (Texture2D i in PackBaseTextureList)
 		{
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if (i.width < BaseTextureSize)
@@ -218,7 +218,7 @@ public class GlobalClass : MonoBehaviour
 		}
 
 		//法線テクスチャListを回す
-		foreach (var i in PackNormalTextureList)
+		foreach (Texture2D i in PackNormalTextureList)
 		{
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if(i.width < NormalTextureSize)
@@ -234,7 +234,7 @@ public class GlobalClass : MonoBehaviour
 		}
 
 		//線画テクスチャListを回す
-		foreach (var i in PackLineTextureList)
+		foreach (Texture2D i in PackLineTextureList)
 		{
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if (i.width < LineTextureSize)
@@ -250,7 +250,7 @@ public class GlobalClass : MonoBehaviour
 		}
 
 		//ハイライトテクスチャListを回す
-		foreach (var i in PackHiLightTextureList)
+		foreach (Texture2D i in PackHiLightTextureList)
 		{
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if (i.width < HiLightTextureSize)
@@ -302,13 +302,13 @@ public class GlobalClass : MonoBehaviour
 		count = 0;
 
 		//UVListを回す
-		foreach (var i in CombineUVList)
+		foreach (Vector2[] i in CombineUVList)
 		{
 			//格納用UVList宣言
 			List<Vector2> tempUV = new List<Vector2>();
 
 			//パックしたテクスチャのRectを元にUVを16マスに配置する
-			foreach (var ii in i)
+			foreach (Vector2 ii in i)
 			{
 				tempUV.Add(new Vector2((ii.x * 0.25f) + TexBaseRect[count].position.x, (ii.y * 0.25f) + TexBaseRect[count].position.y));
 			}
@@ -472,7 +472,7 @@ public class GlobalClass : MonoBehaviour
 	//オブジェクトが削除された時にインスタンス化したマテリアルやメッシュを削除する、これをしないとメモリリークする
 	private void OnDestroy()
 	{
-		foreach (var i in GetComponents<Renderer>())
+		foreach (Renderer i in GetComponents<Renderer>())
 		{
 			for (int ii = 0; ii < i.materials.Length; ii++)
 			{
@@ -485,7 +485,7 @@ public class GlobalClass : MonoBehaviour
 			}
 		}
 
-		foreach (var i in GetComponents<MeshFilter>())
+		foreach (MeshFilter i in GetComponents<MeshFilter>())
 		{
 			if (i.mesh != null)
 			{
@@ -495,7 +495,7 @@ public class GlobalClass : MonoBehaviour
 			}	
 		}
 
-		foreach (var i in GetComponents<ParticleSystemRenderer>())
+		foreach (ParticleSystemRenderer i in GetComponents<ParticleSystemRenderer>())
 		{
 			for (int ii = 0; ii < i.materials.Length; ii++)
 			{
@@ -508,7 +508,7 @@ public class GlobalClass : MonoBehaviour
 			}
 		}
 
-		foreach (var i in GetComponentsInChildren<Renderer>())
+		foreach (Renderer i in GetComponentsInChildren<Renderer>())
 		{
 			for (int ii = 0; ii < i.materials.Length; ii++)
 			{
@@ -521,7 +521,7 @@ public class GlobalClass : MonoBehaviour
 			}
 		}
 
-		foreach (var i in GetComponentsInChildren<MeshFilter>())
+		foreach (MeshFilter i in GetComponentsInChildren<MeshFilter>())
 		{
 			if (i.mesh != null)
 			{
@@ -531,7 +531,7 @@ public class GlobalClass : MonoBehaviour
 			}
 		}
 
-		foreach (var i in GetComponentsInChildren<ParticleSystemRenderer>())
+		foreach (ParticleSystemRenderer i in GetComponentsInChildren<ParticleSystemRenderer>())
 		{
 			for (int ii = 0; ii < i.materials.Length; ii++)
 			{

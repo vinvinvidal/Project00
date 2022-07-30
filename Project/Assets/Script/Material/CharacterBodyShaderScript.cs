@@ -26,6 +26,9 @@ public class CharacterBodyShaderScript : GlobalClass
 	//ディレクショナルライトのトランスフォーム
 	private Transform LightTransform;
 
+	//メッシュ統合フラグ
+	public bool CombineMeshFlag = false;
+
 	void Start()
     {
 		//マテリアル取得

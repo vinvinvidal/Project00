@@ -118,7 +118,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7906710035050173221}
-  m_RootOrder: 18
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!137 &2267306341100052888
 SkinnedMeshRenderer:
@@ -296,6 +296,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 4bba8c49d1fbde04ba87ef28fce13317, type: 3}
   _TexLine: {fileID: 2800000, guid: af7ff1f7be451e048a53bf779173c858, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &1958257063227680362
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,6 +666,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 5716e5bb94f65cd4eaf0f6e98be35096, type: 3}
   _TexLine: {fileID: 2800000, guid: bc3352ce8bf0d784480cb5d988d79ea7, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &2690450078308341083
 GameObject:
   m_ObjectHideFlags: 0
@@ -918,6 +920,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: c09dcf1991c88fe429dbb27a1ee6fe1e, type: 3}
   _TexLine: {fileID: 2800000, guid: 5f7f3f9cb9a469c46ad5aceff411858d, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!183 &5615717651871793488
 Cloth:
   m_ObjectHideFlags: 0
@@ -3081,6 +3084,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 67e7f4859f0372e419e254cac835206b, type: 3}
   _TexLine: {fileID: 2800000, guid: c9c199bd3ee7aa744ba3e5622005e67e, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &5070078634618577625
 GameObject:
   m_ObjectHideFlags: 0
@@ -3289,6 +3293,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 7bc03fadda0e45140816a41b09e61af1, type: 3}
   _TexLine: {fileID: 2800000, guid: 42b54756a4cecf44e9694c40b1b665e5, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &5312556117480715660
 GameObject:
   m_ObjectHideFlags: 0
@@ -3497,6 +3502,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 4af4d1982c606ff4195fbe7b9844e990, type: 3}
   _TexLine: {fileID: 2800000, guid: 70e8f347abd72a6468a823cceed54426, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &6191528951406903665
 GameObject:
   m_ObjectHideFlags: 0
@@ -3571,7 +3577,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7906710035050173221}
-  m_RootOrder: 21
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!137 &5792916502666197068
 SkinnedMeshRenderer:
@@ -3749,6 +3755,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 4af4d1982c606ff4195fbe7b9844e990, type: 3}
   _TexLine: {fileID: 2800000, guid: 70e8f347abd72a6468a823cceed54426, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &6950019299208315453
 GameObject:
   m_ObjectHideFlags: 0
@@ -3823,7 +3830,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7906710035050173221}
-  m_RootOrder: 20
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!137 &4281245831538652273
 SkinnedMeshRenderer:
@@ -4001,6 +4008,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 4af4d1982c606ff4195fbe7b9844e990, type: 3}
   _TexLine: {fileID: 2800000, guid: 70e8f347abd72a6468a823cceed54426, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &8054918476739227632
 GameObject:
   m_ObjectHideFlags: 0
@@ -4031,7 +4039,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7906710035050173221}
-  m_RootOrder: 17
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!137 &4883573130982220356
 SkinnedMeshRenderer:
@@ -4209,6 +4217,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 4bba8c49d1fbde04ba87ef28fce13317, type: 3}
   _TexLine: {fileID: 2800000, guid: af7ff1f7be451e048a53bf779173c858, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &8516641013559949426
 GameObject:
   m_ObjectHideFlags: 0
@@ -4417,6 +4426,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 4af4d1982c606ff4195fbe7b9844e990, type: 3}
   _TexLine: {fileID: 2800000, guid: 70e8f347abd72a6468a823cceed54426, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &8924486057129893319
 GameObject:
   m_ObjectHideFlags: 0
@@ -4625,6 +4635,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: a7b83f207f749a445bbe195a7a1e6c62, type: 3}
   _TexLine: {fileID: 2800000, guid: 79a972318b0aa764aa77994f3d695a47, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &9042318529595623676
 GameObject:
   m_ObjectHideFlags: 0
@@ -4669,11 +4680,11 @@ Transform:
   - {fileID: 5635106477302447088}
   - {fileID: 1432640140770328919}
   - {fileID: 8268250462295222058}
+  - {fileID: 7242687948486843807}
   - {fileID: 3002287243829780146}
   - {fileID: 4745461119098612530}
   - {fileID: 541242740869401719}
   - {fileID: 2636090236935081185}
-  - {fileID: 7242687948486843807}
   - {fileID: 5622090885566866084}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -4708,7 +4719,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7906710035050173221}
-  m_RootOrder: 19
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!137 &254101492385359559
 SkinnedMeshRenderer:
@@ -4886,3 +4897,4 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 4bba8c49d1fbde04ba87ef28fce13317, type: 3}
   _TexLine: {fileID: 2800000, guid: af7ff1f7be451e048a53bf779173c858, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0

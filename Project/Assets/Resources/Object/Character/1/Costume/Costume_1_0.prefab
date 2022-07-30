@@ -252,6 +252,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 1f0f8fc463914c24baa1e8793e7bcb0b, type: 3}
   _TexLine: {fileID: 2800000, guid: 39ab895cd9b75df4b9dded0a1bf520e0, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &1472636042359912280
 GameObject:
   m_ObjectHideFlags: 0
@@ -549,6 +550,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 1f0f8fc463914c24baa1e8793e7bcb0b, type: 3}
   _TexLine: {fileID: 2800000, guid: 39ab895cd9b75df4b9dded0a1bf520e0, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!183 &9177752814679234663
 Cloth:
   m_ObjectHideFlags: 0
@@ -895,6 +897,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: b529f1fe53ea0a04e85f7a1adaeb8558, type: 3}
   _TexLine: {fileID: 2800000, guid: 1017f35c1aa4e4b4281e596cb7abb6fa, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &1958257063227680362
 GameObject:
   m_ObjectHideFlags: 0
@@ -1104,6 +1107,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 1f0f8fc463914c24baa1e8793e7bcb0b, type: 3}
   _TexLine: {fileID: 2800000, guid: 39ab895cd9b75df4b9dded0a1bf520e0, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!183 &7346484335148024503
 Cloth:
   m_ObjectHideFlags: 0
@@ -2153,6 +2157,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 765ff3acc6ea85b4eaabbac792f31653, type: 3}
   _TexLine: {fileID: 2800000, guid: 1072ec682bc7fc14da436c6c5afb6567, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &5070078634618577625
 GameObject:
   m_ObjectHideFlags: 0
@@ -2361,6 +2366,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 765ff3acc6ea85b4eaabbac792f31653, type: 3}
   _TexLine: {fileID: 2800000, guid: 1072ec682bc7fc14da436c6c5afb6567, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &5312556117480715660
 GameObject:
   m_ObjectHideFlags: 0
@@ -2569,6 +2575,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 765ff3acc6ea85b4eaabbac792f31653, type: 3}
   _TexLine: {fileID: 2800000, guid: 1072ec682bc7fc14da436c6c5afb6567, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &6195319942691718289
 GameObject:
   m_ObjectHideFlags: 0
@@ -2777,6 +2784,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 765ff3acc6ea85b4eaabbac792f31653, type: 3}
   _TexLine: {fileID: 2800000, guid: 1072ec682bc7fc14da436c6c5afb6567, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &8054918476739227632
 GameObject:
   m_ObjectHideFlags: 0
@@ -2985,6 +2993,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: b529f1fe53ea0a04e85f7a1adaeb8558, type: 3}
   _TexLine: {fileID: 2800000, guid: 1017f35c1aa4e4b4281e596cb7abb6fa, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &8924486057129893319
 GameObject:
   m_ObjectHideFlags: 0
@@ -3193,6 +3202,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 1f302f8c3bd43ee4a8023b95c20e1c4c, type: 3}
   _TexLine: {fileID: 2800000, guid: e3dcb0fc18aabdc47839fca47165369e, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 1
 --- !u!1 &9042318529595623676
 GameObject:
   m_ObjectHideFlags: 0
@@ -3450,6 +3460,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: b529f1fe53ea0a04e85f7a1adaeb8558, type: 3}
   _TexLine: {fileID: 2800000, guid: 1017f35c1aa4e4b4281e596cb7abb6fa, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineMeshFlag: 0
 --- !u!1 &9219833736015697288
 GameObject:
   m_ObjectHideFlags: 0

@@ -745,19 +745,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d37e5385efd7064cb1d54c94960acae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Resolution: 50
+  m_Resolution: 25
   m_Appearance:
     pathColor: {r: 0, g: 1, b: 0, a: 1}
     inactivePathColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     width: 0.2
   m_Looped: 0
   m_Waypoints:
-  - position: {x: -3, y: 0.25, z: 0}
+  - position: {x: -3, y: 0.5, z: 0}
+    tangent: {x: 0.1, y: 0, z: 0}
+    roll: 45
+  - position: {x: -1.25, y: 0.75, z: 0}
     tangent: {x: 0.5, y: 0, z: 0}
     roll: -45
-  - position: {x: 1, y: 1.5, z: 1.5}
-    tangent: {x: 1, y: 0.1, z: 0}
-    roll: 45
+  - position: {x: 0.25, y: 1, z: 1}
+    tangent: {x: 1, y: 0, z: -0.25}
+    roll: -45
 --- !u!114 &1324926600291800900
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -776,7 +779,7 @@ MonoBehaviour:
   NextCameraWorkMode: 10
   ReturnPositionMode: 2
   RandomFlag: 0
-  EasingTime: 2
+  EasingTime: 0
   KeepTime: 0
   MoveSpeed: 1
   LookAtOBJ: {fileID: 0}

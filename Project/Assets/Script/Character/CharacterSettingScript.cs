@@ -477,9 +477,10 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 		//ボーンコピー用SkinnedMeshRenderer
 		SkinnedMeshRenderer BoneSample = DeepFind(gameObject, "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
 
-		//スキンメッシュを回して結合するメッシュを抽出
-		foreach (var i in gameObject.GetComponentsInChildren<SkinnedMeshRenderer>())
+		//スキンメッシュを回してBodyシェーダーが使われてる奴を抽出
+		foreach (SkinnedMeshRenderer i in gameObject.GetComponentsInChildren<SkinnedMeshRenderer>().Where(a => a.GetComponent<CharacterBodyShaderScript>() != null))
 		{
+			/*
 			if(
 				i.name.Contains("Body") || 
 				i.name.Contains("Others") ||
@@ -489,7 +490,11 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 				i.name.Contains("B_On") ||
 				i.name.Contains("P_On")
 				)
-			{
+			{*/
+
+			//メッシュ結合フラグが立っているオブジェクトを抽出
+			if(i.GetComponent<CharacterBodyShaderScript>().CombineMeshFlag)
+			{ 
 				//ListにAdd
 				CombineOBJList.Add(i.gameObject);
 
@@ -497,7 +502,6 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 				i.gameObject.SetActive(false);
 			}
 		}
-
 
 		//メッシュ統合
 		SkinMeshIntegration(CombineOBJList, BoneSample, (GameObject OBJ) => 
