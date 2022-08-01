@@ -508,7 +508,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 		{
 			//親を設定
 			OBJ.transform.parent = gameObject.transform;
-
+			
 			//トランスフォームリセット
 			ResetTransform(OBJ);
 
@@ -517,20 +517,20 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 
 			//レイヤーをEnemyにする
 			OBJ.layer = LayerMask.NameToLayer("Player");
+
+			//アニメーター有効化
+			gameObject.GetComponent<Animator>().enabled = true;
+
+			//骨揺らしフラグを入れる
+			gameObject.GetComponent<PlayerScript>().BoneMoveSwitch = true;
+
+			//自身を消しておく
+			gameObject.SetActive(false);
+
+			GameObject.Find("MIssionSetting").GetComponent<MissionSettingScript>().WaitBarNum += 1;
+
+			//読み込み完了したらMissionSettingにフラグを送る
+			ExecuteEvents.Execute<MissionSettingScriptInterface>(GameObject.Find("MIssionSetting"), null, (reciever, eventData) => reciever.GetCharacterCompleteFlag(ID, true));
 		});
-
-		//アニメーター有効化
-		gameObject.GetComponent<Animator>().enabled = true;
-
-		//骨揺らしフラグを入れる
-		gameObject.GetComponent<PlayerScript>().BoneMoveSwitch = true;
-
-		//自身を消しておく
-		gameObject.SetActive(false);
-
-		GameObject.Find("MIssionSetting").GetComponent<MissionSettingScript>().WaitBarNum += 1;
-
-		//読み込み完了したらMissionSettingにフラグを送る
-		ExecuteEvents.Execute<MissionSettingScriptInterface>(GameObject.Find("MIssionSetting"), null, (reciever, eventData) => reciever.GetCharacterCompleteFlag(ID, true));
 	}
 }

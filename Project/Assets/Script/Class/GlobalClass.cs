@@ -17,13 +17,19 @@ public class GlobalClass : MonoBehaviour
 	//受け取ったボディシェーダー使用のスキンメッシュを統合する関数、これをやる時は元のキャラクターがワールド原点にいて、モーション再生されていないTスタンス状態で処理すること
 	public void SkinMeshIntegration(List<GameObject> OBJList, SkinnedMeshRenderer BoneSample, Action<GameObject> Act)
 	{
+		//コルーチン呼び出し
+		StartCoroutine(SkinMeshIntegrationCoroutine(OBJList, BoneSample, Act));
+	}
+	
+	private IEnumerator SkinMeshIntegrationCoroutine(List<GameObject> OBJList, SkinnedMeshRenderer BoneSample, Action<GameObject> Act)
+	{
 		//スキンメッシュレンダラーList宣言
 		List<SkinnedMeshRenderer> MeshList = new List<SkinnedMeshRenderer>();
 
 		//オブジェクトListのスキニングメッシュレンダラーを全て取得
 		foreach (GameObject i in OBJList)
 		{
-			foreach(SkinnedMeshRenderer ii in i.GetComponentsInChildren<SkinnedMeshRenderer>())
+			foreach (SkinnedMeshRenderer ii in i.GetComponentsInChildren<SkinnedMeshRenderer>())
 			{
 				//ListにAdd
 				MeshList.Add(ii);
@@ -87,17 +93,32 @@ public class GlobalClass : MonoBehaviour
 		//最終的に統合する線画テクスチャ
 		List<Texture2D> FinalPackLineTextureList = new List<Texture2D>();
 
+		//1フレーム待機
+		yield return null;
+
 		//統合用ベーステクスチャ
 		Texture2D PackBaseTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//1フレーム待機
+		yield return null;
 
 		//統合用法線テクスチャ
 		Texture2D PackNormalTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
 
+		//1フレーム待機
+		yield return null;
+
 		//統合用ハイライトテクスチャ
 		Texture2D PackHiLightTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
 
+		//1フレーム待機
+		yield return null;
+
 		//統合用線画テクスチャ
 		Texture2D PackLineTexture = new Texture2D(512, 512, TextureFormat.RGBA32, false);
+
+		//1フレーム待機
+		yield return null;
 
 		//インデックスに使うループカウント
 		int count = 0;
@@ -180,8 +201,14 @@ public class GlobalClass : MonoBehaviour
 			PackLineTextureList.Add(tempscript._TexLine);
 		}
 
+		//1フレーム待機
+		yield return null;
+
 		//メッシュを結合
 		CombineMeshRenderer.sharedMesh.CombineMeshes(CombineInstanceList.ToArray());
+
+		//1フレーム待機
+		yield return null;
 
 		//ボーン設定
 		CombineMeshRenderer.bones = BoneList.ToArray();
@@ -204,6 +231,9 @@ public class GlobalClass : MonoBehaviour
 		//ベーステクスチャListを回す
 		foreach (Texture2D i in PackBaseTextureList)
 		{
+			//1フレーム待機
+			yield return null;
+
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if (i.width < BaseTextureSize)
 			{
@@ -220,8 +250,11 @@ public class GlobalClass : MonoBehaviour
 		//法線テクスチャListを回す
 		foreach (Texture2D i in PackNormalTextureList)
 		{
+			//1フレーム待機
+			yield return null;
+
 			//最大サイズに合わせて小さいテクスチャをリサイズ
-			if(i.width < NormalTextureSize)
+			if (i.width < NormalTextureSize)
 			{
 				//リサイズしたテクスチャをListにAdd
 				FinalPackNormalTextureList.Add(TextureResize(i, NormalTextureSize));
@@ -236,6 +269,9 @@ public class GlobalClass : MonoBehaviour
 		//線画テクスチャListを回す
 		foreach (Texture2D i in PackLineTextureList)
 		{
+			//1フレーム待機
+			yield return null;
+
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if (i.width < LineTextureSize)
 			{
@@ -252,6 +288,9 @@ public class GlobalClass : MonoBehaviour
 		//ハイライトテクスチャListを回す
 		foreach (Texture2D i in PackHiLightTextureList)
 		{
+			//1フレーム待機
+			yield return null;
+
 			//最大サイズに合わせて小さいテクスチャをリサイズ
 			if (i.width < HiLightTextureSize)
 			{
@@ -268,33 +307,60 @@ public class GlobalClass : MonoBehaviour
 		//各テクスチャリストをムリヤリ16枚にする
 		while (FinalPackBaseTextureList.Count < 16)
 		{
+			//1フレーム待機
+			yield return null;
+
 			FinalPackBaseTextureList.Add(new Texture2D(BaseTextureSize, BaseTextureSize, TextureFormat.R8, false));
 		}
 		while (FinalPackNormalTextureList.Count < 16)
 		{
+			//1フレーム待機
+			yield return null;
+
 			FinalPackNormalTextureList.Add(new Texture2D(NormalTextureSize, NormalTextureSize, TextureFormat.R8, false));
 		}
 		while (FinalPackHiLightTextureList.Count < 16)
 		{
+			//1フレーム待機
+			yield return null;
+
 			FinalPackHiLightTextureList.Add(new Texture2D(HiLightTextureSize, HiLightTextureSize, TextureFormat.R8, false));
 		}
 		while (FinalPackLineTextureList.Count < 16)
 		{
+			//1フレーム待機
+			yield return null;
+
 			FinalPackLineTextureList.Add(new Texture2D(LineTextureSize, LineTextureSize, TextureFormat.R8, false));
 		}
 
+		//1フレーム待機
+		yield return null;
+
 		//ベーステクスチャを統合してRectを受け取る、
 		Rect[] TexBaseRect = PackBaseTexture.PackTextures(FinalPackBaseTextureList.ToArray(), 0, BaseTextureSize * 4, false);
-
+		
+		//1フレーム待機
+		yield return null;
+		
 		//法線テクスチャ統合
 		PackNormalTexture.PackTextures(FinalPackNormalTextureList.ToArray(), 0, NormalTextureSize * 4, false);
+
+		//1フレーム待機
+		yield return null;
 
 		//ハイライトテクスチャ統合
 		PackHiLightTexture.PackTextures(FinalPackHiLightTextureList.ToArray(), 0, HiLightTextureSize * 4, false);
 
+		//1フレーム待機
+		yield return null;
+
 		//線画テクスチャ統合
 		PackLineTexture.PackTextures(FinalPackLineTextureList.ToArray(), 0, LineTextureSize * 4, false);
-		
+
+		//1フレーム待機
+		yield return null;
+
 		//統合用UV宣言
 		List<Vector2> CombineUV = new List<Vector2>();
 

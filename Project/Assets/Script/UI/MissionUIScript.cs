@@ -12,8 +12,15 @@ public class MissionUIScript : GlobalClass
 	//技マトリクスのルートオブジェクト
 	private GameObject ArtsMatrixRoot;
 
+	//アニメーター
+	private Animator AnimCon;
+
 	//スクリーンイメージ
 	private Image ScreenIMG;
+
+	//読み込みロゴイメージ
+	private Image WaitLogoIMG00;
+	private Image WaitLogoIMG01;
 
 	//ウェイトバーイメージ
 	private Image WaitBarIMG;
@@ -32,11 +39,49 @@ public class MissionUIScript : GlobalClass
 		//技マトリクスのルートオブジェクト取得
 		ArtsMatrixRoot = DeepFind(gameObject, "ArtsMatrixRoot");
 
+		//アニメーター取得
+		AnimCon = GetComponent<Animator>();
+
 		//スクリーンイメージ取得
 		ScreenIMG = DeepFind(gameObject, "Screen").GetComponent<Image>();
 
+		//読み込みロゴイメージ取得
+		WaitLogoIMG00 = DeepFind(gameObject, "WaitLogo00").GetComponent<Image>();
+		WaitLogoIMG01 = DeepFind(gameObject, "WaitLogo01").GetComponent<Image>();
+
 		//ウェイトバーイメージ取得
 		WaitBarIMG = DeepFind(gameObject, "WaitBar").GetComponent<Image>();
+	}
+
+	//読み込み待ちロゴスタート
+	public void StartWaitLogo()
+	{
+		//有効化
+		WaitLogoIMG00.enabled = true;
+		WaitLogoIMG01.enabled = true;
+
+		//アニメーターのフラグを立てる
+		AnimCon.SetBool("Wait_Start", true);
+		AnimCon.SetBool("Wait_End", false);
+	}
+
+	//読み込み待ちロゴエンド
+	public void EndWaitLogo()
+	{
+		//アニメーターのフラグを立てる
+		AnimCon.SetBool("Wait_End", true);
+	}
+
+	//読み込み待ちロゴ完了
+	public void FinishWaitLogo()
+	{
+		//無効化
+		WaitLogoIMG00.enabled = false;
+		WaitLogoIMG01.enabled = false;
+
+		//アニメーターのフラグを下す
+		AnimCon.SetBool("Wait_Start", false);
+		AnimCon.SetBool("Wait_End", false);
 	}
 
 	//読み込み状況に合わせてウェイトバーを延ばす
