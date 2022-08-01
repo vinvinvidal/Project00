@@ -34,6 +34,12 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 	//ミッション参加キャラクター
 	private Dictionary<int, GameObject> MissionCharacterDic = new Dictionary<int, GameObject>();
 
+	//ウェイトバーの進捗に使う読み込みオブジェクト数
+	public int ObjectNum { get; set; } = 0;
+
+	//ウェイトバーの進捗具合
+	public int WaitBarNum { get; set; } = 1;
+
 	void Awake()
     {
 		//ゲームマネージャーの初期化関数を呼び出す
@@ -65,6 +71,9 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 		//UIスクリプトにミッションクラスを送る
 		UIScript.SettingArtsMatrix(UseMissionClass);
 
+		//ウェイトバー初期化
+		UIScript.SetWaitbar(0);
+
 		//UIのスクリーンを有効化
 		UIScript.FadeScreen(true, 1);
 
@@ -76,9 +85,6 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 
 		//屋内ライトのライトカラーを設定する
 		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "InDoorLight"), null, (reciever, eventData) => reciever.GradientChange(UseMissionClass.LightColorIndexList[1], UseMissionClass.LightColorPosList[1]));
-
-		//ミッションに参加するキャラクターを全て読み込むコルーチン呼び出し
-		StartCoroutine(LoadCharacterCoroutine());
 
 		//ミッション開始時のセッティング、以降のチャプターはGameManagerから呼ぶ
 		MissionSetting(0);
@@ -122,19 +128,46 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 
 			//読み込み完了フラグを立てる
 			StageCompleteFlag = true;
-		}));
 
-		//読み込み完了チェックコルーチン呼び出し
-		StartCoroutine(CompleteCheck(MissionChapterNum));
+			//読み込みオブジェクト数に加算
+			ObjectNum += UseMissionClass.MissionCharacterList.Count + 1;
+
+			//ミッションに参加するキャラクターを全て読み込むコルーチン呼び出し
+			StartCoroutine(LoadCharacterCoroutine());
+
+			//読み込み完了チェックコルーチン呼び出し
+			StartCoroutine(CompleteCheck(MissionChapterNum));
+		}));
+	}
+
+	private IEnumerator MoveWaiVar()
+	{
+		while(WaitBarNum != ObjectNum)
+		{
+			UIScript.SetWaitbar((float)WaitBarNum / ObjectNum);
+
+			//1フレーム待機
+			yield return null;
+		}
 	}
 
 	//読み込み完了チェックコルーチン
-	IEnumerator CompleteCheck(int MissionChapterNum)
+	private IEnumerator CompleteCheck(int MissionChapterNum)
 	{
+		bool WaitBarReady = true;
+
 		//外部データの読み込みが完了するまで回る
 		while (!(StageCompleteFlag && CharacterCompleteFlagDic.Values.All(a => a) && BattleAreaCompleteFlagDic.Values.All(a => a)))
 		{
+			//1フレーム待機
 			yield return null;
+
+			if(WaitBarReady)
+			{
+				StartCoroutine(MoveWaiVar());
+
+				WaitBarReady = false;
+			}			
 		}
 
 		//ゲームマネージャーのイベント中フラグを下す
@@ -171,6 +204,9 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 
 		//スクリーンエフェクトで白フェード
 		//ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) =>{ g.GetComponent<Renderer>().enabled = false; }));
+
+		//ウェイトバーを消す
+		UIScript.SetWaitbar(1);
 
 		//UIのスクリーンを無効化
 		UIScript.FadeScreen(false, 0.01f);

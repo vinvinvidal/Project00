@@ -14,6 +14,9 @@ public interface BattleFieldScriptInterface : IEventSystemHandler
 
 public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 {
+	//ミッションセッティングスクリプト
+	private MissionSettingScript MissionSetting;
+
 	//出現する敵ウェーブリスト
 	public List<int> EnemyWaveList;
 
@@ -70,8 +73,11 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 	private void Start()
 	{
+		//ミッションセッティングスクリプト取得
+		MissionSetting = GameObject.Find("MIssionSetting").GetComponent<MissionSettingScript>();
+
 		//バトルフィールド読み込み完了フラグに自身を追加
-		GameObject.Find("MIssionSetting").GetComponent<MissionSettingScript>().BattleAreaCompleteFlagDic.Add(gameObject, false);
+		MissionSetting.BattleAreaCompleteFlagDic.Add(gameObject, false);
 
 		//敵出現位置List初期化
 		SpawnPosList = new List<GameObject>(gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("SpawnPos")).Select(a => a.gameObject).ToList());
@@ -105,6 +111,17 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 		//プレイヤーキャラクターポジションオブジェクト取得
 		PlayerPosOBJ = DeepFind(gameObject, "PlayerPosOBJ");
+
+		//全てのウェーブを回す
+		foreach (var i in EnemyWaveList)
+		{
+			//全ての敵を回す
+			foreach (var ii in GameManagerScript.Instance.AllEnemyWaveList.Where(a => a.WaveID == i).ToArray()[0].EnemyList)
+			{
+				//オブジェクト数に加算
+				MissionSetting.ObjectNum += 1;
+			}
+		}
 
 		//プレイヤーキャラクター取得コルーチン呼び出し
 		StartCoroutine(GetPlayerCharacterCoroutine());
@@ -208,6 +225,8 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				{
 					yield return null;
 				}
+
+				GameObject.Find("MIssionSetting").GetComponent<MissionSettingScript>().WaitBarNum += 1;
 			}
 
 			//ListにAdd

@@ -528,6 +528,8 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 		//自身を消しておく
 		gameObject.SetActive(false);
 
+		GameObject.Find("MIssionSetting").GetComponent<MissionSettingScript>().WaitBarNum += 1;
+
 		//読み込み完了したらMissionSettingにフラグを送る
 		ExecuteEvents.Execute<MissionSettingScriptInterface>(GameObject.Find("MIssionSetting"), null, (reciever, eventData) => reciever.GetCharacterCompleteFlag(ID, true));
 	}
