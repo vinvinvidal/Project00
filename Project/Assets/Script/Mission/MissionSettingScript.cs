@@ -149,6 +149,8 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 			//1フレーム待機
 			yield return null;
 		}
+
+		UIScript.SetWaitbar(1);
 	}
 
 	//読み込み完了チェックコルーチン

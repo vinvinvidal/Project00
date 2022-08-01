@@ -51,7 +51,7 @@ public class MissionUIScript : GlobalClass
 		}
 		else if (n == 1)
 		{
-			WaitBarIMG.enabled = false;
+
 		}
 		else
 		{
