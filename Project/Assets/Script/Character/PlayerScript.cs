@@ -1254,7 +1254,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//移動キーを押した時
 	private void OnPlayerMove(InputValue inputValue)
 	{
-		if (!GameManagerScript.Instance.EventFlag)
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
 		{
 			//入力をキャッシュ
 			PlayerMoveInputVecter = inputValue.Get<Vector2>();
@@ -1268,50 +1268,56 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//ジャンプキーを押した時
 	private void OnPlayerJump()
 	{
-		//ジャンプ入力許可条件判定
-		if (PermitInputBoolDic["Jump"])
-		{
-			//入力フラグを全て下す関数呼び出し
-			InputReset();
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
+		{ 
+			//ジャンプ入力許可条件判定
+			if (PermitInputBoolDic["Jump"])
+			{
+				//入力フラグを全て下す関数呼び出し
+				InputReset();
 
-			//遷移フラグを全て下す関数呼び出し
-			TransitionReset();
+				//遷移フラグを全て下す関数呼び出し
+				TransitionReset();
 
-			//フラグ切り替え
-			JumpInput = true;
-		}
+				//フラグ切り替え
+				JumpInput = true;
+			}
 
-		//スケベ脱出カウントアップ
-		if (BreakInputFlag)
-		{
-			BreakCount++;
+			//スケベ脱出カウントアップ
+			if (BreakInputFlag)
+			{
+				BreakCount++;
+			}
 		}
 	}
 
 	//ローリングキーを押した時
 	private void OnPlayerRolling()
 	{
-		//ローリング入力許可条件判定
-		if (PermitInputBoolDic["GroundRolling"] || PermitInputBoolDic["AirRolling"])
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
 		{
-			//入力フラグを全て下す関数呼び出し
-			InputReset();
-
-			//遷移フラグを全て下す関数呼び出し
-			TransitionReset();
-
-			//ローリング入力フラグ切り替え
-			RollingInput = true;
-
-			//地上でレバー入力されていたらそちらに向ける
-			if (OnGroundFlag && PlayerMoveInputVecter != Vector2.zero)
+			//ローリング入力許可条件判定
+			if (PermitInputBoolDic["GroundRolling"] || PermitInputBoolDic["AirRolling"])
 			{
-				RollingRotateVector = (PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x);
-			}
-			//空中もしくはレバー入力されていなかったら正面そのまま
-			else
-			{
-				RollingRotateVector = transform.forward;
+				//入力フラグを全て下す関数呼び出し
+				InputReset();
+
+				//遷移フラグを全て下す関数呼び出し
+				TransitionReset();
+
+				//ローリング入力フラグ切り替え
+				RollingInput = true;
+
+				//地上でレバー入力されていたらそちらに向ける
+				if (OnGroundFlag && PlayerMoveInputVecter != Vector2.zero)
+				{
+					RollingRotateVector = (PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x);
+				}
+				//空中もしくはレバー入力されていなかったら正面そのまま
+				else
+				{
+					RollingRotateVector = transform.forward;
+				}
 			}
 		}
 	}
@@ -1319,99 +1325,113 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//攻撃ボタンが押された時
 	private void OnPlayerAttack00(InputValue i)
 	{
-		//押した時にture、離した時にfalseが入る
-		HoldButtonFlag = i.isPressed;
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
+		{
+			//押した時にture、離した時にfalseが入る
+			HoldButtonFlag = i.isPressed;
 
-		if (i.isPressed && !SpecialSuccessFlag)
-		{
-			AttackInputFunc(0);
-		}
-		//特殊攻撃成功時に派生を選ぶ
-		else if (SpecialSuccessFlag)
-		{
-			SpecialInputIndex = 0;
-		}
+			if (i.isPressed && !SpecialSuccessFlag)
+			{
+				AttackInputFunc(0);
+			}
+			//特殊攻撃成功時に派生を選ぶ
+			else if (SpecialSuccessFlag)
+			{
+				SpecialInputIndex = 0;
+			}
 
-		//スケベ脱出カウントアップ
-		if(BreakInputFlag)
-		{
-			BreakCount++;
-		}		
+			//スケベ脱出カウントアップ
+			if (BreakInputFlag)
+			{
+				BreakCount++;
+			}
+		}
 	}
 	private void OnPlayerAttack01(InputValue i)
 	{
-		//押した時にture、離した時にfalseが入る
-		HoldButtonFlag = i.isPressed;
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
+		{
+			//押した時にture、離した時にfalseが入る
+			HoldButtonFlag = i.isPressed;
 
-		if (i.isPressed && !SpecialSuccessFlag)
-		{
-			AttackInputFunc(1);
-		}
-		//特殊攻撃成功時に派生を選ぶ
-		else if (SpecialSuccessFlag)
-		{
-			SpecialInputIndex = 1;
-		}
+			if (i.isPressed && !SpecialSuccessFlag)
+			{
+				AttackInputFunc(1);
+			}
+			//特殊攻撃成功時に派生を選ぶ
+			else if (SpecialSuccessFlag)
+			{
+				SpecialInputIndex = 1;
+			}
 
-		//スケベ脱出カウントアップ
-		if (BreakInputFlag)
-		{
-			BreakCount++;
+			//スケベ脱出カウントアップ
+			if (BreakInputFlag)
+			{
+				BreakCount++;
+			}
 		}
 	}
 	private void OnPlayerAttack02(InputValue i)
 	{
-		//押した時にture、離した時にfalseが入る
-		HoldButtonFlag = i.isPressed;
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
+		{
+			//押した時にture、離した時にfalseが入る
+			HoldButtonFlag = i.isPressed;
 
-		if (i.isPressed && !SpecialSuccessFlag)
-		{
-			AttackInputFunc(2);
-		}
-		//特殊攻撃成功時に派生を選ぶ
-		else if (SpecialSuccessFlag)
-		{
-			SpecialInputIndex = 2;
-		}
+			if (i.isPressed && !SpecialSuccessFlag)
+			{
+				AttackInputFunc(2);
+			}
+			//特殊攻撃成功時に派生を選ぶ
+			else if (SpecialSuccessFlag)
+			{
+				SpecialInputIndex = 2;
+			}
 
-		//スケベ脱出カウントアップ
-		if (BreakInputFlag)
-		{
-			BreakCount++;
+			//スケベ脱出カウントアップ
+			if (BreakInputFlag)
+			{
+				BreakCount++;
+			}
 		}
 	}
 
 	//オートコンボボタンを押した時
 	private void OnPlayerAutoCombo(InputValue i)
 	{
-		//押した時にture、離した時にfalseが入る
-		HoldButtonFlag = i.isPressed;
-
-		if (i.isPressed)
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
 		{
-			//オートコンボで技を探す
-			AttackInputFunc(100);
+			//押した時にture、離した時にfalseが入る
+			HoldButtonFlag = i.isPressed;
+
+			if (i.isPressed)
+			{
+				//オートコンボで技を探す
+				AttackInputFunc(100);
+			}
 		}
 	}
 
 	//特殊攻撃を押した時
 	private void OnPlayerSpecial(InputValue i)
 	{
-		//Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "BombEffect").ToArray()[0]).transform.position = transform.position;
-
-		//特殊攻撃入力許可条件判定
-		if (PermitInputBoolDic["SpecialTry"])
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
 		{
-			//入力フラグを全て下す関数呼び出し
-			InputReset();
+			//Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "BombEffect").ToArray()[0]).transform.position = transform.position;
 
-			//遷移フラグを全て下す関数呼び出し
-			TransitionReset();
+			//特殊攻撃入力許可条件判定
+			if (PermitInputBoolDic["SpecialTry"])
+			{
+				//入力フラグを全て下す関数呼び出し
+				InputReset();
 
-			//入力フラグを立てる
-			SpecialInput = true;
-		}		
+				//遷移フラグを全て下す関数呼び出し
+				TransitionReset();
 
+				//入力フラグを立てる
+				SpecialInput = true;
+			}
+		}
 		//スケベフラグを戻す処理、とりあえずなので後で消す
 		foreach (Transform ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
 		{
@@ -1443,40 +1463,47 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		
 		//モザイク表示
 		MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(false);
+			
 	}
 
 	//超必殺技ボタンを押した時の処理
 	private void OnPlayerSuperArts(InputValue i)
 	{
-		//超必殺技入力許可条件判定
-		if (PermitInputBoolDic["SuperTry"] && B_Gauge >= SuperGauge)
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
 		{
-			//入力フラグを全て下す関数呼び出し
-			InputReset();
+			//超必殺技入力許可条件判定
+			if (PermitInputBoolDic["SuperTry"] && B_Gauge >= SuperGauge)
+			{
+				//入力フラグを全て下す関数呼び出し
+				InputReset();
 
-			//遷移フラグを全て下す関数呼び出し
-			TransitionReset();
+				//遷移フラグを全て下す関数呼び出し
+				TransitionReset();
 
-			//入力フラグを立てる
-			SuperInput = true;
+				//入力フラグを立てる
+				SuperInput = true;
+			}
 		}
 	}
 
 	//キャラチェンジを押した時
 	private void OnCharacterChange(InputValue i)
 	{
-		//キャラチェンジ入力許可条件判定
-		if (PermitInputBoolDic["ChangeBefore"] && 
+		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
+		{
+			//キャラチェンジ入力許可条件判定
+			if (PermitInputBoolDic["ChangeBefore"] &&
 			//最後の１人じゃない
-			GameManagerScript.Instance.AllActiveCharacterList.Where(a => a != null).ToList().Count != 1 && 
+			GameManagerScript.Instance.AllActiveCharacterList.Where(a => a != null).ToList().Count != 1 &&
 			//敵がいる、もしくは戦闘中じゃない
 			(!GameManagerScript.Instance.AllActiveEnemyList.All(a => a == null) || !GameManagerScript.Instance.BattleFlag))
-		{
-			//入力フラグを立てる
-			ChangeInput = true;
+			{
+				//入力フラグを立てる
+				ChangeInput = true;
 
-			//入力をキャストしてキャッシュ
-			ChangeInputNum = (int)i.Get<float>();
+				//入力をキャストしてキャッシュ
+				ChangeInputNum = (int)i.Get<float>();
+			}
 		}
 	}
 
@@ -4449,8 +4476,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//キャラ交代入力許可条件
 		PermitInputBoolDic["ChangeBefore"] = 
-		!PauseFlag &&
-		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -4492,11 +4517,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		);
 
 		//特殊攻撃入力許可条件
-		PermitInputBoolDic["SpecialTry"]
-		= !PauseFlag &&
+		PermitInputBoolDic["SpecialTry"] =
 		!H_Flag &&
 		OnGroundFlag &&
-		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -4518,12 +4541,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		);
 
 		//超必殺技入力許可条件
-		PermitInputBoolDic["SuperTry"]
-		= !PauseFlag &&
+		PermitInputBoolDic["SuperTry"] =
 		SuperArts != null &&
 		!H_Flag &&
 		OnGroundFlag &&
-		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -4561,10 +4582,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		);
 
 		//ジャンプ入力許可条件
-		PermitInputBoolDic["Jump"]
-		= !PauseFlag &&
+		PermitInputBoolDic["Jump"] =
 		!H_Flag &&
-		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -4586,10 +4605,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		);
 
 		//ローリング入力許可ステート
-		PermitInputBoolDic["GroundRolling"]
-		= !PauseFlag &&
+		PermitInputBoolDic["GroundRolling"] =
 		!H_Flag &&
-		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||
@@ -4624,12 +4641,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		PermitInputBoolDic["AirRolling"] = PermitInputBoolDic["GroundRolling"] && AirRollingFlag;
 
 		//攻撃入力許可ステート
-		PermitInputBoolDic["Attack00"]
-		= !PauseFlag &&
+		PermitInputBoolDic["Attack00"] =
 		!H_Flag &&
 		!NoEquipFlag &&
 		!DropFlag &&
-		!GameManagerScript.Instance.EventFlag &&
 		(
 			s.Contains("Attack")
 			||

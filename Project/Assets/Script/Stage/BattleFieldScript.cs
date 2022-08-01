@@ -70,6 +70,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 	private void Start()
 	{
+		//バトルフィールド読み込み完了フラグに自身を追加
+		GameObject.Find("MIssionSetting").GetComponent<MissionSettingScript>().BattleAreaCompleteFlagDic.Add(gameObject, false);
+
 		//敵出現位置List初期化
 		SpawnPosList = new List<GameObject>(gameObject.GetComponentsInChildren<Transform>().Where(a => a.name.Contains("SpawnPos")).Select(a => a.gameObject).ToList());
 
@@ -197,6 +200,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				//ListにAdd
 				TempEnemyList.Add(TempEnemy);
 
+				//セッティングスクリプト取得
 				EnemySettingScript TempSettingScript = TempEnemy.GetComponent<EnemySettingScript>();
 
 				//読み込み完了を待つ
@@ -212,6 +216,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 		//フラグを立てる
 		GenerateEnemyFlag = true;
+
+		//バトルフィールド読み込み完了フラグを更新
+		GameObject.Find("MIssionSetting").GetComponent<MissionSettingScript>().BattleAreaCompleteFlagDic[gameObject] = true;
 
 		//ゲームマネージャーの敵生成中フラグを下す
 		GameManagerScript.Instance.GenerateEnemyFlag = false;

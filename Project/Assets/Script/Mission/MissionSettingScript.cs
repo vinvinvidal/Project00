@@ -19,11 +19,17 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 	//使用するMissionClass
 	private MissionClass UseMissionClass;
 
-	//ステージ読み込み完了フラグ
-	private bool StageCompleteFlag;
+	//ミッションUIスクリプト
+	private MissionUIScript UIScript;
 
 	//キャラクター読み込み完了フラグDic
 	private Dictionary<int, bool> CharacterCompleteFlagDic = new Dictionary<int, bool>();
+
+	//バトルフィールド読み込み完了フラグ
+	public Dictionary<GameObject, bool> BattleAreaCompleteFlagDic { get; set; } = new Dictionary<GameObject, bool>();
+
+	//ステージ読み込み完了フラグ
+	private bool StageCompleteFlag;
 
 	//ミッション参加キャラクター
 	private Dictionary<int, GameObject> MissionCharacterDic = new Dictionary<int, GameObject>();
@@ -32,6 +38,9 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
     {
 		//ゲームマネージャーの初期化関数を呼び出す
 		GameManagerScript.Instance.StartMission();
+
+		//ゲームマネージャーのイベント中フラグを立てる
+		GameManagerScript.Instance.EventFlag = true;
 
 		//全てのミッションリストを回す
 		foreach (MissionClass i in GameManagerScript.Instance.AllMissionList)
@@ -50,8 +59,17 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 			CharacterCompleteFlagDic.Add(i, false);
 		}
 
+		//ミッションUIスクリプト取得
+		UIScript = GameObject.Find("MissionUI").GetComponent<MissionUIScript>();
+
 		//UIスクリプトにミッションクラスを送る
-		GameObject.Find("MissionUI").GetComponent<MissionUIScript>().SettingArtsMatrix(UseMissionClass);
+		UIScript.SettingArtsMatrix(UseMissionClass);
+
+		//UIのスクリーンを有効化
+		UIScript.FadeScreen(true, 1);
+
+		//スクリーンエフェクトを消す
+		DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect").GetComponent<Renderer>().enabled = false;
 
 		//野外ライトのライトカラーを設定する
 		ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.GradientChange(UseMissionClass.LightColorIndexList[0] , UseMissionClass.LightColorPosList[0]));
@@ -114,10 +132,13 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 	IEnumerator CompleteCheck(int MissionChapterNum)
 	{
 		//外部データの読み込みが完了するまで回る
-		while (!(StageCompleteFlag && CharacterCompleteFlagDic.Values.All(a => a)))
+		while (!(StageCompleteFlag && CharacterCompleteFlagDic.Values.All(a => a) && BattleAreaCompleteFlagDic.Values.All(a => a)))
 		{
 			yield return null;
 		}
+
+		//ゲームマネージャーのイベント中フラグを下す
+		GameManagerScript.Instance.EventFlag = false;
 
 		//初期操作キャラクターを有効化
 		MissionCharacterDic[UseMissionClass.FirstCharacterList[MissionChapterNum]].SetActive(true);
@@ -149,7 +170,10 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0, 1, () => { }));
 
 		//スクリーンエフェクトで白フェード
-		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) =>{ g.GetComponent<Renderer>().enabled = false; }));
+		//ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) =>{ g.GetComponent<Renderer>().enabled = false; }));
+
+		//UIのスクリーンを無効化
+		UIScript.FadeScreen(false, 0.01f);
 	}
 
 	//プレイヤー読み込みフラグを受け取る、衣装なんかも読み込むので向こうの処理から受け取る

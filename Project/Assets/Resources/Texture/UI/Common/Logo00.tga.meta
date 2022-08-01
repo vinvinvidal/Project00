@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 0df0dbbedea39ba4d9147314e4f7b0ae
+guid: aa7935faaeece614f9015409c888a9ba
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -112,5 +112,5 @@ TextureImporter:
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
   userData: 
-  assetBundleName: ui/scene00_logo/image/logo01
+  assetBundleName: texture/ui/common/logo00
   assetBundleVariant: 

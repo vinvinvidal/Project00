@@ -12,6 +12,9 @@ public class MissionUIScript : GlobalClass
 	//技マトリクスのルートオブジェクト
 	private GameObject ArtsMatrixRoot;
 
+	//スクリーンイメージ
+	private Image ScreenIMG;
+
 	//ミッションに参加しているプレイヤーキャラクターの技マトリクス連想配列
 	private Dictionary<int, GameObject> ArtsMatrixDic = new Dictionary<int, GameObject>();
 
@@ -25,6 +28,46 @@ public class MissionUIScript : GlobalClass
 
 		//技マトリクスのルートオブジェクト取得
 		ArtsMatrixRoot = DeepFind(gameObject, "ArtsMatrixRoot");
+
+		//スクリーンイメージ取得
+		ScreenIMG = DeepFind(gameObject, "Screen").GetComponent<Image>();
+	}
+
+	//スクリーンをフェードさせる
+	public void FadeScreen(bool b, float t)
+	{
+		StartCoroutine(FadeScreenCoroutine(b,t));
+	}
+	private IEnumerator FadeScreenCoroutine(bool b, float t)
+	{
+		Color TempColor = new Color(0, 0, 0, t);
+
+		if (b)
+		{
+			ScreenIMG.color = new Color(ScreenIMG.color.r, ScreenIMG.color.g, ScreenIMG.color.b, 0);
+
+			ScreenIMG.enabled = true;
+
+			while (ScreenIMG.color.a < 1)
+			{
+				ScreenIMG.color += TempColor;
+
+				yield return null;
+			}
+
+			ScreenIMG.color = new Color(ScreenIMG.color.r, ScreenIMG.color.g, ScreenIMG.color.b, 1);
+		}
+		else
+		{
+			while (ScreenIMG.color.a > 0)
+			{
+				ScreenIMG.color -= TempColor;
+
+				yield return null;
+			}
+
+			ScreenIMG.enabled = false;
+		}		
 	}
 
 	//プレイヤーキャラクター分の技マトリクスを用意する、ミッションセッティングから呼ばれる
