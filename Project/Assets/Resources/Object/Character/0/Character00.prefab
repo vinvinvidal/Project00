@@ -221,9 +221,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 1218511466556987362}
   - {fileID: 5743644441363462524}
   - {fileID: 2728717124061099827}
-  - {fileID: 1218511466556987362}
   - {fileID: 4570120180982606915}
   - {fileID: 4292999508512683451}
   - {fileID: 8915050523893549098}
@@ -516,7 +516,7 @@ Transform:
   m_Children:
   - {fileID: 2110931132674751175}
   m_Father: {fileID: 7165276757380020616}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8335479115374762757
 MonoBehaviour:
@@ -537,20 +537,11 @@ MonoBehaviour:
     width: 0.2
   m_Looped: 0
   m_Waypoints:
-  - position: {x: -0.1, y: 0.2, z: 0.75}
-    tangent: {x: 0, y: 0, z: 0.001}
+  - position: {x: 0, y: 0.5, z: 1.25}
+    tangent: {x: 0, y: 0, z: -0.25}
     roll: 0
-  - position: {x: -0.05, y: 0.25, z: 0.8}
-    tangent: {x: 0, y: 0, z: 0.001}
-    roll: 0
-  - position: {x: 0, y: 0.3, z: 0.85}
-    tangent: {x: 0, y: 0, z: 0.001}
-    roll: 0
-  - position: {x: 0, y: 0.35, z: 0.9}
-    tangent: {x: 0, y: 0, z: 0.001}
-    roll: 0
-  - position: {x: 0, y: 1, z: 0.6}
-    tangent: {x: 0, y: 0.2, z: -1}
+  - position: {x: 0, y: 1.25, z: 0.75}
+    tangent: {x: 0, y: 0, z: 0}
     roll: 0
 --- !u!114 &4649264451359239959
 MonoBehaviour:
@@ -567,12 +558,12 @@ MonoBehaviour:
   CameraMode: 1
   KeepMode: 0
   TransrationMode: 0
-  NextCameraWorkMode: 3
-  ReturnPositionMode: 0
+  NextCameraWorkMode: 10
+  ReturnPositionMode: 1
   RandomFlag: 0
   EasingTime: 0
   KeepTime: 0
-  MoveSpeed: 0.75
+  MoveSpeed: 0.5
   LookAtOBJ: {fileID: 0}
 --- !u!114 &2229811079649191088
 MonoBehaviour:
@@ -1410,7 +1401,7 @@ Transform:
   - {fileID: 6835147389843348318}
   - {fileID: 5184673707789485606}
   m_Father: {fileID: 7165276757380020616}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1838467864716922815
 MonoBehaviour:
@@ -1723,7 +1714,7 @@ Transform:
   m_Children:
   - {fileID: 726809294933499505}
   m_Father: {fileID: 7165276757380020616}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3483315053173353180
 MonoBehaviour:
@@ -2254,7 +2245,7 @@ GameObject:
   - component: {fileID: 1839456024151794647}
   - component: {fileID: 7916893971597445128}
   - component: {fileID: 1986700616900649183}
-  - component: {fileID: 485231388510740666}
+  - component: {fileID: 1746096085033935475}
   m_Layer: 20
   m_Name: cm
   m_TagString: Untagged
@@ -2332,7 +2323,7 @@ MonoBehaviour:
     m_PositionOffset: 0
     m_SearchRadius: 2
     m_SearchResolution: 5
---- !u!114 &485231388510740666
+--- !u!114 &1746096085033935475
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2341,9 +2332,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 7959437557382657858}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e8b78ac948f05a46a6d8339a503172b, type: 3}
+  m_Script: {fileID: 11500000, guid: f4044717213e31446939f7bd49c896ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_TrackedObjectOffset: {x: 0, y: 0, z: 0}
+  m_LookaheadTime: 0
+  m_LookaheadSmoothing: 10
+  m_LookaheadIgnoreY: 0
+  m_HorizontalDamping: 0.5
+  m_VerticalDamping: 0.5
+  m_ScreenX: 0.5
+  m_ScreenY: 0.5
+  m_DeadZoneWidth: 0
+  m_DeadZoneHeight: 0
+  m_SoftZoneWidth: 0.8
+  m_SoftZoneHeight: 0.8
+  m_BiasX: 0
+  m_BiasY: 0
+  m_CenterOnActivate: 1
 --- !u!114 &2816033588107623783
 MonoBehaviour:
   m_ObjectHideFlags: 0

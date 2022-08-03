@@ -42,7 +42,7 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	void SuperArtsHit(int n, int dwn);
 
 	//スケベ攻撃が当たった時に呼ばれる
-	void H_AttackHit(string ang , int men, GameObject Player);
+	void H_AttackHit(GameObject Player, string H_Action);
 
 	//スケベ攻撃遷移関数
 	void H_Transition(string Act);
@@ -51,7 +51,7 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	void H_ReturnState();
 
 	//スケベ攻撃が解除された時に呼ばれる
-	void H_Break(string location);
+	void H_Break(string Action);
 
 	//引数でプレイヤーキャラクターを受け取る
 	void SetPlayerCharacter(GameObject c);
@@ -184,7 +184,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	private int H_State = 0;
 
 	//現在のスケベ状況
-	private string H_Location;
+	//private string H_Location;
 
 	//全ての移動値を合算した移動ベクトル
 	private Vector3 MoveMoment;
@@ -785,6 +785,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//スケベ中の移動
 		else if (H_Flag)
 		{
+			/*
 			if (H_Location.Contains("Back"))
 			{
 				//プレイヤーと位置を合わせる
@@ -795,7 +796,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//プレイヤーと位置を合わせる
 				MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * -0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
 			}
-
+			*/
 			//プレイヤーと高さを合わせる
 			MoveMoment.y = (PlayerCharacter.transform.position - gameObject.transform.position).y * Time.deltaTime * 20;
 		}
@@ -949,7 +950,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				if (HorizontalVector(gameObject, PlayerCharacter).sqrMagnitude < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y > -0.1f)
 				{
 					//敵と自分までのベクトルで強制移動
-					ForceMoveVector += HorizontalVector(transform.gameObject, PlayerCharacter);
+					ForceMoveVector += HorizontalVector(transform.gameObject, PlayerCharacter).normalized;
 				}
 			}
 		}
@@ -2303,16 +2304,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	}
 
 	//スケベ攻撃が当たった時に呼ばれる
-	public void H_AttackHit(string ang, int men, GameObject Player)
+	public void H_AttackHit(GameObject Player, string H_Action)
 	{
 		//状態フラグをリセット
 		FlagReset();
 
 		//スケベフラグを立てる
 		H_Flag = true;
-
-		//スケベ状況を入れる
-		H_Location = ang + men;
 
 		//キャラクターコントローラを設定
 		CharaControllerReset("H");
@@ -2323,19 +2321,24 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//スケベ攻撃フラグを立てる
 		CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
 
-		//スケベ攻撃ヒットモーションを切り替える
-		OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains(H_Location)).ToList()[0];
+		//トップス開き
+		if (H_Action == "TopsOff")
+		{
+			//スケベ攻撃ヒットモーションを切り替える
+			OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
 
-		//スケベ攻撃ヒットモーションを切り替える
-		OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains(H_Location)).ToList()[0];
+			//スケベ攻撃ヒットモーションを切り替える
+			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("TopsOff")).ToList()[0];
 
-		//アニメーターを上書きしてアニメーションクリップを切り替える
-		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		}
 	}
 
 	//スケベ攻撃遷移関数
 	public void H_Transition(string Act)
 	{
+		/*
 		//スケベ攻撃フラグを立てる
 		CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
 
@@ -2344,6 +2347,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		*/
 	}
 
 	//元のスケベステートに戻る関数
@@ -2354,8 +2358,21 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	}
 
 	//スケベ攻撃が解除された時に呼ばれる
-	public void H_Break(string location)
+	public void H_Break(string Action)
 	{
+		//前か後ろか
+		string location = "";
+
+		//受け取った行動によってモーションを切り替える
+		switch (Action)
+		{
+			//トップス開け
+			case "TopsOff" : location = "Back";		break;
+
+			
+			default :	break;
+		}
+
 		//アニメーターのスケベ解除フラグを立てる
 		CurrentAnimator.SetBool("H_Break", true);
 

@@ -18,7 +18,7 @@ public class EnemyAttackClass
 	public string Info;
 
 	//攻撃力
-	public float Damage;
+	public int Damage;
 
 	//攻撃タイプ
 	public int AttackType;
@@ -54,7 +54,7 @@ public class EnemyAttackClass
 		string ud,
 		string an,
 		string info,
-		float dm,
+		int dm,
 		int at,
 		int dt,
 		int pdm,

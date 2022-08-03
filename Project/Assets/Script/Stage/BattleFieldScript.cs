@@ -500,9 +500,6 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//ウェーブカウントアップ
 		WaveCount++;
 
-		//全滅チェック開始
-		EnemyCheckFlag = true;
-
 		//最後のウェーブか判別
 		if (EnemyWaveList.Count == WaveCount)
 		{
@@ -654,6 +651,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 			//ゲームマネージャーの戦闘フラグを立てる
 			GameManagerScript.Instance.BattleFlag = true;
+
+			//全滅チェック開始
+			EnemyCheckFlag = true;
 
 			//ダウンしているキャラクター初期化
 			GameManagerScript.Instance.DownCharacterList = new List<GameObject>();
