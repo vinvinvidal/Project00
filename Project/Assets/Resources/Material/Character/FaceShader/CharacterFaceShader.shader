@@ -6,7 +6,7 @@
 		_SunnyS("_SunnyS", Range(-1.0, 1.0)) = 0.0						//日向の彩度
 		_SunnyV("_SunnyV", Range(-1.0, 1.0)) = 0.0						//日向の輝度
 
-		//_BlushNum("_BlushNum", Range(0.0, 1.0)) = 1.0			
+		//_BlushNum("_BlushNum", Range(0.0, 1.0)) = 0.0			
 	}
 
 	SubShader

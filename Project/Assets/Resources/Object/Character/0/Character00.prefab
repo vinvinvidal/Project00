@@ -540,7 +540,7 @@ MonoBehaviour:
   - position: {x: 0, y: 0.5, z: 1.25}
     tangent: {x: 0, y: 0, z: -0.25}
     roll: 0
-  - position: {x: 0, y: 1.25, z: 0.75}
+  - position: {x: 0, y: 1.1, z: 1}
     tangent: {x: 0, y: 0, z: 0}
     roll: 0
 --- !u!114 &4649264451359239959

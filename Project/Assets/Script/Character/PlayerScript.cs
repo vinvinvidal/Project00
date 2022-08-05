@@ -648,13 +648,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		EyeOBJ = gameObject.GetComponentsInChildren<Renderer>().Where(i => i.name.Contains("Eye")).ToArray()[0].gameObject;
 
 		//視線を動かすための目マテリアル取得
-		EyeMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Eye")).ToArray()[0].sharedMaterial;
+		EyeMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Eye")).ToArray()[0].material;
 
 		//視線を向ける先のポジション初期化
 		CharacterLookAtPos = Vector3.zero;
 
 		//頬を赤らめるための顔マテリアル取得
-		FaceMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Face")).ToArray()[0].sharedMaterial;
+		FaceMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Face")).ToArray()[0].material;
 
 		//攻撃コライダを非アクティブ化しておく
 		AttackCol.enabled = false;
@@ -1254,6 +1254,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_MoveVector *= 0;
 	}
 
+	//赤面させる、アニメーションクリップから呼ばれる
+	public void SetBlush(float n)
+	{
+		FaceMaterial.SetFloat("_BlushNum", n);
+	}
+
 	//トップスをはだける、アニメーションクリップから呼ばれる
 	public void TopsOff()
 	{
@@ -1281,7 +1287,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//スローモーション
-		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f, () => { });
+		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.25f, () => { });
 	}
 
 	//スケベ状態解除アニメーションフラグを立ててモーションをセットする
@@ -1730,6 +1736,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		B_Gauge = 100;
 
 		B_GaugeMAX = 100;
+
+		SetBlush(0);
 
 		//モザイク表示
 		MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(false);
