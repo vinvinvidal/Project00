@@ -82925,9 +82925,23 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
+  - time: 0.083333336
+    functionName: SetBlush
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0.5
+    intParameter: 0
+    messageOptions: 0
   - time: 0.25
     functionName: DirectEye
     data: 1.1,1.1,0,0.1
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 1.1666666
+    functionName: DirectEye
+    data: 1.1,1.1,0,0.2
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -82939,15 +82953,15 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 1.3333334
-    functionName: NextH_CameraWork
-    data: Back0_Damage
+  - time: 1.2666667
+    functionName: SetBlush
+    data: 
     objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
+    floatParameter: 1
     intParameter: 0
     messageOptions: 0
-  - time: 1.8333334
-    functionName: H_ReturnState
+  - time: 1.6666666
+    functionName: H_Break
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

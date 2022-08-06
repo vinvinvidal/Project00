@@ -81449,6 +81449,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 1.0833334
+    functionName: DirectEye
+    data: 1.1,1.1,0,0.2
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 1.1666666
     functionName: ChangeFace
     data: Motion_0_Face09,0.1
