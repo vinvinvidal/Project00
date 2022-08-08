@@ -1308,7 +1308,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//スローモーション
-		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.25f, () => { });
+		GameManagerScript.Instance.TimeScaleChange(0.75f, 0.25f, () => { });
 	}
 
 	//ブラをはだける、アニメーションクリップから呼ばれる
@@ -1335,7 +1335,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
 		//スローモーション
-		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.25f, () => { });
+		GameManagerScript.Instance.TimeScaleChange(0.75f, 0.25f, () => { });
 	}
 
 	//パンツを下ろす、アニメーションクリップから呼ばれる
