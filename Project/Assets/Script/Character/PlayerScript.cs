@@ -691,8 +691,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		OverRideAnimator["BaseFace_void"] = BaseFace_Anim;
 		OverRideAnimator["EyeClose_void"] = EyeClose_Anim;
 		OverRideAnimator["MouthClose_void"] = MouthClose_Anim;
-		OverRideAnimator["Nipple_void"] = NippleBase_Anim;
-		//OverRideAnimator["Nipple_void"] = NippleElect_Anim;	
+		OverRideAnimator["Nipple_void"] = NippleBase_Anim;	
 		OverRideAnimator["Genital_void"] = GenitalBase_Anim;
 		OverRideAnimator["Abduction_void"] = Abduction_Anim;
 
@@ -1129,7 +1128,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//脱がし
 		if (B_Gauge > 0)
 		{
-			//トップス開き
+			//トップス開け
 			if (!T_OffFlag)
 			{
 				//トップス開きフラグを立てる
@@ -1175,8 +1174,39 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//ブラずらしフラグを立てる
 				B_OffFlag = true;
 
+				//敵に送るスケベ行動代入
+				H_Action = "BraOff";
+
 				//バリバリゲージ最大値減少
 				B_GaugeMAX -= 25;
+
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
+
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("BraOff")).ToList()[0];
+
+				//アニメーターを上書きしてアニメーションクリップを切り替える
+				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+				//アニメーション遷移フラグを立てる
+				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+
+				//アニメーターを上書きしてアニメーションクリップを切り替える
+				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+				//トップス開きポジションオブジェクト取得
+				GameObject BraOffPosOBJ = DeepFind(H_Enemy, "BraOffPos");
+
+				//キャラクターのスケベ回転値設定
+				H_RotateVector = BraOffPosOBJ.transform.forward;
+
+				//スケベ攻撃位置合わせコルーチン呼び出し
+				StartCoroutine(H_PositionSetting(BraOffPosOBJ));
+
+				//スケベカメラワーク再生
+				H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Action)).ToList()[0]), true);
+
 			}
 			//パンツずらし
 			else if(!P_OffFlag)
@@ -1264,17 +1294,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	public void TopsOff()
 	{
 		//モデルの表示切り替え
-		foreach (Transform ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
-		{
-			if (ii.name.Contains("TopsOff"))
-			{
-				ii.GetComponent<SkinnedMeshRenderer>().enabled = true;
-			}
-			else if (ii.name.Contains("TopsOn"))
-			{
-				ii.GetComponent<SkinnedMeshRenderer>().enabled = false;
-			}
-		}
+		DeepFind(gameObject, "PlayerCombine_Base_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
+		DeepFind(gameObject, "PlayerCombine_TopsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = true;
 
 		//スケベエフェクト生成
 		GameObject TempEffect = Instantiate(H_Effect00);
@@ -1288,6 +1309,57 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//スローモーション
 		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.25f, () => { });
+	}
+
+	//ブラをはだける、アニメーションクリップから呼ばれる
+	public void BraOff()
+	{
+		//モデルの表示切り替え
+		DeepFind(gameObject, "PlayerCombine_TopsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
+		DeepFind(gameObject, "PlayerCombine_BraOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = true;
+
+		//乳首を立たせるアニメーションクリップをセット
+		OverRideAnimator["Nipple_void"] = NippleElect_Anim;
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+		//スケベエフェクト生成
+		GameObject TempEffect = Instantiate(H_Effect00);
+
+		//親を設定
+		TempEffect.transform.parent = gameObject.transform;
+
+		//ローカルPRSリセット
+		TempEffect.transform.localPosition = Vector3.up;
+		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+		//スローモーション
+		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.25f, () => { });
+	}
+
+	//パンツを下ろす、アニメーションクリップから呼ばれる
+	public void PantsOff()
+	{
+		//モデルの表示切り替え
+		DeepFind(gameObject, "PlayerCombine_BraOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
+		DeepFind(gameObject, "PlayerCombine_PantsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = true;
+
+		//モザイク表示
+		MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(true);
+
+		//スケベエフェクト生成
+		GameObject TempEffect = Instantiate(H_Effect00);
+
+		//親を設定
+		TempEffect.transform.parent = gameObject.transform;
+
+		//ローカルPRSリセット
+		TempEffect.transform.localPosition = Vector3.up;
+		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
+
+		//スローモーション
+		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f, () => { });
 	}
 
 	//スケベ状態解除アニメーションフラグを立ててモーションをセットする
@@ -1304,6 +1376,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//敵キャラクターのスクリプトを呼び出す
 		ExecuteEvents.Execute<EnemyCharacterInterface>(H_Enemy, null, (reciever, eventData) => reciever.H_Break(H_Action));
+
+		//スケベカメラ無効化、このままじゃ階段とかで別のヴァーチャルカメラが有効な時に上手くいかないのでとりあえず
+		H_CameraOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;
 	}
 
 	//スケベ状態を解除する攻撃、アニメーションクリップから呼ばれる
@@ -1348,9 +1423,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//クロスのコライダに反映
 			i.capsuleColliders = new List<CapsuleCollider>().ToArray();
 		}
-
-		//スケベカメラ無効化、このままじゃ階段とかで別のヴァーチャルカメラが有効な時に上手くいかないのでとりあえず
-		H_CameraOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;
 	}
 
 	//スケベ処理
@@ -1703,29 +1775,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//スケベフラグを戻す処理、とりあえずなので後で消す
-		foreach (Transform ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
-		{
-			if (ii.name.Contains("TopsOff"))
-			{
-				ii.GetComponent<SkinnedMeshRenderer>().enabled = false;
-			}
-			else if (ii.name.Contains("TopsOn"))
-			{
-				ii.GetComponent<SkinnedMeshRenderer>().enabled = true;
-			}
-		}
+		DeepFind(gameObject, "PlayerCombine_Base_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = true;
+		DeepFind(gameObject, "PlayerCombine_TopsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
+		DeepFind(gameObject, "PlayerCombine_BraOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
+		DeepFind(gameObject, "PlayerCombine_PantsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
 
-		foreach (Transform ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
-		{
-			if (ii.name.Contains("PantsOff"))
-			{
-				ii.GetComponent<SkinnedMeshRenderer>().enabled = false;
-			}
-			else if (ii.name.Contains("PantsOn"))
-			{
-				ii.GetComponent<SkinnedMeshRenderer>().enabled = true;
-			}
-		}
+		OverRideAnimator["Nipple_void"] = NippleBase_Anim;
+
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
 		T_OffFlag = false;
 
@@ -4018,41 +4075,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//ホールドフラグを下ろす
 		HoldFlag = false;
-	}
-
-
-
-	//パンツを下ろす、アニメーションクリップから呼ばれる
-	public void PantsOff()
-	{
-		//モデルの表示切り替え
-		foreach (Transform ii in CostumeRootOBJ.GetComponentsInChildren<Transform>())
-		{
-			if (ii.name.Contains("PantsOff"))
-			{
-				ii.GetComponent<SkinnedMeshRenderer>().enabled = true;
-			}
-			else if (ii.name.Contains("PantsOn"))
-			{
-				ii.GetComponent<SkinnedMeshRenderer>().enabled = false;
-			}
-		}
-
-		//モザイク表示
-		MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(true);
-
-		//スケベエフェクト生成
-		GameObject TempEffect = Instantiate(H_Effect00);
-
-		//親を設定
-		TempEffect.transform.parent = gameObject.transform;
-
-		//ローカルPRSリセット
-		TempEffect.transform.localPosition = Vector3.up;
-		TempEffect.transform.localRotation = Quaternion.Euler(Vector3.zero);
-
-		//スローモーション
-		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f, () => { });
 	}
 
 	//視線を直接指定する、アニメーションクリップから呼ばれる

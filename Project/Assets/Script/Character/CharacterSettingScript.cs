@@ -472,7 +472,16 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 		}
 
 		//メッシュ結合用オブジェクトList
-		List<GameObject> CombineOBJList = new List<GameObject>();
+		List<GameObject> CombineBaseOBJList = new List<GameObject>();
+		List<GameObject> CombineTopsOffOBJList = new List<GameObject>();
+		List<GameObject> CombineBraOffOBJList = new List<GameObject>();
+		List<GameObject> CombinePantsOffOBJList = new List<GameObject>();
+
+		//メッシュ結合完了フラグ
+		bool CombineBaseFinishFlag = false;
+		bool CombineTopsOffFinishFlag = false;
+		bool CombineBraOffFinishFlag = false;
+		bool CombinePantsOffFinishFlag = false;
 
 		//ボーンコピー用SkinnedMeshRenderer
 		SkinnedMeshRenderer BoneSample = DeepFind(gameObject, "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
@@ -493,18 +502,33 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 			{*/
 
 			//メッシュ結合フラグが立っているオブジェクトを抽出
-			if(i.GetComponent<CharacterBodyShaderScript>().CombineMeshFlag)
-			{ 
+			if(i.GetComponent<CharacterBodyShaderScript>().CombineBaseFlag)
+			{
 				//ListにAdd
-				CombineOBJList.Add(i.gameObject);
+				CombineBaseOBJList.Add(i.gameObject);
+			}
 
-				//無効化
-				i.gameObject.SetActive(false);
+			if (i.GetComponent<CharacterBodyShaderScript>().CombineTopsOffFlag)
+			{
+				//ListにAdd
+				CombineTopsOffOBJList.Add(i.gameObject);
+			}
+
+			if (i.GetComponent<CharacterBodyShaderScript>().CombineBraOffFlag)
+			{
+				//ListにAdd
+				CombineBraOffOBJList.Add(i.gameObject);
+			}
+
+			if (i.GetComponent<CharacterBodyShaderScript>().CombinePantsOffFlag)
+			{
+				//ListにAdd
+				CombinePantsOffOBJList.Add(i.gameObject);
 			}
 		}
 
 		//メッシュ統合
-		SkinMeshIntegration(CombineOBJList, BoneSample, (GameObject OBJ) => 
+		SkinMeshIntegration(CombineBaseOBJList, BoneSample, (GameObject OBJ) => 
 		{
 			//親を設定
 			OBJ.transform.parent = gameObject.transform;
@@ -513,24 +537,103 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 			ResetTransform(OBJ);
 
 			//名前を設定
-			OBJ.name = "PlayerCombine_AllON_MeshOBJ";
+			OBJ.name = "PlayerCombine_Base_MeshOBJ";
 
-			//レイヤーをEnemyにする
+			//レイヤーを設定
 			OBJ.layer = LayerMask.NameToLayer("Player");
 
-			//アニメーター有効化
-			gameObject.GetComponent<Animator>().enabled = true;
-
-			//骨揺らしフラグを入れる
-			gameObject.GetComponent<PlayerScript>().BoneMoveSwitch = true;
-
-			//自身を消しておく
-			gameObject.SetActive(false);
-
-			GameObject.Find("MIssionSetting").GetComponent<MissionSettingScript>().WaitBarNum += 1;
-
-			//読み込み完了したらMissionSettingにフラグを送る
-			ExecuteEvents.Execute<MissionSettingScriptInterface>(GameObject.Find("MIssionSetting"), null, (reciever, eventData) => reciever.GetCharacterCompleteFlag(ID, true));
+			//完了フラグを立てる
+			CombineBaseFinishFlag = true;
 		});
+
+		yield return null;
+
+		//メッシュ統合
+		SkinMeshIntegration(CombineTopsOffOBJList, BoneSample, (GameObject OBJ) =>
+		{
+			//親を設定
+			OBJ.transform.parent = gameObject.transform;
+
+			//トランスフォームリセット
+			ResetTransform(OBJ);
+
+			//名前を設定
+			OBJ.name = "PlayerCombine_TopsOff_MeshOBJ";
+
+			//レイヤーを設定
+			OBJ.layer = LayerMask.NameToLayer("Player");
+
+			//非表示にしとく
+			OBJ.GetComponent<SkinnedMeshRenderer>().enabled = false;
+
+			//完了フラグを立てる
+			CombineTopsOffFinishFlag = true;
+		});
+
+		yield return null;
+
+		//メッシュ統合
+		SkinMeshIntegration(CombineBraOffOBJList, BoneSample, (GameObject OBJ) =>
+		{
+			//親を設定
+			OBJ.transform.parent = gameObject.transform;
+
+			//トランスフォームリセット
+			ResetTransform(OBJ);
+
+			//名前を設定
+			OBJ.name = "PlayerCombine_BraOff_MeshOBJ";
+
+			//レイヤーを設定
+			OBJ.layer = LayerMask.NameToLayer("Player");
+
+			//非表示にしとく
+			OBJ.GetComponent<SkinnedMeshRenderer>().enabled = false;
+
+			//完了フラグを立てる
+			CombineBraOffFinishFlag = true;
+		});
+
+		yield return null;
+
+		//メッシュ統合
+		SkinMeshIntegration(CombinePantsOffOBJList, BoneSample, (GameObject OBJ) =>
+		{
+			//親を設定
+			OBJ.transform.parent = gameObject.transform;
+
+			//トランスフォームリセット
+			ResetTransform(OBJ);
+
+			//名前を設定
+			OBJ.name = "PlayerCombine_PantsOff_MeshOBJ";
+
+			//レイヤーを設定
+			OBJ.layer = LayerMask.NameToLayer("Player");
+
+			//非表示にしとく
+			OBJ.GetComponent<SkinnedMeshRenderer>().enabled = false;
+
+			//完了フラグを立てる
+			CombinePantsOffFinishFlag = true;
+		});
+
+		//メッシュ結合が終わるまで待つ
+		while (!(CombineBaseFinishFlag && CombineTopsOffFinishFlag && CombineBraOffFinishFlag && CombinePantsOffFinishFlag))
+		{
+			yield return null;
+		}
+
+		//アニメーター有効化
+		gameObject.GetComponent<Animator>().enabled = true;
+
+		//骨揺らしフラグを入れる
+		gameObject.GetComponent<PlayerScript>().BoneMoveSwitch = true;
+
+		//自身を消しておく
+		gameObject.SetActive(false);
+
+		//読み込み完了したらMissionSettingにフラグを送る
+		ExecuteEvents.Execute<MissionSettingScriptInterface>(GameObject.Find("MIssionSetting"), null, (reciever, eventData) => reciever.GetCharacterCompleteFlag(ID, true));
 	}
 }

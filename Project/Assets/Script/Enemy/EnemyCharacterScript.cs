@@ -992,11 +992,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//状況判定
 		switch (n)
 		{
-			//地上で立ち
+			//地上で立ちで死んでない
 			case 0:
 				re =
 					OnGround &&
-					!DownFlag;
+					!DownFlag &&
+					!DestroyFlag;
 				break;
 			default:
 				break;
@@ -2329,6 +2330,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 			//スケベ攻撃ヒットモーションを切り替える
 			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("TopsOff")).ToList()[0];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		}
+		else if (H_Action == "BraOff")
+		{
+			//スケベ攻撃ヒットモーションを切り替える
+			OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
+
+			//スケベ攻撃ヒットモーションを切り替える
+			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("BraOff")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;

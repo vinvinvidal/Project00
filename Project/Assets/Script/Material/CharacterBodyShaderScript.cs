@@ -26,8 +26,17 @@ public class CharacterBodyShaderScript : GlobalClass
 	//ディレクショナルライトのトランスフォーム
 	private Transform LightTransform;
 
-	//メッシュ統合フラグ
-	public bool CombineMeshFlag = false;
+	//メッシュ統合フラグ:ベース
+	public bool CombineBaseFlag;
+
+	//メッシュ統合フラグ:トップスずらし
+	public bool CombineTopsOffFlag;
+
+	//メッシュ統合フラグ:ブラずらし
+	public bool CombineBraOffFlag;
+
+	//メッシュ統合フラグ:パンツずらし
+	public bool CombinePantsOffFlag;
 
 	void Start()
     {
