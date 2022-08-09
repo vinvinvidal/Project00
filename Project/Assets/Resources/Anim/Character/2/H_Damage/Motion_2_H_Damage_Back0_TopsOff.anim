@@ -93652,7 +93652,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.5
     functionName: ChangeFace
-    data: Motion_2_Face07,0.1
+    data: Motion_2_Face10,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

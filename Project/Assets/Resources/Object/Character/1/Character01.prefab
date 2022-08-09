@@ -272,10 +272,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad78444138c2d644bdffde9c3a1af5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _TexBase: {fileID: 2800000, guid: 8818240087e0c89448eafe25b207bfdb, type: 3}
-  _TexNormal: {fileID: 2800000, guid: 6faefeb246d376541a1341a6485bb228, type: 3}
-  _TexHiLight: {fileID: 2800000, guid: 6b1616fcc182a1b499b1738e7d8547b8, type: 3}
-  _TexLine: {fileID: 2800000, guid: 6b55b06d7186e8e43af581f164973c8d, type: 3}
+  _TexBase: {fileID: 2800000, guid: 016d5aa39cc054c49900f6943387b587, type: 3}
+  _TexNormal: {fileID: 2800000, guid: d7ba16e72815df54eaacf72fcfd1568a, type: 3}
+  _TexHiLight: {fileID: 2800000, guid: eaa80e861d4327b4195d13bb508147b9, type: 3}
+  _TexLine: {fileID: 2800000, guid: f768326b3be84cf4ca54196f40b0a936, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   CombineBaseFlag: 0
   CombineTopsOffFlag: 0
@@ -2999,7 +2999,7 @@ PrefabInstance:
     - target: {fileID: -7295519857623516819, guid: 09109e0ac0b7de84cba1f5cb1e2402ca,
         type: 3}
       propertyPath: m_AABB.m_Extent.z
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -7295519857623516819, guid: 09109e0ac0b7de84cba1f5cb1e2402ca,
         type: 3}
@@ -3014,7 +3014,7 @@ PrefabInstance:
     - target: {fileID: -7295519857623516819, guid: 09109e0ac0b7de84cba1f5cb1e2402ca,
         type: 3}
       propertyPath: m_AABB.m_Center.z
-      value: 0.75
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -5460954203208429989, guid: 09109e0ac0b7de84cba1f5cb1e2402ca,
         type: 3}

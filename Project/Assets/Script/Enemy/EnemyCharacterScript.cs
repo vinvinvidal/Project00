@@ -2334,6 +2334,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 		}
+		//ブラずらし
 		else if (H_Action == "BraOff")
 		{
 			//スケベ攻撃ヒットモーションを切り替える
@@ -2341,6 +2342,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 			//スケベ攻撃ヒットモーションを切り替える
 			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("BraOff")).ToList()[0];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		}
+		//パンツ下ろし
+		else if (H_Action == "PantsOff")
+		{
+			//スケベ攻撃ヒットモーションを切り替える
+			OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Forward")).ToList()[0];
+
+			//スケベ攻撃ヒットモーションを切り替える
+			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("PantsOff")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;

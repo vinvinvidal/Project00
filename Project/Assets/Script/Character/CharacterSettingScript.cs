@@ -240,13 +240,21 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					//ローカルトランスフォームをリセット
 					ResetTransform(CostumeOBJ);
 
+					//下ろされパンツ宣言
+					GameObject PantsOffOBJ = null;
+
 					//衣装プレハブ内のスキニングメッシュレンダラーを全て取得
 					foreach (SkinnedMeshRenderer ii in CostumeOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
 					{
 						//ボーン構成をコピーしてキャラクターのボーンと紐付ける
 						ii.bones = CostumeRenderer.bones;
-					}
 
+						//下ろされパンツオブジェクト取得
+						if (ii.name.Contains("P_Off"))
+						{
+							PantsOffOBJ = ii.gameObject;
+						}
+					}
 					//衣装のダイナミックボーンに使うコライダを全て取得して回す
 					foreach (DynamicBoneCollider ii in CostumeOBJ.GetComponentsInChildren<DynamicBoneCollider>())
 					{
@@ -449,7 +457,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					}
 
 					//スクリプトにデータを渡す
-					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllFaceDic[ID], GameManagerScript.Instance.AllDamageDic[ID], GameManagerScript.Instance.AllChangeDic[ID], GameManagerScript.Instance.AllH_HitDic[ID], GameManagerScript.Instance.AllH_DamageDic[ID], GameManagerScript.Instance.AllH_BreakDic[ID], CostumeOBJ, MosaicOBJ));
+					ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllFaceDic[ID], GameManagerScript.Instance.AllDamageDic[ID], GameManagerScript.Instance.AllChangeDic[ID], GameManagerScript.Instance.AllH_HitDic[ID], GameManagerScript.Instance.AllH_DamageDic[ID], GameManagerScript.Instance.AllH_BreakDic[ID], CostumeOBJ, MosaicOBJ, PantsOffOBJ));
 
 				}));
 			}

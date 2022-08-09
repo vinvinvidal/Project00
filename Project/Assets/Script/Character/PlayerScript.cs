@@ -52,7 +52,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool GetOnCameraBool();
 
 	//キャラクターのデータセットする
-	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA);
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO);
 
 	//当たった攻撃が有効か返す
 	bool AttackEnable(bool H);
@@ -376,6 +376,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	[Header("拉致られモーション")]
 	public AnimationClip Abduction_Anim;
+
+
+	//--- パンツ関連 ---//
+
+	//下ろされパンツオブジェクト
+	private GameObject PantsOffOBJ { get; set; }
+
+	//ズラされパンツオブジェクト
+	private GameObject PantsShitfOBJ { get; set; }
+
+
 
 	//--- レイキャスト関連 ---//
 
@@ -1138,7 +1149,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				H_Action = "TopsOff";
 
 				//バリバリゲージ最大値減少
-				B_GaugeMAX -= 25;
+				B_GaugeMAX -= 40;
 				
 				//オーバーライドコントローラにアニメーションクリップをセット
 				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
@@ -1178,7 +1189,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				H_Action = "BraOff";
 
 				//バリバリゲージ最大値減少
-				B_GaugeMAX -= 25;
+				B_GaugeMAX -= 40;
 
 				//オーバーライドコントローラにアニメーションクリップをセット
 				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
@@ -1215,7 +1226,34 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				P_OffFlag = true;
 
 				//バリバリゲージ最大値減少
-				B_GaugeMAX -= 50;
+				B_GaugeMAX -= 40;
+
+				//敵に送るスケベ行動代入
+				H_Action = "PantsOff";
+
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Forward")).ToList()[0];
+
+				//オーバーライドコントローラにアニメーションクリップをセット
+				OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("PantsOff")).ToList()[0];
+
+				//アニメーターを上書きしてアニメーションクリップを切り替える
+				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+				//アニメーション遷移フラグを立てる
+				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+
+				//パンツ下ろしポジションオブジェクト取得
+				GameObject PantsOffPosOBJ = DeepFind(H_Enemy, "PantsOffPos");
+
+				//キャラクターのスケベ回転値設定
+				H_RotateVector = PantsOffPosOBJ.transform.forward;
+
+				//スケベ攻撃位置合わせコルーチン呼び出し
+				StartCoroutine(H_PositionSetting(PantsOffPosOBJ));
+
+				//スケベカメラワーク再生
+				H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Action)).ToList()[0]), true);
 			}
 
 			//ゲージが最大値より多かったら合わせる
@@ -1345,6 +1383,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		DeepFind(gameObject, "PlayerCombine_BraOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
 		DeepFind(gameObject, "PlayerCombine_PantsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = true;
 
+		//下ろされパンツ表示
+		PantsOffOBJ.GetComponent<SkinnedMeshRenderer>().enabled = true;
+
 		//モザイク表示
 		MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(true);
 
@@ -1353,6 +1394,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//親を設定
 		TempEffect.transform.parent = gameObject.transform;
+
+		//オーバーライドコントローラにアニメーションクリップをセット
+		OverRideAnimator["Genital_void"] = GenitalElect_Anim;
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
 		//ローカルPRSリセット
 		TempEffect.transform.localPosition = Vector3.up;
@@ -1783,6 +1830,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		OverRideAnimator["Nipple_void"] = NippleBase_Anim;
 
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+		PantsOffOBJ.GetComponent<SkinnedMeshRenderer>().enabled = false;
 
 		T_OffFlag = false;
 
@@ -3833,9 +3882,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			GameObject TempEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsStopTimeEffect").ToArray()[0]);
 			TempEffect.transform.position = gameObject.transform.position;
 		}
-
-		//バリバリゲージが下がるほどアソコも緩む
-		CurrentAnimator.SetFloat("Vagina_Blend", 1 - (((B_Gauge + 100) * 0.5f) * 0.01f));　
 	}
 
 	//表情を変える、アニメーションクリップのイベントから呼ばれる
@@ -5529,7 +5575,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる
-	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA)
+	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO)
 	{
 		//表情アニメーションList
 		FaceAnimList = new List<AnimationClip>(FAL);
@@ -5584,6 +5630,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//モザイクオブジェクト
 		MosaicOBJ = MSA;
+
+		//下ろされパンツオブジェクト
+		PantsOffOBJ = POO;
 
 		//移動速度
 		PlayerMoveSpeed = CC.PlayerMoveSpeed;
@@ -5733,7 +5782,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//レンダラーを回す
 		foreach (Renderer i in RendList)
 		{
-			foreach (Material ii in i.sharedMaterials)
+			foreach (Material ii in i.materials.Where(a => a != null))
 			{
 				//マテリアルの描画順を変更してアウトラインを消す
 				ii.renderQueue = 3000;
@@ -5875,10 +5924,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーターを止める
 			CurrentAnimator.speed = 0;
 
-			//全ての再生中パーティクルシステムを一時停止
+			//モザイク以外のパーティクルシステムを一時停止
 			foreach (ParticleSystem i in GetComponentsInChildren<ParticleSystem>())
 			{
-				if (i.isPlaying)
+				if (i.isPlaying && !i.name.Contains("Mosaic"))
 				{
 					i.Pause();
 				}
