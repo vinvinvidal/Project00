@@ -226,6 +226,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//パンツ下ろしフラグ
 	public bool P_OffFlag { get; set; } = false;
 
+	//パンツずらしフラグ
+	public bool P_ShiftFlag { get; set; } = false;
+
 	//口パクフラグ
 	public bool MouthMoveFlag { get; set; } = false;
 
@@ -1838,6 +1841,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		B_OffFlag = false;
 
 		P_OffFlag = false;
+
+		P_ShiftFlag = false;
 
 		B_Gauge = 100;
 
@@ -5744,8 +5749,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//自身を有効化
 		gameObject.SetActive(true);
 
+		//パンツが下りていたらモザイクエフェクトを再生
+		if (P_OffFlag || P_ShiftFlag)
+		{
+			//モザイク表示
+			MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(true);
+		}
+
 		//消える時に削除が間に合わなかったエフェクトを消す
-		foreach(ParticleSystem i in gameObject.GetComponentsInChildren<ParticleSystem>().Where(a => a.name.Contains("Trail")).ToList())
+		foreach (ParticleSystem i in gameObject.GetComponentsInChildren<ParticleSystem>().Where(a => a.name.Contains("Trail")).ToList())
 		{
 			Destroy(i.gameObject);
 		}
@@ -5851,7 +5863,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//レンダラーのシャドウを切る
 			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
-			foreach (Material ii in i.sharedMaterials)
+			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 			{
 				//マテリアルの描画順を変更
 				ii.renderQueue = 3000;
@@ -5864,7 +5876,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//マテリアルを回して消滅用数値を入れる
 			foreach (Renderer i in RendList)
 			{
-				foreach (Material ii in i.sharedMaterials)
+				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 				{
 					ii.SetFloat("_VanishNum", VanishTime / t);
 				}
@@ -5880,9 +5892,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//マテリアルを回して完全に消す
 		foreach (Renderer i in RendList)
 		{
-			foreach (Material ii in i.sharedMaterials)
+			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 			{
-				ii.SetFloat("_VanishNum", 1);
+				ii.SetFloat("_VanishNum", 1); 
 			}
 		}
 
@@ -5901,7 +5913,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//レンダラーのシャドウを入れる
 			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 
-			foreach (Material ii in i.sharedMaterials)
+			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 			{
 				ii.SetFloat("_VanishNum", 0);
 				ii.renderQueue = 2450;

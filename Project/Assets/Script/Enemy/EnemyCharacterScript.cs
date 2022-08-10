@@ -324,6 +324,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//足元の衝撃エフェクト
 	private GameObject FootImpactEffect;
 
+	//チンコのボーン
+	public List<GameObject> PenisBones = new List<GameObject>();
+
 	void Start()
 	{
 		//行動List取得コルーチン呼び出し
@@ -598,6 +601,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void LateUpdate()
 	{
+		/*
+		foreach (var i in PenisBones)
+		{
+			i.transform.position = DeepFind(gameObject, i.name + "_Target").transform.position;
+		}
+		*/
 		if (!H_Flag && BattleFlag)
 		{
 			//ループカウント

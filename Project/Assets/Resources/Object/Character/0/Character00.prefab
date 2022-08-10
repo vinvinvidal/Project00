@@ -3277,21 +3277,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -2537617635307342208, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: -2537617635307342208, guid: 2e5f213f6acfe544cae1db83280b7576,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -2537617635307342208, guid: 2e5f213f6acfe544cae1db83280b7576,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: -2537617635307342208, guid: 2e5f213f6acfe544cae1db83280b7576,
-        type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -90
       objectReference: {fileID: 0}
@@ -3497,6 +3482,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8781738615123362747, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8781738615123362747, guid: 2e5f213f6acfe544cae1db83280b7576,
+        type: 3}
       propertyPath: m_AABB.m_Center.x
       value: 0
       objectReference: {fileID: 0}
@@ -3512,23 +3502,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8781738615123362747, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
-      propertyPath: m_AABB.m_Extent.z
-      value: 1
+      propertyPath: m_AABB.m_Extent.x
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8781738615123362747, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
       propertyPath: m_AABB.m_Extent.y
-      value: 0.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8781738615123362747, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}
-      propertyPath: m_AABB.m_Extent.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8781738615123362747, guid: 2e5f213f6acfe544cae1db83280b7576,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 0
+      propertyPath: m_AABB.m_Extent.z
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8955249618476794949, guid: 2e5f213f6acfe544cae1db83280b7576,
         type: 3}

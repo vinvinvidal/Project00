@@ -2887,12 +2887,12 @@ GameObject:
   - component: {fileID: 254101492385359559}
   - component: {fileID: 1594264001242293289}
   m_Layer: 14
-  m_Name: 2_UnderWear0_PantsOff_Mesh
+  m_Name: 2_UnderWear0_P_Off_Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &541242740869401719
 Transform:
   m_ObjectHideFlags: 0
