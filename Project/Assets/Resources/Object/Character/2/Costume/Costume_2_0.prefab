@@ -3291,15 +3291,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad78444138c2d644bdffde9c3a1af5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _TexBase: {fileID: 2800000, guid: 12599d8f52178cf42a4d2c39fdcf0df1, type: 3}
-  _TexNormal: {fileID: 2800000, guid: 422dd04625f9c684fad6215cb2478740, type: 3}
-  _TexHiLight: {fileID: 2800000, guid: 8e00b2053ce9b994299dbd299c4a8666, type: 3}
-  _TexLine: {fileID: 2800000, guid: 6b4a32149e6bba648ac8bce3c5f00f86, type: 3}
+  _TexBase: {fileID: 2800000, guid: ab4e58c86447538479c174ca605947d1, type: 3}
+  _TexNormal: {fileID: 2800000, guid: 1743adf146f777b43b3c35cffd00ecac, type: 3}
+  _TexHiLight: {fileID: 2800000, guid: ba13dd09ef568014082314e7d4557fe9, type: 3}
+  _TexLine: {fileID: 2800000, guid: 984a6f825745411438a7bd381da92f01, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   CombineBaseFlag: 0
   CombineTopsOffFlag: 0
   CombineBraOffFlag: 0
-  CombinePantsOffFlag: 0
+  CombinePantsOffFlag: 1
 --- !u!1 &9219833736015697288
 GameObject:
   m_ObjectHideFlags: 0
