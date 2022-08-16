@@ -109539,9 +109539,44 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
+  - time: 0.083333336
+    functionName: ChangeFace
+    data: Motion_1_Face10,1
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.16666667
+    functionName: DirectEye
+    data: 1,1,-0.2,0.1
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 2
+    functionName: ChangeFace
+    data: Motion_1_Face09,0.5
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 2.1666667
     functionName: PantsOff
     data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 2.1833334
+    functionName: SetBlush
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 1
+    intParameter: 0
+    messageOptions: 0
+  - time: 2.3333333
+    functionName: DirectEye
+    data: 1.1,1.1,-0.1,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
