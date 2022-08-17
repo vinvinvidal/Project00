@@ -1030,6 +1030,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//拉致が成功ている
 			AbductionSuccess_Flag
 			||
+			//スケベ中
+			H_Flag
+			||
 			//ダウン中にダウンに当たらない攻撃が当たった
 			(DownFlag && Arts.DownEnable[n] != 1)
 			||
