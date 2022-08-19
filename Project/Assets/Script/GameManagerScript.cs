@@ -2039,6 +2039,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		{
 			//敵の攻撃を喰らった事にする
 			ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.HitEnemyAttack(new EnemyAttackClass("", "", "", "", 0, 0, 0, 0, 0, new Color(0, 0, 0, 0), ""), gameObject, null));
+
+			PlayableCharacterOBJ.GetComponent<PlayerScript>().H_Reset();
 		}
 	}
 

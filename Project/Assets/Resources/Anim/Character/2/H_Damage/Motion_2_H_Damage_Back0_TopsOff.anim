@@ -93420,14 +93420,14 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 0.25
+  - time: 0.083333336
     functionName: DirectEye
     data: 1.1,1.1,0,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.33333334
+  - time: 0.16666667
     functionName: ChangeFace
     data: Motion_2_Face02,1
     objectReferenceParameter: {fileID: 0}

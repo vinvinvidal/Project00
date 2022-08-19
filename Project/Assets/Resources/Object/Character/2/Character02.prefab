@@ -339,10 +339,10 @@ MonoBehaviour:
   NextCameraWorkMode: 10
   ReturnPositionMode: 1
   RandomFlag: 0
-  EasingTime: 0
+  EasingTime: 10
   KeepTime: 0
   MoveSpeed: 0.5
-  LookAtOBJ: {fileID: 0}
+  LookAtOBJ: {fileID: 790474268120773498}
 --- !u!1 &776505969465900596
 GameObject:
   m_ObjectHideFlags: 0
@@ -955,7 +955,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 932548557567559380}
+  m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 40
@@ -1492,7 +1492,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 932548557567559380}
+  m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 40
@@ -1674,7 +1674,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 932548557567559380}
+  m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 40
@@ -2616,7 +2616,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 1
-  LookAtOBJ: {fileID: 0}
+  LookAtOBJ: {fileID: 790474268120773498}
 --- !u!1 &6554306542332501048
 GameObject:
   m_ObjectHideFlags: 0
@@ -2696,7 +2696,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 0.5
-  LookAtOBJ: {fileID: 0}
+  LookAtOBJ: {fileID: 790474268120773498}
 --- !u!1 &7191208889653641075
 GameObject:
   m_ObjectHideFlags: 0
@@ -3760,9 +3760,9 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 4535823641133904927}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &932548557567559380 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -5619533108907543861, guid: b6fe6732093989a46a02e790e1facc4f,
+--- !u!1 &790474268120773498 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3749862113484867429, guid: b6fe6732093989a46a02e790e1facc4f,
     type: 3}
   m_PrefabInstance: {fileID: 4535823641133904927}
   m_PrefabAsset: {fileID: 0}

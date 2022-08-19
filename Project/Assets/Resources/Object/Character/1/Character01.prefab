@@ -243,7 +243,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 2929996627141077106}
+  m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 40
@@ -1399,7 +1399,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 0.5
-  LookAtOBJ: {fileID: 0}
+  LookAtOBJ: {fileID: 2798240603473423162}
 --- !u!1 &4904397173419137240
 GameObject:
   m_ObjectHideFlags: 0
@@ -1517,7 +1517,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 2929996627141077106}
+  m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 40
@@ -2150,7 +2150,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 0.5
-  LookAtOBJ: {fileID: 0}
+  LookAtOBJ: {fileID: 2798240603473423162}
 --- !u!1 &6466883124500307158
 GameObject:
   m_ObjectHideFlags: 0
@@ -2377,7 +2377,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 2929996627141077106}
+  m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 40
@@ -2786,7 +2786,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 1
-  LookAtOBJ: {fileID: 0}
+  LookAtOBJ: {fileID: 2798240603473423162}
 --- !u!114 &3494529313275853419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3830,9 +3830,9 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 3316350962200126435}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &2929996627141077106 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 481739790612466577, guid: 09109e0ac0b7de84cba1f5cb1e2402ca,
+--- !u!1 &2798240603473423162 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -8587429209491830567, guid: 09109e0ac0b7de84cba1f5cb1e2402ca,
     type: 3}
   m_PrefabInstance: {fileID: 3316350962200126435}
   m_PrefabAsset: {fileID: 0}

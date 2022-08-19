@@ -388,7 +388,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 1
-  LookAtOBJ: {fileID: 0}
+  LookAtOBJ: {fileID: 8755456082234644069}
 --- !u!1 &1150242887817978780
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,7 +565,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 0.5
-  LookAtOBJ: {fileID: 0}
+  LookAtOBJ: {fileID: 8755456082234644069}
 --- !u!1 &2719170773694126440
 GameObject:
   m_ObjectHideFlags: 0
@@ -616,7 +616,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 6959314278499577525}
+  m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 40
@@ -1194,7 +1194,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 6959314278499577525}
+  m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 40
@@ -1747,7 +1747,7 @@ MonoBehaviour:
   EasingTime: 0
   KeepTime: 0
   MoveSpeed: 0.5
-  LookAtOBJ: {fileID: 0}
+  LookAtOBJ: {fileID: 8755456082234644069}
 --- !u!1 &6357796607679166826
 GameObject:
   m_ObjectHideFlags: 0
@@ -2848,7 +2848,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 6959314278499577525}
+  m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 40
@@ -3586,9 +3586,9 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2993370679012490148}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &6959314278499577525 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -3954470864851921647, guid: 2e5f213f6acfe544cae1db83280b7576,
+--- !u!1 &8755456082234644069 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -3455608713589887551, guid: 2e5f213f6acfe544cae1db83280b7576,
     type: 3}
   m_PrefabInstance: {fileID: 2993370679012490148}
   m_PrefabAsset: {fileID: 0}

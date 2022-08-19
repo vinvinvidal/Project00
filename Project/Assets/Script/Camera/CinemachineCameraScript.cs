@@ -107,7 +107,7 @@ public class CinemachineCameraScript : GlobalClass
 		*/
 
 		//注視点オブジェクトが指定されていたら設定
-		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJ != null)
+		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJ != null && Vcam[VcamIndex].LookAt == null)
 		{
 			Vcam[VcamIndex].LookAt = CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJ.transform;
 		}
@@ -341,6 +341,9 @@ public class CinemachineCameraScript : GlobalClass
 		//メインカメラのイージングタイムを設定
 		MainCamera.GetComponent<CinemachineBrain>().m_DefaultBlend.m_Time = 1f;
 
+		//注視点を引継ぎ
+		MasterVcam.m_LookAt = MainCamera.GetComponent<CinemachineBrain>().ActiveVirtualCamera.LookAt;
+
 		//終了用Vcam有効化
 		MasterVcam.enabled = true;
 
@@ -382,8 +385,24 @@ public class CinemachineCameraScript : GlobalClass
 	//この処理をやらないとコリジョンの外にVcamがあった場合カメラがハマる
 	private IEnumerator EndCameraWorkCoroutine(float s)
 	{
-		//イージング時間待機
-		yield return new WaitForSeconds(s);
+		//開始時間取得
+		float StartTime = Time.time;
+
+		//イージング中は待機
+		while(Time.time < StartTime + s)
+		{
+			//注視点のターゲットより位置が低くならないようにする、これをしないとイージング中に床に埋まったりする
+			if(MasterVcam.m_LookAt != null)
+			{
+				if(MainCamera.transform.position.y < MasterVcam.m_LookAt.transform.root.position.y)
+				{
+					MasterVcam.transform.position += Vector3.up * 0.1f;
+				}
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
 
 		//超必殺技中の移動を考慮してカメラ距離を更新
 		MainCamera.transform.parent.GetComponent<MainCameraScript>().MainCameraTargetDistance = Vector3.Distance(MasterVcam.transform.position, GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position);
@@ -393,6 +412,9 @@ public class CinemachineCameraScript : GlobalClass
 
 		//メインカメラのシネマシン無効
 		MainCamera.GetComponent<CinemachineBrain>().enabled = false;
+
+		//バーチャルカメラの注視点無効
+		MasterVcam.m_LookAt = null;
 
 		//終了用Vcam無効化
 		MasterVcam.enabled = false;

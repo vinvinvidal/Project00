@@ -1448,7 +1448,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			HitEffect.transform.localRotation = Quaternion.Euler(new Vector3(180, 0, 0));
 
 			//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
-			ExecuteEvents.Execute<EnemyCharacterInterface>(H_Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, 0.1f) }, new List<float>() { 0 }, new List<int>() { 1 }, new List<int>() { 1 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
+			ExecuteEvents.Execute<EnemyCharacterInterface>(H_Enemy, null, (reciever, eventData) => reciever.PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, -7.5f, 0.1f) }, new List<float>() { 1 }, new List<int>() { 1 }, new List<int>() { 1 }, new List<int>() { 0 }, new List<int>() { 0 }), 0));
 		}
 		//前
 		else if(Angle == "Forward")
@@ -1822,37 +1822,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//入力フラグを立てる
 				SpecialInput = true;
 			}
-		}
-
-		//スケベフラグを戻す処理、とりあえずなので後で消す
-		DeepFind(gameObject, "PlayerCombine_Base_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = true;
-		DeepFind(gameObject, "PlayerCombine_TopsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
-		DeepFind(gameObject, "PlayerCombine_BraOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
-		DeepFind(gameObject, "PlayerCombine_PantsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
-
-		OverRideAnimator["Nipple_void"] = NippleBase_Anim;
-
-		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
-
-		PantsOffOBJ.GetComponent<SkinnedMeshRenderer>().enabled = false;
-
-		T_OffFlag = false;
-
-		B_OffFlag = false;
-
-		P_OffFlag = false;
-
-		P_ShiftFlag = false;
-
-		B_Gauge = 100;
-
-		B_GaugeMAX = 100;
-
-		SetBlush(0);
-
-		//モザイク表示
-		MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(false);
-			
+		}			
 	}
 
 	//超必殺技ボタンを押した時の処理
@@ -6085,5 +6055,37 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		
 		//ダウンしているキャラクターリストから自身を削除
 		GameManagerScript.Instance.DownCharacterList.Remove(gameObject);
+	}
+
+	//スケベフラグを戻す処理、とりあえずなので後で消す
+	public void H_Reset()
+	{		
+		DeepFind(gameObject, "PlayerCombine_Base_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = true;
+		DeepFind(gameObject, "PlayerCombine_TopsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
+		DeepFind(gameObject, "PlayerCombine_BraOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
+		DeepFind(gameObject, "PlayerCombine_PantsOff_MeshOBJ").GetComponent<SkinnedMeshRenderer>().enabled = false;
+
+		OverRideAnimator["Nipple_void"] = NippleBase_Anim;
+
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+		PantsOffOBJ.GetComponent<SkinnedMeshRenderer>().enabled = false;
+
+		T_OffFlag = false;
+
+		B_OffFlag = false;
+
+		P_OffFlag = false;
+
+		P_ShiftFlag = false;
+
+		B_Gauge = 100;
+
+		B_GaugeMAX = 100;
+
+		SetBlush(0);
+
+		//モザイク表示
+		MosaicOBJ.GetComponent<MosaicShaderScript>().SwitchMozaic(false);
 	}
 }
