@@ -1139,8 +1139,39 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			i.capsuleColliders = tempList.ToArray();
 		}
 
+
+		//カーディガンの袖にウェイト振ってみる
+		if (B_Gauge > -50f)
+		{
+			//敵に送るスケベ行動代入
+			H_Action = "Caress";
+
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["H_Hit_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Start")).ToList()[0];
+
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+			//アニメーション遷移フラグを立てる
+			CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+
+			//愛撫ポジションオブジェクト取得
+			GameObject CaressPosOBJ = DeepFind(H_Enemy, "CaressPos");
+
+			//キャラクターのスケベ回転値設定
+			H_RotateVector = CaressPosOBJ.transform.forward;
+
+			//スケベ攻撃位置合わせコルーチン呼び出し
+			StartCoroutine(H_PositionSetting(CaressPosOBJ));
+
+			//スケベカメラワーク再生
+			DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().PlayCameraWork(DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Action)).ToList()[0]), true);
+		}
 		//脱がし
-		if (B_Gauge > 0)
+		else if (B_Gauge > 0)
 		{
 			//トップス開け
 			if (!T_OffFlag)
@@ -1268,7 +1299,32 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//愛撫
 		else if(B_Gauge > -50f)
 		{
+			//敵に送るスケベ行動代入
+			H_Action = "Caress";
 
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["H_Hit_void"] =H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Start")).ToList()[0];
+
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+			//アニメーション遷移フラグを立てる
+			CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
+
+			//愛撫ポジションオブジェクト取得
+			GameObject CaressPosOBJ = DeepFind(H_Enemy, "CaressPos");
+
+			//キャラクターのスケベ回転値設定
+			H_RotateVector = CaressPosOBJ.transform.forward;
+
+			//スケベ攻撃位置合わせコルーチン呼び出し
+			StartCoroutine(H_PositionSetting(CaressPosOBJ));
+
+			//スケベカメラワーク再生
+			DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().PlayCameraWork(DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Action)).ToList()[0]), true);
 		}
 		//奉仕
 		else if (B_Gauge > -100)

@@ -2370,6 +2370,19 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 		}
+		//愛撫
+		else if (H_Action == "Caress")
+		{
+			//スケベ攻撃ヒットモーションを切り替える
+			OverRideAnimator["H_Hit_void"] = H_AttackAnimList.Where(a => a.name.Contains("Caress_Start")).ToList()[0];
+
+			//スケベ攻撃ヒットモーションを切り替える
+			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("Caress_Loop00")).ToList()[0];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+		}
+
 	}
 
 	//スケベ攻撃遷移関数
@@ -2741,5 +2754,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//戦闘フラグを立てる
 		BattleFlag = true;
+	}
+
+	//腕のIKを有効化する
+	public void EnableIK(string s)
+	{
+		GameObject IKOBJ = DeepFind(gameObject, s.Split(',').ToList().ElementAt(0) + "_HandIK");
+
+		IKOBJ.GetComponent<EnemyArmIKScript>().EnableIK(DeepFind(GameManagerScript.Instance.GetPlayableCharacterOBJ(), s.Split(',').ToList().ElementAt(1) + "Target"));
 	}
 }
