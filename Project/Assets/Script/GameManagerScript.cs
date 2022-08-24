@@ -272,6 +272,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllFaceAnimCompleteFlagDic = new Dictionary<string, bool>();
 
+	//全てのスケベ表情アニメーションを持ったDic
+	public Dictionary<int, List<AnimationClip>> AllH_FaceDic { get; set; }
+	//↑の全てのアニメーションクリップ読み込み完了Dic
+	private Dictionary<string, bool> AllH_FaceAnimCompleteFlagDic = new Dictionary<string, bool>();
+
 	//全てのダメージアニメーションを持ったDic
 	public Dictionary<int, List<AnimationClip>> AllDamageDic { get; set; }
 	//↑の全てのアニメーションクリップ読み込み完了Dic
@@ -334,6 +339,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			AllArtsAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllFaceAnimCompleteFlagDic.Any() &&
 			AllFaceAnimCompleteFlagDic.All(a => a.Value == true) &&
+			AllH_FaceAnimCompleteFlagDic.Any() &&
+			AllH_FaceAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllDamageAnimCompleteFlagDic.Any() &&
 			AllDamageAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllChangeAnimCompleteFlagDic.Any() &&
@@ -503,6 +510,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//表情アニメーションクリップ読み込み完了判定Dicを作る
 			AllFaceAnimCompleteFlagDic = new Dictionary<string, bool>();
 
+			//スケベ表情アニメーションクリップ読み込み完了判定Dicを作る
+			AllH_FaceAnimCompleteFlagDic = new Dictionary<string, bool>();
+
 			//ダメージアニメーションクリップ読み込み完了判定Dicを作る
 			AllDamageAnimCompleteFlagDic = new Dictionary<string, bool>();
 
@@ -514,6 +524,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 			//全ての表情アニメーションクリップを持ったList初期化
 			AllFaceDic = new Dictionary<int, List<AnimationClip>>();
+
+			//全てのスケベ表情アニメーションクリップを持ったList初期化
+			AllH_FaceDic = new Dictionary<int, List<AnimationClip>>();
 
 			//全てのダメージモーションを持ったList初期化
 			AllDamageDic = new Dictionary<int, List<AnimationClip>>();
@@ -536,6 +549,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				//表情アニメーションクリップ読み込み完了判定Dicにキャラ名でAdd
 				AllFaceAnimCompleteFlagDic.Add(i.F_NameC, false);
 
+				//スケベ表情アニメーションクリップ読み込み完了判定Dicにキャラ名でAdd
+				AllH_FaceAnimCompleteFlagDic.Add(i.F_NameC, false);
+
 				//ダメージアニメーションクリップ読み込み完了判定Dicにキャラ名でAdd
 				AllDamageAnimCompleteFlagDic.Add(i.F_NameC, false);
 
@@ -552,6 +568,16 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 					AllFaceAnimCompleteFlagDic[i.F_NameC] = true;
 				}));
 
+				//スケベ表情アニメーションクリップ読み込み
+				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/H_Face/", "anim", (List<object> H_FaceOBJList) =>
+				{
+					//読み込んだアニメーションをListにしてAdd
+					AllH_FaceDic.Add(i.CharacterID, H_FaceOBJList.Select(o => o as AnimationClip).ToList());
+
+					//読み込んだ表情アニメーションのDicをtrueにする
+					AllH_FaceAnimCompleteFlagDic[i.F_NameC] = true;
+				}));
+
 				//ダメージアニメーションクリップ読み込み
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/Damage/", "anim", (List<object> DamageOBJList) =>
 				{
@@ -560,9 +586,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 					//読み込んだダメージアニメーションのDicをtrueにする
 					AllDamageAnimCompleteFlagDic[i.F_NameC] = true;
-
 				}));
-
 
 				//キャラ交代アニメーションクリップ読み込み
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/Change/", "anim", (List<object> ChangeOBJList) =>
@@ -572,7 +596,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 					//読み込んだダメージアニメーションのDicをtrueにする
 					AllChangeAnimCompleteFlagDic[i.F_NameC] = true;
-
 				}));
 
 				//スケベヒットアニメーションクリップ読み込み
@@ -583,7 +606,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 					//読み込んだスケベヒットアニメーションのDicをtrueにする
 					AllH_HitAnimCompleteFlagDic[i.F_NameC] = true;
-
 				}));
 
 				//スケベダメージアニメーションクリップ読み込み
@@ -594,7 +616,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 					//読み込んだスケベダメージアニメーションのDicをtrueにする
 					AllH_DamageAnimCompleteFlagDic[i.F_NameC] = true;
-
 				}));
 
 				//スケベブレイクアニメーションクリップ読み込み

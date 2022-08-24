@@ -582,7 +582,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				AnimNoiseSeedList.Add(new Vector3(UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f)));
 			}
 
-			//打ち上げ時
+			//空中時には足も揺らす
 			if (i.name.Contains("Leg") ||
 					i.name.Contains("Knee") ||
 					i.name.Contains("Pelvis"))
@@ -601,13 +601,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void LateUpdate()
 	{
-		/*
-		foreach (var i in PenisBones)
-		{
-			i.transform.position = DeepFind(gameObject, i.name + "_Target").transform.position;
-		}
-		*/
-		if (!H_Flag && BattleFlag)
+		if (BattleFlag)
 		{
 			//ループカウント
 			int count = 0;
@@ -615,10 +609,16 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//揺らし具合を設定
 			AnimNoiseVol = 1f;
 
-			//打ち上げ
+			//スケベはあんまり揺らさない
+			if(H_Flag)
+			{
+				AnimNoiseVol = 0.5f;
+			}
+
+			//空中の場合は足も揺らす
 			if (RiseFlag || HoldFlag || BlownFlag)
 			{
-				//打ち上げ時に揺らすポーンListを回す
+				//揺らすポーンListを回す
 				foreach (GameObject i in RiseAnimNoiseBone)
 				{
 					//揺らし具合を設定
@@ -667,7 +667,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				DeepFind(gameObject, "L_FootBone").transform.position = DeepFind(gameObject, "L_LowerLegBone_end").transform.position;
 			}
 
-			//ループカウント
+			//ループカウントリセット
 			count = 0;
 
 			//揺らすポーンListを回す
@@ -2759,8 +2759,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//腕のIKを有効化する
 	public void EnableIK(string s)
 	{
+		//左右どっちかのIKオブジェクトを取得
 		GameObject IKOBJ = DeepFind(gameObject, s.Split(',').ToList().ElementAt(0) + "_HandIK");
 
-		IKOBJ.GetComponent<EnemyArmIKScript>().EnableIK(DeepFind(GameManagerScript.Instance.GetPlayableCharacterOBJ(), s.Split(',').ToList().ElementAt(1) + "Target"));
+		//IKスクリプトの関数呼び出し
+		IKOBJ.GetComponent<EnemyArmIKScript>().EnableIK(DeepFind(GameManagerScript.Instance.GetPlayableCharacterOBJ(), s.Split(',').ToList().ElementAt(1) + "Target"), new Vector3(float.Parse(s.Split(',').ToList().ElementAt(2)), float.Parse(s.Split(',').ToList().ElementAt(3)), float.Parse(s.Split(',').ToList().ElementAt(4))));
 	}
 }

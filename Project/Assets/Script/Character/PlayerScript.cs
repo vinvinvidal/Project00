@@ -52,7 +52,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool GetOnCameraBool();
 
 	//キャラクターのデータセットする
-	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO);
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO);
 
 	//当たった攻撃が有効か返す
 	bool AttackEnable(bool H);
@@ -229,6 +229,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//パンツずらしフラグ
 	public bool P_ShiftFlag { get; set; } = false;
 
+	//アソコ愛撫フラグ
+	private bool CaressVaginaFlag { get; set; } = false;
+
+	//右乳愛撫フラグ
+	private bool CaressR_BreastFlag { get; set; } = false;
+
+	//左乳愛撫フラグ
+	private bool CaressL_BreastFlag { get; set; } = false;
+
 	//口パクフラグ
 	public bool MouthMoveFlag { get; set; } = false;
 
@@ -388,6 +397,30 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//ズラされパンツオブジェクト
 	private GameObject PantsShitfOBJ { get; set; }
+
+
+	//--- 愛撫関連 ---//
+
+	//アソコオブジェクト
+	private GameObject VaginaOBJ;
+
+	//アソコオブジェクトのポジションキャッシュ
+	private Vector3 VaginaPos;
+
+	//右乳オブジェクト
+	private GameObject R_BreastOBJ;
+
+	private GameObject R_BreastTargetOBJ;
+
+	//右乳ターゲットオブジェクト
+	private Vector3 R_BreastTargetPos;
+
+	private Vector3 R_BreastTargetVec;
+
+
+
+	//左乳オブジェクト
+	private GameObject L_BreastOBJ;
 
 
 
@@ -570,6 +603,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//表情モーションList
 	private List<AnimationClip> FaceAnimList = new List<AnimationClip>();
+
+	//スケベ表情モーションList
+	private List<AnimationClip> H_FaceAnimList = new List<AnimationClip>();
 
 	//ダメージモーションList
 	private List<AnimationClip> DamageAnimList = new List<AnimationClip>();
@@ -865,6 +901,19 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベエフェクト00取得
 		H_Effect00 = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "H_Effect00").ToArray()[0];
 
+		//アソコオブジェクト取得
+		VaginaOBJ = DeepFind(gameObject, "VaginaTarget");
+
+		//右乳オブジェクト取得
+		R_BreastOBJ = DeepFind(gameObject, "R_BreastBone");
+
+		R_BreastTargetOBJ = DeepFind(gameObject, "R_BreastTarget");
+
+		R_BreastTargetVec = R_BreastOBJ.transform.up;
+
+		//左乳オブジェクト取得
+		L_BreastOBJ = DeepFind(gameObject, "L_BreastBone");
+
 		//超必殺技装備
 		foreach (SuperClass i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
 		{
@@ -1062,6 +1111,21 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				count++;
 			}
 		}
+
+		//アソコ愛撫
+		if(CaressVaginaFlag)
+		{
+			VaginaOBJ.transform.position = VaginaPos + (VaginaOBJ.transform.forward * Mathf.Sin(2 * Mathf.PI * 0.4f * (Mathf.PerlinNoise(Time.time * 0.5f, Time.time * 0.5f) + 1) * Time.time) * 0.01f);
+		}
+		//右乳愛撫
+		if(CaressR_BreastFlag)
+		{
+			//R_BreastOBJ.transform.localRotation *= Quaternion.Euler(Mathf.Sin(2 * Mathf.PI * 1 * (Time.time + 0.25f)) * 1, 0f, Mathf.Sin(2 * Mathf.PI * 1 * Time.time) * 1);
+
+			R_BreastOBJ.transform.LookAt(R_BreastOBJ.transform.position + R_BreastTargetVec);
+
+			//R_BreastOBJ.transform.rotation *= Quaternion.Euler(90, 0, 0);
+		}
 	}
 
 	void Update()
@@ -1140,7 +1204,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 
-		//カーディガンの袖にウェイト振ってみる
+
 		if (B_Gauge > -50f)
 		{
 			//敵に送るスケベ行動代入
@@ -1183,8 +1247,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				H_Action = "TopsOff";
 
 				//バリバリゲージ最大値減少
-				B_GaugeMAX -= 40;
-				
+				SetB_Gauge(0, -35);
+
 				//オーバーライドコントローラにアニメーションクリップをセット
 				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
 
@@ -1223,7 +1287,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				H_Action = "BraOff";
 
 				//バリバリゲージ最大値減少
-				B_GaugeMAX -= 40;
+				SetB_Gauge(0, -35);
 
 				//オーバーライドコントローラにアニメーションクリップをセット
 				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
@@ -1260,7 +1324,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				P_OffFlag = true;
 
 				//バリバリゲージ最大値減少
-				B_GaugeMAX -= 40;
+				SetB_Gauge(0, -35);
 
 				//敵に送るスケベ行動代入
 				H_Action = "PantsOff";
@@ -1288,12 +1352,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//スケベカメラワーク再生
 				H_CameraOBJ.GetComponent<CinemachineCameraScript>().PlayCameraWork(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Action)).ToList()[0]), true);
-			}
-
-			//ゲージが最大値より多かったら合わせる
-			if (B_GaugeMAX < B_Gauge)
-			{
-				B_Gauge = B_GaugeMAX;
 			}
 		}
 		//愛撫
@@ -1379,6 +1437,33 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//スケベ移動ベクトル初期化
 		H_MoveVector *= 0;
+	}
+
+	//アソコを愛撫するスイッチ切り替え、アニメーションクリップから呼ばれる
+	public void CaressVagina(int b)
+	{
+		//引数でスイッチ切り替え
+		CaressVaginaFlag = b == 1;
+
+		//アソコオブジェクトのポジションキャッシュ
+		VaginaPos = VaginaOBJ.transform.position;
+	}
+	//右乳を愛撫するスイッチ切り替え、アニメーションクリップから呼ばれる
+	public void CaressR_Breast(int b)
+	{
+		//引数でスイッチ切り替え
+		CaressR_BreastFlag = b == 1;
+
+		//右乳ターゲットポジションキャッシュ
+		R_BreastTargetPos = DeepFind(gameObject, "R_BreastTarget").transform.position;
+
+
+	}
+	//左乳を愛撫するスイッチ切り替え、アニメーションクリップから呼ばれる
+	public void CaressL_Breast(int b)
+	{
+		//引数でスイッチ切り替え
+		CaressL_BreastFlag = b == 1;
 	}
 
 	//赤面させる、アニメーションクリップから呼ばれる
@@ -1486,7 +1571,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スケベカメラ無効化、このままじゃ階段とかで別のヴァーチャルカメラが有効な時に上手くいかないのでとりあえず
 		H_CameraOBJ.GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;
 	}
-
 	//スケベ状態を解除する攻撃、アニメーションクリップから呼ばれる
 	public void H_BreakAttack(String Angle)
 	{
@@ -3736,7 +3820,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else
 		{
 			//バリバリゲージ増加
-			SetB_Gauge(10);
+			SetB_Gauge(10, 0);
 
 			//ヒットSEを鳴らす
 			{
@@ -3882,19 +3966,32 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//バリバリゲージセット関数
-	public void SetB_Gauge(int i)
+	public void SetB_Gauge(int num, int max)
 	{
-		//満タンエフェクトフラグ
+		//満タンエフェクトフラグ宣言
 		bool EffectFlag = false;
 
 		//ゲージが満タンじゃない
-		if(B_Gauge < 100)
+		if (B_Gauge < 100)
 		{
 			EffectFlag = true;
 		}
 
+		//最大値設定
+		B_GaugeMAX += max;
+
 		//ゲージ増減
-		B_Gauge += i;
+		B_Gauge += num;
+
+		//最大値を範囲に収める
+		if (B_GaugeMAX > 100)
+		{
+			B_GaugeMAX = 100;
+		}
+		else if (B_GaugeMAX < 0)
+		{
+			B_GaugeMAX = 0;
+		}
 
 		//範囲に収める
 		if (B_Gauge > B_GaugeMAX)
@@ -3906,12 +4003,23 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			B_Gauge = -100;
 		}
 
-		//バリバリゲージが満タンになった
+		//バリバリゲージが満タンになったらエフェクト再生
 		if (B_Gauge == 100 && EffectFlag) 
 		{
 			//エフェクト再生
 			GameObject TempEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsStopTimeEffect").ToArray()[0]);
+
 			TempEffect.transform.position = gameObject.transform.position;
+		}
+
+		//脱がされていたらベースの表情変更
+		if(T_OffFlag || B_OffFlag || P_OffFlag)
+		{
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["BaseFace_void"] = H_FaceAnimList[0];
+
+			//アニメーターを上書きしてアニメーションクリップを切り替える
+			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 		}
 	}
 
@@ -5606,10 +5714,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる
-	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO)
+	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO)
 	{
 		//表情アニメーションList
 		FaceAnimList = new List<AnimationClip>(FAL);
+
+		//スケベ表情アニメーションList
+		H_FaceAnimList = new List<AnimationClip>(HFL);
 
 		//ダメージモーションList
 		DamageAnimList = new List<AnimationClip>(DAL);
@@ -6135,9 +6246,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		P_ShiftFlag = false;
 
-		B_Gauge = 100;
-
-		B_GaugeMAX = 100;
+		SetB_Gauge(100, 100);
 
 		SetBlush(0);
 
