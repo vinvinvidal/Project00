@@ -2302,6 +2302,8 @@ MonoBehaviour:
   BaseFace_Anim: {fileID: 7400000, guid: 1e26e447ccccc8140a43593c561d1725, type: 2}
   EyeClose_Anim: {fileID: 7400000, guid: e24e2ebac5e478d4884f2b74e9b7aa73, type: 2}
   MouthClose_Anim: {fileID: 7400000, guid: 02781ea7a73430b4689e9e7c11ee8515, type: 2}
+  R_Breast_Anim: {fileID: 7400000, guid: 5b189472feb33d2429579c0d9b967e0f, type: 2}
+  L_Breast_Anim: {fileID: 7400000, guid: 3ec91d72518ac3f4098ef36bf1112d8e, type: 2}
   NippleBase_Anim: {fileID: 7400000, guid: 942a4ed35c312d84ab6324b8a997ad70, type: 2}
   NippleElect_Anim: {fileID: 7400000, guid: 5b7b3210810954b4ebb05269772ccb5a, type: 2}
   GenitalBase_Anim: {fileID: 7400000, guid: ad63d64b317789147bddddb40a4b2481, type: 2}

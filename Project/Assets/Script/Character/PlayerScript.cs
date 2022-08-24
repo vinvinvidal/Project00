@@ -378,6 +378,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	[Header("口閉じモーション")]
 	public AnimationClip MouthClose_Anim;
 
+	[Header("乳もみモーション")]
+	public AnimationClip R_Breast_Anim;
+	public AnimationClip L_Breast_Anim;
+
 	[Header("乳首モーション")]
 	public AnimationClip NippleBase_Anim;
 	public AnimationClip NippleElect_Anim;
@@ -406,21 +410,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//アソコオブジェクトのポジションキャッシュ
 	private Vector3 VaginaPos;
-
-	//右乳オブジェクト
-	private GameObject R_BreastOBJ;
-
-	private GameObject R_BreastTargetOBJ;
-
-	//右乳ターゲットオブジェクト
-	private Vector3 R_BreastTargetPos;
-
-	private Vector3 R_BreastTargetVec;
-
-
-
-	//左乳オブジェクト
-	private GameObject L_BreastOBJ;
 
 
 
@@ -744,6 +733,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		OverRideAnimator["Nipple_void"] = NippleBase_Anim;	
 		OverRideAnimator["Genital_void"] = GenitalBase_Anim;
 		OverRideAnimator["Abduction_void"] = Abduction_Anim;
+		OverRideAnimator["H_R_Breast_void"] = R_Breast_Anim;
+		OverRideAnimator["H_L_Breast_void"] = L_Breast_Anim;		
 
 		//アニメーターを上書きしてアニメーションクリップを切り替える
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -903,16 +894,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//アソコオブジェクト取得
 		VaginaOBJ = DeepFind(gameObject, "VaginaTarget");
-
-		//右乳オブジェクト取得
-		R_BreastOBJ = DeepFind(gameObject, "R_BreastBone");
-
-		R_BreastTargetOBJ = DeepFind(gameObject, "R_BreastTarget");
-
-		R_BreastTargetVec = R_BreastOBJ.transform.up;
-
-		//左乳オブジェクト取得
-		L_BreastOBJ = DeepFind(gameObject, "L_BreastBone");
 
 		//超必殺技装備
 		foreach (SuperClass i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
@@ -1120,11 +1101,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//右乳愛撫
 		if(CaressR_BreastFlag)
 		{
-			//R_BreastOBJ.transform.localRotation *= Quaternion.Euler(Mathf.Sin(2 * Mathf.PI * 1 * (Time.time + 0.25f)) * 1, 0f, Mathf.Sin(2 * Mathf.PI * 1 * Time.time) * 1);
-
-			R_BreastOBJ.transform.LookAt(R_BreastOBJ.transform.position + R_BreastTargetVec);
-
-			//R_BreastOBJ.transform.rotation *= Quaternion.Euler(90, 0, 0);
+			//右乳のアニメーションレイヤーの重みを変更にする
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("R_Breast"), Mathf.PerlinNoise(Time.time * 0.1f, Time.time * 0.1f) + 0.1f);
 		}
 	}
 
@@ -1453,11 +1431,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//引数でスイッチ切り替え
 		CaressR_BreastFlag = b == 1;
-
-		//右乳ターゲットポジションキャッシュ
-		R_BreastTargetPos = DeepFind(gameObject, "R_BreastTarget").transform.position;
-
-
 	}
 	//左乳を愛撫するスイッチ切り替え、アニメーションクリップから呼ばれる
 	public void CaressL_Breast(int b)
