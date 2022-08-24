@@ -2763,6 +2763,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		GameObject IKOBJ = DeepFind(gameObject, s.Split(',').ToList().ElementAt(0) + "_HandIK");
 
 		//IKスクリプトの関数呼び出し
-		//IKOBJ.GetComponent<EnemyArmIKScript>().EnableIK(DeepFind(GameManagerScript.Instance.GetPlayableCharacterOBJ(), s.Split(',').ToList().ElementAt(1) + "Target"), new Vector3(float.Parse(s.Split(',').ToList().ElementAt(2)), float.Parse(s.Split(',').ToList().ElementAt(3)), float.Parse(s.Split(',').ToList().ElementAt(4))));
+		IKOBJ.GetComponent<EnemyArmIKScript>().EnableIK(DeepFind(GameManagerScript.Instance.GetPlayableCharacterOBJ(), s.Split(',').ToList().ElementAt(1) + "Target"), new Vector3(float.Parse(s.Split(',').ToList().ElementAt(2)), float.Parse(s.Split(',').ToList().ElementAt(3)), float.Parse(s.Split(',').ToList().ElementAt(4))));
 	}
 }
