@@ -1021,7 +1021,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			if (i.name.Contains("Bone"))
 			{
-
 				if (i.name.Contains("Spine") ||
 					i.name.Contains("Shoulder") ||
 					i.name.Contains("Arm") ||
@@ -1039,22 +1038,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					AnimNoiseSeedList.Add(new Vector3(UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f)));
 				}
 			}
-
-			/*
-			//指
-			if (i.name.Contains("Thumb") ||
-					i.name.Contains("First") ||
-					i.name.Contains("Middle") ||
-					i.name.Contains("Ring") ||
-					i.name.Contains("Pinky"))
-			{
-				//条件に合ったボーンをListにAdd
-				AnimNoiseBone.Add(i.gameObject);
-
-				//同じ数だけランダムシードを作成
-				AnimNoiseSeedList.Add(new Vector3(UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f), UnityEngine.Random.Range(0f, 100f)));
-			}
-			*/
 		}
 	}
 
@@ -1094,15 +1077,21 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//アソコ愛撫
-		if(CaressVaginaFlag)
+		if (CaressVaginaFlag)
 		{
-			VaginaOBJ.transform.position = VaginaPos + (VaginaOBJ.transform.forward * Mathf.Sin(2 * Mathf.PI * 0.4f * (Mathf.PerlinNoise(Time.time * 0.5f, Time.time * 0.5f) + 1) * Time.time) * 0.01f);
+			VaginaOBJ.transform.position = VaginaPos + (VaginaOBJ.transform.forward * Mathf.Sin(2 * Mathf.PI * 1.5f * (Time.time + Mathf.PerlinNoise(Time.time * 0.5f, 0))) * 0.01f);
 		}
 		//右乳愛撫
 		if(CaressR_BreastFlag)
 		{
 			//右乳のアニメーションレイヤーの重みを変更にする
-			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("R_Breast"), Mathf.PerlinNoise(Time.time * 0.1f, Time.time * 0.1f) + 0.1f);
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("R_Breast"), Mathf.PerlinNoise(Time.time * 0.5f, Time.time * 0.5f) + 0.25f);
+		}
+		//左乳愛撫
+		if (CaressL_BreastFlag)
+		{
+			//左乳のアニメーションレイヤーの重みを変更にする
+			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("L_Breast"), Mathf.PerlinNoise(Time.time * 0.5f, Time.time * 0.5f) + 0.25f);
 		}
 	}
 
@@ -1136,6 +1125,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (H_Flag)
 			{
 				H_Func();
+
 			}
 
 			//毎フレーム呼ばなくてもいい処理
@@ -1181,8 +1171,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			i.capsuleColliders = tempList.ToArray();
 		}
 
-
-
 		if (B_Gauge > -50f)
 		{
 			//敵に送るスケベ行動代入
@@ -1193,6 +1181,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//オーバーライドコントローラにアニメーションクリップをセット
 			OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
+
+			//スケベステートカウントアップ
+			H_State++;
+
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop01")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -1417,6 +1411,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_MoveVector *= 0;
 	}
 
+	public void H_MotionTransition()
+	{
+		int num = UnityEngine.Random.Range(0, 2);
+
+		//アニメーション遷移フラグを切り替え
+		CurrentAnimator.SetBool("H_Damage0" + num % 2, true);
+		CurrentAnimator.SetBool("H_Damage0" + (num + 1) % 2, false);
+	}
+
 	//アソコを愛撫するスイッチ切り替え、アニメーションクリップから呼ばれる
 	public void CaressVagina(int b)
 	{
@@ -1431,12 +1434,19 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//引数でスイッチ切り替え
 		CaressR_BreastFlag = b == 1;
+
+		//ダイナミックボーンを無効化
+		DeepFind(gameObject, "DynamicBoneOBJ").GetComponents<DynamicBone>().Where(a => a.m_Root.name.Contains("R_Breast")).ToArray()[0].enabled = false;
+		
 	}
 	//左乳を愛撫するスイッチ切り替え、アニメーションクリップから呼ばれる
 	public void CaressL_Breast(int b)
 	{
 		//引数でスイッチ切り替え
 		CaressL_BreastFlag = b == 1;
+
+		//ダイナミックボーンを無効化
+		DeepFind(gameObject, "DynamicBoneOBJ").GetComponents<DynamicBone>().Where(a => a.m_Root.name.Contains("L_Breast")).ToArray()[0].enabled = false;
 	}
 
 	//赤面させる、アニメーションクリップから呼ばれる
@@ -1591,6 +1601,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//スケベ処理
 	private void H_Func()
 	{
+
+		H_MotionTransition();
+
 		/*
 		//ブレイクカウントが達した
 		if (BreakCount > 10 && BreakInputFlag)

@@ -85818,7 +85818,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.6666667
     functionName: ChangeFace
-    data: Motion_0_Face07,0.1
+    data: Reset
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -85830,15 +85830,15 @@ AnimationClip:
     floatParameter: 1
     intParameter: 0
     messageOptions: 0
-  - time: 1.25
-    functionName: CaressR_Breast
+  - time: 1.3333334
+    functionName: CaressVagina
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 1
     messageOptions: 0
-  - time: 1.3333334
-    functionName: CaressVagina
+  - time: 1.4166666
+    functionName: CaressR_Breast
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

@@ -382,7 +382,7 @@ public class EnemySettingScript : GlobalClass
 			DeepFind(gameObject, "R_FootBone").GetComponent<PositionConstraint>().AddSource(R_FootConstraint);
 			DeepFind(gameObject, "L_FootBone").GetComponent<PositionConstraint>().AddSource(L_FootConstraint);
 
-			//クロス用コライダを腕に仕込む
+			//クロス用コライダを仕込む
 			foreach (CapsuleCollider i in gameObject.GetComponentsInChildren<CapsuleCollider>())
 			{
 				//右腕
@@ -421,6 +421,16 @@ public class EnemySettingScript : GlobalClass
 					//トランスフォームリセット
 					ResetTransform(i.gameObject);
 				}
+				//頭
+				else if (i.gameObject.name.Contains("_Pelvis"))
+				{
+					//ボーンを親にする
+					i.gameObject.transform.parent = DeepFind(gameObject, "PelvisBone").transform;
+
+					//トランスフォームリセット
+					ResetTransform(i.gameObject);
+				}
+				//腰
 				else if (i.gameObject.name.Contains("_Head"))
 				{
 					//ボーンを親にする
