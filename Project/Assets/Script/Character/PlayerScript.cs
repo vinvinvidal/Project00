@@ -1125,7 +1125,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (H_Flag)
 			{
 				H_Func();
-
 			}
 
 			//毎フレーム呼ばなくてもいい処理
@@ -1170,7 +1169,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//クロスのコライダに反映
 			i.capsuleColliders = tempList.ToArray();
 		}
-
+		/*
 		if (B_Gauge > -50f)
 		{
 			//敵に送るスケベ行動代入
@@ -1180,13 +1179,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			OverRideAnimator["H_Hit_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Start")).ToList()[0];
 
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
-
-			//スケベステートカウントアップ
-			H_State++;
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_0_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
 
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop01")).ToList()[0];
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_1_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop01")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -1207,7 +1203,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().PlayCameraWork(DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Action)).ToList()[0]), true);
 		}
 		//脱がし
-		else if (B_Gauge > 0)
+		else */if (B_Gauge > 0)
 		{
 			//トップス開け
 			if (!T_OffFlag)
@@ -1225,10 +1221,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
 
 				//オーバーライドコントローラにアニメーションクリップをセット
-				OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("TopsOff")).ToList()[0];
+				OverRideAnimator["H_Damage_" + H_State % 2 + "_0_void"] = H_DamageAnimList.Where(a => a.name.Contains("TopsOff")).ToList()[0];
 
 				//アニメーターを上書きしてアニメーションクリップを切り替える
 				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+				//ブレンド比率リセット
+				CurrentAnimator.SetFloat("H_Damage0Blend", 0);
+				CurrentAnimator.SetFloat("H_Damage1Blend", 0);
 
 				//アニメーション遷移フラグを立てる
 				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
@@ -1265,10 +1265,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
 
 				//オーバーライドコントローラにアニメーションクリップをセット
-				OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("BraOff")).ToList()[0];
+				OverRideAnimator["H_Damage_" + H_State % 2 + "_0_void"] = H_DamageAnimList.Where(a => a.name.Contains("BraOff")).ToList()[0];
 
 				//アニメーターを上書きしてアニメーションクリップを切り替える
 				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+				//ブレンド比率リセット
+				CurrentAnimator.SetFloat("H_Damage0Blend", 0);
+				CurrentAnimator.SetFloat("H_Damage1Blend", 0);
 
 				//アニメーション遷移フラグを立てる
 				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
@@ -1305,7 +1309,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Forward")).ToList()[0];
 
 				//オーバーライドコントローラにアニメーションクリップをセット
-				OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("PantsOff")).ToList()[0];
+				OverRideAnimator["H_Damage_" + H_State % 2 + "_0_void"] = H_DamageAnimList.Where(a => a.name.Contains("PantsOff")).ToList()[0];
+
+				//ブレンド比率リセット
+				CurrentAnimator.SetFloat("H_Damage0Blend", 0);
+				CurrentAnimator.SetFloat("H_Damage1Blend", 0);
 
 				//アニメーターを上書きしてアニメーションクリップを切り替える
 				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -1333,10 +1341,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			H_Action = "Caress";
 
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Hit_void"] =H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Start")).ToList()[0];
+			OverRideAnimator["H_Hit_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Start")).ToList()[0];
 
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Damage_" + H_State % 2 + "_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_0_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
+
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_1_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop01")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -1409,15 +1420,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//スケベ移動ベクトル初期化
 		H_MoveVector *= 0;
-	}
-
-	public void H_MotionTransition()
-	{
-		int num = UnityEngine.Random.Range(0, 2);
-
-		//アニメーション遷移フラグを切り替え
-		CurrentAnimator.SetBool("H_Damage0" + num % 2, true);
-		CurrentAnimator.SetBool("H_Damage0" + (num + 1) % 2, false);
 	}
 
 	//アソコを愛撫するスイッチ切り替え、アニメーションクリップから呼ばれる
@@ -1601,8 +1603,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//スケベ処理
 	private void H_Func()
 	{
-
-		H_MotionTransition();
+		//スケベモーションブレンド比率変更
+		CurrentAnimator.SetFloat("H_Damage" + H_State % 2 + "Blend", Mathf.PerlinNoise(Time.time * 0.5f, 0));
 
 		/*
 		//ブレイクカウントが達した
@@ -5378,7 +5380,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			CurrentAnimator.SetLayerWeight(CurrentAnimator.GetLayerIndex("Mouth"), 0);
 
 			//スケベステートカウントアップ
-			H_State++;
+			//H_State++;
 
 			//スケベモーションループカウント初期化
 			H_Count = 0;
