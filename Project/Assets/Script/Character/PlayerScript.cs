@@ -238,6 +238,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//左乳愛撫フラグ
 	private bool CaressL_BreastFlag { get; set; } = false;
 
+	//スケベモーションブレンドフラグ
+	private bool H_MotionBlendFlag { get; set; } = false;
+
 	//口パクフラグ
 	public bool MouthMoveFlag { get; set; } = false;
 
@@ -1456,6 +1459,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		FaceMaterial.SetFloat("_BlushNum", n);
 	}
+	//スケベモーチョンブレンドフラグ、アニメーションクリップから呼ばれる
+	public void H_MotionBlend(int b)
+	{
+		H_MotionBlendFlag = b == 1;
+	}
 
 	//トップスをはだける、アニメーションクリップから呼ばれる
 	public void TopsOff()
@@ -1603,8 +1611,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//スケベ処理
 	private void H_Func()
 	{
-		//スケベモーションブレンド比率変更
-		CurrentAnimator.SetFloat("H_Damage" + H_State % 2 + "Blend", Mathf.PerlinNoise(Time.time * 0.5f, 0));
+		//スケベモーションブレンド
+		if (H_MotionBlendFlag)
+		{
+			//スケベモーションブレンド比率変更
+			CurrentAnimator.SetFloat("H_Damage" + H_State % 2 + "Blend", Mathf.PerlinNoise(Time.time * 0.5f, 0));
+		}
+
 
 		/*
 		//ブレイクカウントが達した

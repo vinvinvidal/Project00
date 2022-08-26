@@ -85830,7 +85830,7 @@ AnimationClip:
     floatParameter: 1
     intParameter: 0
     messageOptions: 0
-  - time: 1.3333334
+  - time: 1.4
     functionName: CaressVagina
     data: 
     objectReferenceParameter: {fileID: 0}
@@ -85839,6 +85839,13 @@ AnimationClip:
     messageOptions: 0
   - time: 1.4166666
     functionName: CaressR_Breast
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 1
+    messageOptions: 0
+  - time: 1.4333333
+    functionName: H_MotionBlend
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
