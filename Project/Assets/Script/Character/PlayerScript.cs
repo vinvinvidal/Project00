@@ -52,13 +52,16 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool GetOnCameraBool();
 
 	//キャラクターのデータセットする
-	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO);
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HCL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO);
 
 	//当たった攻撃が有効か返す
 	bool AttackEnable(bool H);
 
 	//キャラクター交代時に状況を引き継ぐ
 	void ContinueSituation(GameObject e, bool g, float t, bool c, bool f, float d);
+
+	//スケベ中断
+	void H_Intercept();
 }
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
@@ -198,6 +201,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//キャラ交代フラグ
 	private bool ChangeFlag = false;
+
+	//スケベキャラ交代許可フラグ
+	private bool H_ChangeFlag = false;
 
 	//空中ローリング許可フラグ
 	private bool AirRollingFlag = true;
@@ -489,11 +495,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//キャラ交代クールタイム
 	private float ChangeTime = 0;
 
+
+
 	//脱出用レバガチャカウント
-	public int BreakCount { get; set; } = 0;
+	//public int BreakCount { get; set; } = 0;
 
 	//脱出レバガチャ許可フラグ
-	private bool BreakInputFlag = false;
+	//private bool BreakInputFlag = false;
 
 
 
@@ -610,6 +618,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//スケベダメージモーションList
 	private List<AnimationClip> H_DamageAnimList = new List<AnimationClip>();
+
+	//スケベ愛撫モーションList
+	private List<AnimationClip> H_CaressAnimList = new List<AnimationClip>();
 
 	//スケベブレイクモーションList
 	private List<AnimationClip> H_BreakAnimList = new List<AnimationClip>();
@@ -755,7 +766,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		L_GaugeMAX = 100;
 
 		//バリバリゲージ初期化
-		B_Gauge = 100;
+		B_Gauge = -10;
 
 		//バリバリゲージ最大値初期化
 		B_GaugeMAX = 100;
@@ -1172,41 +1183,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//クロスのコライダに反映
 			i.capsuleColliders = tempList.ToArray();
 		}
-		/*
-		if (B_Gauge > -50f)
-		{
-			//敵に送るスケベ行動代入
-			H_Action = "Caress";
 
-			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Hit_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Start")).ToList()[0];
-
-			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Damage_" + H_State % 2 + "_0_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
-
-			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Damage_" + H_State % 2 + "_1_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop01")).ToList()[0];
-
-			//アニメーターを上書きしてアニメーションクリップを切り替える
-			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
-
-			//アニメーション遷移フラグを立てる
-			CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
-
-			//愛撫ポジションオブジェクト取得
-			GameObject CaressPosOBJ = DeepFind(H_Enemy, "CaressPos");
-
-			//キャラクターのスケベ回転値設定
-			H_RotateVector = CaressPosOBJ.transform.forward;
-
-			//スケベ攻撃位置合わせコルーチン呼び出し
-			StartCoroutine(H_PositionSetting(CaressPosOBJ));
-
-			//スケベカメラワーク再生
-			DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().PlayCameraWork(DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Action)).ToList()[0]), true);
-		}
-		//脱がし
-		else */if (B_Gauge > 0)
+		if (B_Gauge > 0)
 		{
 			//トップス開け
 			if (!T_OffFlag)
@@ -1230,8 +1208,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
 				//ブレンド比率リセット
-				CurrentAnimator.SetFloat("H_Damage0Blend", 0);
-				CurrentAnimator.SetFloat("H_Damage1Blend", 0);
+				CurrentAnimator.SetFloat("H_Damage0BlendX", 0);
+				CurrentAnimator.SetFloat("H_Damage1BlendX", 0);
+				CurrentAnimator.SetFloat("H_Damage0BlendY", 0);
+				CurrentAnimator.SetFloat("H_Damage1BlendY", 0);
 
 				//アニメーション遷移フラグを立てる
 				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
@@ -1274,8 +1254,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
 				//ブレンド比率リセット
-				CurrentAnimator.SetFloat("H_Damage0Blend", 0);
-				CurrentAnimator.SetFloat("H_Damage1Blend", 0);
+				CurrentAnimator.SetFloat("H_Damage0BlendX", 0);
+				CurrentAnimator.SetFloat("H_Damage1BlendX", 0);
+				CurrentAnimator.SetFloat("H_Damage0BlendY", 0);
+				CurrentAnimator.SetFloat("H_Damage1BlendY", 0);
 
 				//アニメーション遷移フラグを立てる
 				CurrentAnimator.SetBool("H_Damage0" + H_State % 2, true);
@@ -1315,8 +1297,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				OverRideAnimator["H_Damage_" + H_State % 2 + "_0_void"] = H_DamageAnimList.Where(a => a.name.Contains("PantsOff")).ToList()[0];
 
 				//ブレンド比率リセット
-				CurrentAnimator.SetFloat("H_Damage0Blend", 0);
-				CurrentAnimator.SetFloat("H_Damage1Blend", 0);
+				CurrentAnimator.SetFloat("H_Damage0BlendX", 0);
+				CurrentAnimator.SetFloat("H_Damage1BlendX", 0);
+				CurrentAnimator.SetFloat("H_Damage0BlendY", 0);
+				CurrentAnimator.SetFloat("H_Damage1BlendY", 0);
 
 				//アニメーターを上書きしてアニメーションクリップを切り替える
 				CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -1343,14 +1327,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//敵に送るスケベ行動代入
 			H_Action = "Caress";
 
-			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Hit_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Start")).ToList()[0];
+			//スケベキャラ交代フラグを立てる
+			H_ChangeFlag = true;
 
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Damage_" + H_State % 2 + "_0_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
+			OverRideAnimator["H_Hit_void"] = H_CaressAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Start")).ToList()[0];
 
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["H_Damage_" + H_State % 2 + "_1_void"] = H_DamageAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop01")).ToList()[0];
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_0_void"] = H_CaressAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop00")).ToList()[0];
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_1_void"] = H_CaressAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop01")).ToList()[0];
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_2_void"] = H_CaressAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop02")).ToList()[0];
+			//オーバーライドコントローラにアニメーションクリップをセット
+			OverRideAnimator["H_Damage_" + H_State % 2 + "_3_void"] = H_CaressAnimList.Where(a => a.name.Contains("Caress" + H_Enemy.GetComponent<EnemySettingScript>().ID + "_Loop03")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -1459,13 +1449,41 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		FaceMaterial.SetFloat("_BlushNum", n);
 	}
+
 	//スケベモーチョンブレンドフラグ、アニメーションクリップから呼ばれる
 	public void H_MotionBlend(int b)
 	{
 		H_MotionBlendFlag = b == 1;
+
+		if(H_MotionBlendFlag)
+		{
+			StartCoroutine(H_MotionBlendCoroutine());
+		}	
+	}
+	private IEnumerator H_MotionBlendCoroutine()
+	{
+		//ランダムシード生成
+		float RandomSeed0 = UnityEngine.Random.Range(0f, 100f);
+		float RandomSeed1 = UnityEngine.Random.Range(0f, 100f);
+
+		//フラグが下りるまでループ
+		while (H_MotionBlendFlag)
+		{
+			//1フレーム待機
+			yield return null;
+
+			//スケベモーションブレンド比率変更
+			CurrentAnimator.SetFloat("H_Damage" + H_State % 2 + "BlendX", Mathf.PerlinNoise(Time.time, RandomSeed0));
+
+			//スケベモーションブレンド比率変更
+			CurrentAnimator.SetFloat("H_Damage" + H_State % 2 + "BlendY", Mathf.PerlinNoise(Time.time, RandomSeed1));
+		}
 	}
 
-	//トップスをはだける、アニメーションクリップから呼ばれる
+
+
+
+	//トップスをはだける、アニメーションクリップから呼ばれる	
 	public void TopsOff()
 	{
 		//モデルの表示切り替え
@@ -1546,6 +1564,28 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		GameManagerScript.Instance.TimeScaleChange(0.5f, 0.5f, () => { });
 	}
 
+	//仲間の攻撃スケベ状態を解除してダウンに移行
+	public void H_Intercept()
+	{
+		//アニメーション遷移フラグを立てる
+		CurrentAnimator.SetBool("H_Break", true);
+
+		//アニメーション遷移フラグを立てる
+		CurrentAnimator.SetBool("Down", true);
+
+		//オーバーライドコントローラにアニメーションクリップをセット
+		OverRideAnimator["H_Break_void"] = H_CaressAnimList.Where(a => a.name.Contains(H_Enemy.GetComponent<EnemySettingScript>().ID + "_Break")).ToList()[0];
+
+		//アニメーターを上書きしてアニメーションクリップを切り替える
+		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
+
+		//ゲームマネージャーのダウンしているキャラクターに自身を加える
+		GameManagerScript.Instance.DownCharacterList.Add(gameObject);
+
+		//復活コルーチン呼び出し
+		StartCoroutine(RevivalCoroutine());
+	}
+
 	//スケベ状態解除アニメーションフラグを立ててモーションをセットする
 	public void H_Break(String Angle)
 	{
@@ -1611,12 +1651,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//スケベ処理
 	private void H_Func()
 	{
-		//スケベモーションブレンド
-		if (H_MotionBlendFlag)
-		{
-			//スケベモーションブレンド比率変更
-			CurrentAnimator.SetFloat("H_Damage" + H_State % 2 + "Blend", Mathf.PerlinNoise(Time.time * 0.5f, 0));
-		}
+
 
 
 		/*
@@ -1734,17 +1769,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 	}
 
-	//スケベブレイク許可フラグを立てる関数
-	public void H_BreakInputFlag()
-	{
-		//初回ループ時のみ処理
-		if(H_Count == 0)
-		{
-			//レバガチャインプットフラグを立てる
-			BreakInputFlag = true;
-		}
-	}
-
 	//スケベループカウントアップ
 	public void H_CountUp()
 	{
@@ -1814,12 +1838,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//フラグ切り替え
 				JumpInput = true;
 			}
-
-			//スケベ脱出カウントアップ
-			if (BreakInputFlag)
-			{
-				BreakCount++;
-			}
 		}
 	}
 
@@ -1871,12 +1889,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				SpecialInputIndex = 0;
 			}
-
-			//スケベ脱出カウントアップ
-			if (BreakInputFlag)
-			{
-				BreakCount++;
-			}
 		}
 	}
 	private void OnPlayerAttack01(InputValue i)
@@ -1895,12 +1907,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				SpecialInputIndex = 1;
 			}
-
-			//スケベ脱出カウントアップ
-			if (BreakInputFlag)
-			{
-				BreakCount++;
-			}
 		}
 	}
 	private void OnPlayerAttack02(InputValue i)
@@ -1918,12 +1924,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			else if (SpecialSuccessFlag)
 			{
 				SpecialInputIndex = 2;
-			}
-
-			//スケベ脱出カウントアップ
-			if (BreakInputFlag)
-			{
-				BreakCount++;
 			}
 		}
 	}
@@ -1986,11 +1986,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 	}
 
-	//キャラチェンジを押した時
+	//キャラ交代を押した時
 	private void OnCharacterChange(InputValue i)
 	{
+		//入力をキャストしてキャッシュ
+		ChangeInputNum = (int)i.Get<float>();
+
 		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
-		{
+		{		
 			//キャラチェンジ入力許可条件判定
 			if (PermitInputBoolDic["ChangeBefore"] &&
 			//最後の１人じゃない
@@ -2000,9 +2003,34 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				//入力フラグを立てる
 				ChangeInput = true;
+			}
+			//スケベキャラ交代
+			else if (H_ChangeFlag)
+			{
+				//入力許可フラグを下す
+				H_ChangeFlag = false;
 
-				//入力をキャストしてキャッシュ
-				ChangeInputNum = (int)i.Get<float>();
+				//ゲームマネージャーの操作可能キャラクターから自分を外す
+				GameManagerScript.Instance.RemoveAllActiveCharacterList(AllActiveCharacterListIndex);
+
+				//キャラ交代処理を呼び出す
+				GameManagerScript.Instance.ChangePlayableCharacter
+				(
+					true,
+					//CharacterID,
+					AllActiveCharacterListIndex,
+					ChangeInputNum,
+					null,
+					//BattleFlag, 
+					true,
+					ChangeTime,
+					CurrentAnimator.GetBool("Combo"),
+					CurrentAnimator.GetBool("Fall"),
+					GroundDistance
+				);
+
+				//スケベカメラ無効化、このままじゃ階段とかで別のヴァーチャルカメラが有効な時に上手くいかないのでとりあえず
+				DeepFind(H_Enemy, "H_Camera").GetComponent<CinemachineCameraScript>().KeepCameraFlag = false;
 			}
 		}
 	}
@@ -3863,7 +3891,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (UseArts.HitStop[AttackIndex] != 0)
 			{
 				//ヒットストップ処理
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.1f, () => { }));
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.01f, () => { }));
 			}
 	
 			//地上突進技が当たったらその場で停止させる
@@ -4017,7 +4045,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if(T_OffFlag || B_OffFlag || P_OffFlag)
 		{
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["BaseFace_void"] = H_FaceAnimList[0];
+			OverRideAnimator["BaseFace_void"] = H_FaceAnimList[4];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -5321,6 +5349,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else if (s.Contains("-> Revival"))
 		{
 			//アニメーターの遷移フラグを下す
+			CurrentAnimator.SetBool("Down", false);
+
+			//アニメーターの遷移フラグを下す
 			CurrentAnimator.SetBool("Revival", false);
 		}		
 		//SpecialTryになった瞬間の処理
@@ -5435,9 +5466,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//クールダウンフラグを下す
 			CoolDownFlag = false;
-
-			//脱出用レバガチャカウントリセット
-			BreakCount = 0;
 
 			//スケベ攻撃をしてきた敵初期化
 			H_Enemy = null;
@@ -5715,7 +5743,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる
-	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO)
+	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HCL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO)
 	{
 		//表情アニメーションList
 		FaceAnimList = new List<AnimationClip>(FAL);
@@ -5734,6 +5762,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//スケベダメージモーションList
 		H_DamageAnimList = new List<AnimationClip>(HDL);
+
+		//スケベ愛撫モーションDic
+		H_CaressAnimList = new List<AnimationClip>(HCL);
 
 		//スケベブレイクモーションList
 		H_BreakAnimList = new List<AnimationClip>(HBL);

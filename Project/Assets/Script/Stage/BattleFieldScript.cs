@@ -332,7 +332,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.05f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
 
 			//スローモーション演出
-			GameManagerScript.Instance.TimeScaleChange(2.5f, 0.1f, () =>
+			GameManagerScript.Instance.TimeScaleChange(4f, 0.1f, () =>
 			{
 				//カメラワーク終了
 				BattleVictoryVcam.KeepCameraFlag = false;

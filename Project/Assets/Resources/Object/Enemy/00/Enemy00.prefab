@@ -1458,7 +1458,7 @@ MonoBehaviour:
   KeepMode: 0
   TransrationMode: 1
   NextCameraWorkMode: 10
-  ReturnPositionMode: 1
+  ReturnPositionMode: 2
   RandomFlag: 0
   EasingTime: 0
   KeepTime: 0

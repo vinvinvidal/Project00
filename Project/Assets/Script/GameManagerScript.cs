@@ -297,6 +297,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//↑の全てのアニメーションクリップ読み込み完了Dic
 	private Dictionary<string, bool> AllH_DamageAnimCompleteFlagDic = new Dictionary<string, bool>();
 
+	//全てのスケベ愛撫アニメーションを持ったDic
+	public Dictionary<int,List<AnimationClip>> AllH_CaressDic { get; set; }
+	//↑の全てのアニメーションクリップ読み込み完了Dic
+	private Dictionary<string, bool> AllH_CaressAnimCompleteFlagDic = new Dictionary<string, bool>();
+
 	//全てのスケベブレイクアニメーションを持ったDic
 	public Dictionary<int, List<AnimationClip>> AllH_BreakDic { get; set; }
 	//↑の全てのアニメーションクリップ読み込み完了Dic
@@ -349,6 +354,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			AllH_HitAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllH_DamageAnimCompleteFlagDic.Any() &&
 			AllH_DamageAnimCompleteFlagDic.All(a => a.Value == true) &&
+			AllH_CaressAnimCompleteFlagDic.Any() &&
+			AllH_CaressAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllH_BreakAnimCompleteFlagDic.Any() &&
 			AllH_BreakAnimCompleteFlagDic.All(a => a.Value == true) &&
 			UserDataReadyFlag
@@ -540,6 +547,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//全てのスケベダメージモーションを持ったDic初期化
 			AllH_DamageDic = new Dictionary<int, List<AnimationClip>>();
 
+			//全てのスケベ愛撫モーションを持ったDic初期化
+			AllH_CaressDic = new Dictionary<int, List<AnimationClip>>();
+
 			//全てのスケベブレイクモーションを持ったList初期化
 			AllH_BreakDic = new Dictionary<int, List<AnimationClip>>();
 
@@ -617,6 +627,16 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 					//読み込んだスケベダメージアニメーションのDicをtrueにする
 					AllH_DamageAnimCompleteFlagDic[i.F_NameC] = true;
 				}));
+
+				//スケベ愛撫アニメーションクリップ読み込み
+				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/H_Caress/", "anim", (List<object> H_CaressOBJList) =>
+				{
+					//読み込んだアニメーションをListにしてAdd
+					AllH_CaressDic.Add(i.CharacterID, H_CaressOBJList.Select(o => o as AnimationClip).ToList());
+
+					//読み込んだスケベダメージアニメーションのDicをtrueにする
+					AllH_CaressAnimCompleteFlagDic[i.F_NameC] = true;
+				}));			
 
 				//スケベブレイクアニメーションクリップ読み込み
 				StartCoroutine(AllFileLoadCoroutine("Anim/Character/" + i.CharacterID + "/H_Break/", "anim", (List<object> H_BreakOBJList) =>
@@ -1453,17 +1473,21 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 	IEnumerator TimeScaleChangeCoroutine(float t, Action act)
 	{
-		//現在の時間をキャッシュ
-		float HitTime = Time.time;
+		//経過時間宣言
+		float StopTime = 0;
 
 		//引数で受け取った持続時間まで待機
-		while (Time.time - HitTime < t * TimeScaleNum)
+		while (t > StopTime)
 		{
+			//1フレーム待機
 			yield return null;
+
+			//経過時間加算
+			StopTime += Time.deltaTime / Time.timeScale;
 		}
 
 		//持続時間がゼロならタイムスケールは戻さない
-		if(t != 0)
+		if (t != 0)
 		{
 			//タイムスケールを元に戻す
 			TimeScaleNum = 1;
@@ -1817,7 +1841,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//交代するキャラクターのインデックス宣言
 		int NextIndex = c + n;
 
-		//交代するキャラクター
+		//交代するキャラクター宣言
 		GameObject NextCharacter = null;
 
 		//ループカウント
@@ -1849,8 +1873,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//カウントアップ
 			count++;
 		}
-		
-		if(DownFlag)
+
+		if (DownFlag)
 		{
 			//ダウンでの交代ならバトルフィールドの初期位置に移動
 			NextCharacter.transform.position = DeepFind(BattleFieldOBJ, "PlayerPosOBJ").transform.position;

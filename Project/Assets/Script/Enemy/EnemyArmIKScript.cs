@@ -55,10 +55,24 @@ public class EnemyArmIKScript : GlobalClass
 	}
 
 	//もしかしたら２回目はうまく行かないか？
-	public void EnableIK(GameObject Target, Vector3 Offset)
+	public void EnableIK(bool Enable, GameObject Target, Vector3 Offset)
 	{
-		//コルーチン呼び出し
-		StartCoroutine(EnableIKCoroutine(Target, Offset));
+		if(Enable)
+		{
+			//コルーチン呼び出し
+			StartCoroutine(EnableIKCoroutine(Target, Offset));
+		}
+		else
+		{
+			//リグビルダー無効化
+			ArmRigBuilder.enabled = false;
+
+			//IK有効化スイッチを切る
+			EnableSwitch = false;
+
+			//補間値をゼロにしとく
+			LeapNum = 0;
+		}
 	}
 	private IEnumerator EnableIKCoroutine(GameObject Target, Vector3 Offset)
 	{

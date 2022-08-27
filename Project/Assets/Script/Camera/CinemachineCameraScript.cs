@@ -360,8 +360,14 @@ public class CinemachineCameraScript : GlobalClass
 		//カメラ位置をカメラワーク開始時のポジションに戻す場合
 		else if (CameraWorkList[Index].GetComponent<CameraWorkScript>().ReturnPositionMode == 1)
 		{
-			//終了用Vcamを通常の注視点に向ける、ポジションは開始時のEasingVcamera()で入る
-			MasterVcam.transform.LookAt(GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position + MainCamera.transform.parent.GetComponent<MainCameraScript>().LookAtOffset);
+			if(GameManagerScript.Instance.GetPlayableCharacterOBJ() != gameObject.transform.root.gameObject)
+			{
+				//注視点オブジェクトを削除
+				MasterVcam.m_LookAt = null;
+
+				//終了用Vcamを通常の注視点に向ける、ポジションは開始時のEasingVcamera()で入る
+				MasterVcam.transform.LookAt(GameManagerScript.Instance.GetPlayableCharacterOBJ().transform.position + MainCamera.transform.parent.GetComponent<MainCameraScript>().LookAtOffset);
+			}
 
 			//コルーチン呼び出し
 			StartCoroutine(EndCameraWorkCoroutine(1));
@@ -371,6 +377,9 @@ public class CinemachineCameraScript : GlobalClass
 		{
 			//プレイヤーキャラクター取得
 			GameObject POBJ = GameManagerScript.Instance.GetPlayableCharacterOBJ();
+
+			//注視点オブジェクトを削除
+			MasterVcam.m_LookAt = null;
 
 			//終了用Vcamをリセット位置に移動
 			MasterVcam.transform.position = POBJ.transform.position - (POBJ.transform.forward * 3) + new Vector3(0,2,0);

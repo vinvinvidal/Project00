@@ -20,8 +20,11 @@ public interface EnemyCharacterInterface : IEventSystemHandler
 	//スケベヒットモーションListを受け取る、セッティングスクリプトから呼ばれる
 	void SetH_HitAnimList(List<AnimationClip> i);
 
-	//スケベヒットモーションListを受け取る、セッティングスクリプトから呼ばれる
+	//スケベアタックモーションListを受け取る、セッティングスクリプトから呼ばれる
 	void SetH_AttackAnimList(List<AnimationClip> i);
+
+	//スケベ愛撫モーションListを受け取る、セッティングスクリプトから呼ばれる
+	void SetH_CaressAnimList(List<AnimationClip> i);
 
 	//スケベブレイクモーションListを受け取る、セッティングスクリプトから呼ばれる
 	void SetH_BreakAnimList(List<AnimationClip> i);
@@ -80,6 +83,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 {
 	//プレイヤーキャラクター
 	public GameObject PlayerCharacter { get; set; }
+
+	//スケベしているキャラクター
+	public GameObject H_Character { get; set; }
 
 	//OnCamera判定用スクリプトを持っているオブジェクト、セッティングでメッシュを統合した奴が入ってくる
 	public GameObject OnCameraObject { get; set; }
@@ -174,6 +180,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//全てのスケベアタックモーションList
 	public List<AnimationClip> H_AttackAnimList { get; set; }
 
+	//全ての愛撫モーションList
+	public List<AnimationClip> H_CaressAnimList { get; set; }
+
 	//全てのスケベブレイクモーションList
 	public List<AnimationClip> H_BreakAnimList { get; set; }
 
@@ -254,6 +263,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//スケベフラグ
 	public bool H_Flag { get; set; }
+
+	//スケベモーションブレンドフラグ
+	private bool H_MotionBlendFlag { get; set; } = false;
 
 	//拉致フラグ
 	public bool Abduction_Flag { get; set; }
@@ -792,22 +804,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			MoveMoment = SuperMoveVec * Time.deltaTime;
 		}
 		//スケベ中の移動
-		else if (H_Flag)
+		else if (H_Flag && H_Character != null)
 		{
-			/*
-			if (H_Location.Contains("Back"))
-			{
-				//プレイヤーと位置を合わせる
-				MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * 0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
-			}
-			else
-			{
-				//プレイヤーと位置を合わせる
-				MoveMoment = ((PlayerCharacter.transform.position - (PlayerCharacter.transform.forward * -0.25f)) - gameObject.transform.position) * Time.deltaTime * 20;
-			}
-			*/
 			//プレイヤーと高さを合わせる
-			MoveMoment.y = (PlayerCharacter.transform.position - gameObject.transform.position).y * Time.deltaTime * 20;
+			MoveMoment.y = (H_Character.transform.position - gameObject.transform.position).y * Time.deltaTime * 20;
 		}
 		//行動中の移動
 		else if (BehaviorFlag)
@@ -1030,9 +1030,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//拉致が成功ている
 			AbductionSuccess_Flag
 			||
-			//スケベ中
-			H_Flag
-			||
 			//ダウン中にダウンに当たらない攻撃が当たった
 			(DownFlag && Arts.DownEnable[n] != 1)
 			||
@@ -1053,6 +1050,23 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//プレイヤーからの攻撃を受けた時の処理
 	public void PlayerAttackHit(ArtsClass Arts, int n)
 	{
+		//スケベを中断された
+		if(H_Flag)
+		{
+			//スケベフラグを下す
+			H_Flag = false;
+
+			//モーションブレンドフラグを下す
+			H_MotionBlendFlag = false;
+
+			//腕のIKを無効化
+			DeepFind(gameObject, "R_HandIK").GetComponent<EnemyArmIKScript>().EnableIK(false, null, Vector3.zero);
+			DeepFind(gameObject, "L_HandIK").GetComponent<EnemyArmIKScript>().EnableIK(false, null, Vector3.zero);
+
+			//キャラクターのスケベ中断処理呼び出し
+			ExecuteEvents.Execute < PlayerScriptInterface>(H_Character, null, (reciever, eventData) => reciever.H_Intercept());
+		}
+
 		//喰らった技のダメージを受け取る
 		float Damage = Arts.Damage[n];
 
@@ -1637,7 +1651,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				CurrentAnimator.SetBool("H_Attack01", false);
 
 				//スケベステートカウントアップ
-				H_State++;
+				//H_State++;
 			}
 			//スケベ攻撃が解除された瞬間の処理
 			else if (CurrentState.Contains("-> H_Break"))
@@ -2325,6 +2339,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//スケベフラグを立てる
 		H_Flag = true;
 
+		//スケベ中キャラクター取得
+		H_Character = Player;
+
 		//キャラクターコントローラを設定
 		CharaControllerReset("H");
 
@@ -2334,6 +2351,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//スケベ攻撃フラグを立てる
 		CurrentAnimator.SetBool("H_Attack0" + H_State % 2, true);
 
+		//スケベモーションブレンド比率リセット
+		CurrentAnimator.SetFloat("H_Attack0BlendX", 0);
+		CurrentAnimator.SetFloat("H_Attack0BlendY", 0);
+		CurrentAnimator.SetFloat("H_Attack1BlendX", 0);
+		CurrentAnimator.SetFloat("H_Attack1BlendY", 0);
+
 		//トップス開き
 		if (H_Action == "TopsOff")
 		{
@@ -2341,7 +2364,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
 
 			//スケベ攻撃ヒットモーションを切り替える
-			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("TopsOff")).ToList()[0];
+			OverRideAnimator["H_Attack_" + H_State % 2 + "_0_void"] = H_AttackAnimList.Where(a => a.name.Contains("TopsOff")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -2353,7 +2376,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Back")).ToList()[0];
 
 			//スケベ攻撃ヒットモーションを切り替える
-			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("BraOff")).ToList()[0];
+			OverRideAnimator["H_Attack_" + H_State % 2 + "_0_void"] = H_AttackAnimList.Where(a => a.name.Contains("BraOff")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -2365,7 +2388,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			OverRideAnimator["H_Hit_void"] = H_HitAnimList.Where(a => a.name.Contains("Forward")).ToList()[0];
 
 			//スケベ攻撃ヒットモーションを切り替える
-			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("PantsOff")).ToList()[0];
+			OverRideAnimator["H_Attack_" + H_State % 2 + "_0_void"] = H_AttackAnimList.Where(a => a.name.Contains("PantsOff")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
@@ -2374,15 +2397,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		else if (H_Action == "Caress")
 		{
 			//スケベ攻撃ヒットモーションを切り替える
-			OverRideAnimator["H_Hit_void"] = H_AttackAnimList.Where(a => a.name.Contains("Caress_Start")).ToList()[0];
+			OverRideAnimator["H_Hit_void"] = H_CaressAnimList.Where(a => a.name.Contains("Start")).ToList()[0];
 
 			//スケベ攻撃ヒットモーションを切り替える
-			OverRideAnimator["H_Attack0" + H_State % 2 + "_void"] = H_AttackAnimList.Where(a => a.name.Contains("Caress_Loop00")).ToList()[0];
+			OverRideAnimator["H_Attack_" + H_State % 2 + "_0_void"] = H_CaressAnimList.Where(a => a.name.Contains("Loop00")).ToList()[0];
+			OverRideAnimator["H_Attack_" + H_State % 2 + "_1_void"] = H_CaressAnimList.Where(a => a.name.Contains("Loop01")).ToList()[0];
+			OverRideAnimator["H_Attack_" + H_State % 2 + "_2_void"] = H_CaressAnimList.Where(a => a.name.Contains("Loop02")).ToList()[0];
+			OverRideAnimator["H_Attack_" + H_State % 2 + "_3_void"] = H_CaressAnimList.Where(a => a.name.Contains("Loop03")).ToList()[0];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 		}
-
 	}
 
 	//スケベ攻撃遷移関数
@@ -2553,6 +2578,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	{
 		//受け取ったListを変数に格納
 		H_AttackAnimList = new List<AnimationClip>(i);
+	}
+
+	//スケベ愛撫モーションListを受け取る、セッティングスクリプトから呼ばれる
+	public void SetH_CaressAnimList(List<AnimationClip> i)
+	{
+		//受け取ったListを変数に格納
+		H_CaressAnimList = new List<AnimationClip>(i);
 	}
 
 	//スケベブレイクモーションListを受け取る、セッティングスクリプトから呼ばれる
@@ -2763,6 +2795,36 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		GameObject IKOBJ = DeepFind(gameObject, s.Split(',').ToList().ElementAt(0) + "_HandIK");
 
 		//IKスクリプトの関数呼び出し
-		IKOBJ.GetComponent<EnemyArmIKScript>().EnableIK(DeepFind(GameManagerScript.Instance.GetPlayableCharacterOBJ(), s.Split(',').ToList().ElementAt(1) + "Target"), new Vector3(float.Parse(s.Split(',').ToList().ElementAt(2)), float.Parse(s.Split(',').ToList().ElementAt(3)), float.Parse(s.Split(',').ToList().ElementAt(4))));
+		IKOBJ.GetComponent<EnemyArmIKScript>().EnableIK(true, DeepFind(H_Character, s.Split(',').ToList().ElementAt(1) + "Target"), new Vector3(float.Parse(s.Split(',').ToList().ElementAt(2)), float.Parse(s.Split(',').ToList().ElementAt(3)), float.Parse(s.Split(',').ToList().ElementAt(4))));
+	}
+
+	//スケベモーチョンブレンドフラグ、アニメーションクリップから呼ばれる
+	public void H_MotionBlend(int b)
+	{
+		H_MotionBlendFlag = b == 1;
+
+		if (H_MotionBlendFlag)
+		{
+			StartCoroutine(H_MotionBlendCoroutine());
+		}
+	}
+	private IEnumerator H_MotionBlendCoroutine()
+	{
+		//ランダムシード生成
+		float RandomSeed0 = UnityEngine.Random.Range(0f, 100f);
+		float RandomSeed1 = UnityEngine.Random.Range(0f, 100f);
+
+		//フラグが下りるまでループ
+		while (H_MotionBlendFlag)
+		{
+			//1フレーム待機
+			yield return null;
+
+			//スケベモーションブレンド比率変更
+			CurrentAnimator.SetFloat("H_Attack" + H_State % 2 + "BlendX", Mathf.PerlinNoise(Time.time, RandomSeed0));
+
+			//スケベモーションブレンド比率変更
+			CurrentAnimator.SetFloat("H_Attack" + H_State % 2 + "BlendY", Mathf.PerlinNoise(Time.time, RandomSeed1));
+		}
 	}
 }
