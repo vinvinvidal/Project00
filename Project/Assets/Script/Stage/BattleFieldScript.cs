@@ -56,6 +56,12 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//壁素材オブジェクト
 	private List<GameObject> WallMaterial;
 
+	//生成した壁オブジェクトList
+	public List<GenerateWallScript> AllWallOBJ { get; set; }
+
+	//壁メッシュ統合用オブジェクト宣言
+	private GameObject CombineMeshOBJ;
+
 	//プレイヤーキャラクター
 	private GameObject PlayerCharacter = null;
 
@@ -264,8 +270,8 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//ゲームマネージャーのバトルフィールドをnullにする
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.SetBattleFieldOBJ(null));
 
-		//壁オブジェクト取得
-		List<GameObject> OBJList = new List<GameObject>(DeepFind(gameObject, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")).Select(b => b.gameObject).ToList());
+		//結合した壁オブジェクト無効化
+		CombineMeshOBJ.SetActive(false);
 
 		//壁コライダ無効化
 		ColOBJ.GetComponent<MeshCollider>().enabled = false;
@@ -274,8 +280,11 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		PlayerCharacter.GetComponent<PlayerScript>().BattleEnd();
 
 		//壁オブジェクトのRigitBodyを回す
-		foreach (Rigidbody i in OBJList.Select(a => a.GetComponent<Rigidbody>()))
+		foreach (Rigidbody i in AllWallOBJ.Select(a => a.gameObject.GetComponent<Rigidbody>()))
 		{
+			//有効化
+			i.gameObject.SetActive(true);
+
 			//オブジェクトに壁消失用スクリプト追加
 			i.gameObject.AddComponent<WallVanishScript>();
 
@@ -340,7 +349,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		}
 
 		//壁オブジェクトが全部消えるまでループ
-		while (!OBJList.All(a => a == null))
+		while (!AllWallOBJ.All(a => a == null))
 		{
 			yield return null;
 		}
@@ -693,6 +702,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//ガベージ発生頂点座標List宣言
 		List<Vector3> VertexList = new List<Vector3>();
 
+		//生成した壁オブジェクトList初期化
+		AllWallOBJ = new List<GenerateWallScript>();
+
 		//壁メッシュ頂点位置を抽出
 		foreach (var i in WallOBJ.GetComponent<MeshFilter>().mesh.vertices)
 		{
@@ -739,6 +751,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				//壁生成スクリプトを付けて壁生成関数を呼び出す
 				TempWallMat.AddComponent<GenerateWallScript>().GenerateWall(ii, ii + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.25f, 0.25f) + Offset, Random.Range(-0.5f, 0.5f)));
 
+				//ListにAdd
+				AllWallOBJ.Add(TempWallMat.GetComponent<GenerateWallScript>());
+
 				//カウントアップ
 				count++;
 
@@ -753,6 +768,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 					//トランスフォームリセット
 					ResetTransform(tempeffect);
+
+					//親解除
+					tempeffect.transform.parent = null;
 				}
 			}
 
@@ -763,8 +781,57 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			yield return null;
 		}
 
-		//チョイ待つ
-		yield return new WaitForSeconds(0.5f);
+		//全ての壁素材が止まるまで待機
+		while(!AllWallOBJ.All(a => a.FinishFlag))
+		{
+			yield return null;
+		}
+
+		//結合するCombineInstanceList宣言
+		List<CombineInstance> CombineInstanceList = new List<CombineInstance>();
+
+		//メッシュ統合用オブジェクト初期化
+		CombineMeshOBJ = new GameObject();
+
+		//メッシュフィルターを付けて空メッシュを入れておく
+		CombineMeshOBJ.AddComponent<MeshFilter>().sharedMesh = new Mesh();
+
+		//メッシュレンダラーを付けて取得しておく
+		MeshRenderer CombineMeshRenderer = CombineMeshOBJ.AddComponent<MeshRenderer>();
+
+		//マテリアル設定
+		CombineMeshRenderer.material = AllWallOBJ[0].gameObject.GetComponentInChildren<MeshRenderer>().material;
+
+		//レイヤー設定
+		CombineMeshOBJ.layer = AllWallOBJ[0].gameObject.GetComponentInChildren<MeshRenderer>().gameObject.layer;
+
+		//名前を設定
+		CombineMeshOBJ.name = "CombineWallOBJ";
+
+		//全ての壁オブジェクトを回す
+		foreach (var i in AllWallOBJ)
+		{
+			//メッシュ統合用CombineInstance宣言
+			CombineInstance TempCombineInstance = new CombineInstance();
+
+			//メッシュを取得
+			TempCombineInstance.mesh = i.gameObject.GetComponentInChildren<MeshFilter>().sharedMesh;
+
+			//トランスフォームを取得
+			TempCombineInstance.transform = i.transform.localToWorldMatrix;
+
+			//ListにAdd
+			CombineInstanceList.Add(TempCombineInstance);
+
+			//無効化
+			i.gameObject.SetActive(false);
+		}
+
+		//メッシュを結合
+		CombineMeshOBJ.GetComponent<MeshFilter>().sharedMesh.CombineMeshes(CombineInstanceList.ToArray());
+
+		//親を設定
+		CombineMeshOBJ.transform.parent = gameObject.transform;
 	}
 
 	//プレイヤーキャラクター取得コルーチン

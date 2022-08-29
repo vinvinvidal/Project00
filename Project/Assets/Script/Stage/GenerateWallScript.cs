@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class GenerateWallScript : GlobalClass
 {
+	//完了フラグ
+	public bool FinishFlag = false;
+
 	public void GenerateWall(Vector3 from, Vector3 to)
 	{
 		//壁生成コルーチン呼び出し
@@ -22,10 +25,10 @@ public class GenerateWallScript : GlobalClass
 
 			transform.rotation *= Quaternion.Euler(new Vector3(Random.Range(-5f, 5f), Random.Range(-5f, 5f), Random.Range(-5f, 5f)));
 
-			yield return null;			
+			yield return null;
 		}
 
-		//このスクリプトを無効化
-		GetComponent<GenerateWallScript>().enabled = false;
+		//完了フラグを立てる
+		FinishFlag = true;
 	}
 }

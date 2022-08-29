@@ -653,8 +653,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//バトルフィールドオブジェクト取得
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => BattleFieldOBJ = reciever.GetBattleFieldOBJ());
 
-		//壁オブジェクトを全て取得
-		List<GameObject> WallOBJList = new List<GameObject>(DeepFind(BattleFieldOBJ, "WallOBJ").GetComponentsInChildren<Transform>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("PhysicOBJ")).Select(b => b.gameObject).ToList());
+		//壁オブジェクトピックポジションを取得
+		List<Transform> WallOBJList = new List<Transform>(DeepFind(BattleFieldOBJ, "OBJPickPos").GetComponentsInChildren<Transform>());
 
 		//最も近い壁オブジェクト宣言
 		GameObject WallOBJ = null;
@@ -665,21 +665,17 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//壁オブジェクトとの距離宣言
 		float OBJDistance = 10000;
 
-		//壁オブジェクトを回して最も近い壁オブジェクトを調べる
-		foreach (GameObject i in WallOBJList)
+		//壁オブジェクトピックポジションを回して最も近い場所を調べる
+		foreach (Transform i in WallOBJList)
 		{
-			//高さが違う奴は無視
-			if(i.transform.position.y - gameObject.transform.position.y > 0.1 && i.transform.position.y - gameObject.transform.position.y < 2)
+			//距離測定
+			if (OBJDistance > Vector3.SqrMagnitude(i.position - gameObject.transform.position))
 			{
-				//距離測定
-				if (OBJDistance > Vector3.SqrMagnitude(i.transform.position - gameObject.transform.position))
-				{
-					//壁オブジェクトとの距離更新
-					OBJDistance = Vector3.SqrMagnitude(i.transform.position - gameObject.transform.position);
+				//壁オブジェクトとの距離更新
+				OBJDistance = Vector3.SqrMagnitude(i.position - gameObject.transform.position);
 
-					//最も近い壁オブジェクト更新
-					WallOBJ = i;
-				}
+				//最も近い壁オブジェクト更新
+				WallOBJ = i.gameObject;
 			}
 		}
 
@@ -786,7 +782,10 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}
 
 		//壁オブジェクトのインスタンスを作って武器化
-		WeaponOBJ = Instantiate(WallOBJ);
+		WeaponOBJ = Instantiate(BattleFieldOBJ.GetComponent<BattleFieldScript>().AllWallOBJ[Random.Range(0, BattleFieldOBJ.GetComponent<BattleFieldScript>().AllWallOBJ.Count)].gameObject);
+
+		//有効化
+		WeaponOBJ.SetActive(true);
 
 		//持たせる
 		WeaponOBJ.transform.parent = DeepFind(gameObject, "R_HandBone").transform;

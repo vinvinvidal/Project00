@@ -19,7 +19,7 @@ TimeType,100
 HitEffect,HitEffect01
 HitEffectPos,0*0*1
 HitEffectAngle,-90*0*0
-HitStop,5
+HitStop,0
 Charge,0
 HoldPos,0*0*0
 LocationFlag,0
