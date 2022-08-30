@@ -653,9 +653,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//バトルフィールドオブジェクト取得
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => BattleFieldOBJ = reciever.GetBattleFieldOBJ());
 
-		//壁オブジェクトピックポジションを取得
-		List<Transform> WallOBJList = new List<Transform>(DeepFind(BattleFieldOBJ, "OBJPickPos").GetComponentsInChildren<Transform>());
-
 		//最も近い壁オブジェクト宣言
 		GameObject WallOBJ = null;
 
@@ -666,16 +663,16 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		float OBJDistance = 10000;
 
 		//壁オブジェクトピックポジションを回して最も近い場所を調べる
-		foreach (Transform i in WallOBJList)
+		foreach (GameObject i in BattleFieldOBJ.GetComponent<BattleFieldScript>().WallOBJPickPosList)
 		{
 			//距離測定
-			if (OBJDistance > Vector3.SqrMagnitude(i.position - gameObject.transform.position))
+			if (OBJDistance > Vector3.SqrMagnitude(i.transform.position - gameObject.transform.position))
 			{
 				//壁オブジェクトとの距離更新
-				OBJDistance = Vector3.SqrMagnitude(i.position - gameObject.transform.position);
+				OBJDistance = Vector3.SqrMagnitude(i.transform.position - gameObject.transform.position);
 
 				//最も近い壁オブジェクト更新
-				WallOBJ = i.gameObject;
+				WallOBJ = i;
 			}
 		}
 

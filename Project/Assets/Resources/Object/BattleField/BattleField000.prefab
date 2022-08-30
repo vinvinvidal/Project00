@@ -347,7 +347,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EnemyWaveList: 01000000
-  AllWallOBJ: []
+  WallOBJPickPosList:
+  - {fileID: 1979632813887577373}
+  - {fileID: 8530927565559961510}
+  - {fileID: 706408024971393868}
+  - {fileID: 4125773783415547988}
+  - {fileID: 3178382967954709737}
 --- !u!135 &8404991972556880186
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -597,7 +602,7 @@ MeshCollider:
   m_GameObject: {fileID: 2455755235298182755}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30

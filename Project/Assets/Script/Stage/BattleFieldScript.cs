@@ -59,6 +59,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	//生成した壁オブジェクトList
 	public List<GenerateWallScript> AllWallOBJ { get; set; }
 
+	//壁オブジェクト回収ポジションList
+	public List<GameObject> WallOBJPickPosList;
+
 	//壁メッシュ統合用オブジェクト宣言
 	private GameObject CombineMeshOBJ;
 
