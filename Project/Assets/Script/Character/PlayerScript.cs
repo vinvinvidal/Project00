@@ -4450,11 +4450,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//武器のアタッチ先を変更する
 	private void AttackAttachWeapon(int n)
 	{
+		//スクリプト宣言
+		WeaponSettingScript TempScript;
+
 		//武器オブジェクトを回す
 		foreach (GameObject i in WeaponOBJList)
 		{
-			//アタッチ先を変更
-			i.transform.parent = i.GetComponent<WeaponSettingScript>().WeaponAttachOBJList[n].transform;
+			//スクリプト取得
+			TempScript = i.GetComponent<WeaponSettingScript>();
+
+			//アタッチ先オブジェクトの位置を設定
+			TempScript.WeaponAttachOBJList[n].transform.localPosition = TempScript.WeaponAttachOBJPosList[n];
+
+			//武器のアタッチ先を変更
+			i.transform.parent = TempScript.WeaponAttachOBJList[n].transform;
 
 			//ローカルトランスフォームを設定
 			ResetTransform(i);
@@ -4505,11 +4514,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		while(time < t)
 		{
-			//オブジェクト移動
-			o.transform.localPosition = Vector3.Lerp(bp, ap, time / t);
+			if(!PauseFlag)
+			{
+				//オブジェクト移動
+				o.transform.localPosition = Vector3.Lerp(bp, ap, time / t);
 
-			//経過時間カウントアップ
-			time += Time.deltaTime;
+				//経過時間カウントアップ
+				time += Time.deltaTime;
+			}
 
 			//1フレーム待機
 			yield return null;

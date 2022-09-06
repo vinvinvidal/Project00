@@ -193,8 +193,12 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: ed22539db6277f14d8310d26effb0ef0, type: 3}
   _TexNormal: {fileID: 2800000, guid: d196d39bb6d0dd14aa4e60374e8a4ff4, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 00d37b16a5e3a324989d1f28eac6e843, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 1192a89eb518cbc459cdc758eb81db89, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineBaseFlag: 0
+  CombineTopsOffFlag: 0
+  CombineBraOffFlag: 0
+  CombinePantsOffFlag: 0
 --- !u!114 &2367650557823495328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,12 +218,14 @@ MonoBehaviour:
   - {fileID: 5129748309721189674}
   - {fileID: 1902593265801471154}
   - {fileID: 7670729207510189535}
+  - {fileID: 7670729207510189535}
   WeaponAttachOBJNameList:
   - L_HandBone
   - L_HandBone
   - R_HandBone
   - L_HandBone
   - R_HandBone
+  - RootBone
   - RootBone
   WeaponAttachOBJPosList:
   - {x: 0.035, y: 0.02, z: -0.015}
@@ -228,15 +234,18 @@ MonoBehaviour:
   - {x: 0.035, y: 0.02, z: -0.015}
   - {x: -0.15, y: -0.02, z: -0.015}
   - {x: 0, y: 0, z: 0.55}
+  - {x: 0, y: 1.1, z: 0.55}
   WeaponAttachOBJMoveList:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0.65}
+  - {x: 0, y: -1.6, z: 0}
   WeaponAttachOBJRotateList:
   - {x: 20, y: 90, z: 0}
   - {x: 20, y: 90, z: 0}
   - {x: -20, y: 90, z: 0}
   - {x: 20, y: 90, z: 0}
   - {x: 20, y: -90, z: 0}
+  - {x: 0, y: 180, z: 0}
   - {x: 0, y: 180, z: 0}
   WeaponClothCol: {fileID: 0}
   WeaponClothColName: 
@@ -362,8 +371,8 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 0}
   m_AABB:
-    m_Center: {x: -7.617317e-18, y: 0.078321055, z: 0.014999941}
-    m_Extent: {x: 7.617317e-18, y: 0.055821046, z: 0.104999945}
+    m_Center: {x: -7.617317e-18, y: 0.059750002, z: -0.01000002}
+    m_Extent: {x: 7.617317e-18, y: 0.03725, z: 0.07999998}
   m_DirtyAABB: 0
 --- !u!114 &5172713957034945546
 MonoBehaviour:
@@ -380,8 +389,12 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: ed22539db6277f14d8310d26effb0ef0, type: 3}
   _TexNormal: {fileID: 2800000, guid: d196d39bb6d0dd14aa4e60374e8a4ff4, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 00d37b16a5e3a324989d1f28eac6e843, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 1192a89eb518cbc459cdc758eb81db89, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineBaseFlag: 0
+  CombineTopsOffFlag: 0
+  CombineBraOffFlag: 0
+  CombinePantsOffFlag: 0
 --- !u!183 &5222773716185067502
 Cloth:
   m_ObjectHideFlags: 0
@@ -443,46 +456,6 @@ Cloth:
   - maxDistance: 1
     collisionSphereDistance: 3.4028235e+38
   - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 1
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 0
-    collisionSphereDistance: 3.4028235e+38
-  - maxDistance: 0
     collisionSphereDistance: 3.4028235e+38
   - maxDistance: 1
     collisionSphereDistance: 3.4028235e+38
@@ -600,8 +573,12 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: ed22539db6277f14d8310d26effb0ef0, type: 3}
   _TexNormal: {fileID: 2800000, guid: d196d39bb6d0dd14aa4e60374e8a4ff4, type: 3}
   _TexHiLight: {fileID: 2800000, guid: 00d37b16a5e3a324989d1f28eac6e843, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: 1192a89eb518cbc459cdc758eb81db89, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineBaseFlag: 0
+  CombineTopsOffFlag: 0
+  CombineBraOffFlag: 0
+  CombinePantsOffFlag: 0
 --- !u!114 &7056530918825579390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -621,12 +598,14 @@ MonoBehaviour:
   - {fileID: 1902593265801471154}
   - {fileID: 1902593265801471154}
   - {fileID: 7670729207510189535}
+  - {fileID: 7670729207510189535}
   WeaponAttachOBJNameList:
   - L_HandBone
   - R_HandBone
   - R_HandBone
   - R_HandBone
   - R_HandBone
+  - RootBone
   - RootBone
   WeaponAttachOBJPosList:
   - {x: 0.035, y: 0.02, z: -0.015}
@@ -635,15 +614,18 @@ MonoBehaviour:
   - {x: -0.15, y: -0.02, z: -0.015}
   - {x: -0.15, y: -0.02, z: -0.015}
   - {x: 0, y: 0, z: 0.55}
+  - {x: 0, y: 1.1, z: 0.55}
   WeaponAttachOBJMoveList:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: -0.65}
+  - {x: 0, y: -1.6, z: 0}
   WeaponAttachOBJRotateList:
   - {x: 20, y: 90, z: 0}
   - {x: -20, y: 90, z: 0}
   - {x: -20, y: 90, z: 0}
   - {x: 20, y: -90, z: 0}
   - {x: 20, y: -90, z: 0}
+  - {x: 0, y: 180, z: 0}
   - {x: 0, y: 180, z: 0}
   WeaponClothCol: {fileID: 0}
   WeaponClothColName: 
