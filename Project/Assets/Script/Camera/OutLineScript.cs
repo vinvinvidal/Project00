@@ -40,11 +40,10 @@ public class OutLineScript : GlobalClass
 	private void Start()
 	{
 		//アウトラインをレンダリングするテクスチャ作成
-		//OutLineTexture = new RenderTexture(Mathf.RoundToInt(Screen.width * 0.75f), Mathf.RoundToInt(Screen.height * 0.75f), 24, RenderTextureFormat.ARGB32);
-		OutLineTexture = new RenderTexture(Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.x * 0.75f), Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.y * 0.75f), 24, RenderTextureFormat.ARGB32);
+		OutLineTexture = new RenderTexture(Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.x), Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.y), 8, RenderTextureFormat.ARGB32);
 
 		//マスキングをレンダリングするテクスチャ作成
-		MaskingTexture = new RenderTexture(Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.x * 0.1f) , Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.y * 0.1f), 24, RenderTextureFormat.ARGB32);
+		//MaskingTexture = new RenderTexture(Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.x * 0.05f) , Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.y * 0.05f), 24, RenderTextureFormat.ARGB32);
 
 		//メインカメラ取得
 		MainCamera = transform.parent.GetComponent<Camera>();
@@ -60,6 +59,15 @@ public class OutLineScript : GlobalClass
 
 		//バックグランドカラー設定
 		PostEffectCamera.backgroundColor = new Color(0, 0, 0, 0);
+
+		//レンダリングテクスチャをセット
+		PostEffectCamera.targetTexture = OutLineTexture;
+
+		//カメラをデプスバッファと法線バッファをレンダリングするモードにする
+		PostEffectCamera.depthTextureMode |= DepthTextureMode.DepthNormals;
+
+		//クリアフラグ設定
+		PostEffectCamera.clearFlags = CameraClearFlags.Depth;
 	}
 
 	private void Update()
@@ -113,7 +121,7 @@ public class OutLineScript : GlobalClass
 
 		//最も遠いキャラクター位置に合わせてFar設定をリアルタイムで更新する
 		PostEffectCamera.farClipPlane = Mathf.Sqrt(Distance) + 1.0f;
-
+		/*
 		//レイヤーマスク切り替え、アウトラインがエフェクトに被らないようにするためエフェクト部分をマスキングする
 		PostEffectCamera.cullingMask = 1 << LayerMask.NameToLayer("Effect");
 
@@ -146,7 +154,7 @@ public class OutLineScript : GlobalClass
 
 		//フラグ切り替え
 		OutLineFlag = true;
-
+		*/
 		//レンダリング
 		PostEffectCamera.Render();
 	}
@@ -154,8 +162,11 @@ public class OutLineScript : GlobalClass
 	//レンダリングが完了すると呼ばれる
 	void OnRenderImage(RenderTexture src, RenderTexture dest)
 	{
+		//シェーダー呼び出しレンダーテクスチャに保存
+		Graphics.Blit(src, dest, OutLineMaterial);
+		/*
 		//フラグでシェーダー切り替え
-		if(OutLineFlag)
+		if (OutLineFlag)
 		{
 			//シェーダー切り替え
 			OutLineMaterial.shader = OutLineShader;
@@ -173,6 +184,6 @@ public class OutLineScript : GlobalClass
 
 			//シェーダー呼び出しレンダーテクスチャに保存
 			Graphics.Blit(src, dest, OutLineMaterial);
-		}
+		}*/
 	}
 }

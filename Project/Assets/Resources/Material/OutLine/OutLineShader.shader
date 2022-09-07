@@ -131,7 +131,6 @@
 				//何もない所は処理しない
 				if(SampleDepth_C + SampleNormal_C.x + SampleNormal_C.y + SampleNormal_C.z != 0)
 				{
-
 					//深度バッファから色を抽出する場所をずらすための値			
 					SampleUV_X = _CameraDepthTexture_TexelSize.x * _DepthLineWidth;
 					SampleUV_Y = _CameraDepthTexture_TexelSize.y * _DepthLineWidth;
@@ -218,8 +217,7 @@
 					re.a = saturate(re.a);
 
 					//エフェクト部分をマスキングする
-					re.a *= -1 * (tex2D(_MaskTex, i.uv).a -1);
-
+					//re.a *= -1 * (tex2D(_MaskTex, i.uv).a -1);
 				}
 
 				//出力
