@@ -1,11 +1,21 @@
 ﻿Shader "Custom/StageGlassShader"
 {
+	Properties
+	{
+		_TexMain("_TexMain", 2D) = "white" {}
+	}
+
 	SubShader
 	{
 		Tags
 		{
+			"Queue" = "AlphaTest"
+			"RenderType" = "Opaque"
+
+			/*
 			"Queue" = "Transparent" 
 			"RenderType"="Transparent"	
+			*/
 		}
 
 		Pass
@@ -16,7 +26,7 @@
 			}
 
 			//アルファブレンド
-			Blend SrcAlpha OneMinusSrcAlpha
+			//Blend SrcAlpha OneMinusSrcAlpha
 
 			//両面表示
 			//Cull off
@@ -33,6 +43,9 @@
 			#pragma vertex vert					//各頂点について実行される頂点シェーダ、フラグメントシェーダに出力される			
 			#pragma fragment frag				//各ピクセル毎に実行されるフラグメントシェーダ
 
+			//変数宣言
+			sampler2D _TexMain;
+			float4 _TexMain_ST;
 			fixed4 _LightColor0;				//ライトカラー
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
@@ -98,8 +111,15 @@
 				//ライトカラーをブレンド
 				re.rgb *= lerp(1, _LightColor0, _LightColor0.a);
 
-				//カメラから離れるほど透明度を下げる
 				re.a = saturate(length(_WorldSpaceCameraPos - i.worldPos) * 0.075 - 0.1);
+
+				re.a -= tex2D(_TexMain, i.uv * _TexMain_ST.xy);
+				
+				//透明部分をクリップ
+				clip(re.a - 0.01);
+
+				//カメラから離れるほど透明度を下げる
+				//re.a = saturate(length(_WorldSpaceCameraPos - i.worldPos) * 0.075 - 0.1);
 
 				//出力
 				return re;

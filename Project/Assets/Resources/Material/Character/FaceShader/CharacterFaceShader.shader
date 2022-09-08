@@ -14,7 +14,8 @@
 		Tags 
 		{
 			"Queue" = "AlphaTest" 
-			"RenderType" = "TransparentCutout" 
+			"RenderType" = "Opaque"
+			//"RenderType" = "TransparentCutout" 
 			"IgnoreProjector" = "True" 
 		}
 
@@ -29,7 +30,7 @@
 			}
 
 			//両面表示
-			Cull off
+			//Cull off
 
 			//プログラム開始
 			CGPROGRAM
