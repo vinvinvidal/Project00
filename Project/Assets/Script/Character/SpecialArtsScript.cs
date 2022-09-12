@@ -129,9 +129,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 			//攻撃と同じようにロック対象を探す
 			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => re = reciever.SearchLockEnemy(transform.forward));
 
-			//メインカメラにもロック対象を渡す
-			ExecuteEvents.Execute<MainCameraScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot"), null, (reciever, eventData) => reciever.SetLockEnemy(re));
-
 			//武器スクリプトにもロック対象を渡す
 			gameObject.GetComponent<Character2WeaponMoveScript>().LockEnemy = re;
 		}

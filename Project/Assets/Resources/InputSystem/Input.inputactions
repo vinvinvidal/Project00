@@ -22,7 +22,7 @@
                     "interactions": ""
                 },
                 {
-                    "name": "CameraReset",
+                    "name": "LockOn",
                     "type": "Button",
                     "id": "e795ae97-8bb6-4598-96d3-23f14034d085",
                     "expectedControlType": "Button",
@@ -398,7 +398,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "CameraReset",
+                    "action": "LockOn",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -409,7 +409,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "CameraReset",
+                    "action": "LockOn",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

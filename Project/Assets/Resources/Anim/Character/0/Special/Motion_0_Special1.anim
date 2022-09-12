@@ -89380,9 +89380,9 @@ AnimationClip:
     messageOptions: 0
   - time: 0.06666667
     functionName: FootImpact
-    data: 
+    data: -135,0,0,0,0,0
     objectReferenceParameter: {fileID: 0}
-    floatParameter: 135
+    floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.083333336

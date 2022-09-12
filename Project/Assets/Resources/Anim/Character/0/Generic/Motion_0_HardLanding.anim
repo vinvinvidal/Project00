@@ -81542,8 +81542,8 @@ AnimationClip:
   m_Events:
   - time: 0
     functionName: FootImpact
-    data: 
+    data: -90,0,0,0,0,0
     objectReferenceParameter: {fileID: 0}
-    floatParameter: 90
+    floatParameter: 0
     intParameter: 0
     messageOptions: 0

@@ -87,6 +87,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//スケベしているキャラクター
 	public GameObject H_Character { get; set; }
 
+	//ロックオンマーカー
+	public GameObject LockOnMarker { get; set; }
+
 	//OnCamera判定用スクリプトを持っているオブジェクト、セッティングでメッシュを統合した奴が入ってくる
 	public GameObject OnCameraObject { get; set; }
 
@@ -394,6 +397,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//壁激突フラグ初期化
 		WallClashFlag = false;
+
+		//ロックオンマーカー取得
+		LockOnMarker = DeepFind(gameObject, "LockOnMarker");
+
+		//無効化
+		LockOnMarker.SetActive(false);
 
 		//ダメージ用ヒットコライダ取得
 		DamageCol = DeepFind(gameObject, "EnemyDamageCol").GetComponent<BoxCollider>();
@@ -2025,7 +2034,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		PlayerAttackHit(MakeInstantArts(new List<Color>() { new Color(0, 0, 0, 0.1f) }, new List<float>() { 1 }, new List<int>() { 1 }, new List<int>() { 6 }, new List<int>() { 0 }, new List<int>() { 0 }), 0);
 
 		//衝撃エフェクト再生
-		FootImpact(90);
+		FootImpact("-90,0,0,0,0,0");
 	}
 
 	//キャラクターコントローラコライダヒット
@@ -2487,6 +2496,55 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		CurrentAnimator.SetBool("H_Try", false);
 	}
 
+
+	//足元の衝撃エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
+	private void FootImpact(string t)
+	{
+		//エフェクトのインスタンスを生成
+		GameObject TempFootImpactEffect = Instantiate(FootImpactEffect);
+
+		//パーティクルシステムを全て格納するList宣言
+		List<ParticleSystem> TempFootImpactList = new List<ParticleSystem>();
+
+		//キャラクターの子にする
+		TempFootImpactEffect.transform.parent = gameObject.transform.root.transform;
+
+		//トランスフォームリセット
+		//ResetTransform(TempFootImpactEffect);
+
+		//アングル
+		Vector3 Ang = new Vector3(float.Parse(t.Split(',').ToList()[0]), gameObject.transform.rotation.eulerAngles.y + float.Parse(t.Split(',').ToList()[1]), float.Parse(t.Split(',').ToList()[2]));
+
+		//ポジション
+		Vector3 Pos = new Vector3(float.Parse(t.Split(',').ToList()[3]), float.Parse(t.Split(',').ToList()[4]), float.Parse(t.Split(',').ToList()[5]));
+
+		//ローカル座標で位置を設定
+		TempFootImpactEffect.transform.localPosition = Pos;
+
+		//全てのパーティクルシステムを取得
+		TempFootImpactList = TempFootImpactEffect.GetComponentsInChildren<ParticleSystem>().Select(i => i).ToList();
+
+		//全てのパーティクルシステムを回す
+		foreach (ParticleSystem i in TempFootImpactList)
+		{
+			//アクセサを取得
+			ParticleSystem.ShapeModule p = i.shape;
+
+			//引数と親の角度を元にエミッタを回転、一番親の奴だけ
+			if (i.name.Contains("Clone"))
+			{
+				p.rotation = Ang;
+			}
+
+			//エフェクトを再生
+			i.Play();
+		}
+
+		//SEを再生
+		GameManagerScript.Instance.GenericSE.PlaySoundEffect(2, 0);
+	}
+
+	/*
 	//足元の衝撃エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
 	private void FootImpact(float r)
 	{
@@ -2524,6 +2582,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//SEを再生
 		GameManagerScript.Instance.GenericSE.PlaySoundEffect(2, 0);
 	}
+	*/
 
 	//歩調に合わせるサインカーブ生成に使う数リセット、アニメーションクリップから呼ばれる
 	public void SetSinCount()

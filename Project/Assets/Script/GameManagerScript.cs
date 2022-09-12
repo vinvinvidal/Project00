@@ -1790,9 +1790,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			}
 		}
 
-		//メインカメラにもロック対象を渡す
-		//ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
-
 		//選定されたロック対象の敵を出力
 		return LockEnemy;
 	}

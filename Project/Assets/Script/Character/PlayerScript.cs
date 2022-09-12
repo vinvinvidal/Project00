@@ -1373,18 +1373,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//敵キャラクターのスクリプトを呼び出す
 		ExecuteEvents.Execute<EnemyCharacterInterface>(H_Enemy, null, (reciever, eventData) => reciever.H_AttackHit(gameObject, H_Action));
-
-
-
-
-
-
-		//キャラクターのスケベ回転値
-		//H_RotateVector = ang == "Back" ? H_MainEnemy.transform.forward : -H_MainEnemy.transform.forward;
-
-
-		//次のカメラワーク設定
-		//H_CameraOBJ.GetComponent<CinemachineCameraScript>().SpecifyIndex = H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.IndexOf(H_CameraOBJ.GetComponent<CinemachineCameraScript>().CameraWorkList.Where(a => a.name.Contains(H_Location + "_Damage")).ToList()[0]);
 	}
 
 	//スケベ攻撃を喰らった時に位置を合わせるコルーチン
@@ -1872,6 +1860,40 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 	}
 
+	//ロックオンボタンが押された時
+	private void OnLockOn(InputValue i)
+	{
+		if(!HoldFlag && !H_Flag && !PauseFlag && GameManagerScript.Instance.BattleFlag && !GameManagerScript.Instance.EventFlag)
+		{
+			GameObject TempEnemy = null;
+
+			//ロックしている敵がいたらロックを外してマーカーを消す
+			if (LockEnemy != null)
+			{
+				LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
+
+				LockEnemy = null;
+			}
+			//ロックする敵を検索する
+			else
+			{
+				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => TempEnemy = reciever.SearchLockEnemy(HorizonAcceleration));
+			}
+
+			//メインカメラにもロック対象を渡す
+			EnemyLock(TempEnemy);
+		}
+	}
+
+	//ロック対象切り替え
+	private void OnCameraMove(InputValue inputValue)
+	{
+		if (inputValue.Get<Vector2>().sqrMagnitude > 0.5f && LockEnemy != null && !HoldFlag && !H_Flag && !PauseFlag && GameManagerScript.Instance.BattleFlag && !GameManagerScript.Instance.EventFlag)
+		{
+		
+		}
+	}
+
 	//攻撃ボタンが押された時
 	private void OnPlayerAttack00(InputValue i)
 	{
@@ -1949,8 +1971,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
 		{
-			//Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "BombEffect").ToArray()[0]).transform.position = transform.position;
-
 			//特殊攻撃入力許可条件判定
 			if (PermitInputBoolDic["SpecialTry"])
 			{
@@ -2239,7 +2259,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			*/
 
 			//ロックしている敵に向ける
-			if (LockEnemy != null && !NoRotateFlag)
+			if (LockEnemy != null && !NoRotateFlag && (CurrentState.Contains("-> Attack") || ChainAttackWaitTime != 0))
 			{
 				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * 2 * Time.deltaTime);
 			}
@@ -2963,11 +2983,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				AttackStick = 1;
 			}
 
+			/*
 			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
 			if (LockEnemy == null && GameManagerScript.Instance.BattleFlag)
 			{
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(HorizonAcceleration));
-			}
+			}*/
 		}
 	}
 
@@ -3319,7 +3340,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				TempChargeLevelEffect.transform.parent = null;
 
 				//足元衝撃エフェクト表示
-				FootImpact(90);
+				FootImpact("-90,0,0,0,0,0");
 
 				//フェードエフェクト呼び出し
 				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
@@ -3355,7 +3376,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				TempChargeLevelEffect.transform.parent = null;
 
 				//足元衝撃エフェクト表示
-				FootImpact(90);
+				FootImpact("-90,0,0,0,0,0");
 
 				//フェードエフェクト呼び出し
 				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
@@ -3388,7 +3409,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				TempChargeLevelEffect.transform.parent = null;
 
 				//足元衝撃エフェクト表示
-				FootImpact(90);
+				FootImpact("-90,0,0,0,0,0");
 
 				//フェードエフェクト呼び出し
 				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 0, new Color(0, 0, 0, 1), 0.25f, (GameObject obj) => { }));
@@ -3760,6 +3781,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//モーション再生時間を戻す
 				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 1.0f);
+
+				//経過時間を初期化
+				ChainAttackWaitTime = 0;
 			}
 			//速度変更タイプ判定：降下攻撃
 			else if (UseArts.TimeType[n] == 1)
@@ -4109,7 +4133,56 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//スイング音を再生
 		GameManagerScript.Instance.AttackSwingSE.PlayRandomList();
 	}
+	   
+	//足元の衝撃エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
+	private void FootImpact(string t)
+	{
+		//エフェクトのインスタンスを生成
+		GameObject TempFootImpactEffect = Instantiate(FootImpactEffect);
 
+		//パーティクルシステムを全て格納するList宣言
+		List<ParticleSystem> TempFootImpactList = new List<ParticleSystem>();
+
+		//キャラクターの子にする
+		TempFootImpactEffect.transform.parent = gameObject.transform.root.transform;
+
+		//トランスフォームリセット
+		//ResetTransform(TempFootImpactEffect);
+
+		//アングル
+		Vector3 Ang = new Vector3(float.Parse(t.Split(',').ToList()[0]), gameObject.transform.rotation.eulerAngles.y + float.Parse(t.Split(',').ToList()[1]), float.Parse(t.Split(',').ToList()[2]));
+
+		//ポジション
+		Vector3 Pos = new Vector3(float.Parse(t.Split(',').ToList()[3]), float.Parse(t.Split(',').ToList()[4]), float.Parse(t.Split(',').ToList()[5]));
+
+		//ローカル座標で位置を設定
+		TempFootImpactEffect.transform.localPosition = Pos;
+
+		//全てのパーティクルシステムを取得
+		TempFootImpactList = TempFootImpactEffect.GetComponentsInChildren<ParticleSystem>().Select(i => i).ToList();
+
+		//全てのパーティクルシステムを回す
+		foreach (ParticleSystem i in TempFootImpactList)
+		{
+			//アクセサを取得
+			ParticleSystem.ShapeModule p = i.shape;
+
+			//引数と親の角度を元にエミッタを回転、一番親の奴だけ
+			if (i.name.Contains("Clone"))
+			{
+				p.rotation = Ang;
+			}
+
+			//エフェクトを再生
+			i.Play();
+		}
+
+		//SEを再生
+		PlayGenericSE(2);
+	}
+
+
+	/*
 	//足元の衝撃エフェクトを表示する、アニメーションクリップのイベントから呼ばれる
 	private void FootImpact(float r)
 	{
@@ -4147,6 +4220,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//SEを再生
 		PlayGenericSE(2);
 	}
+	*/
+
 
 	//揺れ物バタバタ関数
 	public void StartClothShake(int p)
@@ -4728,12 +4803,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//アニメーション遷移フラグを立てる
 			CurrentAnimator.SetBool("SuperTry", true);
-
-			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
-			if (LockEnemy == null && GameManagerScript.Instance.BattleFlag)
-			{
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(HorizonAcceleration));
-			}
 		}
 
 		//ChangeBefore遷移判定
@@ -5205,7 +5274,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			else
 			{
 				//ロック解除
-				EnemyLock(null);
+				//EnemyLock(null);
 			}
 		}
 		//Attackになった瞬間の処理
@@ -5240,10 +5309,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				CurrentAnimator.SetBool("Attack0" + ComboState % 2, false);
 
 				//敵のロックを外す
-				EnemyLock(null);
-
-				//メインカメラのロックも外す
-				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
+				//EnemyLock(null);
 
 				//モーションをIdlingとFallにして技を出さない
 				if (OnGroundFlag)
@@ -5269,9 +5335,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//技があったら攻撃処理
 			else
 			{
-				//メインカメラにロック対象を渡す
-				ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
-
 				//オーバーライドコントローラにアニメーションクリップをセット
 				OverRideAnimator[OverrideAttackState] = UseArts.AnimClip;
 
@@ -5342,7 +5405,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			HoldBreak();
 
 			//ロックを解除
-			EnemyLock(null);
+			//EnemyLock(null);
 
 			//必中ターゲットを解除
 			TargetEnemy = null;
@@ -5460,6 +5523,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//SuperArtsになった瞬間の処理
 		else if (s.Contains("-> SuperArts"))
 		{
+			//ロックオンマーカーを消す
+			LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
+
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("SuperArts", false);
 
@@ -5597,11 +5663,13 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//フラグ状態をまっさらに戻す関数
 	private void ClearFlag()
 	{
+		/*
 		//攻撃入力されていない、これをしないと攻撃入力後にここが呼ばれてロックできない場合がある
 		if (!AttackInput)
 		{
 			EnemyLock(null);
 		}
+		*/
 
 		//ダメージ用コライダを有効化
 		DamageCol.enabled = true;
@@ -6180,6 +6248,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//敵のロック状況を制御する
 	private void EnemyLock(GameObject Enemy)
 	{
+		//ロック対象がいたらロックオンマーカーを点ける
+		if (Enemy != null)
+		{
+			Enemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(true);
+		}
+
+		//すでにロックしている敵が居たらマーカーを消す
+		if(LockEnemy != null && LockEnemy != Enemy)
+		{
+			LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
+		}
+
 		//引数で受け取った敵をロックする、nullが入っていたらロック解除になる
 		LockEnemy = Enemy;
 
