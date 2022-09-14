@@ -9,7 +9,7 @@ Deadly,1
 ColVec,0*1*1.25*1.5
 KnockBackVec,0*1*10*0.1
 Introduction,高速で前進しながら渾身の突き
-UnLock,1|0|0
+UnLock,0|1|1
 Chain,0
 MoveType,4|0
 AttackType,2
@@ -22,6 +22,6 @@ HitEffectAngle,0*0*0
 HitStop,0
 Charge,0
 HoldPos,0*0*0
-LocationFlag,1
+LocationFlag,0
 HitSE,_H
 CoolDownTime,10

@@ -9,7 +9,7 @@ Deadly,1
 ColVec,0*0.75*0.5*1
 KnockBackVec,0*0*1*0.1
 Introduction,両手で渾身の手刀
-UnLock,0|1|2
+UnLock,0|0|2
 Chain,0
 MoveType,0
 AttackType,6

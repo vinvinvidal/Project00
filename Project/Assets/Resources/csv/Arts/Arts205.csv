@@ -9,7 +9,7 @@ Deadly,1
 ColVec,0*0*0*0
 KnockBackVec,0*6*-1*0.1
 Introduction,空中から蝦蟇喰を放ち相手を空中に引き寄せる。引き起こし。
-UnLock,2|0|2
+UnLock,1|0|1
 Chain,0
 MoveType,1|1
 AttackType,11
@@ -22,6 +22,6 @@ HitEffectAngle,-90*0*0
 HitStop,0
 Charge,0
 HoldPos,0*0*0
-LocationFlag,2
+LocationFlag,1
 HitSE,_L
 CoolDownTime,10

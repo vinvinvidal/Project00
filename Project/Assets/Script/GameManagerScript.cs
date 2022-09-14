@@ -48,6 +48,9 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	//ロック対象の敵を返す
 	GameObject SearchLockEnemy(Vector3 Vec);
 
+	//ロック対象を変更する
+	GameObject ChangeLockEnemy(GameObject LockEnemy, Vector2 V);
+
 	//カメラワークの遷移でイージングをするためヴァーチャルカメラを制御する
 	void EasingVcamera();
 
@@ -118,9 +121,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//ポーズフラグ
 	public bool PauseFlag { get; set; } = false;
-
-
-
 
 
 	//セーブロードするセーブデータ
@@ -1699,7 +1699,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		SkyBoxMaterial.SetFloat("_Exposure", 1);
 	}
 
-	//プレイヤーの攻撃時にロック対象を検索する関数、boolがfalseならnullを返す。メッセージシステムから呼び出される
+	//ロック対象を検索する関数、boolがfalseならnullを返す。メッセージシステムから呼び出される
 	public GameObject SearchLockEnemy(Vector3 Vec)
 	{
 		//ロック対象の敵オブジェクトを初期化
@@ -1792,6 +1792,49 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//選定されたロック対象の敵を出力
 		return LockEnemy;
+	}
+
+	//ロック対象を検索する関数、boolがfalseならnullを返す。メッセージシステムから呼び出される
+	public GameObject ChangeLockEnemy(GameObject LockEnemy, Vector2 V)
+	{
+		//return用変数宣言
+		GameObject TempEnemy = null;
+
+		//メインカメラのCmaeraコンポーネント
+		Camera TempCamera = DeepFind(MainCamera, "MainCamera").GetComponent<Camera>();
+
+		if (LockEnemy != null && AllActiveEnemyList.Any(a => a != null))
+		{
+			//画面内にいる敵をスクリーンX座標でソートしてListに取得
+			List<GameObject> TempList = new List<GameObject>(AllActiveEnemyList
+				.Where(a => a != null)
+				.Where(a =>
+				TempCamera.WorldToScreenPoint(a.transform.position).x > 0 &&
+				TempCamera.WorldToScreenPoint(a.transform.position).y > 0 &&
+				TempCamera.WorldToScreenPoint(a.transform.position).z > 0 &&
+				TempCamera.WorldToScreenPoint(a.transform.position).x < Screen.width &&
+				TempCamera.WorldToScreenPoint(a.transform.position).y < Screen.height)
+				.OrderBy(a => TempCamera.WorldToScreenPoint(a.transform.position).x).ToList());
+
+			//現在ロックされている敵が画面内にいるか
+			if(TempList.Any(a => a== LockEnemy))
+			{
+				//現在ロックしている敵のインデックスから
+				int TempIndex = TempList.IndexOf(LockEnemy) + Mathf.RoundToInt(V.x);
+
+				//インデックスが範囲外になったらループさせる
+				TempIndex = TempIndex == TempList.Count ? 0 : TempIndex;
+				TempIndex = TempIndex == -1 ? TempList.Count - 1 : TempIndex;
+
+				TempEnemy = TempList[TempIndex];
+			}
+			else
+			{
+				TempEnemy = LockEnemy;
+			}
+		}
+
+		return TempEnemy;
 	}
 
 	//プレイアブルキャラクターをセットするインターフェイス
@@ -2666,6 +2709,71 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//技マトリクスが存在するかチェック、無ければ新規作成
 			if(UserData.ArtsMatrix[i.CharacterID] == null)
 			{
+				//地上レバー無し
+				List<string> tempArtsMatrix00 = new List<string>();
+				
+				//地上前入れ
+				List<string> tempArtsMatrix01 = new List<string>();
+				
+				//地上後ろ入れ
+				List<string> tempArtsMatrix02 = new List<string>();
+				
+				//空中
+				List<string> tempArtsMatrix03 = new List<string>();
+
+				//とりあえずnull入れ
+				tempArtsMatrix00.Add(null);
+				tempArtsMatrix00.Add(null);
+				tempArtsMatrix00.Add(null);
+
+				tempArtsMatrix01.Add(null);
+				tempArtsMatrix01.Add(null);
+				tempArtsMatrix01.Add(null);
+
+				tempArtsMatrix02.Add(null);
+				tempArtsMatrix02.Add(null);
+				tempArtsMatrix02.Add(null);
+
+				tempArtsMatrix03.Add(null);
+				tempArtsMatrix03.Add(null);
+				tempArtsMatrix03.Add(null);
+
+				//地上
+				List<List<string>> tempArtsMatrix04 = new List<List<string>>();
+
+				//空中
+				List<List<string>> tempArtsMatrix05 = new List<List<string>>();
+
+				tempArtsMatrix04.Add(tempArtsMatrix00);
+				tempArtsMatrix04.Add(tempArtsMatrix01);
+				tempArtsMatrix04.Add(tempArtsMatrix02);
+
+				tempArtsMatrix05.Add(tempArtsMatrix03);
+
+				//キャラクター
+				List<List<List<string>>> tempArtsMatrix = new List<List<List<string>>>();
+
+				tempArtsMatrix.Add(tempArtsMatrix04);
+				tempArtsMatrix.Add(tempArtsMatrix05);
+
+				//技リストから初期装備技を検出してリストに入れる
+				foreach (ArtsClass ii in AllArtsList)
+				{
+					if (ii.UseCharacter == i.CharacterID)
+					{
+						//10以下ってことは初期装備技
+						if (ii.UnLock[0] < 10)
+						{
+							//マトリクスに装備
+							tempArtsMatrix[ii.UnLock[0]][ii.UnLock[1]][ii.UnLock[2]] = ii.NameC;
+						}
+					}
+				}
+
+				//UserDataに代入
+				UserData.ArtsMatrix[i.CharacterID] = tempArtsMatrix;
+
+				/*
 				//とりあえずnullを入れたカラのArtsMatrixを作る
 				List<string> tempArtsMatrix00 = new List<string>();
 				List<string> tempArtsMatrix01 = new List<string>();
@@ -2736,19 +2844,20 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 				//UserDataに代入
 				UserData.ArtsMatrix[i.CharacterID] = tempArtsMatrix;
+				*/
 			}
-		}
 
-		//全ての技を回す
-		foreach(ArtsClass i in AllArtsList)
-		{
-			//初期アンロック技を探す
-			if (i.UnLock[0] < 10)
+			//全ての技を回す
+			foreach (ArtsClass ii in AllArtsList)
 			{
-				//ユーザーデータに名前が無ければ追加する
-				if(UserData.ArtsUnLock.Where(a => a == i.NameC).ToList().Count == 0)
+				//アンロック技を探す
+				if (ii.UnLock[0] <= 100)
 				{
-					UserData.ArtsUnLock.Add(i.NameC);
+					//ユーザーデータに名前が無ければ追加する
+					if (UserData.ArtsUnLock.Where(a => a == ii.NameC).ToList().Count == 0)
+					{
+						UserData.ArtsUnLock.Add(ii.NameC);
+					}
 				}
 			}
 		}

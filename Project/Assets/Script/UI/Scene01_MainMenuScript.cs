@@ -365,8 +365,8 @@ public class Scene01_MainMenuScript : GlobalClass
 			//名前で検索、フラグを比較してboolを返す
 			if (i.NameC == artsname)
 			{
-				//ロケーションが一致している、もしくは遠近の組み合わせなら装備可能
-				if(i.LocationFlag == TargetArtsNum || i.LocationFlag + TargetArtsNum == 1)
+				//ロケーションが一致しているなら装備可能
+				if(i.LocationFlag == TargetArtsNum)
 				{
 					re = true;
 				}
@@ -383,7 +383,7 @@ public class Scene01_MainMenuScript : GlobalClass
 	}
 
 	//技リストと技マトリクスを更新する関数
-	private void ArtsEquipListReset(int n)
+	private void ArtsEquipListReset(int ID)
 	{
 		//装備中の技表示用変数宣言
 		int Location = 0;
@@ -397,7 +397,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		}
 
 		//装備中の技をマトリクスに表示
-		foreach (var i in GameManagerScript.Instance.UserData.ArtsMatrix[n])
+		foreach (var i in GameManagerScript.Instance.UserData.ArtsMatrix[ID])
 		{
 			Stick = 0;
 
@@ -425,6 +425,14 @@ public class Scene01_MainMenuScript : GlobalClass
 		//ひな型ボタンのRect取得
 		RectTransform Temprect = ArtsSelectButtonOBJ.GetComponent<RectTransform>();
 
+		//リストを初期化
+		foreach(var i in ArtsSelectButtonList)
+		{
+			Destroy(i);
+		}
+
+		ArtsSelectButtonList = new List<GameObject>();
+
 		//ループカウント宣言
 		int count = 0;
 
@@ -432,7 +440,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		foreach (ArtsClass i in GameManagerScript.Instance.AllArtsList)
 		{
 			//引数で仕様キャラクターを判別、アンロックされているかを判別
-			if (i.UseCharacter == n && GameManagerScript.Instance.UserData.ArtsUnLock.Any(a => a == i.NameC))
+			if (i.UseCharacter == ID && GameManagerScript.Instance.UserData.ArtsUnLock.Any(a => a == i.NameC))
 			{
 				//ボタンのインスタンス生成
 				GameObject TempButton = Instantiate(ArtsSelectButtonOBJ);
@@ -447,7 +455,7 @@ public class Scene01_MainMenuScript : GlobalClass
 				TempButton.GetComponentInChildren<Text>().text = i.NameC;
 
 				//ボタンの名前を連番にする
-				TempButton.name = ArtsSelectButtonOBJ.name + count;
+				TempButton.name = ID + ArtsSelectButtonOBJ.name + count;
 
 				//ListにAdd
 				ArtsSelectButtonList.Add(TempButton);
@@ -469,21 +477,21 @@ public class Scene01_MainMenuScript : GlobalClass
 			//上を押した時の処理
 			if (count == 0)
 			{
-				tempnavi.selectOnUp = DeepFind(ArtsSelectButtonContentOBJ, ArtsSelectButtonOBJ.name + (ArtsSelectButtonList.Count - 1)).GetComponent<Button>();
+				tempnavi.selectOnUp = DeepFind(ArtsSelectButtonContentOBJ, ID + ArtsSelectButtonOBJ.name + (ArtsSelectButtonList.Count - 1)).GetComponent<Button>();
 			}
 			else
 			{
-				tempnavi.selectOnUp = DeepFind(ArtsSelectButtonContentOBJ, ArtsSelectButtonOBJ.name + (count - 1)).GetComponent<Button>();
+				tempnavi.selectOnUp = DeepFind(ArtsSelectButtonContentOBJ, ID + ArtsSelectButtonOBJ.name + (count - 1)).GetComponent<Button>();
 			}
 
 			//下を押した時の選択先設定
 			if (count == ArtsSelectButtonList.Count - 1)
 			{
-				tempnavi.selectOnDown = DeepFind(ArtsSelectButtonContentOBJ, ArtsSelectButtonOBJ.name + 0).GetComponent<Button>();
+				tempnavi.selectOnDown = DeepFind(ArtsSelectButtonContentOBJ, ID + ArtsSelectButtonOBJ.name + 0).GetComponent<Button>();
 			}
 			else
 			{
-				tempnavi.selectOnDown = DeepFind(ArtsSelectButtonContentOBJ, ArtsSelectButtonOBJ.name + (count+1)).GetComponent<Button>();				
+				tempnavi.selectOnDown = DeepFind(ArtsSelectButtonContentOBJ, ID + ArtsSelectButtonOBJ.name + (count+1)).GetComponent<Button>();				
 			}
 
 			//アクセサを反映
@@ -492,6 +500,12 @@ public class Scene01_MainMenuScript : GlobalClass
 			//ループカウントアップ
 			count++;
 		}
+
+		//選択ボタンを切り替え
+		EventSystemUI.SetSelectedGameObject(ArtsSelectButtonList[0]);
+
+		//スクロールの位置調整
+		ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = 1;
 	}
 
 	//技リストで選択変更された時の処理
@@ -591,6 +605,27 @@ public class Scene01_MainMenuScript : GlobalClass
 		}
 	}
 
+	//アクティブ切り替えボタンが押された時の処理
+	public void OnChangeActive(InputValue input)
+	{
+		if(InputReadyFlag)
+		{
+			CharacterID += Mathf.RoundToInt(input.Get<float>());
+
+			if(CharacterID == -1)
+			{
+				CharacterID = GameManagerScript.Instance.AllCharacterList.Count - 1;
+			}
+			else if(CharacterID == GameManagerScript.Instance.AllCharacterList.Count)
+			{
+				CharacterID = 0;
+			}
+		}
+
+		ArtsEquipListReset(CharacterID);
+	}
+
+
 	//メインメニュー有効、アニメーションクリップから呼ばれる
 	public void MainMenuActive()
 	{
@@ -612,13 +647,6 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		//技装備ボタンList初期化
 		ArtsSelectButtonList = new List<GameObject>();
-	}
-
-	//技装備有効、アニメーションクリップから呼ばれる
-	public void ArtsEquipActive()
-	{
-		//選択状態のボタンを切り替え
-		EventSystemUI.SetSelectedGameObject(GameObject.Find("SelectArtsButton0"));
 	}
 
 	//入力許可フラグを立てる、アニメーションクリップから呼ばれる

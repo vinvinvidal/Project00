@@ -9,7 +9,7 @@ Deadly,1|1
 ColVec,0*1*1.25*1|0*1*1.25*1.5
 KnockBackVec,0*0*1*0.1|0*0*1*0.1
 Introduction,前転しながら兜割り
-UnLock,0|1|0
+UnLock,0|1|2
 Chain,0|0
 MoveType,6|0
 AttackType,6|6

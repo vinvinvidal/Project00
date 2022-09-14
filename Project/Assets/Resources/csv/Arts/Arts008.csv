@@ -9,7 +9,7 @@ Deadly,1
 ColVec,0*0.5*0.5*1
 KnockBackVec,0*-2.5*10*0.1
 Introduction,ライダーキック。
-UnLock,2|1|2
+UnLock,100|100|100
 Chain,0
 MoveType,1|5|0|0
 AttackType,7
@@ -22,6 +22,6 @@ HitEffectAngle,45*0*0
 HitStop,0
 Charge,0
 HoldPos,0*0*0
-LocationFlag,2
+LocationFlag,1
 HitSE,_M
 CoolDownTime,10

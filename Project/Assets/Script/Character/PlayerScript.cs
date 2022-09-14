@@ -472,7 +472,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private float GroundDistance;
 
 	//ターゲットしている敵との距離
-	private float EnemyDistance;
+	//private float EnemyDistance;
 
 	//ジャンプボタンが押された時間
 	private float JumpTime;
@@ -841,7 +841,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		H_Enemy = null;
 
 		//ターゲットしている敵との距離初期化
-		EnemyDistance = 0;
+		//EnemyDistance = 0;
 
 		//攻撃時の移動ベクトルのキャッシュ初期化
 		List<Color> AttackMoveVec = new List<Color>();
@@ -1880,7 +1880,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => TempEnemy = reciever.SearchLockEnemy(HorizonAcceleration));
 			}
 
-			//メインカメラにもロック対象を渡す
+			//ロック対象を反映
 			EnemyLock(TempEnemy);
 		}
 	}
@@ -1890,7 +1890,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		if (inputValue.Get<Vector2>().sqrMagnitude > 0.5f && LockEnemy != null && !HoldFlag && !H_Flag && !PauseFlag && GameManagerScript.Instance.BattleFlag && !GameManagerScript.Instance.EventFlag)
 		{
-		
+			//引数受け取り用変数宣言
+			GameObject TempEnemy = null;
+
+			//ロック対象変更処理呼び出し
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => TempEnemy = reciever.ChangeLockEnemy(LockEnemy, inputValue.Get<Vector2>()));
+
+			//ロック対象を反映
+			EnemyLock(TempEnemy);
 		}
 	}
 
@@ -2971,16 +2978,30 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//入力ボタンをキャッシュ
 			AttackButton = b;
 
+			//基準ベクトル宣言
+			Vector3 TempVec = gameObject.transform.forward;
+
+			//ロック中
+			if(LockEnemy != null)
+			{
+				TempVec = HorizontalVector(LockEnemy, gameObject);
+			}
+
 			//スティック入力をキャッシュ
 			if (PlayerMoveInputVecter == Vector2.zero)
 			{
 				//スティック入力無し
 				AttackStick = 0;
 			}
+			else if(90 > Vector3.Angle(TempVec, (PlayerMoveAxis.transform.forward * PlayerMoveInputVecter.y) + (PlayerMoveAxis.transform.right * PlayerMoveInputVecter.x)))
+			{
+				//スティック前入れ
+				AttackStick = 1;
+			}
 			else
 			{
-				//スティック入力有り
-				AttackStick = 1;
+				//スティック後ろ入れ
+				AttackStick = 2;
 			}
 
 			/*
@@ -2998,6 +3019,42 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//出力用変数宣言
 		ArtsClass ReserveArts = null;
 
+		//地上
+		if (OnGroundFlag)
+		{
+			AttackLocation = 0;
+		}
+		//空中
+		else
+		{
+			AttackLocation = 1;
+
+			//スティック入力を無効化
+			AttackStick = 0;
+		}
+
+		//入力された技が存在する
+		if (ArtsMatrix[AttackLocation][AttackStick][AttackButton] != null)
+		{
+			//入力された技をそのまま使用
+			ReserveArts = ArtsMatrix[AttackLocation][AttackStick][AttackButton];
+		}
+		//入力された技が存在しなければコンボアシスト
+		else
+		{
+			//レバー入れを無効化して技確定
+			ReserveArts = ArtsMatrix[AttackLocation][0][AttackButton];
+		}
+
+		//技が見つかったら入力時のロケーションを保存
+		if (ReserveArts != null)
+		{
+			ReserveArts.UseLocation["Location"] = AttackLocation;
+			ReserveArts.UseLocation["Stick"] = AttackStick;
+			ReserveArts.UseLocation["Button"] = AttackButton;
+		}
+
+		/*
 		//ロック対象がいる場合
 		if (LockEnemy != null)
 		{
@@ -3014,7 +3071,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if (!OnGroundFlag)
 		{
 			//空中にいる場合
-			AttackLocation = 2;
+			AttackLocation = 1;
 		}
 		else if (EnemyDistance < AttackDistance)
 		{
@@ -3221,7 +3278,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			ReserveArts.UseLocation["Stick"] = AttackStick;
 			ReserveArts.UseLocation["Button"] = AttackButton;
 		}
-
+		*/
 		//出力
 		return ReserveArts;
 	}
@@ -4399,12 +4456,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		List<ArtsClass> ArtButtonList01 = new List<ArtsClass>();
 		List<ArtsClass> ArtButtonList02 = new List<ArtsClass>();
 		List<ArtsClass> ArtButtonList03 = new List<ArtsClass>();
-		List<ArtsClass> ArtButtonList04 = new List<ArtsClass>();
-		List<ArtsClass> ArtButtonList05 = new List<ArtsClass>();
 
 		List<List<ArtsClass>> ArtStickList00 = new List<List<ArtsClass>>();
 		List<List<ArtsClass>> ArtStickList01 = new List<List<ArtsClass>>();
-		List<List<ArtsClass>> ArtStickList02 = new List<List<ArtsClass>>();
 
 		ArtButtonList00.Add(null);
 		ArtButtonList00.Add(null);
@@ -4421,25 +4475,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		ArtButtonList03.Add(null);
 		ArtButtonList03.Add(null);
 		ArtButtonList03.Add(null);
-
-		ArtButtonList04.Add(null);
-		ArtButtonList04.Add(null);
-		ArtButtonList04.Add(null);
-
-		ArtButtonList05.Add(null);
-		ArtButtonList05.Add(null);
-		ArtButtonList05.Add(null);
 
 		ArtStickList00.Add(ArtButtonList00);
 		ArtStickList00.Add(ArtButtonList01);
-		ArtStickList01.Add(ArtButtonList02);
+		ArtStickList00.Add(ArtButtonList02);
 		ArtStickList01.Add(ArtButtonList03);
-		ArtStickList02.Add(ArtButtonList04);
-		ArtStickList02.Add(ArtButtonList05);
 
 		ArtsMatrix.Add(ArtStickList00);
 		ArtsMatrix.Add(ArtStickList01);
-		ArtsMatrix.Add(ArtStickList02);
 
 		//全ての技をnullにする
 		for (int i = 0; i <= ArtsMatrix.Count - 1; i++)
@@ -6266,6 +6309,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//メインカメラにもロック状況を渡す
 		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 	}
+
+
 
 	//ノックダウン処理
 	private void KnockDown()

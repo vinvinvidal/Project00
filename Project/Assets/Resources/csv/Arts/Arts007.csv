@@ -9,7 +9,7 @@ Deadly,1
 ColVec,0*0*9*0.1
 KnockBackVec,0*0*1*0.1
 Introduction,鏡を掌底に宛がって前方に発勁、射程が長い。
-UnLock,1|0|2
+UnLock,0|0|2
 Chain,0
 MoveType,0|0
 AttackType,1
@@ -22,6 +22,6 @@ HitEffectAngle,0*0*0
 HitStop,0
 Charge,30
 HoldPos,0*0*0
-LocationFlag,1
+LocationFlag,0
 HitSE,_M
 CoolDownTime,10

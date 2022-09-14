@@ -9,7 +9,7 @@ Deadly,1
 ColVec,0*0.25*0*1.25
 KnockBackVec,0*-10*0*0.1
 Introduction,相手を踏みつけて上空に上がる
-UnLock,2|0|1
+UnLock,1|0|1
 Chain,0
 MoveType,7|7|7
 AttackType,7
@@ -22,6 +22,6 @@ HitEffectAngle,-90*0*0
 HitStop,0
 Charge,0
 HoldPos,0*0*0
-LocationFlag,2
+LocationFlag,1
 HitSE,_M
 CoolDownTime,10

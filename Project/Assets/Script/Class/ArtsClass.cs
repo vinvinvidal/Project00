@@ -181,8 +181,7 @@ public class ArtsClass
 
 	LocationFlag
 	0：近距離
-	1：遠距離
-	2：空中
+	1：空中
 	技の適正装備位置、遠近は警告、空中は専用
 
 

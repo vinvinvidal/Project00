@@ -879,7 +879,7 @@
                 {
                     "name": "Negative",
                     "id": "ab7e0569-69d3-4de1-a659-6464ec32e050",
-                    "path": "<Keyboard>/numpad4",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -890,10 +890,10 @@
                 {
                     "name": "Positive",
                     "id": "05f3e30e-a639-4db6-8442-ae45e6b6817e",
-                    "path": "<Keyboard>/numpad6",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Device",
                     "action": "ChangeActive",
                     "isComposite": false,
                     "isPartOfComposite": true

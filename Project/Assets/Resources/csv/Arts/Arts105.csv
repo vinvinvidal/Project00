@@ -9,7 +9,7 @@ Deadly,1|1|1
 ColVec,0*0.5*0.5*1|0*0*0.5*1|0*0*0.5*1
 KnockBackVec,0*-20*0*0.1|0*0*0*0|0*0*0*0
 Introduction,真下に向かって急降下し、突き刺してドリル
-UnLock,2|1|2
+UnLock,100|100|100
 Chain,0
 MoveType,1|3|6|0
 AttackType,6|6|6
@@ -22,6 +22,6 @@ HitEffectAngle,90*0*0|-90*0*0|-90*0*0
 HitStop,0|0|0
 Charge,0|0|0
 HoldPos,0*0*0
-LocationFlag,2
+LocationFlag,1
 HitSE,_L|_M|_L
 CoolDownTime,10

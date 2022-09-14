@@ -9,13 +9,13 @@ Deadly,1
 ColVec,2.5*0.25*225*360
 KnockBackVec,0*-2.5*5*0.1
 Introduction,低い軌道で周囲をなぎ払う。巻き込み。
-UnLock,0|1|2
+UnLock,0|2|1
 Chain,0
 MoveType,0|0
 AttackType,14
 DownEnable,1
 ColType,5
-TimeType,100|100|100
+TimeType,0|0|2
 HitEffect,HitEffect10
 HitEffectPos,0*0.25*0
 HitEffectAngle,0*90*0
