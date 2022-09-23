@@ -1,4 +1,4 @@
-﻿Shader "Custom/HitEffect00Shader"
+﻿Shader "Custom/HitEffectBackShader"
 {
     Properties
     {
@@ -11,12 +11,12 @@
     {
 		Tags
 		{
-			"Queue" = "Transparent" 
-			"RenderType"="Transparent"			
+			"Queue" = "AlphaTest" 
+			"RenderType" = "TransparentCutout" 		
 		}
 
-		//加算ブレンド
-		Blend One One
+		//乗算ブレンド
+		//Blend Zero SrcColor
 
 		//アルファブレンド
 		//Blend SrcAlpha OneMinusSrcAlpha
@@ -120,22 +120,16 @@
 			//フラグメントシェーダ
 			fixed4 frag(vertex_output i) : SV_Target
 			{
-
-				//出力用変数を宣言、パーティクルシステムで設定した頂点カラーを適応
-				fixed4 re = i.vertColor * (_LightColor0 + 0.25);
-
-				//加算の場合
 				//出力用変数を宣言、テクスチャカラーを乗算
-				re *= tex2D(_TexParticle, i.uv);
-				
-				/*
-				//アルファブレンドの場合
-				//テクスチャの透明度を適応
-				re.a *= tex2D(_TexParticle, i.uv).a;
-				*/				
+				fixed4 re = tex2D(_TexParticle, i.uv);
+
+				re.rgb += i.vertColor.rgb;
+
+				//透明部分をクリップ
+				clip((re.a * i.vertColor.a) - 0.01);
 
 				//出力
-				return saturate(re * i.vertColor.a);
+				return saturate(re);
 			}
 
 			//プログラム終了

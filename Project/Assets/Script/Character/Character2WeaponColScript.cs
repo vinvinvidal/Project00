@@ -58,7 +58,7 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 		BombEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "BombEffect").ToArray()[0];
 
 		//ワイヤーヒットオブジェクト
-		WireEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "HitEffect23").ToArray()[0];
+		WireEffect = GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "HitEffect22").ToArray()[0];
 
 		//爆弾の場合処理
 		if (WeaponIndex == 1)
