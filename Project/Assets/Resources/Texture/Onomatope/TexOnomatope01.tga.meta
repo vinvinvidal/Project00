@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 88e3b69fb21f7e041982012368877502
+guid: 70f9d4d1dbcde164db86a1277a42483e
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -31,7 +31,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: -1
+    filterMode: 0
     aniso: -1
     mipBias: -100
     wrapU: -1
@@ -112,5 +112,5 @@ TextureImporter:
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
   userData: 
-  assetBundleName: texture/effect/hiteffectshader/texhiteffect05
+  assetBundleName: texture/onomatope/texonomatope01
   assetBundleVariant: 

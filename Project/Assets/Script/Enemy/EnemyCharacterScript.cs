@@ -1108,6 +1108,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//コライダ無効化
 				DamageCol.enabled = false;
 
+				//バトルフィールドの最後の敵に自身を入れる
+				GameManagerScript.Instance.GetBattleFieldOBJ().GetComponent<BattleFieldScript>().LastEnemy = gameObject;
+
 				//ゲームマネージャーのListから自身を削除
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
 

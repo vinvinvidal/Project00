@@ -30,7 +30,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	private List<GameObject> EnemyList;
 
 	//最後の１人
-	private GameObject LastEnemy = null;
+	public GameObject LastEnemy { get; set; } = null;
 
 	//準備完了フラグ
 	public bool AllReadyFlag { get; set; } = false;
@@ -163,12 +163,13 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//敵全滅チェック
 		if(EnemyCheckFlag)
 		{
+			/*
 			//最後の１人を取得
 			if (LastWaveFlag && LastEnemy == null && GameManagerScript.Instance.AllActiveEnemyList.Where(a => a !=null).ToList().Count == 1)
 			{
 				LastEnemy = GameManagerScript.Instance.AllActiveEnemyList.Where(a => a != null).ToList()[0];
 			}
-
+			*/
 			if(GameManagerScript.Instance.AllActiveEnemyList.All(a => a == null))
 			{
 				//敵全滅チェック停止
@@ -299,7 +300,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		}
 
 		//拉致で終わったら演出カット
-		if(!LastEnemy.GetComponent<EnemyCharacterScript>().AbductionSuccess_Flag)
+		if(LastEnemy != null)
 		{
 			//演出カメラ位置基準オブジェクトを取得
 			GameObject PosOBJ = LastEnemy != null ? LastEnemy : PlayerCharacter;
