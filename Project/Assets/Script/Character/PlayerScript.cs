@@ -1873,7 +1873,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ロックしている敵がいたらロックを外してマーカーを消す
 			if (LockEnemy != null)
 			{
-				LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
+				//LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);	
 
 				LockEnemy = null;
 			}
@@ -5590,7 +5590,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else if (s.Contains("-> SuperArts"))
 		{
 			//ロックオンマーカーを消す
-			LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
+			//LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
 
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("SuperArts", false);
@@ -6317,13 +6317,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ロック対象がいたらロックオンマーカーを点ける
 		if (Enemy != null)
 		{
-			Enemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(true);
+			//Enemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(true);
+
+			DeepFind(gameObject, "LockOnMarker").GetComponent<LockOnMarkerScript>().SetTarget(DeepFind(Enemy, "HeadBone"));
 		}
 
 		//すでにロックしている敵が居たらマーカーを消す
 		if(LockEnemy != null && LockEnemy != Enemy)
 		{
-			LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
+			//LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
 		}
 
 		//引数で受け取った敵をロックする、nullが入っていたらロック解除になる

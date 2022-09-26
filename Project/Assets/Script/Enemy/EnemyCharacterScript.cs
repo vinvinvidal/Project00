@@ -87,9 +87,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//スケベしているキャラクター
 	public GameObject H_Character { get; set; }
 
-	//ロックオンマーカー
-	public GameObject LockOnMarker { get; set; }
-
 	//OnCamera判定用スクリプトを持っているオブジェクト、セッティングでメッシュを統合した奴が入ってくる
 	public GameObject OnCameraObject { get; set; }
 
@@ -397,12 +394,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//壁激突フラグ初期化
 		WallClashFlag = false;
-
-		//ロックオンマーカー取得
-		LockOnMarker = DeepFind(gameObject, "LockOnMarker");
-
-		//無効化
-		LockOnMarker.SetActive(false);
 
 		//ダメージ用ヒットコライダ取得
 		DamageCol = DeepFind(gameObject, "EnemyDamageCol").GetComponent<BoxCollider>();
