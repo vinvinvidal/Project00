@@ -1810,7 +1810,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				.Where(a => a != null)
 				.Where(a =>
 				TempCamera.WorldToScreenPoint(a.transform.position).x > 0 &&
-				TempCamera.WorldToScreenPoint(a.transform.position).y > 0 &&
+				TempCamera.WorldToScreenPoint(a.transform.position + new Vector3(0, 2, 0)).y > 0 &&
 				TempCamera.WorldToScreenPoint(a.transform.position).z > 0 &&
 				TempCamera.WorldToScreenPoint(a.transform.position).x < Screen.width &&
 				TempCamera.WorldToScreenPoint(a.transform.position).y < Screen.height)

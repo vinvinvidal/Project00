@@ -478,7 +478,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private float JumpTime;
 
 	//チェイン攻撃の入力受付時間
-	private float ChainAttackWaitTime;
+	private float ChainAttackWaitTime = 0;
+
+	//チェイン攻撃中に回転可能な時間帯
+	private float ChainRotateTime = 0;
 
 	//タメ攻撃チャージレベル
 	public int ChargeLevel { get; set; }
@@ -1888,7 +1891,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//ロック対象切り替え
 	private void OnCameraMove(InputValue inputValue)
 	{
-		if (inputValue.Get<Vector2>().sqrMagnitude > 0.5f && LockEnemy != null && !HoldFlag && !H_Flag && !PauseFlag && GameManagerScript.Instance.BattleFlag && !GameManagerScript.Instance.EventFlag)
+		if (inputValue.Get<Vector2>().sqrMagnitude > 0.5f && 
+			LockEnemy != null &&
+			!CurrentState.Contains("Special") &&
+			!CurrentState.Contains("Super") &&
+			!CurrentState.Contains("-> Attack") &&
+			!HoldFlag && 
+			!H_Flag && 
+			!PauseFlag && 
+			GameManagerScript.Instance.BattleFlag && 
+			!GameManagerScript.Instance.EventFlag)
 		{
 			//引数受け取り用変数宣言
 			GameObject TempEnemy = null;
@@ -2266,7 +2278,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			*/
 
 			//ロックしている敵に向ける
-			if (LockEnemy != null && !NoRotateFlag && (CurrentState.Contains("-> Attack") || ChainAttackWaitTime != 0))
+			if (LockEnemy != null && !NoRotateFlag && (CurrentState.Contains("-> Attack") || ChainRotateTime != 0))
 			{
 				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * 2 * Time.deltaTime);
 			}
@@ -3003,13 +3015,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//スティック後ろ入れ
 				AttackStick = 2;
 			}
-
-			/*
+			
 			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
 			if (LockEnemy == null && GameManagerScript.Instance.BattleFlag)
 			{
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(HorizonAcceleration));
-			}*/
+			}
 		}
 	}
 
@@ -3727,6 +3738,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//経過時間を初期化
 		ChainAttackWaitTime = 0;
 
+		//チェイン回転許可時間リセット
+		ChainRotateTime = 0;
+
 		//nullチェック
 		if (UseArts == null)
 		{
@@ -3841,6 +3855,15 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//経過時間を初期化
 				ChainAttackWaitTime = 0;
+
+				//回転許可
+				ChainRotateTime = 1;
+
+				//チョイ待ち
+				yield return new WaitForSeconds(0.1f);
+
+				//回転不可
+				ChainRotateTime = 0;
 			}
 			//速度変更タイプ判定：降下攻撃
 			else if (UseArts.TimeType[n] == 1)
