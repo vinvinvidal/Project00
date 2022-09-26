@@ -110242,7 +110242,7 @@ AnimationClip:
     functionName: RollingMoveSpeed
     data: 
     objectReferenceParameter: {fileID: 0}
-    floatParameter: 5
+    floatParameter: 6
     intParameter: 0
     messageOptions: 0
   - time: 0.083333336
@@ -110252,7 +110252,7 @@ AnimationClip:
     floatParameter: 8
     intParameter: 0
     messageOptions: 0
-  - time: 0.25
+  - time: 0.33333334
     functionName: RollingMoveSpeed
     data: 
     objectReferenceParameter: {fileID: 0}
