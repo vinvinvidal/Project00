@@ -25,94 +25,102 @@ public class LockOnMarkerScript : GlobalClass
 
 	private void Start()
 	{
-		//ルックアットコンストレイント取得
-		//LookAtConst = gameObject.GetComponent<LookAtConstraint>();
-
 		//パーティクルシステム取得
 		ParticleSys = GetComponent<ParticleSystem>();
 
-		//アクセサ取得
+		//パーティクルシステムのアクセサ取得
 		ParticleShape = ParticleSys.shape;
 
 		//メッシュ初期化
 		LockOnMesh = new Mesh();
 
 		//とりあえず原点だけ入れておく
-		VerticeList.Add(Vector3.zero);
+		//VerticeList.Add(Vector3.zero);
 
 		//メッシュに頂点追加
 		LockOnMesh.SetVertices(VerticeList);
 
 		//発生メッシュを仕込む
 		ParticleShape.mesh = LockOnMesh;
-
-
-		/*
-		ConstraintSource Source = new ConstraintSource();
-
-		Source.sourceTransform = GameObject.Find("MainCamera").transform;
-
-		Source.weight = 1;
-		*/
-		//gameObject.GetComponent<LookAtConstraint>().SetSource(0, Source);
 	}
 
-	//ターゲットを指定する
+	//ロックオンマーカー解除関数
+	public void LockOff()
+	{
+		//パーティクルを停止
+		ParticleSys.Stop();
+
+		//ロックオンフラグを下ろす
+		LockOnFlag = false;
+	}
+
+	//ターゲットを指定する関数
 	public void SetTarget(GameObject Target)
-	{/*
-		ConstraintSource Source = new ConstraintSource();
-
-		Source.sourceTransform = Target.transform;
-
-		LookAtConst.SetSource(0, Source);
-
-		LookAtConst.enabled = true;
-		*/
-		LockOnFlag = true;
-
-		ParticleSys.Play();
-
+	{
+		//コルーチン呼び出し
 		StartCoroutine(SetTargetCoroutine(Target));		
 	}
-	
+	//ターゲットを指定するコルーチン
 	private IEnumerator SetTargetCoroutine(GameObject Target)
 	{
-		int Dist;
+		//一旦終了処理
+		LockOff();
 
-		int Count;
+		//1フレーム待機して多重に回るのを防ぐ
+		yield return null;
 
-		Vector3 Vec = new Vector3();
+		//パーティクルを再生
+		ParticleSys.Play();
 
-		while (LockOnFlag)
+		//相手との距離
+		float Dist;
+
+		//頂点位置と距離の差
+		float Diff;
+
+		//頂点を打つ間隔
+		float VirtPos = 0.25f;
+
+		//ロックオンフラグを立てる
+		LockOnFlag = true;
+
+		//フラグが降りるまで待機
+		while (LockOnFlag && Target != null)
 		{
-			Dist = (int)Mathf.Floor(Vector3.Distance(Target.transform.position, gameObject.transform.position));
-
-			Count = VerticeList.Count - Dist;
-
-			Vec = Target.transform.position - gameObject.transform.position;
-
+			//ターゲットの方に向ける
 			transform.LookAt(Target.transform);
 
-			if (Count < 0)
+			//距離測定
+			Dist = Vector3.Distance(Target.transform.position, gameObject.transform.position);
+
+			//距離と要素数の差を求める
+			Diff = VerticeList.Count - (Dist / VirtPos);
+
+			//距離が離れたら要素追加
+			if (Diff < -VirtPos) 
 			{
 				VerticeList.Add(Vector3.zero);
 			}
-			else if(Count > 0 && VerticeList.Count > 1)
+			//距離が近づいたら要素削除
+			else if(Diff > VirtPos && VerticeList.Count > 0)
 			{
 				VerticeList.RemoveAt(VerticeList.Count - 1);
 			}
 
+			//距離に応じて頂点を打つ
 			for (int i = 0; i < VerticeList.Count; i++)
 			{
-				VerticeList[i] = new Vector3(0, 0, i);
+				VerticeList[i] = new Vector3(0, 0, i * VirtPos);
 			}
 
 			//メッシュ更新
 			LockOnMesh.SetVertices(VerticeList);
 
-			//LockOnMesh.vertices = VerticeList.ToArray();
-
+			//1フレーム待機
 			yield return null;
-		}		
+		}
+
+		//終了処理
+		LockOff();
 	}
 }

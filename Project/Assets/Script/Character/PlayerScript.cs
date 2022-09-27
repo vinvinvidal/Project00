@@ -104,6 +104,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//モザイクオブジェクト
 	private GameObject MosaicOBJ;
 
+	//ロックオンマーカーオブジェクト
+	private GameObject LockOnMarker;
+
 	//--- UI ---//
 
 
@@ -911,6 +914,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//アソコオブジェクト取得
 		VaginaOBJ = DeepFind(gameObject, "VaginaTarget");
+
+		//ロックオンマーカーオブジェクト取得
+		LockOnMarker = DeepFind(gameObject, "LockOnMarker");
 
 		//超必殺技装備
 		foreach (SuperClass i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
@@ -1873,7 +1879,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ロックしている敵がいたらロックを外してマーカーを消す
 			if (LockEnemy != null)
 			{
-				//LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);	
+				LockOnMarker.GetComponent<LockOnMarkerScript>().LockOff();
 
 				LockEnemy = null;
 			}
@@ -5590,7 +5596,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else if (s.Contains("-> SuperArts"))
 		{
 			//ロックオンマーカーを消す
-			//LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
+			LockOnMarker.GetComponent<LockOnMarkerScript>().LockOff();
 
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("SuperArts", false);
@@ -6317,9 +6323,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ロック対象がいたらロックオンマーカーを点ける
 		if (Enemy != null)
 		{
-			//Enemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(true);
-
-			DeepFind(gameObject, "LockOnMarker").GetComponent<LockOnMarkerScript>().SetTarget(DeepFind(Enemy, "HeadBone"));
+			LockOnMarker.GetComponent<LockOnMarkerScript>().SetTarget(DeepFind(Enemy, "HeadBone"));
 		}
 
 		//すでにロックしている敵が居たらマーカーを消す
