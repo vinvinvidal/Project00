@@ -104,9 +104,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//モザイクオブジェクト
 	private GameObject MosaicOBJ;
 
-	//ロックオンマーカーオブジェクト
-	private GameObject LockOnMarker;
-
 	//--- UI ---//
 
 
@@ -914,9 +911,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//アソコオブジェクト取得
 		VaginaOBJ = DeepFind(gameObject, "VaginaTarget");
-
-		//ロックオンマーカーオブジェクト取得
-		LockOnMarker = DeepFind(gameObject, "LockOnMarker");
 
 		//超必殺技装備
 		foreach (SuperClass i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
@@ -1876,11 +1870,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			GameObject TempEnemy = null;
 
-			//ロックしている敵がいたらロックを外してマーカーを消す
+			//ロックしている敵がいたらロックを外す
 			if (LockEnemy != null)
 			{
-				LockOnMarker.GetComponent<LockOnMarkerScript>().LockOff();
-
 				LockEnemy = null;
 			}
 			//ロックする敵を検索する
@@ -1914,8 +1906,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ロック対象変更処理呼び出し
 			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => TempEnemy = reciever.ChangeLockEnemy(LockEnemy, inputValue.Get<Vector2>()));
 
-			//ロック対象を反映
-			EnemyLock(TempEnemy);
+			//見付かったら処理
+			if(TempEnemy != null)
+			{
+				//ロック対象を反映
+				EnemyLock(TempEnemy);
+			}
 		}
 	}
 
@@ -5596,7 +5592,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else if (s.Contains("-> SuperArts"))
 		{
 			//ロックオンマーカーを消す
-			LockOnMarker.GetComponent<LockOnMarkerScript>().LockOff();
+			GameManagerScript.Instance.LockOnMarker.LockOff();
 
 			//アニメーターのフラグを下ろす
 			CurrentAnimator.SetBool("SuperArts", false);
@@ -6323,13 +6319,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//ロック対象がいたらロックオンマーカーを点ける
 		if (Enemy != null)
 		{
-			LockOnMarker.GetComponent<LockOnMarkerScript>().SetTarget(DeepFind(Enemy, "HeadBone"));
+			GameManagerScript.Instance.LockOnMarker.LockOn(DeepFind(Enemy, "HeadBone"));
 		}
-
-		//すでにロックしている敵が居たらマーカーを消す
-		if(LockEnemy != null && LockEnemy != Enemy)
+		//nullならマーカーを消す
+		else
 		{
-			//LockEnemy.GetComponent<EnemyCharacterScript>().LockOnMarker.SetActive(false);
+			GameManagerScript.Instance.LockOnMarker.LockOff();
 		}
 
 		//引数で受け取った敵をロックする、nullが入っていたらロック解除になる

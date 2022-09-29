@@ -170,6 +170,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//ミッションUIスクリプト
 	public MissionUIScript MissionUI { get; set; }
 
+	//ロックオンマーカースクリプト
+	public LockOnMarkerScript LockOnMarker { get; set; }
+
 	//ロケーションによって切り替える野外ライト
 	private Light OutDoorLight;
 
@@ -396,6 +399,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//ミッションUIスクリプト取得
 		MissionUI = DeepFind(gameObject, "MissionUI").GetComponent<MissionUIScript>();
+
+		//ロックオンマーカースクリプト取得
+		LockOnMarker = GetComponentInChildren<LockOnMarkerScript>();
 
 		//野外ライト取得
 		OutDoorLight = DeepFind(gameObject , "OutDoorLight").GetComponent<Light>();
