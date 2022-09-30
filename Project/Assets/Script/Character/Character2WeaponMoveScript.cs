@@ -384,8 +384,14 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			}
 			else
 			{
+				//前方座標取得
+				Vector3 ForwardPos = gameObject.transform.position + gameObject.transform.forward;
+
+				//高さをワイヤーの位置に合わせる
+				ForwardPos.y = BoneList[0].transform.position.y;
+
 				//武器投げコルーチン呼び出し
-				StartCoroutine(MoveWireCoroutine(transform.forward * 100));
+				StartCoroutine(MoveWireCoroutine(ForwardPos));
 			}
 		}
 		//武器を巻き戻す
