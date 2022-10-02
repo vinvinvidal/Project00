@@ -712,6 +712,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void Update()
 	{
+		//print(DownFlag);
+
 		if (!PauseFlag)
 		{
 			//アニメーションステートを監視する関数呼び出し
@@ -1349,80 +1351,118 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//アニメーターのダウンフラグを下ろす
 		CurrentAnimator.SetBool("Down_Prone", false);
 
-		//ダウンしない攻撃遷移判定
-		if (state == 0)
+		//状況判定
+		switch (state)
 		{
-			//特に何もしない
-		}
-		//うつ伏せダウン遷移判定
-		else if (state == 1)
-		{
-			//アニメーターのダウンフラグを立てる
-			CurrentAnimator.SetBool("Down_Prone", true);
-		}
-		//吹っ飛びうつ伏せダウン遷移判定
-		else if (state == 2)
-		{
-			//吹っ飛びフラグを立てる
-			BlownFlag = true;
+			//ダウンしない攻撃遷移判定
+			case 0:
 
-			//アニメーターのダウンフラグを立てる
-			CurrentAnimator.SetBool("Down_Prone", true);
+				//特に何もしない
+				break;
 
-			//アニメーションの再生速度を落とす
-			CurrentAnimator.SetFloat("DamageMotionSpeed" + DamageState % 2, 0.05f);
+			//うつ伏せダウン遷移判定
+			case 1:
 
-			//キャラクターの方を向く
-			transform.rotation = Quaternion.LookRotation(HorizontalVector(PlayerCharacter, gameObject));
+				//アニメーターのダウンフラグを立てる
+				CurrentAnimator.SetBool("Down_Prone", true);
 
-			//ちょっと浮かす
-			CharaController.Move(Vector3.up * Time.deltaTime * 3);
-		}
-		//仰向けダウン遷移判定
-		else if (state == 3)
-		{
-			//アニメーターのフラグを立てる
-			CurrentAnimator.SetBool("Down_Supine", true);
-		}
-		//打ち上げ判定
-		else if (state == 4)
-		{
-			//打ち上げフラグを立てる
-			RiseFlag = true;
+				break;
 
-			//重力をリセット
-			Gravity = 0;
+			//吹っ飛びうつ伏せダウン遷移判定
+			case 2:
 
-			//アニメーターのダウンフラグを立てる
-			CurrentAnimator.SetBool("Down_Supine", true);
+				//吹っ飛びフラグを立てる
+				BlownFlag = true;
 
-			//キャラクターコントローラの大きさを変える
-			CharaControllerReset("Rise");
+				//アニメーターのダウンフラグを立てる
+				CurrentAnimator.SetBool("Down_Prone", true);
 
-			//打ち上げてから少し待ってからフラグを立てるコルーチン呼び出し
-			StartCoroutine(DownLandingFlagCoroutine());
-		}
-		//香港スピン
-		else if (state == 5)
-		{
-			//すぐにダウン状態にする
-			DownFlag = true;
+				//アニメーションの再生速度を落とす
+				CurrentAnimator.SetFloat("DamageMotionSpeed" + DamageState % 2, 0.05f);
 
-			//ダウン制御コルーチン呼び出し
-			StartCoroutine(DownCoroutine());
+				//キャラクターの方を向く
+				transform.rotation = Quaternion.LookRotation(HorizontalVector(PlayerCharacter, gameObject));
 
-			//重力をリセット
-			Gravity = 0;
+				//ちょっと浮かす
+				CharaController.Move(Vector3.up * Time.deltaTime * 3);
 
-			//アニメーターのダウンフラグを立てる
-			CurrentAnimator.SetBool("Down_Prone", true);
+				break;
 
-			//キャラクターコントローラの大きさを変える
-			//CharaControllerReset("Down");
+			//仰向けダウン遷移判定
+			case 3:
+
+				//アニメーターのフラグを立てる
+				CurrentAnimator.SetBool("Down_Supine", true);
+
+				break;
+
+			//打ち上げ判定
+			case 4:
+
+				//打ち上げフラグを立てる
+				RiseFlag = true;
+
+				//重力をリセット
+				Gravity = 0;
+
+				//アニメーターのダウンフラグを立てる
+				CurrentAnimator.SetBool("Down_Supine", true);
+
+				//キャラクターコントローラの大きさを変える
+				CharaControllerReset("Rise");
+
+				//打ち上げてから少し待ってからフラグを立てるコルーチン呼び出し
+				StartCoroutine(DownLandingFlagCoroutine());
+
+				break;
+
+			//香港スピン
+			case 5:
+
+				//すぐにダウン状態にする
+				DownFlag = true;
+
+				//ダウン制御コルーチン呼び出し
+				StartCoroutine(DownCoroutine());
+
+				//重力をリセット
+				Gravity = 0;
+
+				//アニメーターのダウンフラグを立てる
+				CurrentAnimator.SetBool("Down_Prone", true);
+
+				break;
+
+			//足払い
+			case 6:
+
+				//すでにダウン状態ならダウンタイム更新
+				if(DownFlag)
+				{
+					DownTime = 2;
+				}
+				//すでにダウン状態ならダウンタイム更新
+				else
+				{
+					//ダウン制御コルーチン呼び出し
+					StartCoroutine(DownCoroutine());
+				}
+
+				//重力をリセット
+				Gravity = 0;
+
+				//アニメーターのダウンフラグを立てる
+				CurrentAnimator.SetBool("Down_Prone", true);
+
+				break;
+
+			default:
+				break;
 		}
 
 		//ノックバックフラグを入れる
 		KnockBackFlag = true;
+
 	}
 
 	//打ち上げてから少し待ってからフラグを立てる
