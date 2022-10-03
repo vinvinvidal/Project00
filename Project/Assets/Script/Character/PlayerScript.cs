@@ -62,6 +62,9 @@ public interface PlayerScriptInterface : IEventSystemHandler
 
 	//スケベ中断
 	void H_Intercept();
+
+	//現在ロックしている敵を返す
+	GameObject GetLockEnemy();
 }
 
 public class PlayerScript : GlobalClass, PlayerScriptInterface
@@ -1061,7 +1064,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	void LateUpdate()
 	{
 		//位置合わせが必要な時は揺らさない
-		if(!CurrentState.Contains("Super") && !CurrentState.Contains("Special") && BoneMoveSwitch)
+		if(!CurrentState.Contains("Super") && BoneMoveSwitch)
 		{
 			//ループカウント
 			int count = 0;
@@ -1864,7 +1867,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//ロックオンボタンが押された時
-	private void OnLockOn(InputValue i)
+	public void OnLockOn(InputValue i)
 	{
 		if(!HoldFlag && !H_Flag && !PauseFlag && GameManagerScript.Instance.BattleFlag && !GameManagerScript.Instance.EventFlag)
 		{
@@ -1913,6 +1916,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				EnemyLock(TempEnemy);
 			}
 		}
+	}
+
+	//現在ロックしている敵を返すインターフェイス
+	public GameObject GetLockEnemy()
+	{
+		return LockEnemy;
 	}
 
 	//攻撃ボタンが押された時
@@ -1974,6 +1983,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//オートコンボボタンを押した時
 	private void OnPlayerAutoCombo(InputValue i)
 	{
+		/*
 		if (!PauseFlag && !GameManagerScript.Instance.EventFlag)
 		{
 			//押した時にture、離した時にfalseが入る
@@ -1985,6 +1995,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				AttackInputFunc(100);
 			}
 		}
+		*/
 	}
 
 	//特殊攻撃を押した時
@@ -2128,7 +2139,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		SuperInput = false;
 
-		AttackInput = false;
+		//攻撃ボタンを押したのに何も出ない時があるのでこいつはコメントアウトしとく、後で何か不具合が出るかも
+		//AttackInput = false;
 
 		JumpInput = false;
 
@@ -2768,8 +2780,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 	}
 
-
-
 	//特殊攻撃が成功した時の処理
 	IEnumerator SpecialArtsSuccess(GameObject enemy)
 	{
@@ -3018,10 +3028,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				AttackStick = 2;
 			}
 			
-			//ロック中の敵がいなければ敵を管理をするマネージャーにロック対象の敵を探させる
+			//ロック中の敵がいなければ自動ロック
 			if (LockEnemy == null && GameManagerScript.Instance.BattleFlag)
 			{
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => LockEnemy = reciever.SearchLockEnemy(HorizonAcceleration));
+				OnLockOn(new InputValue());
 			}
 		}
 	}
@@ -3954,6 +3964,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 		else
 		{
+			//倒したかフラグ
+			bool DestroyFlag = false;
+
+			//死んでるか判定
+			ExecuteEvents.Execute<EnemyCharacterInterface>(e, null, (reciever, eventData) => DestroyFlag = reciever.GetDestroyFlag());
+
 			//バリバリゲージ増加
 			SetB_Gauge(10, 0);
 
@@ -3969,7 +3985,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//巻き込み攻撃でなければ当たった敵をロックする
-			if (UseArts.ColType[AttackIndex] != 4 && UseArts.ColType[AttackIndex] != 5 && UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
+			if (!DestroyFlag && UseArts.ColType[AttackIndex] != 4 && UseArts.ColType[AttackIndex] != 5 && UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)
 			{
 				EnemyLock(e);
 			}
@@ -4072,23 +4088,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//ズームエフェクト呼び出し
 				ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Zoom(false, 0.05f, 0.25f, (GameObject obj) => { obj.GetComponent<Renderer>().enabled = false; }));
-			}
-		}
-
-		//敵を倒したらロックを外す処理
-		if (LockEnemy != null)
-		{
-			//返り値受け取り用変数
-			bool tempbool = false;
-
-			//攻撃を当てた敵から死亡フラグを受け取る
-			ExecuteEvents.Execute<EnemyCharacterInterface>(LockEnemy, null, (reciever, eventData) => tempbool = reciever.GetDestroyFlag());
-
-			//死んでたら
-			if (tempbool)
-			{
-				//敵のロックを外す	
-				EnemyLock(null);
 			}
 		}
 	}
@@ -6314,7 +6313,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//敵のロック状況を制御する
-	private void EnemyLock(GameObject Enemy)
+	public void EnemyLock(GameObject Enemy)
 	{
 		//ロック対象がいたらロックオンマーカーを点ける
 		if (Enemy != null)

@@ -1875,6 +1875,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4366857a141749e42b0b7ca95249dba5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DownKeepTime: 2
   PenisBones:
   - {fileID: 4113730373540580452}
   - {fileID: 4137317822743584722}

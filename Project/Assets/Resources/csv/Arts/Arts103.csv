@@ -2,7 +2,7 @@ NameC,黄泉抜け
 NameH,よもつぬけ
 UseCharacter,1
 Anim,Motion_1_GroundAttack02
-MoveVec,0*0*1*5|0*0*1*30|0*0*-1*30|0*0*-1*5
+MoveVec,0*0*1*5|0*0*1*15|0*0*-1*15|0*0*-1*5
 Damage,1|1
 Stun,1|1
 Deadly,1|1

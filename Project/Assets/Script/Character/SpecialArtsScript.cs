@@ -126,8 +126,14 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 		//泉用処理
 		else if (i == 2)
 		{
-			//攻撃と同じようにロック対象を探す
-			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => re = reciever.SearchLockEnemy(transform.forward));
+			//現在ロックしている敵を取得
+			ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => re = reciever.GetLockEnemy());
+
+			//ロックしていなかったら攻撃と同じように対象を探す
+			if (re == null)
+			{
+				gameObject.GetComponent<PlayerScript>().OnLockOn(new UnityEngine.InputSystem.InputValue());
+			}
 
 			//武器スクリプトにもロック対象を渡す
 			gameObject.GetComponent<Character2WeaponMoveScript>().LockEnemy = re;

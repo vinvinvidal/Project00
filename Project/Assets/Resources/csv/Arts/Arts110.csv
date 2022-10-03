@@ -2,7 +2,7 @@ NameC,沼矛穿ち
 NameH,ぬぼこうがち
 UseCharacter,1
 Anim,Motion_1_GroundAttack06
-MoveVec,0*0*25*1|0*0*2*1
+MoveVec,0*0*30*1|0*0*2*1
 Damage,1
 Stun,1
 Deadly,1

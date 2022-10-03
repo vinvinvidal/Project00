@@ -114,6 +114,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//ダウン時間
 	public float DownTime { get; set; }
 
+	public float DownKeepTime;
+
 	//ダメージ用ヒットコライダ
 	private BoxCollider DamageCol;
 
@@ -278,6 +280,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	//ダウン状態フラグ
 	public bool DownFlag { get; set; }
+
+	//ダウンタイム更新フラグ
+	private bool DownTimeUpdateFlag = false;
 
 	//ホールドダメージ状態フラグ
 	public bool HoldFlag { get; set; }
@@ -712,8 +717,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 	void Update()
 	{
-		//print(DownFlag);
-
 		if (!PauseFlag)
 		{
 			//アニメーションステートを監視する関数呼び出し
@@ -1038,8 +1041,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//地上限定の技が空中で当たった
 			(!OnGround && Arts.ColType[n] == 8)
 			||
-			//ダウン中にダウン専用攻撃が当たった
-			(DownFlag && Arts.ColType[n] == 9)
+			//起きてるのにダウン専用攻撃が当たった
+			(!DownFlag && Arts.ColType[n] == 9)
 		)
 		{
 			re = false;
@@ -1106,6 +1109,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 				//ゲームマネージャーのListから自身を削除
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
+
+				//ロック解除
+				PlayerCharacter.GetComponent<PlayerScript>().EnemyLock(null);
+
+				//次の候補をロック
+				PlayerCharacter.GetComponent<PlayerScript>().OnLockOn(new UnityEngine.InputSystem.InputValue());
 
 				//オブジェクト削除コルーチン呼び出し
 				StartCoroutine(VanishCoroutine(1, 1));
@@ -1214,17 +1223,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//ダウンしている状態でダウンに当たる攻撃が当たった
 			else if (DownFlag && !DownEnableAttakList.Any(a => a == Arts.AttackType[n]))
 			{
-				//ダウンタイム更新
-				DownTime = 2;
+				//ダウンタイム更新を立てる
+				DownTimeUpdateFlag = true;
 
 				//叩きつけモーションに切り替え
-				if (CurrentState.Contains("Supine") || CurrentState.Contains("DownLanding"))
+				//if (CurrentState.Contains("Supine") || CurrentState.Contains("DownLanding"))
+				if (CurrentState.Contains("Supine") || CurrentAnimator.GetBool("Down_Supine"))
 				{
 					UseIndex = 7;
 				}
-				else if (CurrentState.Contains("Prone"))
-				{
-					UseIndex = 6;
+				else if (CurrentState.Contains("Prone") || CurrentAnimator.GetBool("Down_Prone"))
+				{					
+					UseIndex = 6;               
 				}
 			}
 			//打ち上げられてないけど空中技が当たった
@@ -1419,9 +1429,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//香港スピン
 			case 5:
 
-				//すぐにダウン状態にする
-				DownFlag = true;
-
 				//ダウン制御コルーチン呼び出し
 				StartCoroutine(DownCoroutine());
 
@@ -1436,20 +1443,42 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//足払い
 			case 6:
 
-				//すでにダウン状態ならダウンタイム更新
-				if(DownFlag)
-				{
-					DownTime = 2;
-				}
-				//すでにダウン状態ならダウンタイム更新
-				else
+				//立ってたらダウンさせる
+				if(!DownFlag)
 				{
 					//ダウン制御コルーチン呼び出し
 					StartCoroutine(DownCoroutine());
 				}
 
-				//重力をリセット
-				Gravity = 0;
+				//アニメーターのダウンフラグを立てる
+				CurrentAnimator.SetBool("Down_Prone", true);
+
+				break;
+
+			//叩きつけ・仰向け
+			case 7:
+
+				//立ってたらダウンさせる
+				if (!DownFlag)
+				{
+					//ダウン制御コルーチン呼び出し
+					StartCoroutine(DownCoroutine());
+				}
+
+				//アニメーターのダウンフラグを立てる
+				CurrentAnimator.SetBool("Down_Supine", true);
+
+				break;
+
+			//叩きつけ・うつ伏せ
+			case 8:
+
+				//立ってたらダウンさせる
+				if (!DownFlag)
+				{
+					//ダウン制御コルーチン呼び出し
+					StartCoroutine(DownCoroutine());
+				}
 
 				//アニメーターのダウンフラグを立てる
 				CurrentAnimator.SetBool("Down_Prone", true);
@@ -1459,7 +1488,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			default:
 				break;
 		}
-
+		
 		//ノックバックフラグを入れる
 		KnockBackFlag = true;
 
@@ -1759,7 +1788,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			{
 				//超必殺技フラグを下す
 				SuperFlag = false;
-			}
+			}/*
 			//ダウン状態から抜けた瞬間の処理
 			else if (CurrentState.Contains("Down_Prone ->"))
 			{
@@ -1777,7 +1806,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 				//アニメーターのダウンフラグを下す
 				CurrentAnimator.SetBool("Down_Supine", false);
-			}
+			}*/
 			//ホールド状態から抜けた瞬間の処理
 			else if (CurrentState.Contains("HoldDamage ->"))
 			{
@@ -1825,7 +1854,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		DownFlag = true;
 
 		//ダウンタイム設定
-		DownTime = 2;
+		DownTime = DownKeepTime;
 
 		//キャラクターコントローラの大きさを変える
 		//CharaControllerReset("Down");
@@ -1836,7 +1865,17 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//ダウン時間カウントダウン
 			if (!PauseFlag && !DestroyFlag)
 			{
-				DownTime -= Time.deltaTime;
+				DownTime -= Time.deltaTime;;
+			}
+
+			//ダウンタイム更新フラグ
+			if(DownTimeUpdateFlag)
+			{
+				//ダウンタイム更新
+				DownTime = DownKeepTime;
+				
+				//フラグを下す
+				DownTimeUpdateFlag = false;
 			}
 
 			//1フレーム待機
