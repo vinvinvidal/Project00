@@ -219,12 +219,16 @@ MonoBehaviour:
   - {fileID: 1902593265801471154}
   - {fileID: 7670729207510189535}
   - {fileID: 7670729207510189535}
+  - {fileID: 7670729207510189535}
+  - {fileID: 7670729207510189535}
   WeaponAttachOBJNameList:
   - L_HandBone
   - L_HandBone
   - R_HandBone
   - L_HandBone
   - R_HandBone
+  - RootBone
+  - RootBone
   - RootBone
   - RootBone
   WeaponAttachOBJPosList:
@@ -235,6 +239,8 @@ MonoBehaviour:
   - {x: -0.15, y: -0.02, z: -0.015}
   - {x: 0, y: 0, z: 0.55}
   - {x: 0, y: 1.1, z: 0.55}
+  - {x: 0, y: 0.8, z: 0.55}
+  - {x: 0, y: 0.8, z: 0.55}
   WeaponAttachOBJMoveList:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0.65}
@@ -245,6 +251,8 @@ MonoBehaviour:
   - {x: -20, y: 90, z: 0}
   - {x: 20, y: 90, z: 0}
   - {x: 20, y: -90, z: 0}
+  - {x: 0, y: 180, z: 0}
+  - {x: 0, y: 180, z: 0}
   - {x: 0, y: 180, z: 0}
   - {x: 0, y: 180, z: 0}
   WeaponClothCol: {fileID: 0}
@@ -599,6 +607,8 @@ MonoBehaviour:
   - {fileID: 1902593265801471154}
   - {fileID: 7670729207510189535}
   - {fileID: 7670729207510189535}
+  - {fileID: 901258189418486335}
+  - {fileID: 7670729207510189535}
   WeaponAttachOBJNameList:
   - L_HandBone
   - R_HandBone
@@ -606,6 +616,8 @@ MonoBehaviour:
   - R_HandBone
   - R_HandBone
   - RootBone
+  - RootBone
+  - R_HandBone
   - RootBone
   WeaponAttachOBJPosList:
   - {x: 0.035, y: 0.02, z: -0.015}
@@ -615,6 +627,8 @@ MonoBehaviour:
   - {x: -0.15, y: -0.02, z: -0.015}
   - {x: 0, y: 0, z: 0.55}
   - {x: 0, y: 1.1, z: 0.55}
+  - {x: 0.15, y: 0.09, z: -0.015}
+  - {x: 0, y: 0.8, z: 0.55}
   WeaponAttachOBJMoveList:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: -0.65}
@@ -626,6 +640,8 @@ MonoBehaviour:
   - {x: 20, y: -90, z: 0}
   - {x: 20, y: -90, z: 0}
   - {x: 0, y: 180, z: 0}
+  - {x: 0, y: 180, z: 0}
+  - {x: -20, y: 90, z: 0}
   - {x: 0, y: 180, z: 0}
   WeaponClothCol: {fileID: 0}
   WeaponClothColName: 
