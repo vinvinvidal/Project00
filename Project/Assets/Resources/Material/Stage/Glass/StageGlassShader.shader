@@ -42,6 +42,7 @@
 			#pragma target 5.0					//Shaderモデル指定、テッセレーションなどを使いたい場合は5.0
 			#pragma vertex vert					//各頂点について実行される頂点シェーダ、フラグメントシェーダに出力される			
 			#pragma fragment frag				//各ピクセル毎に実行されるフラグメントシェーダ
+			#pragma multi_compile_fwdbase		//マルチコンパイル、ドロップシャドウを受けたい場合など
 
 			//変数宣言
 			sampler2D _TexMain;
@@ -75,6 +76,9 @@
 
 				//モデルのワールド座標
                 float3 worldPos : TEXCOORD1;
+
+				//ドロップシャドウ
+				SHADOW_COORDS(2)
 			};
 
 			//頂点シェーダ
@@ -95,6 +99,9 @@
 				//モデルをワールドに変換
 				re.worldPos = mul(unity_ObjectToWorld, v.pos);
 
+				//ドロップシャドウ
+				TRANSFER_SHADOW(re);
+
 				//出力　
 				return re;
 			}
@@ -103,7 +110,7 @@
 			fixed4 frag(vertex_output i) : SV_Target
 			{
 				//出力用変数宣言、
-				fixed4 re = 1;
+				fixed4 re = 0.5;
 
 				//光源と法線の内積を乗算
 				re.rgb *= (dot(i.normal, _WorldSpaceLightPos0) + 1) * 0.5;
@@ -111,15 +118,17 @@
 				//ライトカラーをブレンド
 				re.rgb *= lerp(1, _LightColor0, _LightColor0.a);
 
+				//カメラから離れるほど透明度を下げる
 				re.a = saturate(length(_WorldSpaceCameraPos - i.worldPos) * 0.075 - 0.1);
 
+				//テクスチャから透明度を算出
 				re.a -= tex2D(_TexMain, i.uv * _TexMain_ST.xy);
-				
+
+				//ドロップシャドウ
+				re.rgb *= saturate(SHADOW_ATTENUATION(i) + 0.75);
+
 				//透明部分をクリップ
 				clip(re.a - 0.01);
-
-				//カメラから離れるほど透明度を下げる
-				//re.a = saturate(length(_WorldSpaceCameraPos - i.worldPos) * 0.075 - 0.1);
 
 				//出力
 				return re;
@@ -128,5 +137,8 @@
 			//プログラム終了
 			ENDCG
 		}
+
+		//共用シャドウキャスター
+		UsePass "Unlit/PublicShadowCaster/PublicShadowCaster"
 	}
 }

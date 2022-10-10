@@ -173,8 +173,8 @@ public class Scene01_MainMenuScript : GlobalClass
 			//入力許可フラグを下ろす
 			InputReadyFlag = false;
 
-			//装備技List生成、とりあえず御命
-			ArtsEquipListReset(0);
+			//装備技List生成
+			ArtsEquipListReset(CharacterID);
 		}
 	}
 
@@ -183,8 +183,8 @@ public class Scene01_MainMenuScript : GlobalClass
 	{
 		if (InputReadyFlag)
 		{
-			//装備技マトリクス更新
-			ArtsMatrixUpdate(CharacterID);
+			//技装備更新
+			ArtsMatrixUpdate(CharacterID);		
 
 			//選択技解除
 			SelectedArtsOBJ = null;
@@ -608,8 +608,11 @@ public class Scene01_MainMenuScript : GlobalClass
 	//アクティブ切り替えボタンが押された時の処理
 	public void OnChangeActive(InputValue input)
 	{
-		if(InputReadyFlag)
+		if (InputReadyFlag)
 		{
+			//切り替え前のキャラクターの技装備更新
+			ArtsMatrixUpdate(CharacterID);
+
 			CharacterID += Mathf.RoundToInt(input.Get<float>());
 
 			if(CharacterID == -1)
@@ -624,7 +627,6 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		ArtsEquipListReset(CharacterID);
 	}
-
 
 	//メインメニュー有効、アニメーションクリップから呼ばれる
 	public void MainMenuActive()
@@ -667,7 +669,7 @@ public class Scene01_MainMenuScript : GlobalClass
 				{
 					GameManagerScript.Instance.UserData.ArtsMatrix[c][i][ii][iii] = "";
 
-					GameManagerScript.Instance.UserData.ArtsMatrix[c][i][ii][iii] = ArtsMatrixButtonList.Where(a => a.name == "EquipArtsButton" + i + ii + iii).ToList()[0].GetComponentInChildren<Text>().text;
+					GameManagerScript.Instance.UserData.ArtsMatrix[c][i][ii][iii] = ArtsMatrixButtonList.Where(a => a.name == "EquipArtsButton" + i + ii + iii).ToList()[0].GetComponentInChildren<Text>().text;					
 				}
 			}
 		}
