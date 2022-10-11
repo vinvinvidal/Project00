@@ -126,10 +126,20 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 21
       objectReference: {fileID: 0}
+    - target: {fileID: -9216227681452889469, guid: 757a9747843a0f2448ab79d0bd0c30c0,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: -9060120031832632535, guid: 757a9747843a0f2448ab79d0bd0c30c0,
         type: 3}
       propertyPath: m_Layer
       value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: -9060120031832632535, guid: 757a9747843a0f2448ab79d0bd0c30c0,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 757a9747843a0f2448ab79d0bd0c30c0,
         type: 3}
@@ -206,6 +216,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -8114904643623098743, guid: 757a9747843a0f2448ab79d0bd0c30c0,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: -6572346658557720388, guid: 757a9747843a0f2448ab79d0bd0c30c0,
         type: 3}
       propertyPath: m_Materials.Array.data[1]
@@ -235,6 +250,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: Hall
+      objectReference: {fileID: 0}
+    - target: {fileID: -3911156982393619672, guid: 757a9747843a0f2448ab79d0bd0c30c0,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: -1793513286952462107, guid: 757a9747843a0f2448ab79d0bd0c30c0,
         type: 3}
@@ -285,6 +305,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 21
+      objectReference: {fileID: 0}
+    - target: {fileID: 6904899115690769522, guid: 757a9747843a0f2448ab79d0bd0c30c0,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 7400400013548706715, guid: 757a9747843a0f2448ab79d0bd0c30c0,
         type: 3}

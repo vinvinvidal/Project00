@@ -1131,6 +1131,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 22
       objectReference: {fileID: 0}
+    - target: {fileID: -8825042990820900103, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: -8779054176062381454, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
         type: 3}
       propertyPath: m_CastShadows
@@ -1225,6 +1230,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: Concrete
+      objectReference: {fileID: 0}
+    - target: {fileID: -8398562813828309629, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: -8048999002261780902, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
         type: 3}
@@ -1351,6 +1361,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 21
       objectReference: {fileID: 0}
+    - target: {fileID: -3415329235424687621, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: -3013196530117919166, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
         type: 3}
       propertyPath: m_Layer
@@ -1360,6 +1375,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: Hall
+      objectReference: {fileID: 0}
+    - target: {fileID: -3013196530117919166, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: -2495170236447676666, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
         type: 3}
@@ -1550,6 +1570,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TagString
       value: Soil
+      objectReference: {fileID: 0}
+    - target: {fileID: 8423597018464193928, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 9176579069998098235, guid: ea3f3a5449d3f8e44b82fcaeb9c3e0f3,
         type: 3}
