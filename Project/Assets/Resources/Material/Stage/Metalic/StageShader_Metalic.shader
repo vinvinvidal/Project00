@@ -112,12 +112,34 @@
 			//フラグメントシェーダ
 			fixed4 frag(vertex_output i) : SV_Target
 			{
-
+				/*
 				//出力用変数宣言、表面テクスチャを貼る
 				fixed4 re = tex2D(_TexSurface, i.uv * _TexSurface_ST.xy + _TexSurface_ST.zw);
 				
 				//ペイントテクスチャ合成
 				re = lerp(re, tex2D(_TexPaint, i.uv), tex2D(_TexPaint, i.uv).a);
+
+				//リフレクションをブレンド
+				re *= lerp(1 , UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflect(-normalize(_WorldSpaceCameraPos - i.worldPos), i.normal), 0) , _MetarlicVol);
+
+				//ハーフランパート乗算
+				re *= (dot(i.normal, _WorldSpaceLightPos0) + 1) * 0.9;
+
+				//ハイライトを適当に加算
+				re += round(saturate(dot(i.normal, _WorldSpaceLightPos0) - 0.8));
+
+				//オブジェクトからのドロップシャドウ乗算
+				re *= saturate(SHADOW_ATTENUATION(i) + 0.5);
+
+				//ライトカラーをブレンド
+				re *= lerp(1, _LightColor0, _LightColor0.a);
+				*/
+
+				//出力用変数宣言、テクスチャを貼る
+				fixed4 re = tex2D(_TexPaint, i.uv);
+
+				//表面テクスチャ乗算
+				re *= tex2D(_TexSurface, i.uv * _TexSurface_ST.xy + _TexSurface_ST.zw);
 
 				//リフレクションをブレンド
 				re *= lerp(1 , UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflect(-normalize(_WorldSpaceCameraPos - i.worldPos), i.normal), 0) , _MetarlicVol);
