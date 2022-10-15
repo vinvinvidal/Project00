@@ -2,7 +2,7 @@ NameC,奔
 NameH,ばしり
 UseCharacter,0
 Anim,Motion_0_GroundAttack04
-MoveVec,0*0*1*30
+MoveVec,0*0*1*20
 Damage,1
 Stun,1
 Deadly,1
