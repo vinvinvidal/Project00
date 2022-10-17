@@ -3051,9 +3051,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		else
 		{
 			AttackLocation = 1;
-
-			//スティック入力を無効化
-			AttackStick = 0;
 		}
 
 		//入力された技が存在する
@@ -4480,6 +4477,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		List<ArtsClass> ArtButtonList01 = new List<ArtsClass>();
 		List<ArtsClass> ArtButtonList02 = new List<ArtsClass>();
 		List<ArtsClass> ArtButtonList03 = new List<ArtsClass>();
+		List<ArtsClass> ArtButtonList04 = new List<ArtsClass>();
+		List<ArtsClass> ArtButtonList05 = new List<ArtsClass>();
 
 		List<List<ArtsClass>> ArtStickList00 = new List<List<ArtsClass>>();
 		List<List<ArtsClass>> ArtStickList01 = new List<List<ArtsClass>>();
@@ -4500,10 +4499,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		ArtButtonList03.Add(null);
 		ArtButtonList03.Add(null);
 
+		ArtButtonList04.Add(null);
+		ArtButtonList04.Add(null);
+		ArtButtonList04.Add(null);
+
+		ArtButtonList05.Add(null);
+		ArtButtonList05.Add(null);
+		ArtButtonList05.Add(null);
+
 		ArtStickList00.Add(ArtButtonList00);
 		ArtStickList00.Add(ArtButtonList01);
 		ArtStickList00.Add(ArtButtonList02);
 		ArtStickList01.Add(ArtButtonList03);
+		ArtStickList01.Add(ArtButtonList04);
+		ArtStickList01.Add(ArtButtonList05);
 
 		ArtsMatrix.Add(ArtStickList00);
 		ArtsMatrix.Add(ArtStickList01);

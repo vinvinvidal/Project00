@@ -2723,9 +2723,15 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				
 				//地上後ろ入れ
 				List<string> tempArtsMatrix02 = new List<string>();
-				
-				//空中
+
+				//空中レバー無し
 				List<string> tempArtsMatrix03 = new List<string>();
+
+				//空中前入れ
+				List<string> tempArtsMatrix04 = new List<string>();
+
+				//空中後ろ入れ
+				List<string> tempArtsMatrix05 = new List<string>();
 
 				//とりあえずnull入れ
 				tempArtsMatrix00.Add(null);
@@ -2744,23 +2750,33 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				tempArtsMatrix03.Add(null);
 				tempArtsMatrix03.Add(null);
 
+				tempArtsMatrix04.Add(null);
+				tempArtsMatrix04.Add(null);
+				tempArtsMatrix04.Add(null);
+
+				tempArtsMatrix05.Add(null);
+				tempArtsMatrix05.Add(null);
+				tempArtsMatrix05.Add(null);
+
 				//地上
-				List<List<string>> tempArtsMatrix04 = new List<List<string>>();
+				List<List<string>> tempArtsMatrix06 = new List<List<string>>();
 
 				//空中
-				List<List<string>> tempArtsMatrix05 = new List<List<string>>();
+				List<List<string>> tempArtsMatrix07 = new List<List<string>>();
 
-				tempArtsMatrix04.Add(tempArtsMatrix00);
-				tempArtsMatrix04.Add(tempArtsMatrix01);
-				tempArtsMatrix04.Add(tempArtsMatrix02);
+				tempArtsMatrix06.Add(tempArtsMatrix00);
+				tempArtsMatrix06.Add(tempArtsMatrix01);
+				tempArtsMatrix06.Add(tempArtsMatrix02);
 
-				tempArtsMatrix05.Add(tempArtsMatrix03);
+				tempArtsMatrix07.Add(tempArtsMatrix03);
+				tempArtsMatrix07.Add(tempArtsMatrix04);
+				tempArtsMatrix07.Add(tempArtsMatrix05);
 
 				//キャラクター
 				List<List<List<string>>> tempArtsMatrix = new List<List<List<string>>>();
 
-				tempArtsMatrix.Add(tempArtsMatrix04);
-				tempArtsMatrix.Add(tempArtsMatrix05);
+				tempArtsMatrix.Add(tempArtsMatrix06);
+				tempArtsMatrix.Add(tempArtsMatrix07);
 
 				//技リストから初期装備技を検出してリストに入れる
 				foreach (ArtsClass ii in AllArtsList)
