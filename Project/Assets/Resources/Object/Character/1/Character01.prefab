@@ -2648,6 +2648,8 @@ MonoBehaviour:
   BaseFace_Anim: {fileID: 7400000, guid: 4f4dff8ddda97bc408c5c2b985a79ab8, type: 2}
   EyeClose_Anim: {fileID: 7400000, guid: 3213fe5a25777f44284142aba3d60810, type: 2}
   MouthClose_Anim: {fileID: 0}
+  R_Breast_Anim: {fileID: 0}
+  L_Breast_Anim: {fileID: 0}
   NippleBase_Anim: {fileID: 7400000, guid: 32a0dcd49c04a4c44a75bedb607bca8f, type: 2}
   NippleElect_Anim: {fileID: 7400000, guid: 96a48d72b7ba3794e84e248b5ca4018b, type: 2}
   GenitalBase_Anim: {fileID: 0}
@@ -2667,7 +2669,7 @@ CharacterController:
   m_Height: 1.6
   m_Radius: 0.45
   m_SlopeLimit: 45
-  m_StepOffset: 0.2
+  m_StepOffset: 0.175
   m_SkinWidth: 0.1
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0.9, z: 0}

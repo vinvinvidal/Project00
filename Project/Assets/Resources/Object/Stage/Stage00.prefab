@@ -3361,6 +3361,16 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 88f0dc2c0d492434d87da9e83813e198, type: 2}
+    - target: {fileID: -2920591450178527520, guid: a723e22baa6743641b5e3624e93c9d54,
+        type: 3}
+      propertyPath: m_Layer
+      value: 21
+      objectReference: {fileID: 0}
+    - target: {fileID: -2920591450178527520, guid: a723e22baa6743641b5e3624e93c9d54,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: -2592625376057325824, guid: a723e22baa6743641b5e3624e93c9d54,
         type: 3}
       propertyPath: m_Layer
@@ -3901,6 +3911,11 @@ PrefabInstance:
       propertyPath: m_CastShadows
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2040079307486478840, guid: a723e22baa6743641b5e3624e93c9d54,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 88f0dc2c0d492434d87da9e83813e198, type: 2}
     - target: {fileID: 2045199854428287268, guid: a723e22baa6743641b5e3624e93c9d54,
         type: 3}
       propertyPath: m_LocalRotation.x
