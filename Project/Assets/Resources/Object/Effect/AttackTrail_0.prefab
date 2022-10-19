@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 464719565549874524}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: -1}
+  m_LocalPosition: {x: 0, y: 0.5, z: -1.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3716708873427687385}
@@ -77291,7 +77291,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8346714710368917691}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.75, z: 0}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3716708873427687385}
@@ -77444,7 +77444,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.2
+      scalar: 0.1
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -82090,7 +82090,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Tex: {fileID: 2800000, guid: ac572ab497abb514e991019524179c32, type: 3}
-  Tiling: {x: 1, y: 2}
+  Tiling: {x: 1, y: 1}
   OffSet: {x: 0, y: 0}
   ZTest: 4
 --- !u!1 &8752800591157329033
