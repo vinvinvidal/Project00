@@ -125,8 +125,19 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 						//ローカル座標で位置を設定
 						HitEffect.transform.localPosition = HitArts.HitEffectPosList[AttackIndex];
 					}
-					//飛び道具と巻き込み、敵の座標に出す
-					else if (HitArts.ColType[AttackIndex] == 2 || HitArts.ColType[AttackIndex] == 3 || HitArts.ColType[AttackIndex] == 4 || HitArts.ColType[AttackIndex] == 5)
+					//飛び道具、敵の座標に出す
+					else if (HitArts.ColType[AttackIndex] == 2)
+					{
+						//ローカル座標で回転を設定
+						HitEffect.transform.rotation = Quaternion.LookRotation(gameObject.transform.root.transform.forward);
+
+						HitEffect.transform.rotation *= Quaternion.Euler(new Vector3(HitArts.HitEffectAngleList[AttackIndex].x, HitArts.HitEffectAngleList[AttackIndex].y, HitArts.HitEffectAngleList[AttackIndex].z));
+
+						//位置を指定、敵からの相対位置で出す
+						HitEffect.transform.position = Hit.gameObject.transform.root.gameObject.transform.position + (gameObject.transform.root.transform.forward * HitArts.HitEffectPosList[AttackIndex].z) + new Vector3(0, HitArts.HitEffectPosList[AttackIndex].y, 0);
+					}
+					//範囲攻撃、敵の座標に出す
+					else if (HitArts.ColType[AttackIndex] == 3 || HitArts.ColType[AttackIndex] == 4 || HitArts.ColType[AttackIndex] == 5)
 					{
 						//キャラクターから敵までのベクトルを正面とする
 						Vector3 EffectForward = (Hit.gameObject.transform.root.gameObject.transform.position - PlayerCharacter.transform.position).normalized;
@@ -192,24 +203,38 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 			//コライダを出現位置に移動
 			AttackCol.center = ColVec;
 		}
-		//直線移動・上段
+		//遠距離平行垂直
 		else if (t == 2)
 		{
+			//チャージ倍率
+			float Charge = l * 0.5f + 1;
+
+			//コライダの大きさを入れる
+			AttackCol.size = (new Vector3(c.a, c.a, c.a) + new Vector3(Mathf.Abs(c.r), Mathf.Abs(c.g), Mathf.Abs(c.b))) * Charge;
+
 			//コライダを出現位置に移動
-			AttackCol.center = new Vector3(0, 1, 1f);
+			AttackCol.center = new Vector3(0, 0.8f, 0) + (ColVec * 0.5f);
+
+
+			/*
+			//コライダ最大時の体積を求める
+			float Mass = c.a * c.a * ColVec.magnitude * Charge;
 
 			//コライダ拡大
-			while (AttackCol.size.z < ColVec.z * (l * 0.5f + 1))
+			while (AttackCol.size.x * AttackCol.size.y * AttackCol.size.z < Mass)
 			{
+				print(AttackCol.size.x * AttackCol.size.y * AttackCol.size.z);
+				print(Mass);
+
 				if (!PauseFlag)
 				{
-					AttackCol.size += new Vector3(0, 0, ColVec.z * (l * 0.5f + 1)) * Time.deltaTime;
+					AttackCol.size += ColVec * Charge * Time.deltaTime;
 
-					AttackCol.center += new Vector3(0, 0, ColVec.z * 0.5f * (l * 0.5f + 1)) * Time.deltaTime;
+					AttackCol.center += ColVec * Charge * 0.5f *Time.deltaTime;
 				}
 
 				yield return null;
-			}
+			}*/
 		}
 		//周囲回転
 		else if(t == 4 || t == 5)

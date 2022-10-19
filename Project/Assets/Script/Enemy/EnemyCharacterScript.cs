@@ -1104,8 +1104,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//コライダ無効化
 				DamageCol.enabled = false;
 
-				//バトルフィールドの最後の敵に自身を入れる
-				GameManagerScript.Instance.GetBattleFieldOBJ().GetComponent<BattleFieldScript>().LastEnemy = gameObject;
+				//バトルフィールドの最後の敵に自身を入れる、全滅直後にも技が入る可能性があるのでNullチェック
+				if(GameManagerScript.Instance.GetBattleFieldOBJ() != null)
+				{
+					GameManagerScript.Instance.GetBattleFieldOBJ().GetComponent<BattleFieldScript>().LastEnemy = gameObject;
+				}				
 
 				//ゲームマネージャーのListから自身を削除
 				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
@@ -2266,7 +2269,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				RayPoint = new Vector3(0, RayRadius * 2f, 0);
 
 				//ダメージ用コライダの大きさを小さくする
-				DamageCol.size = new Vector3(1, 0.5f, 1);
+				DamageCol.size = new Vector3(1, 0.5f, 2);
 				DamageCol.center = new Vector3(0, DamageCol.size.y * 0.5f, 0);
 
 				break;
