@@ -3971,15 +3971,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			SetB_Gauge(10, 0);
 
 			//ヒットSEを鳴らす
+			foreach (SoundEffectScript i in GameManagerScript.Instance.AttackImpactSEList)
 			{
-				foreach (SoundEffectScript i in GameManagerScript.Instance.AttackImpactSEList)
+				if (i.AudioName.Contains(UseArts.HitSE[AttackIndex]))
 				{
-					if (i.AudioName.Contains(UseArts.HitSE[AttackIndex]))
-					{
-						i.PlayRandomList();
-					}
+					i.PlayRandomList();
 				}
 			}
+
+			//Vector2 TempPos = MainCameraTransform.gameObject.GetComponent<Camera>().WorldToScreenPoint(e.transform.position);
+
+			//オノマトペ表示
+			GameManagerScript.Instance.ShowOnomatope(MissionUIScript.TextureEnum.LightAttackHit, 0, 1, Vector2.zero, e, true);
 
 			//巻き込み攻撃でなければ当たった敵をロックする
 			if (!DestroyFlag && UseArts.ColType[AttackIndex] != 4 && UseArts.ColType[AttackIndex] != 5 && UseArts.ColType[AttackIndex] != 7 && UseArts.ColType[AttackIndex] != 8)

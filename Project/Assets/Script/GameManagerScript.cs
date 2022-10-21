@@ -2042,6 +2042,12 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		DeepFind(gameObject, "MiniMap").GetComponent<RawImage>().enabled = s;
 	}
 
+	//オノマトペ表示
+	public void ShowOnomatope(MissionUIScript.TextureEnum Enum, int Index, float EffectTime, Vector2 Pos, GameObject Target, bool RandomFlag)
+	{
+		MissionUI.ShowOnomatope(Enum, Index, EffectTime, Pos, Target, RandomFlag);
+	}
+
 	//技クールダウンコルーチン
 	public void ArtsCoolDown(ArtsClass Arts, List<List<List<ArtsClass>>> ArtsMatrix)
 	{

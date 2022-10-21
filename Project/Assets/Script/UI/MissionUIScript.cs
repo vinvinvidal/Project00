@@ -28,6 +28,29 @@ public class MissionUIScript : GlobalClass
 	//ミッションに参加しているプレイヤーキャラクターの技マトリクス連想配列
 	private Dictionary<int, GameObject> ArtsMatrixDic = new Dictionary<int, GameObject>();
 
+	//オノマトペオブジェクト
+	private GameObject OnomatopeOBJ;
+
+	//弱攻撃が当たった時テクスチャList
+	public List<Texture2D> LightAttackHitOnomatopeTextureList;
+
+	//中攻撃が当たった時テクスチャList
+	public List<Texture2D> MiddleAttackHitOnomatopeTextureList;
+
+	//強攻撃が当たった時テクスチャList
+	public List<Texture2D> HeavyAttackHitOnomatopeTextureList;
+
+	//オノマトペテクスチャList
+	private List<List<Texture2D>> OnomatopeTextureList = new List<List<Texture2D>>();
+
+	//オノマトペテクスチャ種類用Enum
+	public enum TextureEnum
+	{
+		LightAttackHit,     //弱攻撃が当たった時
+		MiddleAttackHit,    //中攻撃が当たった時
+		HeavyAttackHit,     //強攻撃が当たった時
+	}
+
 	void Start()
     {
 		//装備中の技マトリクスオブジェクト取得
@@ -51,6 +74,43 @@ public class MissionUIScript : GlobalClass
 
 		//ウェイトバーイメージ取得
 		WaitBarIMG = DeepFind(gameObject, "WaitBar").GetComponent<Image>();
+
+		//オノマトペオブジェクト取得
+		OnomatopeOBJ = DeepFind(gameObject, "Onomatope");
+
+		//オノマトペテクスチャListをAdd
+		OnomatopeTextureList.Add(LightAttackHitOnomatopeTextureList);
+		OnomatopeTextureList.Add(MiddleAttackHitOnomatopeTextureList);
+		OnomatopeTextureList.Add(HeavyAttackHitOnomatopeTextureList);
+	}
+
+	//オノマトペ表示
+	public void ShowOnomatope(TextureEnum Enum, int Index, float EffectTime, Vector2 Pos, GameObject Target, bool RandomFlag)
+	{
+		//オノマトペのインスタンス生成
+		GameObject TempOnomatope = Instantiate(OnomatopeOBJ);
+
+		//親を設定
+		TempOnomatope.GetComponent<RectTransform>().SetParent(gameObject.transform);
+
+		//テクスチャ宣言
+		Texture2D TempTexture = null;
+
+		//テクスチャ取得
+		if (RandomFlag)
+		{
+			TempTexture = OnomatopeTextureList[(int)Enum][Random.Range(0, OnomatopeTextureList[(int)Enum].Count)];
+		}
+		else
+		{
+			TempTexture = OnomatopeTextureList[(int)Enum][Index];
+		}
+
+		//テクスチャ割り当て
+		TempOnomatope.GetComponent<Image>().sprite = Sprite.Create(TempTexture, new Rect(0, 0, TempTexture.width, TempTexture.height), Vector2.zero);
+
+		//表示用関数呼び出し
+		TempOnomatope.GetComponent<OnomatopeSettingScript>().ShowOnomatope(EffectTime, Target);
 	}
 
 	//読み込み待ちロゴスタート

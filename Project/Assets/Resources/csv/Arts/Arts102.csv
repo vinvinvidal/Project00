@@ -7,7 +7,7 @@ Damage,0|0|0
 Stun,1|1|1
 Deadly,1|1|1
 ColVec,0*1.25*1*1|0*1.25*1*1|0*1.5*1.5*2
-KnockBackVec,0*1.5*0*0.1|0*2*0*0.1|0*-20*0*0.5
+KnockBackVec,0*1.5*0*0.1|0*2.5*0*0.1|0*-20*0*0.5
 Introduction,空中で基本の連打攻撃。
 UnLock,1|0|0
 Chain,1

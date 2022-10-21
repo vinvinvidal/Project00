@@ -1,30 +1,58 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class OnomatopeSettingScript : GlobalClass
 {
-	//セットするテクスチャList
-	public List<Texture2D> TexList;
+	//メインカメラ
+	private Camera MainCamera;
 
-	//Ztest
-	public float ZTest;
+	//Rectトランスフォーム
+	private RectTransform Rect;
 
-	//マテリアル
-	private Material Mat;
-
-	void Start()
+	//オノマトペ表示
+	public void ShowOnomatope(float EffectTime,GameObject Target)
 	{
-		//カメラに向ける
-		gameObject.transform.LookAt(DeepFind(GameManagerScript.Instance.GetCameraOBJ(), "MainCamera").transform);
+		//表示
+		gameObject.GetComponent<Image>().enabled = true;
 
-		//マテリアル取得
-		Mat = GetComponent<Renderer>().material;
+		if(Target != null)
+		{
+			//メインカメラ取得
+			MainCamera = DeepFind(GameManagerScript.Instance.GetCameraOBJ(), "MainCamera").GetComponent<Camera>();
 
-		//マテリアルにテクスチャをランダムでセット
-		Mat.SetTexture("_TexParticle", TexList[Random.Range(0, TexList.Count)]);
+			//Rectトランスフォーム取得
+			Rect = gameObject.GetComponent<RectTransform>();
+		}
 
-		//マテリアルにZTextをセット
-		Mat.SetFloat("_ZTest", ZTest);
+		//コルーチン呼び出し
+		StartCoroutine(ShowOnomatopeCoroutine(EffectTime, Target));
+	}
+	private IEnumerator ShowOnomatopeCoroutine(float EffectTime, GameObject Target)
+	{
+		//経過時間宣言
+		float StartTime = 0;
+
+		//引数で受け取った持続時間までループ
+		while (StartTime < EffectTime)
+		{
+			if (!GameManagerScript.Instance.PauseFlag)
+			{
+				if(Target != null)
+				{
+					Rect.position = MainCamera.WorldToScreenPoint(Target.transform.position);
+				}
+
+				//経過時間カウントアップ
+				StartTime += Time.deltaTime;
+			}
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//自身を削除
+		Destroy(gameObject);
 	}
 }
