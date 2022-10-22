@@ -43,14 +43,6 @@ public class MissionUIScript : GlobalClass
 	//オノマトペテクスチャList
 	private List<List<Texture2D>> OnomatopeTextureList = new List<List<Texture2D>>();
 
-	//オノマトペテクスチャ種類用Enum
-	public enum TextureEnum
-	{
-		LightAttackHit,     //弱攻撃が当たった時
-		MiddleAttackHit,    //中攻撃が当たった時
-		HeavyAttackHit,     //強攻撃が当たった時
-	}
-
 	void Start()
     {
 		//装備中の技マトリクスオブジェクト取得
@@ -84,33 +76,32 @@ public class MissionUIScript : GlobalClass
 		OnomatopeTextureList.Add(HeavyAttackHitOnomatopeTextureList);
 	}
 
-	//オノマトペ表示
-	public void ShowOnomatope(TextureEnum Enum, int Index, float EffectTime, Vector2 Pos, GameObject Target, bool RandomFlag)
+	//攻撃ヒットオノマトペ表示
+	public void ShowAttackHitOnomatope(OnomatopeTextureEnum Enum, GameObject Target)
 	{
 		//オノマトペのインスタンス生成
 		GameObject TempOnomatope = Instantiate(OnomatopeOBJ);
-
-		//親を設定
-		TempOnomatope.GetComponent<RectTransform>().SetParent(gameObject.transform);
 
 		//テクスチャ宣言
 		Texture2D TempTexture = null;
 
 		//テクスチャ取得
-		if (RandomFlag)
-		{
-			TempTexture = OnomatopeTextureList[(int)Enum][Random.Range(0, OnomatopeTextureList[(int)Enum].Count)];
-		}
-		else
-		{
-			TempTexture = OnomatopeTextureList[(int)Enum][Index];
-		}
+		TempTexture = OnomatopeTextureList[(int)Enum][Random.Range(0, OnomatopeTextureList[(int)Enum].Count)];
+
+		//親を設定、サイズ変更前に処理しないとスクリーンサイズで大きさが変わってしまう
+		TempOnomatope.GetComponent<RectTransform>().SetParent(gameObject.transform);
 
 		//テクスチャ割り当て
 		TempOnomatope.GetComponent<Image>().sprite = Sprite.Create(TempTexture, new Rect(0, 0, TempTexture.width, TempTexture.height), Vector2.zero);
 
+		//サイズをテクスチャと合わせる
+		TempOnomatope.GetComponent<RectTransform>().sizeDelta = new Vector2(TempTexture.width, TempTexture.height);
+
+		//スケールを１にする
+		TempOnomatope.GetComponent<Image>().rectTransform.localScale = Vector3.one;
+
 		//表示用関数呼び出し
-		TempOnomatope.GetComponent<OnomatopeSettingScript>().ShowOnomatope(EffectTime, Target);
+		TempOnomatope.GetComponent<OnomatopeScript>().ShowAttackHitOnomatope(Target);
 	}
 
 	//読み込み待ちロゴスタート

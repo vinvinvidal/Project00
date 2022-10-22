@@ -14,6 +14,23 @@ using UnityEngine.UI;
 //他のスクリプトに継承させて共通の関数を使用できるようにするClass、MonoBehaviourはこいつから継承させる
 public class GlobalClass : MonoBehaviour
 {
+	//オノマトペ種類用Enum
+	public enum OnomatopeTextureEnum
+	{
+		LightAttackHit,     //弱攻撃が当たった時
+		MiddleAttackHit,    //中攻撃が当たった時
+		HeavyAttackHit,     //強攻撃が当たった時
+	}
+
+	//SE種類用Enum
+	public enum SoundEffectEnum
+	{
+		Generic,			//汎用
+		Step,				//足音
+		AttackSwing,        //攻撃風切り音
+		AttackImpact,		//攻撃が当たった時
+		Weapon,				//武器用
+	}
 	//受け取ったボディシェーダー使用のスキンメッシュを統合する関数、これをやる時は元のキャラクターがワールド原点にいて、モーション再生されていないTスタンス状態で処理すること
 	public void SkinMeshIntegration(List<GameObject> OBJList, SkinnedMeshRenderer BoneSample, Action<GameObject> Act)
 	{

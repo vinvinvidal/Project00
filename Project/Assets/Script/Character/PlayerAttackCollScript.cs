@@ -153,6 +153,9 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 
 					//親を解除する
 					HitEffect.transform.parent = null;
+
+					//オノマトペ表示
+					GameManagerScript.Instance.MissionUI.ShowAttackHitOnomatope(OnomatopeTextureEnum.LightAttackHit, HitEffect);
 				}
 
 				//攻撃が当たった時の敵側の処理を呼び出す

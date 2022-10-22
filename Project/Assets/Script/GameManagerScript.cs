@@ -211,6 +211,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//存在している全てのプレイヤー飛び道具オブジェクトList
 	public List<GameObject> AllPlayerWeaponList { get; set; } = new List<GameObject>();
 
+
+
 	//汎用SE
 	public SoundEffectScript GenericSE { get; set; }
 
@@ -2040,12 +2042,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	public void MiniMapSwitch(bool s)
 	{
 		DeepFind(gameObject, "MiniMap").GetComponent<RawImage>().enabled = s;
-	}
-
-	//オノマトペ表示
-	public void ShowOnomatope(MissionUIScript.TextureEnum Enum, int Index, float EffectTime, Vector2 Pos, GameObject Target, bool RandomFlag)
-	{
-		MissionUI.ShowOnomatope(Enum, Index, EffectTime, Pos, Target, RandomFlag);
 	}
 
 	//技クールダウンコルーチン
