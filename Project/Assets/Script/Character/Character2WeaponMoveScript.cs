@@ -262,7 +262,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			TempRigid.isKinematic = false;
 
 			//リジッドボディに力を与える
-			TempRigid.AddForce(BombInst.transform.forward * ThrowPow, ForceMode.Impulse);
+			TempRigid.AddForce(((gameObject.transform.forward * ThrowVec.z) + (gameObject.transform.up * ThrowVec.y) + (gameObject.transform.right * ThrowVec.x)) * ThrowPow, ForceMode.Impulse);
 
 			//ランダムにトグルを与える
 			TempRigid.AddTorque(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)), ForceMode.Impulse);		

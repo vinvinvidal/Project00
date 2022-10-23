@@ -15,33 +15,30 @@ public class OnomatopeScript : GlobalClass
 	private Vector3 PosOffset;
 
 	//攻撃ヒットオノマトペ表示
-	public void ShowAttackHitOnomatope(GameObject Target)
+	public void ShowAttackHitOnomatope(Vector3 TargetPos)
 	{
-		if(Target != null)
-		{
-			//メインカメラ取得
-			MainCamera = DeepFind(GameManagerScript.Instance.GetCameraOBJ(), "MainCamera").GetComponent<Camera>();
+		//メインカメラ取得
+		MainCamera = DeepFind(GameManagerScript.Instance.GetCameraOBJ(), "MainCamera").GetComponent<Camera>();
 
-			//Rectトランスフォーム取得
-			Rect = gameObject.GetComponent<RectTransform>();
+		//Rectトランスフォーム取得
+		Rect = gameObject.GetComponent<RectTransform>();
 
-			//スケールをゼロにする
-			Rect.localScale = Vector3.one * 0.1f;
+		//スケールをゼロにする
+		Rect.localScale = Vector3.one * 0.1f;
 
-			//ランダムな値をオフセット値に取る
-			PosOffset = new Vector3(Random.Range(-1f, 1f), Random.Range(0f, 1f), 0);
-		}
+		//ランダムな値をオフセット値に取る
+		PosOffset = new Vector3(Random.Range(-1f, 1f), Random.Range(0f, 1f), 0);
 
 		//コルーチン呼び出し
-		StartCoroutine(ShowAttackHitOnomatopeCoroutine(Target));
+		StartCoroutine(ShowAttackHitOnomatopeCoroutine(TargetPos));
 	}
-	private IEnumerator ShowAttackHitOnomatopeCoroutine(GameObject Target)
+	private IEnumerator ShowAttackHitOnomatopeCoroutine(Vector3 TargetPos)
 	{
 		//経過時間宣言
 		float StartTime = 0;
 
 		//表示位置に移動
-		Rect.position = MainCamera.WorldToScreenPoint(Target.transform.position + PosOffset);
+		Rect.position = MainCamera.WorldToScreenPoint(TargetPos + PosOffset);
 
 		//画像表示
 		gameObject.GetComponent<Image>().enabled = true;
@@ -64,7 +61,7 @@ public class OnomatopeScript : GlobalClass
 			if (!GameManagerScript.Instance.PauseFlag)
 			{
 				//ランダムで座標を変更して震わせる
-				Rect.position = MainCamera.WorldToScreenPoint(Target.transform.position + PosOffset + new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), 0));
+				Rect.position = MainCamera.WorldToScreenPoint(TargetPos + PosOffset + new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), 0));
 				
 				//経過時間カウントアップ
 				StartTime += Time.deltaTime;

@@ -101,7 +101,7 @@ public class MissionUIScript : GlobalClass
 		TempOnomatope.GetComponent<Image>().rectTransform.localScale = Vector3.one;
 
 		//表示用関数呼び出し
-		TempOnomatope.GetComponent<OnomatopeScript>().ShowAttackHitOnomatope(Target);
+		TempOnomatope.GetComponent<OnomatopeScript>().ShowAttackHitOnomatope(Target.transform.position);
 	}
 
 	//読み込み待ちロゴスタート

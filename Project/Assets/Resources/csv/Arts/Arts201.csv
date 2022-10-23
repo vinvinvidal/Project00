@@ -7,7 +7,7 @@ Damage,1|1
 Stun,1|1
 Deadly,1|1
 ColVec,0*0.75*0.5*2|0*0.75*0.5*2
-KnockBackVec,0*8*0*0.1|0*10*0*0.1
+KnockBackVec,0*5*0*0.1|0*7*0*0.1
 Introduction,逆サマー
 UnLock,0|2|2
 Chain,0

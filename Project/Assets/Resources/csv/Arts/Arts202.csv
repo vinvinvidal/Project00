@@ -2,11 +2,11 @@ NameC,蝓
 NameH,ゆ
 UseCharacter,2
 Anim,Motion_2_AirAttack00
-MoveVec,0*1*0*0.1|0*1*0*1.5|0*1.5*-2*2|0*0*-1*1
+MoveVec,0*1*0*0.1|0*1*0*2|0*1.5*-2*2|0*0*-1*1
 Damage,1|1|1|1
 Stun,1|1|1|1
 Deadly,1|1|1|1
-ColVec,0*1*1*1|0*1*1*1|0*1*1*1|0*1*1*1
+ColVec,0*1*1*1|0*1*1.5*1|0*1*1.5*1|0*1*1*1
 KnockBackVec,0*0.5*0*0.1|0*1.5*0*0.1|0*3*0*0.1|0*2.5*1*0.1
 Introduction,空中で基本の連打攻撃。
 UnLock,1|0|0
@@ -18,7 +18,7 @@ ColType,0|0|0|0
 TimeType,0|0
 HitEffect,HitEffect20|HitEffect20|HitEffect20|HitEffect20
 HitEffectPos,0*0.5*1|0*0.5*1|0*0.75*1|0*0.75*1
-HitEffectAngle,30*0*0|-30*45*0|0*45*0|0*45*0
+HitEffectAngle,-60*45*0|-30*45*0|0*45*0|0*45*0
 HitStop,0|0|0|0
 Charge,0|0|0|0
 HoldPos,0*0*0
