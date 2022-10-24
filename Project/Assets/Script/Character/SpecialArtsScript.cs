@@ -1284,17 +1284,37 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				//移動コルーチン
 				IEnumerator PlayerSpecialAction210(GameObject Player, GameObject Enemy)
 				{
-					while (SpecialAction210Flag)
+					//モーションをゆっくりにする
+					Player.GetComponent<Animator>().SetFloat("SpecialAttackSpeed", 0.25f);
+
+					//ある程度近付くまでループ
+					while (HorizontalVector(Player,Enemy).sqrMagnitude > 5)
 					{
 						//目的地まで移動
-						Player.GetComponent<PlayerScript>().SpecialMoveVector = transform.forward * (((Enemy.transform.position - (gameObject.transform.forward * 0.5f)) - gameObject.transform.position).magnitude) * 5;
-	
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = transform.forward * (((Enemy.transform.position - (gameObject.transform.forward * 0.5f)) - gameObject.transform.position).magnitude) * 2.5f;
+
 						//1フレーム待機
 						yield return null;
 					}
 
+					//モーション速度を戻す
+					Player.GetComponent<Animator>().SetFloat("SpecialAttackSpeed", 1);
+
+					//移動ベクトルを設定
+					//Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+					/*
+					while (SpecialAction210Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = transform.forward * (((Enemy.transform.position - (gameObject.transform.forward * 0.5f)) - gameObject.transform.position).magnitude) * 2.5f;
+	
+						//1フレーム待機
+						yield return null;
+					}
+					
 					//移動ベクトルを設定
 					Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+					*/
 				}
 
 				re.Add
@@ -1316,6 +1336,9 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				(					
 					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
+						//移動ベクトルをリセット
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+
 						//ヒットエフェクトインスタンス生成
 						GameObject HitEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect20").ToList()[0]);
 
@@ -1336,9 +1359,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 				(
 					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
 					{
-						//移動ベクトルをリセット
-						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
-
 						//プレイヤーのフラグを下ろす
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
 					}
