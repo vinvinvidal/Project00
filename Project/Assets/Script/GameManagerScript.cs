@@ -226,7 +226,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	public List<SoundEffectScript> AttackImpactSEList { get; set; }
 
 	//武器固有SE
-	public List<SoundEffectScript> WeaponSEList { get; set; }
+	//public List<SoundEffectScript> WeaponSEList { get; set; }
 
 
 
@@ -421,7 +421,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		GenericSE = DeepFind(gameObject, "GenericSE").GetComponent<SoundEffectScript>();
 
 		//武器SE取得
-		WeaponSEList = new List<SoundEffectScript>(DeepFind(gameObject, "WeaponSE").GetComponents<SoundEffectScript>());
+		//WeaponSEList = new List<SoundEffectScript>(DeepFind(gameObject, "WeaponSE").GetComponents<SoundEffectScript>());
 
 
 		//FPS測定用変数初期化

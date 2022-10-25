@@ -104,6 +104,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//コスチュームルートオブジェクト
 	private GameObject CostumeRootOBJ;
 
+	//武器SEコンポーネント
+	private WeaponSoundEffectScript WeaponSEScript;
+
 	//モザイクオブジェクト
 	private GameObject MosaicOBJ;
 
@@ -914,6 +917,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//アソコオブジェクト取得
 		VaginaOBJ = DeepFind(gameObject, "VaginaTarget");
+
+		//武器SEコンポーネント取得
+		WeaponSEScript = DeepFind(gameObject, "WeaponSE").GetComponent<WeaponSoundEffectScript>();
 
 		//超必殺技装備
 		foreach (SuperClass i in GameManagerScript.Instance.AllSuperArtsList.Where(a => a.UseCharacter == CharacterID && a.ArtsIndex == GameManagerScript.Instance.UserData.EquipSuperArts[CharacterID]).ToArray())
@@ -4620,9 +4626,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//武器のSEを鳴らす
-	private void WeaponSE(int n)
+	public void WeaponSE(int n)
 	{
-		GameManagerScript.Instance.WeaponSEList[CharacterID].PlaySoundEffect(n, 0);
+		//GameManagerScript.Instance.WeaponSEList[CharacterID].PlaySoundEffect(n, 0);
+		WeaponSEScript.PlaySoundEffect(n, 0);
 	}
 
 	//武器を移動させる

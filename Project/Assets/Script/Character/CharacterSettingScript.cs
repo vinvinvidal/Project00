@@ -32,6 +32,9 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 	//武器オブジェクト読み込み完了フラグ
 	private bool WeaponLoadCompleteFlag = false;
 
+	//武器SE読み込み完了フラグ
+	private bool WeaponSELoadCompleteFlag = false;
+
 	void Start()
     {
 		//準備完了待機コルーチン呼び出し
@@ -130,6 +133,16 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 
 					//読み込み完了フラグを立てる
 					WeaponLoadCompleteFlag = true;
+				}));
+
+				//武器用SE読み込み
+				StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Audio/SoundEffect/Weapon/" + ID+"/", "mp3", (List<object> list) =>
+				{
+					//読み込んだSEをListにして渡す
+					DeepFind(gameObject,"WeaponSE").GetComponent<WeaponSoundEffectScript>().AudioList = new List<AudioClip>(list.Select(a => a as AudioClip).ToList());
+
+					//読み込み完了フラグを立てる
+					WeaponSELoadCompleteFlag = true;
 				}));
 
 				//髪オブジェクト読み込み
@@ -474,7 +487,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 	IEnumerator AllReadyCoroutine()
 	{
 		//読み込み完了するまで回る
-		while (!(HairLoadCompleteFlag && CostumeLoadCompleteFlag && WeaponLoadCompleteFlag && MiniMapOBJLoadCompleteFlag))
+		while (!(HairLoadCompleteFlag && CostumeLoadCompleteFlag && WeaponSELoadCompleteFlag && WeaponLoadCompleteFlag && MiniMapOBJLoadCompleteFlag))
 		{
 			yield return null;
 		}

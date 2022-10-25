@@ -28,6 +28,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	//プレイヤースクリプト
 	private PlayerScript PScript;
 
+	//SEスクリプト
+	private WeaponSoundEffectScript SEScript;
+
 	//ボーンList
 	public List<GameObject> BoneList = new List<GameObject>();
 
@@ -68,6 +71,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	{
 		//プレイヤースクリプト取得
 		PScript = gameObject.transform.root.gameObject.GetComponent<PlayerScript>();
+
+		//SEスクリプト取得
+		SEScript = DeepFind(gameObject,"WeaponSE").GetComponent<WeaponSoundEffectScript>();
 
 		//メインカメラ取得
 		MainCamera = DeepFind(GameManagerScript.Instance.gameObject, "MainCamera");
@@ -161,7 +167,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		if (AttachOBJ == "S")
 		{
 			//SEを鳴らす
-			GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(1, 0.25f);
+			SEScript.PlaySoundEffect(1, 0);
 
 			//爆発エフェクト取得
 			GameObject BombEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(e => e.name == "BombEffect").ToArray()[0]);
@@ -442,7 +448,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			if (Target != null)
 			{
 				//SEを鳴らす
-				GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(0, 0);
+				SEScript.PlaySoundEffect(0, 0);
 
 				//敵の首にアタッチ
 				BoneList[5].transform.parent = DeepFind(Target, "NeckBone").transform;
@@ -493,7 +499,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			if (Target != null)
 			{
 				//SEを鳴らす
-				GameManagerScript.Instance.WeaponSEList[2].PlaySoundEffect(0, 0);
+				SEScript.PlaySoundEffect(0, 0);
 
 				//敵の首にアタッチ
 				BoneList[5].transform.parent = DeepFind(Target, "NeckBone").transform;
