@@ -110,6 +110,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//画面解像度
 	public int ScreenResolution;
 
+	//画面解像度倍率
+	public float ScreenResolutionScale;
+
 	//フレームレート
 	public int FrameRate;
 
@@ -382,7 +385,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		Cursor.visible = false;
 
 		//起動時にスクリーンサイズを決定
-		Screen.SetResolution(ScreenAspect.x * ScreenResolution, ScreenAspect.y * ScreenResolution, FullScreenMode.FullScreenWindow);
+		//Screen.SetResolution(ScreenAspect.x * ScreenResolution, ScreenAspect.y * ScreenResolution, FullScreenMode.FullScreenWindow);
+		Screen.SetResolution(Screen.width, Screen.height, FullScreenMode.FullScreenWindow);		
 
 		//フレームレートを設定
 		Application.targetFrameRate = FrameRate;

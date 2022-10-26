@@ -65,7 +65,7 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 		MirrorForwardOBJ = DeepFind(transform.gameObject, "MirrorForward");
 
 		//ミラー用レンダーテクスチャを初期化
-		MirrorTexture = new RenderTexture(128, 128, 24, RenderTextureFormat.ARGB32);
+		MirrorTexture = new RenderTexture(128, 128, 24, RenderTextureFormat.RGB565);
 
 		//カメラのターゲットテクスチャにレンダーテクスチャをセット
 		MirrorCamera.targetTexture = MirrorTexture;
