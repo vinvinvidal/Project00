@@ -41,7 +41,7 @@ public class OutLineScript : GlobalClass
 	{
 		//アウトラインをレンダリングするテクスチャ作成
 		//OutLineTexture = new RenderTexture(Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.x), Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.y), 8, RenderTextureFormat.ARGB32);
-		OutLineTexture = new RenderTexture((int)(Screen.currentResolution.width * GameManagerScript.Instance.ScreenResolutionScale), (int)(Screen.currentResolution.height * GameManagerScript.Instance.ScreenResolutionScale), 8, RenderTextureFormat.ARGB32);
+		OutLineTexture = new RenderTexture((int)(Screen.width * GameManagerScript.Instance.ScreenResolutionScale), (int)(Screen.height * GameManagerScript.Instance.ScreenResolutionScale), 8, RenderTextureFormat.ARGB32);
 
 		//マスキングをレンダリングするテクスチャ作成
 		//MaskingTexture = new RenderTexture(Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.x * 0.05f) , Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.y * 0.05f), 24, RenderTextureFormat.ARGB32);

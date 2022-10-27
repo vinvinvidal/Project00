@@ -25,7 +25,7 @@
 		Lighting Off
 
 		//両面表示
-		//Cull off
+		Cull off
 
 		//Zテスト
 		ZTest[_ZTest]

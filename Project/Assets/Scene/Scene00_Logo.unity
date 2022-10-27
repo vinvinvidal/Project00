@@ -366,7 +366,7 @@ PrefabInstance:
     - target: {fileID: 1903125799160465643, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: ScreenResolutionScale
-      value: 0.1
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2294932399964994104, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}

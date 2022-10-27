@@ -8,8 +8,8 @@ public class OnomatopeScript : GlobalClass
 	//メインカメラ
 	private Camera MainCamera;
 
-	//キャンバスのRectトランスフォームスケール
-	private float CanvasRectScale;
+	//3DとUIのキャンバスサイズ比
+	private float CanvasRatio;
 
 	//Rectトランスフォーム
 	private RectTransform Rect;
@@ -26,15 +26,15 @@ public class OnomatopeScript : GlobalClass
 		//Rectトランスフォーム取得
 		Rect = gameObject.GetComponent<RectTransform>();
 
-		//キャンバスのRectトランスフォームスケール取得
-		CanvasRectScale = gameObject.transform.parent.GetComponent<CanvasScaler>().referenceResolution.x * gameObject.transform.parent.GetComponent<RectTransform>().localScale.x;
+		//3DとUIの画面サイズ比を算出
+		CanvasRatio = (gameObject.transform.parent.GetComponent<CanvasScaler>().referenceResolution.x * gameObject.transform.parent.GetComponent<RectTransform>().localScale.x) / (Screen.width * GameManagerScript.Instance.ScreenResolutionScale);
 
 		//スケールをゼロにする
 		Rect.localScale = Vector3.one * 0.1f;
 
 		//ランダムな値をオフセット値に取る
-		//TargetPos += new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(0f, 1f), Random.Range(-0.5f, 0.5f));
-		print(MainCamera.WorldToScreenPoint(TargetPos) * (1 / GameManagerScript.Instance.ScreenResolutionScale) * CanvasRectScale);
+		TargetPos += new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(0f, 1f), Random.Range(-0.5f, 0.5f));
+
 		//コルーチン呼び出し
 		StartCoroutine(ShowAttackHitOnomatopeCoroutine(TargetPos));
 	}
@@ -44,7 +44,7 @@ public class OnomatopeScript : GlobalClass
 		float StartTime = 0;
 
 		//表示位置に移動
-		Rect.position = MainCamera.WorldToScreenPoint(TargetPos) * (1 / GameManagerScript.Instance.ScreenResolutionScale) * CanvasRectScale * gameObject.transform.parent.GetComponent<RectTransform>().localScale.x;
+		Rect.position = MainCamera.WorldToScreenPoint(TargetPos) * CanvasRatio;
 
 		//画像表示
 		gameObject.GetComponent<Image>().enabled = true;
@@ -58,7 +58,7 @@ public class OnomatopeScript : GlobalClass
 			yield return null;
 		}
 
-		//スケールを1にする
+		//キャンバス比率を元にスケールを設定
 		Rect.localScale = Vector3.one;
 
 		//引数で受け取った持続時間までループ
@@ -67,7 +67,7 @@ public class OnomatopeScript : GlobalClass
 			if (!GameManagerScript.Instance.PauseFlag)
 			{
 				//ランダムで座標を変更して震わせる
-				//Rect.position = MainCamera.WorldToScreenPoint(TargetPos + new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), 0)) * (1 / GameManagerScript.Instance.ScreenResolutionScale);
+				Rect.position = MainCamera.WorldToScreenPoint(TargetPos + new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), 0)) * CanvasRatio;
 				
 				//経過時間カウントアップ
 				StartTime += Time.deltaTime;

@@ -155,7 +155,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 					HitEffect.transform.parent = null;
 
 					//オノマトペ表示
-					GameManagerScript.Instance.MissionUI.ShowAttackHitOnomatope(OnomatopeTextureEnum.LightAttackHit, PlayerCharacter);
+					GameManagerScript.Instance.MissionUI.ShowAttackHitOnomatope(OnomatopeTextureEnum.LightAttackHit, Hit.gameObject.transform.root.gameObject);
 				}
 
 				//攻撃が当たった時の敵側の処理を呼び出す

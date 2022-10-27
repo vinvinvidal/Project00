@@ -33,19 +33,25 @@ public class MixTexScript : GlobalClass
 	void Start()
 	{
 		//画面最大解像度取得
-		MaxRes = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
+		MaxRes = new Vector2(Screen.width, Screen.height);
 
 		//レンダーテクスチャーを作成
-		RendTex = new RenderTexture((int)(MaxRes.x * GameManagerScript.Instance.ScreenResolutionScale), (int)(MaxRes.y * GameManagerScript.Instance.ScreenResolutionScale), 0, RenderTextureFormat.RGB565);
+		RendTex = new RenderTexture((int)(MaxRes.x * GameManagerScript.Instance.ScreenResolutionScale), (int)(MaxRes.y * GameManagerScript.Instance.ScreenResolutionScale), 0, RenderTextureFormat.ARGB32);
 
 		//自身のカメラ取得
 		MainCamera = GetComponent<Camera>();
 
+		//ディスプレイに描画するルートカメラ取得
 		RootCamera = transform.parent.GetComponent<Camera>();
 
-		CommandBuffer commandBuffer = new CommandBuffer();
-		commandBuffer.Blit((RenderTargetIdentifier)RendTex, BuiltinRenderTextureType.CameraTarget);
-		RootCamera.AddCommandBuffer(CameraEvent.AfterEverything, commandBuffer);
+		//コマンドバッファ宣言
+		CommandBuffer CmdBuffer = new CommandBuffer();
+
+		//メッシュのレンダリング結果とUIカメラのレンダリング結果をブレンド
+		CmdBuffer.Blit((RenderTargetIdentifier)RendTex, BuiltinRenderTextureType.CameraTarget);
+
+		//メインカメラにコマンドバッファをAdd
+		RootCamera.AddCommandBuffer(CameraEvent.AfterEverything, CmdBuffer);
 
 		//レンダーテクスチャ設定
 		MainCamera.targetTexture = RendTex;

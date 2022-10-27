@@ -4014,7 +4014,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			if (UseArts.HitStop[AttackIndex] != 0)
 			{
 				//ヒットストップ処理
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.01f, () => { }));
+				//ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(UseArts.HitStop[AttackIndex], 0.01f, () => { }));
 			}
 	
 			//地上突進技が当たったらその場で停止させる

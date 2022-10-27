@@ -385,7 +385,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		Cursor.visible = false;
 
 		//起動時にスクリーンサイズを決定
-		//Screen.SetResolution(ScreenAspect.x * ScreenResolution, ScreenAspect.y * ScreenResolution, FullScreenMode.FullScreenWindow);
 		Screen.SetResolution(Screen.width, Screen.height, FullScreenMode.FullScreenWindow);		
 
 		//フレームレートを設定
@@ -423,10 +422,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//汎用SE取得
 		GenericSE = DeepFind(gameObject, "GenericSE").GetComponent<SoundEffectScript>();
-
-		//武器SE取得
-		//WeaponSEList = new List<SoundEffectScript>(DeepFind(gameObject, "WeaponSE").GetComponents<SoundEffectScript>());
-
 
 		//FPS測定用変数初期化
 		FPS = 0;
@@ -1487,7 +1482,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	{
 		//経過時間宣言
 		float StopTime = 0;
-
+		print(1);
 		//引数で受け取った持続時間まで待機
 		while (t > StopTime)
 		{
