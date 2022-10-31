@@ -1482,7 +1482,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	{
 		//経過時間宣言
 		float StopTime = 0;
-		print(1);
+
 		//引数で受け取った持続時間まで待機
 		while (t > StopTime)
 		{
