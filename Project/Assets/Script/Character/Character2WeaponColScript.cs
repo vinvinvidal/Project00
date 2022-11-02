@@ -206,7 +206,7 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 		else if (WeaponIndex == 1)
 		{
 			//コライダが敵に当たった
-			if (Hit.gameObject.layer == LayerMask.NameToLayer("EnemyDamageCol"))
+			if (Hit.gameObject.layer == LayerMask.NameToLayer("EnemyDamageCol") || Hit.gameObject.layer == LayerMask.NameToLayer("PlayerAttackCol"))
 			{
 				//コライダを無効化
 				WeaponCol.enabled = false;
@@ -218,7 +218,14 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 				GameObject TempEfffect = Instantiate(BombEffect);
 
 				//SEを鳴らす
-				CharacterOBJ.GetComponent<PlayerScript>().WeaponSE(1);
+				//CharacterOBJ.GetComponent<PlayerScript>().WeaponSE(1);
+				foreach (SoundEffectScript i in GameManagerScript.Instance.AttackImpactSEList)
+				{
+					if (i.AudioName.Contains("_B"))
+					{
+						i.PlayRandomList();
+					}
+				}
 
 				//位置を設定
 				TempEfffect.transform.position = gameObject.transform.position;
@@ -246,7 +253,7 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 			if (Hit.gameObject.layer == LayerMask.NameToLayer("EnemyDamageCol"))
 			{
 				//架空の技を作成
-				ArtsClass TempArts = MakeInstantArts(new List<Color>() { new Color(0, 0.25f, 0, 0.1f) }, new List<float>() { 1 }, new List<int>() { 1 }, new List<int>() { 11 }, new List<int>() { 1 }, new List<int>() { 0 });
+				ArtsClass TempArts = MakeInstantArts(new List<Color>() { new Color(0, 1.5f, 0, 0.1f) }, new List<float>() { 1 }, new List<int>() { 1 }, new List<int>() { 11 }, new List<int>() { 1 }, new List<int>() { 0 });
 
 				//敵側の処理呼び出し、架空の技を渡して技が当たった事にする
 				ExecuteEvents.Execute<EnemyCharacterInterface>(Hit.gameObject.transform.root.gameObject, null, (reciever, eventData) => reciever.PlayerAttackHit(TempArts, 0));
@@ -275,7 +282,14 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 		GameObject TempEfffect = Instantiate(BombEffect);
 
 		//SEを鳴らす
-		CharacterOBJ.GetComponent<PlayerScript>().WeaponSE(1);
+		//CharacterOBJ.GetComponent<PlayerScript>().WeaponSE(1);
+		foreach (SoundEffectScript i in GameManagerScript.Instance.AttackImpactSEList)
+		{
+			if (i.AudioName.Contains("_B"))
+			{
+				i.PlayRandomList();
+			}
+		}
 
 		//位置を設定
 		TempEfffect.transform.position = gameObject.transform.position;

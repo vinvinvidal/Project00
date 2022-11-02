@@ -56,7 +56,7 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 	void Start()
 	{
 		//メインカメラ取得
-		MainCamera = GameObject.Find("MainCamera");
+		MainCamera = GameManagerScript.Instance.GetMainCameraOBJ();
 
 		//ミラーカメラ取得
 		MirrorCamera = DeepFind(transform.gameObject, "MirrorCamera").GetComponent<Camera>();

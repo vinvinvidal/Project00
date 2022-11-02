@@ -159,7 +159,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		MissionManager = transform.root.gameObject;
 
 		//メインカメラ本体を取得
-		MainCamera = DeepFind(transform.root.gameObject, "MainCamera");
+		MainCamera = GameManagerScript.Instance.GetMainCameraOBJ();
 
 		//メインカメラ本体のキャラクターコントローラ取得
 		CameraController = MainCamera.GetComponent<CharacterController>();

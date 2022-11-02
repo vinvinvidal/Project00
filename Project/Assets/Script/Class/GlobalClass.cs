@@ -31,6 +31,14 @@ public class GlobalClass : MonoBehaviour
 		AttackImpact,		//攻撃が当たった時
 		Weapon,				//武器用
 	}
+
+	//３D空間のポジションをUIの座標に変換する関数
+	public Vector3 UIPosition(CanvasScaler Scaler, RectTransform Rect, Vector3 Pos)
+	{
+		//UI座標に3D用レンダーテクスチャとUIキャンバスサイズ比率を掛けて出力
+		return GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<Camera>().WorldToScreenPoint(Pos) * (Scaler.referenceResolution.x * Rect.localScale.x) / (Screen.width * GameManagerScript.Instance.ScreenResolutionScale);
+	}
+
 	//受け取ったボディシェーダー使用のスキンメッシュを統合する関数、これをやる時は元のキャラクターがワールド原点にいて、モーション再生されていないTスタンス状態で処理すること
 	public void SkinMeshIntegration(List<GameObject> OBJList, SkinnedMeshRenderer BoneSample, Action<GameObject> Act)
 	{

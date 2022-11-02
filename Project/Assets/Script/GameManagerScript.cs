@@ -34,7 +34,10 @@ public interface GameManagerScriptInterface : IEventSystemHandler
 	GameObject GetPlayableCharacterOBJ();
 
 	//カメラルート返すインターフェイス
-	GameObject GetCameraOBJ();
+	GameObject GetCameraRootOBJ();
+
+	//メインカメラを返すインターフェイス
+	GameObject GetMainCameraOBJ();
 
 	//交代可能な参加メンバーをセットするインターフェイス
 	void SetMissionCharacterDic(Dictionary<int, GameObject> MCD);
@@ -163,6 +166,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//ミッションに参加していて交代可能なキャラクター
 	private Dictionary<int, GameObject> MissionCharacterDic;
+
+	//カメラルート
+	private GameObject CameraRoot;
 
 	//メインカメラ
 	private GameObject MainCamera;
@@ -396,8 +402,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//データパス取得
 		DataPath = Application.dataPath;
 
+		//カメラルート取得
+		CameraRoot = DeepFind(gameObject, "CameraRoot");
+
 		//メインカメラ取得
-		MainCamera = DeepFind(gameObject, "CameraRoot");
+		MainCamera = DeepFind(CameraRoot, "MainCamera");
 
 		//バーチャルカメラ取得
 		VCamera = DeepFind(gameObject , "MasterVcam").GetComponent<CinemachineVirtualCamera>();
@@ -1508,8 +1517,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	public void EasingVcamera()
 	{
 		//バーチャルカメラPRSをメインカメラに合わせる
-		VCamera.gameObject.transform.position = DeepFind(MainCamera , "MainCamera").transform.position;
-		VCamera.gameObject.transform.rotation = DeepFind(MainCamera, "MainCamera").transform.rotation;
+		VCamera.gameObject.transform.position = MainCamera.transform.position;
+		VCamera.gameObject.transform.rotation = MainCamera.transform.rotation;
 
 		//バーチャルカメラ有効化
 		VCamera.enabled = true;
@@ -1614,7 +1623,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		ExecuteEvents.Execute<CharacterFaceShaderScriptInterface>(PlayableCharacterOBJ.GetComponentInChildren<CharacterFaceShaderScript>().gameObject, null, (rec, eve) => rec.ChangeLight(DeepFind(gameObject, "OutDoorLight").transform));
 
 		//他のライトを点ける
-		if (MainCamera.GetComponent<MainCameraScript>().Location.Contains("In"))
+		if (CameraRoot.GetComponent<MainCameraScript>().Location.Contains("In"))
 		{
 			//屋内
 			ExecuteEvents.Execute<LightColorChangeScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "OutDoorLight"), null, (reciever, eventData) => reciever.LightChange(t, 0.65f, () => { }));
@@ -1653,7 +1662,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		}));
 
 		//メインカメラの超必殺技フラグを下す
-		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetSuperArtsFlag(false));
+		ExecuteEvents.Execute<MainCameraScriptInterface>(CameraRoot, null, (reciever, eventData) => reciever.SetSuperArtsFlag(false));
 	}
 
 	//スカイボックスを消す
@@ -1808,7 +1817,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		GameObject TempEnemy = null;
 
 		//メインカメラのCmaeraコンポーネント
-		Camera TempCamera = DeepFind(MainCamera, "MainCamera").GetComponent<Camera>();
+		Camera TempCamera = MainCamera.GetComponent<Camera>();
 
 		if (LockEnemy != null && AllActiveEnemyList.Any(a => a != null))
 		{
@@ -1858,7 +1867,13 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//カメラルート返すインターフェイス
-	public GameObject GetCameraOBJ()
+	public GameObject GetCameraRootOBJ()
+	{
+		return CameraRoot;
+	}
+
+	//メインカメラを返すインターフェイス
+	public GameObject GetMainCameraOBJ()
 	{
 		return MainCamera;
 	}
@@ -1941,10 +1956,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		ExecuteEvents.Execute<PlayerScriptInterface>(NextCharacter, null, (reciever, eventData) => reciever.ContinueSituation(e, g, t, a, f, d));
 
 		//メインカメラにもプレイヤーキャラクターを渡す
-		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));
+		ExecuteEvents.Execute<MainCameraScriptInterface>(CameraRoot, null, (reciever, eventData) => reciever.SetPlayerCharacter(NextCharacter));
 
 		//メインカメラにもロック中の敵を引き継ぐ
-		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCamera, null, (reciever, eventData) => reciever.SetLockEnemy(e));
+		ExecuteEvents.Execute<MainCameraScriptInterface>(CameraRoot, null, (reciever, eventData) => reciever.SetLockEnemy(e));
 
 		//敵にプレイヤーキャラクターを渡す
 		foreach (var i in AllActiveEnemyList)

@@ -83,7 +83,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		ArtsSelectScrollBarOBJ = DeepFind(ArtsEquipOBJ, "ArtsList");
 
 		//キャンバスにカメラを設定
-		GetComponent<Canvas>().worldCamera = GameObject.Find("MainCamera").GetComponent<Camera>();
+		GetComponent<Canvas>().worldCamera = GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<Camera>();
 
 		//キャンバスの位置を設定
 		GetComponent<Canvas>().planeDistance = 0.25f;

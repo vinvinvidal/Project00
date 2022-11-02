@@ -28,7 +28,7 @@ public class MosaicShaderScript : GlobalClass
 		}		
 
 		//メインカメラ取得
-		MainCamera = GameObject.Find("MainCamera");
+		MainCamera = GameManagerScript.Instance.GetMainCameraOBJ();
 
 		//パーティクルシステム取得
 		MosaicParticle = GetComponent<ParticleSystem>();

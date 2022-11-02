@@ -701,7 +701,7 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 	private IEnumerator GeneraeteWallCoroutine()
 	{
 		//画面揺らし
-		ExecuteEvents.Execute<MainCameraScriptInterface>(GameManagerScript.Instance.GetCameraOBJ(), null, (reciever, eventData) => reciever.CameraShake(1f));
+		ExecuteEvents.Execute<MainCameraScriptInterface>(GameManagerScript.Instance.GetCameraRootOBJ(), null, (reciever, eventData) => reciever.CameraShake(1f));
 
 		//ガベージ発生頂点座標List宣言
 		List<Vector3> VertexList = new List<Vector3>();

@@ -39,7 +39,7 @@ public class CinemachineCameraScript : GlobalClass
 	void Start()
 	{
 		//メインカメラ取得
-		MainCamera = GameObject.Find("MainCamera");
+		MainCamera = GameManagerScript.Instance.GetMainCameraOBJ();
 
 		//メインカメラのターゲットオブジェクト取得
 		CameraTarget = GameObject.Find("MainCameraTarget");

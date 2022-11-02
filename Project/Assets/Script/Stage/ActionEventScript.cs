@@ -47,7 +47,7 @@ public class ActionEventScript : GlobalClass
 		AcitionAnim = transform.parent.GetComponentInChildren<Animation>();
 
 		//メインカメラ取得
-		MainCamera = GameObject.Find("MainCamera");
+		MainCamera = GameManagerScript.Instance.GetMainCameraOBJ();
 
 		//野外用ライト取得
 		OutDoorLight = GameObject.Find("OutDoorLight");

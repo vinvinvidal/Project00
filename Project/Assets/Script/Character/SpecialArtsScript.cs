@@ -420,7 +420,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//花火エフェクトインスタンス生成
 						SuperFireWorkEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SuperArtsFireWorkEffect").ToArray()[0]);
-						SuperFireWorkEffect.transform.position = Player.transform.position - HorizontalVector(GameObject.Find("MainCamera"), Player) * 2.5f;
+						SuperFireWorkEffect.transform.position = Player.transform.position - HorizontalVector(GameManagerScript.Instance.GetMainCameraOBJ(), Player) * 2.5f;
 						SuperFireWorkEffect.transform.LookAt(Player.transform);
 
 						//揺れ物をバタバタさせる

@@ -4991,7 +4991,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 0.2
+  m_Radius: 0.15
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3892235707546350038
 MonoBehaviour:
@@ -5118,8 +5118,12 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 7410320e3f1d81241b5369e8902a13e5, type: 3}
   _TexNormal: {fileID: 2800000, guid: 361a9ea1f4b5acf4a886310fcb993736, type: 3}
   _TexHiLight: {fileID: 2800000, guid: f5e9213a1e14db74c99988bc04fe4370, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: b3fcbe890addbb04099962054fbbbc38, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineBaseFlag: 0
+  CombineTopsOffFlag: 0
+  CombineBraOffFlag: 0
+  CombinePantsOffFlag: 0
 --- !u!1 &6210976495279076015
 GameObject:
   m_ObjectHideFlags: 0
@@ -5217,8 +5221,12 @@ MonoBehaviour:
   _TexBase: {fileID: 2800000, guid: 7410320e3f1d81241b5369e8902a13e5, type: 3}
   _TexNormal: {fileID: 2800000, guid: 361a9ea1f4b5acf4a886310fcb993736, type: 3}
   _TexHiLight: {fileID: 2800000, guid: f5e9213a1e14db74c99988bc04fe4370, type: 3}
-  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
   _TexLine: {fileID: 2800000, guid: b3fcbe890addbb04099962054fbbbc38, type: 3}
+  _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
+  CombineBaseFlag: 0
+  CombineTopsOffFlag: 0
+  CombineBraOffFlag: 0
+  CombinePantsOffFlag: 0
 --- !u!114 &567551184492861541
 MonoBehaviour:
   m_ObjectHideFlags: 0

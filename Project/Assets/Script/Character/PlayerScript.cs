@@ -763,7 +763,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
 
 		//メインカメラのトランスフォーム取得
-		MainCameraTransform = GameObject.Find("MainCamera").transform;
+		MainCameraTransform = GameManagerScript.Instance.GetMainCameraOBJ().transform;
 
 		//スケベ用カメラワークオブジェクト取得
 		H_CameraOBJ = DeepFind(gameObject , "H_Camera");

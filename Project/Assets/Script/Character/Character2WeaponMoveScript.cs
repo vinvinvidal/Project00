@@ -76,7 +76,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		SEScript = DeepFind(gameObject,"WeaponSE").GetComponent<WeaponSoundEffectScript>();
 
 		//メインカメラ取得
-		MainCamera = DeepFind(GameManagerScript.Instance.gameObject, "MainCamera");
+		MainCamera = GameManagerScript.Instance.GetMainCameraOBJ();
 
 		//タバコのアタッチ先List取得
 		CigaretteAttachList.Add(DeepFind(gameObject, "CigaretteBone"));

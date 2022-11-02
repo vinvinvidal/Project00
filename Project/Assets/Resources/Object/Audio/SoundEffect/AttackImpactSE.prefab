@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: -4646681216239969985}
   - component: {fileID: 9075428507293338646}
   - component: {fileID: 3200144299474684620}
+  - component: {fileID: 6396631324328400263}
   m_Layer: 0
   m_Name: AttackImpactSE
   m_TagString: Untagged
@@ -177,3 +178,18 @@ MonoBehaviour:
   AudioName: AttackImpact_H
   AudioList:
   - {fileID: 8300000, guid: 95169bf2088dd294eab547c2cf0a1543, type: 3}
+--- !u!114 &6396631324328400263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662737483891536098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 102bc0a6f83119d4aa7614a31cc4e2a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AudioName: AttackImpact_B
+  AudioList:
+  - {fileID: 8300000, guid: 9ba70024afe0b3c4abba150e8b40cfff, type: 3}
