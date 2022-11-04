@@ -3729,7 +3729,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		ResetTransform(TempAttackEffect);
 
 		//親を解除
-		//TempAttackEffect.transform.parent = null;
+		TempAttackEffect.transform.parent = null;
 
 		//タメ攻撃の場合エフェクトをでかくする
 		if (ChargeLevel > 0)

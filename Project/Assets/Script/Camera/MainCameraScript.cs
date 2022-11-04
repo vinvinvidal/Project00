@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 //当たっていたらRayと障害物の反射ベクトルを取る
 //MainCameraTargetPos = CameraRay.direction + 2 * (Vector3.Dot(-CameraRay.direction, CameraRayHit.normal)) * CameraRayHit.normal;
@@ -123,6 +124,12 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 	//プレイヤーがロックしている敵オブジェクト
 	private GameObject LockEnemy;
 
+	//UIキャンバスRectトランスフォーム
+	private RectTransform ViewRect;
+
+	//UIキャンバススケーラー
+	private CanvasScaler ViewScaler;
+
 	//カメラ視線障害物フラグ、地形
 	private bool RayHitStageFlag = false;
 
@@ -181,6 +188,12 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 
 		//プレイヤーが通過してきた場所を記録するList初期化
 		PlayerTraceList = new List<Vector3>();
+
+		//UIキャンバスRectトランスフォーム取得
+		ViewRect = DeepFind(GameManagerScript.Instance.gameObject, "MissionUI").GetComponent<RectTransform>();
+
+		//UIキャンバススケーラー取得
+		ViewScaler = DeepFind(GameManagerScript.Instance.gameObject, "MissionUI").GetComponent<CanvasScaler>();
 
 		//カメラ視線障害物フラグ初期化
 		RayHitStageFlag = false;
@@ -385,22 +398,41 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 
 			//プレイヤーインプットから受け取ったズーム値を距離制限に入れる
 			MainCameraTargetDistance -= CameraZoominputValue * CameraMoveSpeed * Time.deltaTime;
-			
+
 			//コライダがステージに触れている
 			if (ColHit != null && LayerMask.LayerToName(ColHit.gameObject.layer) == "TransparentFX")
 			{
 				//カメラの向きと接触面の反射ベクトルにカメラを移動させる
 				MainCameraTargetPos += -MainCamera.transform.forward + 2 * Vector3.Dot(MainCamera.transform.forward, ColHit.normal) * ColHit.normal;
 			}
+
+			//距離制限
+			if (MainCameraTargetDistance > CameraFarLimit)
+			{
+				MainCameraTargetDistance = CameraFarLimit;
+			}
+			else if (MainCameraTargetDistance < CameraNearLimit)
+			{
+				MainCameraTargetDistance = CameraNearLimit;
+			}
+			if ((transform.position - MainCameraTargetOBJ.transform.position).sqrMagnitude > Mathf.Pow(MainCameraTargetDistance + 0.01f, 2))
+			{
+				MainCameraTargetPos += MainCameraTargetOBJ.transform.forward;
+			}
+			else if ((transform.position - MainCameraTargetOBJ.transform.position).sqrMagnitude < Mathf.Pow(MainCameraTargetDistance - 0.01f, 2))
+			{
+				MainCameraTargetPos += -MainCameraTargetOBJ.transform.forward;
+			}
+
 			//敵をロックしている
-			else if (LockEnemy != null)
+			if (LockEnemy != null)
 			{
 				//画角に収まってるかbool
 				bool OnCameraBool = true;
 
 				//判定用ポジションList
 				List<Vector3> PosList = new List<Vector3>();
-
+				/*
 				//判定用のポジションをAdd、キャラクターの周囲８点とエネミーの上下２点
 				PosList.Add(PlayerCharacter.transform.position + new Vector3(0.25f, 0.25f, 0.25f));
 				PosList.Add(PlayerCharacter.transform.position + new Vector3(0.25f, 0.25f, -0.25f));
@@ -412,12 +444,16 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 				PosList.Add(PlayerCharacter.transform.position + new Vector3(-0.25f, 1.5f, -0.25f));
 				PosList.Add(LockEnemy.transform.position + new Vector3(0, 0.25f, 0));
 				PosList.Add(LockEnemy.transform.position + new Vector3(0, LockEnemy.GetComponent<CharacterController>().height, 0));
+				*/
+
+				PosList.Add(LockEnemy.transform.position + new Vector3(0, 0.75f, 0));
+				PosList.Add(PlayerCharacter.transform.position + new Vector3(0, 0.75f, 0));
 
 				//全てのポジションを判定
 				foreach (Vector3 i in PosList)
 				{
 					//１点でも出ていたらboolをfalseにしてループを抜ける
-					if(!InCameraView(i))
+					if (!InCameraView(i))
 					{
 						OnCameraBool = false;
 
@@ -431,31 +467,13 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 				//プレイヤーもしくはロックしている敵が画面外に出ている
 				if (!OnCameraBool)
 				{
-					//プレイヤーの後方にターゲットダミー移動、高低差も取って上げ下げする
-					MainCameraTargetPos += new Vector3(0, PlayerCharacter.transform.position.y - LockEnemy.transform.position.y, 0).normalized;
+					//プレイヤーの後方にターゲットダミー移動
+					//MainCameraTargetPos += new Vector3(0, PlayerCharacter.transform.position.y - LockEnemy.transform.position.y, 0).normalized;
+					MainCameraTargetPos = ((PlayerCharacter.transform.position + ((PlayerCharacter.transform.position - LockEnemy.transform.position).normalized * 5)) - MainCameraTargetOBJ.transform.position).normalized;
 
 					//画角を取るためカメラを引く
-					MainCameraTargetDistance += CameraMoveSpeed * 0.5f * Time.deltaTime;
+					//MainCameraTargetDistance += CameraMoveSpeed * 0.5f * Time.deltaTime;
 				}
-			}
-
-			//距離制限
-			if (MainCameraTargetDistance > CameraFarLimit)
-			{
-				MainCameraTargetDistance = CameraFarLimit;
-			}
-			else if (MainCameraTargetDistance < CameraNearLimit)
-			{
-				MainCameraTargetDistance = CameraNearLimit;
-			}
-
-			if ((transform.position - MainCameraTargetOBJ.transform.position).sqrMagnitude > Mathf.Pow(MainCameraTargetDistance + 0.01f, 2))
-			{
-				MainCameraTargetPos += MainCameraTargetOBJ.transform.forward;
-			}
-			else if ((transform.position - MainCameraTargetOBJ.transform.position).sqrMagnitude < Mathf.Pow(MainCameraTargetDistance - 0.01f, 2))
-			{
-				MainCameraTargetPos += -MainCameraTargetOBJ.transform.forward;
 			}
 
 			//角度制限
@@ -469,7 +487,7 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 			}
 
 			//移動値を足切りして細かすぎる移動をカット
-			if(MainCameraTargetPos.sqrMagnitude > 0.75f)
+			if (MainCameraTargetPos.sqrMagnitude > 0.75f)
 			{
 				//ターゲットダミー移動
 				MainCameraTargetOBJ.transform.position += MainCameraTargetPos * CameraMoveSpeed * 2 * Time.deltaTime;
@@ -804,11 +822,28 @@ public class MainCameraScript : GlobalClass, MainCameraScriptInterface
 		//出力用変数宣言
 		bool re = false;
 
+		/*
 		//カメラの向きと敵の位置の角度を求める、これがないと真後ろの敵もロックしてしまう
 		if(Vector3.Angle(MainCamera.transform.forward, pos - MainCamera.transform.position) < 90)
 		{
 			//画角に入っていたらロック
 			re = new Rect(0, 0, 1, 1).Contains(MainCamera.GetComponent<Camera>().WorldToViewportPoint(pos));
+		}
+		*/
+
+		//画面上の座標を取得
+		Vector3 TempPos = UIPosition(ViewScaler, ViewRect, pos);
+
+		//スクリーンサイズ内に収まってるか判別
+		if(
+			TempPos.x > 0 &&
+			TempPos.x < ViewRect.sizeDelta.x &&
+			TempPos.y > 0 &&
+			TempPos.y < ViewRect.sizeDelta.y &&
+			TempPos.z > 0
+		)
+		{
+			re = true;
 		}
 
 		//出力
