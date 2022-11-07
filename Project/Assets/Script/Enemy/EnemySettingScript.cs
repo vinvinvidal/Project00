@@ -228,10 +228,10 @@ public class EnemySettingScript : GlobalClass
 			OBJ.layer = LayerMask.NameToLayer("Enemy");
 
 			//カメラに収まってるか調べるスクリプトを付ける
-			OBJ.AddComponent<OnCameraScript>();
+			//OBJ.AddComponent<OnCameraScript>();
 
 			//スクリプトのOnCameraObjectに代入
-			TempEnemyScript.OnCameraObject = OBJ;
+			//TempEnemyScript.OnCameraObject = OBJ;
 
 			//EnemyClass読み込み
 			EnemyClass tempclass = GameManagerScript.Instance.AllEnemyList.Where(e => e.EnemyID == ID).ToList()[0];

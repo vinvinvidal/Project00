@@ -77,9 +77,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//GameManagerのAllActiveCharacterListに登録されているインデックス
 	private int AllActiveCharacterListIndex;
 
-	//OnCamera判定用スクリプトを持っているオブジェクト
-	private GameObject OnCameraObject;
-
 	//プレイヤーが操作するキャラクターコントローラ	
 	private CharacterController Controller;
 
@@ -504,7 +501,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//キャラ交代クールタイム
 	private float ChangeTime = 0;
 
-
+	//ロック対象切り替えクールタイム
+	private float ChangeLockEnemyTime = 0;
 
 	//脱出用レバガチャカウント
 	//public int BreakCount { get; set; } = 0;
@@ -681,15 +679,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	{
 		//自身をGameManagerのリストに追加、インデックスを受け取る
 		AllActiveCharacterListIndex = GameManagerScript.Instance.AddAllActiveCharacterList(gameObject);
-
-		//OnCamera判定用スクリプトを持っているオブジェクトを検索して取得
-		foreach (Transform i in GetComponentsInChildren<Transform>())
-		{
-			if (i.GetComponent<OnCameraScript>() != null)
-			{
-				OnCameraObject = i.gameObject;
-			}
-		}
 		
 		//CharacterSettingScriptからID取得
 		ExecuteEvents.Execute<CharacterSettingScriptInterface>(gameObject, null, (reciever, eventData) => CharacterID = reciever.GetCharacterID());
@@ -1875,7 +1864,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//ロックオンボタンが押された時
 	public void OnLockOn(InputValue i)
 	{
-		if(!HoldFlag && !H_Flag && !PauseFlag && GameManagerScript.Instance.BattleFlag && !GameManagerScript.Instance.EventFlag)
+		if(!CurrentState.Contains("Special") && !HoldFlag && !H_Flag && !PauseFlag && GameManagerScript.Instance.BattleFlag && !GameManagerScript.Instance.EventFlag)
 		{
 			GameObject TempEnemy = null;
 
@@ -1898,16 +1887,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//ロック対象切り替え
 	private void OnCameraMove(InputValue inputValue)
 	{
-		if (inputValue.Get<Vector2>().sqrMagnitude > 0.5f && 
+		if (inputValue.Get<Vector2>().sqrMagnitude > 0.5f &&
 			LockEnemy != null &&
 			!CurrentState.Contains("Special") &&
 			!CurrentState.Contains("Super") &&
 			!CurrentState.Contains("-> Attack") &&
-			!HoldFlag && 
-			!H_Flag && 
-			!PauseFlag && 
-			GameManagerScript.Instance.BattleFlag && 
-			!GameManagerScript.Instance.EventFlag)
+			!HoldFlag &&
+			!H_Flag &&
+			!PauseFlag &&
+			GameManagerScript.Instance.BattleFlag &&
+			!GameManagerScript.Instance.EventFlag &&
+			(Time.time - ChangeLockEnemyTime > 0.5f)
+			)
 		{
 			//引数受け取り用変数宣言
 			GameObject TempEnemy = null;
@@ -1920,6 +1911,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			{
 				//ロック対象を反映
 				EnemyLock(TempEnemy);
+
+				//時間をキャッシュ
+				ChangeLockEnemyTime = Time.time;
 			}
 		}
 	}
@@ -3442,6 +3436,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//タメループエフェクトの段階をあげる
 				DeepFind(TempChargePowerEffect, "ChargePower2").GetComponent<ParticleSystem>().Play();
+				DeepFind(TempChargePowerEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
 
 				//タメ完了エフェクトのインスタンスを生成
 				GameObject TempChargeLevelEffect = Instantiate(ChargeLevelEffect);
@@ -3477,7 +3472,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				StartClothShake(3);
 
 				//タメループエフェクトの段階をあげる
-				DeepFind(TempChargePowerEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
+				//DeepFind(TempChargePowerEffect, "ChargePower3").GetComponent<ParticleSystem>().Play();
 
 				//タメ完了エフェクトのインスタンスを生成
 				GameObject TempChargeLevelEffect = Instantiate(ChargeLevelEffect);
@@ -5853,11 +5848,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//自身がカメラの画角に入っているか返す
 	public bool GetOnCameraBool()
 	{
-		//返り値代入用変数
-		float OnCameraTime = 0;
-
 		//retuin用変数
 		bool re = true;
+
+		/*
+		//返り値代入用変数
+		float OnCameraTime = 0;
 
 		//カメラに映っていた時刻取得
 		ExecuteEvents.Execute<OnCameraScriptInterface>(OnCameraObject, null, (reciever, eventData) => OnCameraTime = reciever.GetOnCameraTime());
@@ -5867,6 +5863,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			re = false;
 		}
+		*/
+
+		ExecuteEvents.Execute<MainCameraScriptInterface>(GameManagerScript.Instance.GetCameraRootOBJ(), null, (reciever, eventData) => re = reciever.InCameraView(gameObject.transform.position + new Vector3(0, 0.75f, 0)));
 
 		//出力
 		return re;

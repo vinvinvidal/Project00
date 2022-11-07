@@ -88,7 +88,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	public GameObject H_Character { get; set; }
 
 	//OnCamera判定用スクリプトを持っているオブジェクト、セッティングでメッシュを統合した奴が入ってくる
-	public GameObject OnCameraObject { get; set; }
+	//public GameObject OnCameraObject { get; set; }
 
 	//自身を追加したマネージャーのリストのインデックス
 	public int ListIndex { get; set; }
@@ -1117,7 +1117,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				PlayerCharacter.GetComponent<PlayerScript>().EnemyLock(null);
 
 				//次の候補をロック
-				PlayerCharacter.GetComponent<PlayerScript>().OnLockOn(new UnityEngine.InputSystem.InputValue());
+				//PlayerCharacter.GetComponent<PlayerScript>().OnLockOn(new UnityEngine.InputSystem.InputValue());
 
 				//オブジェクト削除コルーチン呼び出し
 				StartCoroutine(VanishCoroutine(1, 1));
@@ -2318,11 +2318,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//自身がカメラの画角に入っているか返す
 	public bool GetOnCameraBool()
 	{
-		//返り値代入用変数
-		float OnCameraTime = 0;
-
 		//retuin用変数
 		bool re = true;
+
+		/*
+		//返り値代入用変数
+		float OnCameraTime = 0;
 
 		//カメラに映っていた時刻取得
 		ExecuteEvents.Execute<OnCameraScriptInterface>(OnCameraObject, null, (reciever, eventData) => OnCameraTime = reciever.GetOnCameraTime());
@@ -2332,6 +2333,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			re = false;
 		}
+		*/
+
+		ExecuteEvents.Execute<MainCameraScriptInterface>(GameManagerScript.Instance.GetCameraRootOBJ(), null, (reciever, eventData) => re = reciever.InCameraView(gameObject.transform.position + new Vector3(0, 0.75f, 0)));
 
 		//出力
 		return re;

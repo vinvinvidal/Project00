@@ -24,6 +24,7 @@ public class OnCameraScript : GlobalClass, OnCameraScriptInterface
 		{
 			OnCameraTime = Time.time;
 		}
+		print(1);
 	}
 
 	//カメラに表示されていた時刻を返すインターフェイス

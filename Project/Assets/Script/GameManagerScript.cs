@@ -1716,7 +1716,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	}
 
 	//ロック対象を検索する関数、boolがfalseならnullを返す。メッセージシステムから呼び出される
-	public GameObject SearchLockEnemy(Vector3 Vec)
+	public GameObject SearchLockEnemy(Vector3 InputVec)
 	{
 		//ロック対象の敵オブジェクトを初期化
 		GameObject LockEnemy = null;
@@ -1777,9 +1777,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				Vector3 LockVec = PlayableCharacterOBJ.transform.forward;
 
 				//スティック入力がある場合入力ベクトルをキャッシュ
-				if (Vec != Vector3.zero)
+				if (InputVec != Vector3.zero)
 				{
-					LockVec = Vec;
+					LockVec = InputVec;
 				}
 
 				//索敵角度を宣言
