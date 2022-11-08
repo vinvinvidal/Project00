@@ -2790,8 +2790,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//拉致成功処理
 	public void AbductionSuccess()
 	{
-		//フラグを立てる
-		AbductionSuccess_Flag = true;
+		//ダメージの遷移途中とかだとマズいのでステートチェック
+		if(CurrentState == "Abduction")
+		{
+			//フラグを立てる
+			AbductionSuccess_Flag = true;
+		}
 	}
 
 	//拉致成功時に呼ばれるオブジェクト削除コルーチン

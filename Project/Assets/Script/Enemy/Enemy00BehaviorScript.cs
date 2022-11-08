@@ -1087,11 +1087,11 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		if(TargetCharacter.GetComponent<PlayerScript>().RevivalTime > 0)
 		{
 			//残っていたら延長して起き上がりを防ぐ
-			TargetCharacter.GetComponent<PlayerScript>().RevivalTime = 10;
+			TargetCharacter.GetComponent<PlayerScript>().RevivalTime += 1;
 
 			//アニメーターのフラグを下す
 			CurrentAnimator.SetBool("Walk", false);
-
+			
 			//アニメーターフラグを立てる
 			CurrentAnimator.SetBool("Abduction", true);
 		}
@@ -1117,6 +1117,19 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 			//1フレーム待機
 			yield return null;
+		}
+
+		//現在ロックしている敵受け取り変数
+		GameObject tempOBJ = null;
+
+		//現在ロックしている敵を取得
+		ExecuteEvents.Execute<PlayerScriptInterface>(PlayerCharacter, null, (reciever, eventData) => tempOBJ = reciever.GetLockEnemy());
+
+		//自分がロックされていたらロックオンマーカーを消す
+		if(tempOBJ == gameObject)
+		{
+			//ロックオンマーカーを消す
+			GameManagerScript.Instance.LockOnMarker.LockOff();
 		}
 
 		//プレイヤーキャラクターの拉致られ処理呼び出し
