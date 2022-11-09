@@ -302,14 +302,16 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//出力用変数宣言
 			bool re = false;
 
-			//ダウンしているキャラクターがいる
-			if (GameManagerScript.Instance.DownCharacterList.Count != 0)
-			{	
-				//他に拉致している敵がいない
-				if (GameManagerScript.Instance.AllActiveEnemyList.Where(a => a != null).Where(a => a.GetComponent<EnemyCharacterScript>().Abduction_Flag).ToList().Count == 0)
+			//近くにプレイヤーキャラクターが居ない
+			if (PlayerHorizontalDistance > 5)
+			{
+				//ダウンしているキャラクターがいる
+				if (GameManagerScript.Instance.DownCharacterList.Count != 0)
 				{
-					//自分が一番近い
-					re = true;
+					//他に拉致している敵がいない
+					if (GameManagerScript.Instance.AllActiveEnemyList.Where(a => a != null).Where(a => a.GetComponent<EnemyCharacterScript>().Abduction_Flag).ToList().Count == 0)
+					{
+						re = true;
 
 						/*
 						GameManagerScript.Instance.AllActiveEnemyList
@@ -322,8 +324,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 						//一番近いのが自分か
 						.ToList()[0] == gameObject;
 						*/
-				}				
-			}		
+					}
+				}
+			}
 
 			//出力
 			return re;
@@ -1040,7 +1043,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			CharacterDistance = Vector3.Distance(AbductionPos, gameObject.transform.position);
 
 			//行動不能になったらブレイク
-			if (!EnemyScript.BehaviorFlag || !GameManagerScript.Instance.DownCharacterList.Any(a => a == TargetCharacter))
+			if (PlayerHorizontalDistance < 3 || !EnemyScript.BehaviorFlag || !GameManagerScript.Instance.DownCharacterList.Any(a => a == TargetCharacter))
 			{
 				//アニメーターのフラグを下ろす
 				CurrentAnimator.SetBool("Run", false);

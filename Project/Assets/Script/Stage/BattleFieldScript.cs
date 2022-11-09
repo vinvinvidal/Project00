@@ -283,6 +283,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//プレイヤーキャラクターの戦闘終了処理実行
 		PlayerCharacter.GetComponent<PlayerScript>().BattleEnd();
 
+		//CameraNearLimitを戻す
+		DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot").GetComponent<MainCameraScript>().CameraNearLimit = 3;
+
 		//壁オブジェクトのRigitBodyを回す
 		foreach (Rigidbody i in AllWallOBJ.Select(a => a.gameObject.GetComponent<Rigidbody>()))
 		{
@@ -676,6 +679,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 			//メインカメラの戦闘開始処理を呼び出す
 			ExecuteEvents.Execute<MainCameraScript>(DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot").gameObject, null, (reciever, eventData) => reciever.BattleStart());
+
+			//ある程度画角を確保するためにCameraNearLimitを離す
+			DeepFind(GameManagerScript.Instance.gameObject, "CameraRoot").GetComponent<MainCameraScript>().CameraNearLimit = 5;
 
 			//進入コライダを無効化
 			gameObject.GetComponent<SphereCollider>().enabled = false;

@@ -474,7 +474,7 @@ MonoBehaviour:
   MainCameraTargetDistance: 5
   CameraNearLimit: 3
   CameraFarLimit: 10
-  CameraDownLimit: 100
+  CameraDownLimit: 95
   CameraUpLimit: 55
   CameraMoveSpeed: 5
   CameraRotateSpeed: 10
