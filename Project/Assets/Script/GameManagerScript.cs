@@ -1492,6 +1492,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//経過時間宣言
 		float StopTime = 0;
 
+		//1フレーム待機、これをしないとUpdateが間に合わずタイムスケールが反映されていないままWhileに入ってしまう事がある
+		yield return null;
+
 		//引数で受け取った持続時間まで待機
 		while (t > StopTime)
 		{
