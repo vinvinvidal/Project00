@@ -288,6 +288,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 929418030844894364, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_Name
+      value: GrabObject
+      objectReference: {fileID: 0}
     - target: {fileID: 1284894982450996570, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_Color.r
@@ -341,7 +346,7 @@ PrefabInstance:
     - target: {fileID: 1903125799160465643, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: DevSwicth
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1903125799160465643, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
@@ -512,31 +517,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 70
-      objectReference: {fileID: 0}
-    - target: {fileID: 5381003608052221966, guid: b49d9c728d920134cb39e4ea74c6ef02,
-        type: 3}
-      propertyPath: m_BackGroundColor.a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5381003608052221966, guid: b49d9c728d920134cb39e4ea74c6ef02,
-        type: 3}
-      propertyPath: m_BackGroundColor.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5381003608052221966, guid: b49d9c728d920134cb39e4ea74c6ef02,
-        type: 3}
-      propertyPath: m_BackGroundColor.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5381003608052221966, guid: b49d9c728d920134cb39e4ea74c6ef02,
-        type: 3}
-      propertyPath: m_BackGroundColor.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5381003608052221966, guid: b49d9c728d920134cb39e4ea74c6ef02,
-        type: 3}
-      propertyPath: field of view
-      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 5431692923833097757, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}

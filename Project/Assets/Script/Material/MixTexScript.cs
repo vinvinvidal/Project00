@@ -18,7 +18,7 @@ public class MixTexScript : GlobalClass
 	//自身のカメラ
 	private Camera MainCamera;
 
-	//
+	//最終出力するルートカメラ
 	private Camera RootCamera;
 
 	//ポストエフェクトに使用するテクスチャをレンダリングするサブカメラ
@@ -65,7 +65,7 @@ public class MixTexScript : GlobalClass
 	{
 		//テクスチャ合成シェーダーにポストエフェクト用レンダーテクスチャを渡す
 		MixTexMaterial.SetTexture("_EffectTex", PostEffectCamera.targetTexture);
-
+		
 		//シェーダー呼び出しテクスチャを合成して画面に描画
 		Graphics.Blit(src, dest, MixTexMaterial);
 	}

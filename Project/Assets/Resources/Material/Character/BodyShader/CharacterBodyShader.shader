@@ -40,7 +40,7 @@
 		Tags 
 		{
 			"Queue" = "AlphaTest" 
-			"RenderType" = "TransparentCutout" 
+			"RenderType" = "Opaque" 
 			//"IgnoreProjector" = "True" 
 		}
 
@@ -133,6 +133,8 @@
 			vector VartexVector;			//ブラー用のオブジェクト正面ベクトル
 
 			sampler2D _GrabTex;
+
+			sampler2D _CameraTex;
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
