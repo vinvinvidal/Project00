@@ -128,7 +128,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//ポーズフラグ
 	public bool PauseFlag { get; set; } = false;
 
-
 	//セーブロードするセーブデータ
 	public UserDataClass UserData { get; set; } = null;
 
@@ -205,6 +204,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//使用中のスカイボックス
 	private Material SkyBoxMaterial;
+
+	//スクリーンバッファ用レンダーテクスチャ
+	public RenderTexture ScreenTexture { get; set; }
 
 
 
@@ -410,6 +412,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//バーチャルカメラ取得
 		VCamera = DeepFind(gameObject , "MasterVcam").GetComponent<CinemachineVirtualCamera>();
+
+		//スクリーンバッファ用レンダーテクスチャ初期化
+		ScreenTexture = new RenderTexture((int)(Screen.width * GameManagerScript.Instance.ScreenResolutionScale), (int)(Screen.height * GameManagerScript.Instance.ScreenResolutionScale), 0, RenderTextureFormat.ARGB32);
 
 		//ミッションUIスクリプト取得
 		MissionUI = DeepFind(gameObject, "MissionUI").GetComponent<MissionUIScript>();

@@ -32,7 +32,9 @@
 		//_TexHiLight("_TexHiLight", 2D) = "white" {}					//ハイライトのテクスチャ
 		_HiLightMatCap("_HiLightMatCap", 2D) = "black" {}				//ハイライトのmatcap
 
-		_VanishNum("_VanishNum",float) = 0								//消滅用係数	
+		_VanishNum("_VanishNum",float) = 0								//消滅用係数
+
+		_VanishTex("_VanishTex", 2D) = "white" {}						//消滅用テクスチャ
 	}
 
 	SubShader
@@ -48,7 +50,7 @@
 		//Blend SrcAlpha OneMinusSrcAlpha
 
 		//GrabPassをテクスチャ名を指定して定義
-		GrabPass {"_GrabTex"}
+		//GrabPass {"_GrabTex"}
 
 		Pass
 		{
@@ -128,13 +130,13 @@
 
 			float _VanishNum;				//消滅用係数
 
+			sampler2D _VanishTex;			//消滅用テクスチャ
+
+			float4 _VanishTex_ST;			//消滅用テクスチャスケールタイリング
+
 			float _BlurNum;					//ブラー用変数
 
 			vector VartexVector;			//ブラー用のオブジェクト正面ベクトル
-
-			sampler2D _GrabTex;
-
-			sampler2D _CameraTex;
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -205,7 +207,8 @@
 				re.hilightuv = mul(_LightMatrix, re.normal).xy * 0.5 + 0.5;
 
 				// Grab用テクスチャ座標
-				re.GrabPos = ComputeGrabScreenPos(re.pos);
+				//re.GrabPos = ComputeGrabScreenPos(re.pos);
+				re.GrabPos = ComputeScreenPos(re.pos);
 
 				//ドロップシャドウ
 				TRANSFER_SHADOW(re);
@@ -259,19 +262,23 @@
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);
 
-				//プロジェクションで_Grabを貼り、透明度で消したりする
-				re.rgb = lerp(re, tex2Dproj(_GrabTex, i.GrabPos), _VanishNum);
+				//裏面を暗くする
+				re.rgb *= clamp(facing, 0.5f, 1);
 
+				//プロジェクションで_Grabを貼り、透明度で消したりする
+				//re.rgb = lerp(re, tex2Dproj(_ScreenTex, i.GrabPos), _VanishNum);
+
+				//消失用テクスチャのタイリング設定
+				i.GrabPos.xy *= _VanishTex_ST.xy;
+
+				//テクスチャと変数から透明度を算出
+				re.a -= (tex2Dproj(_VanishTex, i.GrabPos).a * _VanishNum * 10);
+				
 				//透明部分をクリップ
 				clip(re.a - 0.01);
 
-				//出力
-				
-				//return re;
-
-				//裏面を暗くして出力
-				return re * clamp(facing, 0.5f, 1);
-
+				//出力				
+				return re;
 			}
 
 			//プログラム終了

@@ -77,8 +77,11 @@ public class CharacterBodyShaderScript : GlobalClass
 		BodyMaterial.SetVector("_TexHiLightRectPos", TexRect[3].position);
 		BodyMaterial.SetVector("_TexHiLightRectSize", TexRect[3].size);
 
+		//スクリーンサイズから消失用テクスチャのスケーリングを設定
+		BodyMaterial.SetTextureScale("_VanishTex", new Vector2(Screen.width / BodyMaterial.GetTexture("_VanishTex").width, Screen.height / BodyMaterial.GetTexture("_VanishTex").height));
+
 		//マットキャップテクスチャが設定されていたらマテリアルに反映
-		if(_HiLightMatCap != null)
+		if (_HiLightMatCap != null)
 		{
 			BodyMaterial.SetTexture("_HiLightMatCap", _HiLightMatCap);
 		}		

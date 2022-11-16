@@ -76,7 +76,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VanishTex:
-        m_Texture: {fileID: 2800000, guid: 136bca95793a5a243b718af4922a3fa5, type: 3}
+        m_Texture: {fileID: 2800000, guid: e83725f5441d50a46b5c20dc3510712e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: da54c0020fca3ea499b142c6db10ea9b
+guid: e83725f5441d50a46b5c20dc3510712e
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -31,7 +31,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: -1
+    filterMode: 1
     aniso: -1
     mipBias: -100
     wrapU: -1
@@ -112,5 +112,5 @@ TextureImporter:
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
   userData: 
-  assetBundleName: texture/stage/glass/tex_stage_glass_main
+  assetBundleName: 
   assetBundleVariant: 

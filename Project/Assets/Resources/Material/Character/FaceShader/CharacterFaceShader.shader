@@ -6,7 +6,7 @@
 		_SunnyS("_SunnyS", Range(-1.0, 1.0)) = 0.0						//日向の彩度
 		_SunnyV("_SunnyV", Range(-1.0, 1.0)) = 0.0						//日向の輝度
 
-		//_BlushNum("_BlushNum", Range(0.0, 1.0)) = 0.0			
+		_VanishTex("_VanishTex", 2D) = "white" {}						//消滅用テクスチャ
 	}
 
 	SubShader
@@ -20,7 +20,7 @@
 		}
 
 		//GrabPassをテクスチャ名を指定して定義
-		GrabPass {"_GrabTex"}
+		//GrabPass {"_GrabTex"}
 
 		Pass
 		{
@@ -99,8 +99,11 @@
 			float _BlushNum;				//赤面用係数
 			float _VanishNum;				//消滅用係数
 
+			sampler2D _VanishTex;			//消滅用テクスチャ
+
+			float4 _VanishTex_ST;			//消滅用テクスチャスケールタイリング
+
 			fixed4 _LightColor0;			//ライトカラー
-			sampler2D _GrabTex;				//グラブテクスチャ
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -156,7 +159,8 @@
 				re.hilightuv = mul(_LightMatrix, re.normal).xy * 0.5 + 0.5;
 
 				// Grab用テクスチャ座標
-				re.GrabPos = ComputeGrabScreenPos(re.pos);
+				//re.GrabPos = ComputeGrabScreenPos(re.pos);
+				re.GrabPos = ComputeScreenPos(re.pos);
 
 				//ドロップシャドウ
 				TRANSFER_SHADOW(re);
@@ -215,8 +219,11 @@
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);		
 
-				//プロジェクションで_Grabを貼り、透明度で消したりする
-				re.rgb = lerp(re, tex2Dproj(_GrabTex, i.GrabPos), _VanishNum);
+				//消失用テクスチャのタイリング設定
+				i.GrabPos.xy *= _VanishTex_ST.xy;
+
+				//テクスチャと変数から透明度を算出
+				re.a -= (tex2Dproj(_VanishTex, i.GrabPos).a * _VanishNum * 10);
 
 				//透明部分をクリップ
 				clip(re.a - 0.01);

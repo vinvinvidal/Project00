@@ -6223,7 +6223,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 			{
-				ii.SetFloat("_VanishNum", 1); 
+				ii.SetFloat("_VanishNum", 1);
 			}
 		}
 

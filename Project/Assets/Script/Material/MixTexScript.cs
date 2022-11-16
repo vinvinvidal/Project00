@@ -63,9 +63,12 @@ public class MixTexScript : GlobalClass
 	//レンダリングが完了すると呼ばれる
 	void OnRenderImage(RenderTexture src, RenderTexture dest)
 	{
+		//スクリーンバッファ取得
+		//Graphics.Blit(src, GameManagerScript.Instance.ScreenTexture);
+
 		//テクスチャ合成シェーダーにポストエフェクト用レンダーテクスチャを渡す
 		MixTexMaterial.SetTexture("_EffectTex", PostEffectCamera.targetTexture);
-		
+
 		//シェーダー呼び出しテクスチャを合成して画面に描画
 		Graphics.Blit(src, dest, MixTexMaterial);
 	}

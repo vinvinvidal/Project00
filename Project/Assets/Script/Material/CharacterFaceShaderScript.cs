@@ -148,9 +148,13 @@ public class CharacterFaceShaderScript : GlobalClass, CharacterFaceShaderScriptI
 		TextureSetDic.Add(new Vector3(-1, 1, 1), TextureSetRightBackBottom);
 		TextureSetDic.Add(new Vector3(1, 1, -1), TextureSetLeftBackTop);
 		TextureSetDic.Add(new Vector3(-1, 1, -1), TextureSetRightBackTop);
+
+		//スクリーンサイズから消失用テクスチャのスケーリングを設定
+		FaceMaterial.SetTextureScale("_VanishTex", new Vector2(Screen.width / FaceMaterial.GetTexture("_VanishTex").width, Screen.height / FaceMaterial.GetTexture("_VanishTex").height));
+
 	}
 
-    void Update()
+	void Update()
     {
 		//オブジェクトとライト各軸の内積を取る、Clampをしないと後のAcosでNaNが発生する
 		ObjDotLigntX = Mathf.Clamp(Vector3.Dot(FaceTransform.right, LightTransform.forward), -1.0f, 1.0f);
