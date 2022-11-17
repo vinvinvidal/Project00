@@ -3,7 +3,9 @@
 	Properties
 	{	
 		//消滅用係数
-		_VanishNum("_VanishNum",float) = 0								
+		_VanishNum("_VanishNum",float) = 0
+
+		_VanishTex("_VanishTex", 2D) = "white" {}						//消滅用テクスチャ
 	}
 
     SubShader
@@ -37,6 +39,10 @@
 			fixed4 _LightColor0;			//ライトカラー
 			int MirrorON;
 			float _VanishNum;				//消滅用係数
+
+			sampler2D _VanishTex;			//消滅用テクスチャ
+
+			float4 _VanishTex_ST;			//消滅用テクスチャスケールタイリング
 			
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
@@ -57,6 +63,9 @@
 
 				// テクスチャ座標
 				float2 uv : TEXCOORD0;
+
+				// Grab用テクスチャ座標
+				half4 GrabPos : TEXCOORD1;
 			};
 
 			//頂点シェーダ
@@ -73,6 +82,9 @@
 
 				//頂点座標を格納 UnityObjectToClipPos()に頂点座標を渡すと画面上ピクセル座標を返してくる
 				re.pos = UnityObjectToClipPos(i.pos);
+
+				// Grab用テクスチャ座標
+				re.GrabPos = ComputeScreenPos(re.pos);
 
 				//出力　
 				return re;
@@ -92,6 +104,12 @@
 				{
 					re = _LightColor0;
 				}
+
+				//消失用テクスチャのタイリング設定
+				i.GrabPos.xy *= _VanishTex_ST.xy;
+
+				//テクスチャと変数から透明度を算出
+				re.a -= (tex2Dproj(_VanishTex, i.GrabPos).a * _VanishNum * 10);
 
 				//透明部分をクリップ、消滅用の乱数精製
 				clip(re.a - 0.01);

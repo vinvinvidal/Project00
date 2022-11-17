@@ -9,7 +9,10 @@
 		_TexNormal("_TexNormal", 2D) = "white" {}
 
 		//消滅用係数
-		_VanishNum("_VanishNum",float) = 0		
+		_VanishNum("_VanishNum",float) = 0
+
+		//消滅用テクスチャ
+		_VanishTex("_VanishTex", 2D) = "white" {}						
 	}
 
 	SubShader
@@ -53,6 +56,10 @@
 
 			float _VanishNum;					//消滅用係数
 
+			sampler2D _VanishTex;				//消滅用テクスチャ
+
+			float4 _VanishTex_ST;				//消滅用テクスチャスケールタイリング
+
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
 			{
@@ -88,6 +95,9 @@
 				// テクスチャ座標
 				float2 uv : TEXCOORD0;
 
+				// Grab用テクスチャ座標
+				half4 GrabPos : TEXCOORD1;
+
 				//ドロップシャドウ
 				SHADOW_COORDS(2)
 			};
@@ -106,6 +116,9 @@
 
 				//法線をワールド座標系に変換
 				re.normal = UnityObjectToWorldNormal(v.normal);
+
+				// Grab用テクスチャ座標
+				re.GrabPos = ComputeScreenPos(re.pos);
 
 				//ドロップシャドウ
 				TRANSFER_SHADOW(re);
@@ -129,8 +142,14 @@
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);
 
-				//透明部分をクリップ、消滅用の乱数精製
-				clip(re.a - 0.01 - ((Random(i.uv * _VanishNum, round(_VanishNum)) + 0.05) * _VanishNum));
+				//消失用テクスチャのタイリング設定
+				i.GrabPos.xy *= _VanishTex_ST.xy;
+
+				//テクスチャと変数から透明度を算出
+				re.a -= (tex2Dproj(_VanishTex, i.GrabPos).a * _VanishNum * 10);
+
+				//透明部分をクリップ
+				clip(re.a - 0.01);
 
 				//出力
 				return re;

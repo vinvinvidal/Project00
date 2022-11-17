@@ -79,6 +79,9 @@
 
 				//ドロップシャドウ
 				SHADOW_COORDS(2)
+
+				// Grab用テクスチャ座標
+				half4 GrabPos : TEXCOORD3;
 			};
 
 			//頂点シェーダ
@@ -102,6 +105,9 @@
 				//ドロップシャドウ
 				TRANSFER_SHADOW(re);
 
+				// Grab用テクスチャ座標
+				re.GrabPos = ComputeScreenPos(re.pos);
+
 				//出力　
 				return re;
 			}
@@ -111,6 +117,8 @@
 			{
 				//出力用変数宣言、
 				fixed4 re = 0.5;
+				
+				re.a = 1;
 
 				//光源と法線の内積を乗算
 				re.rgb *= (dot(i.normal, _WorldSpaceLightPos0) + 1) * 0.5;
@@ -118,18 +126,18 @@
 				//ライトカラーをブレンド
 				re.rgb *= lerp(1, _LightColor0, _LightColor0.a);
 
-				//カメラから離れるほど透明度を下げる
-				re.a = saturate(length(_WorldSpaceCameraPos - i.worldPos) * 0.075 - 0.1);
-
-				//テクスチャから透明度を算出
-				re.a -= tex2D(_TexMain, i.uv * _TexMain_ST.xy);
+				//消失用テクスチャのタイリング設定
+				i.GrabPos.xy *= _TexMain_ST.xy;
 
 				//ドロップシャドウ
 				re.rgb *= saturate(SHADOW_ATTENUATION(i) + 0.75);
 
+				//テクスチャから透明度を算出カメラから離れるほど透明度を下げる
+				re.a -= (tex2Dproj(_TexMain, i.GrabPos).a + InverseLerp(15, 3, length(_WorldSpaceCameraPos - i.worldPos))) + (Random(i.uv, i.GrabPos.x) * 0.25);
+
 				//透明部分をクリップ
 				clip(re.a - 0.01);
-
+		
 				//出力
 				return re;
 			}

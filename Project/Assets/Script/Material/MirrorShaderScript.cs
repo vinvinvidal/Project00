@@ -53,6 +53,9 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 	//敵顔ミラーオブジェクト
 	private GameObject EnemyFaceMirrorOBJ;
 
+	//ミラーマテリアル
+	private Material MirrorMaterial;
+
 	void Start()
 	{
 		//メインカメラ取得
@@ -73,6 +76,9 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 		//ミラーの大きさを取得
 		MirrorSize = MirrorOBJ.GetComponent<MeshFilter>().mesh.bounds.size.x;
 
+		//マテリアル取得
+		MirrorMaterial = MirrorOBJ.GetComponent<Renderer>().material;
+
 		//一番大きい値を探すための配列
 		float[] tempsizeArray = new float[] { MirrorOBJ.GetComponent<MeshFilter>().mesh.bounds.size.x, MirrorOBJ.GetComponent<MeshFilter>().mesh.bounds.size.y, MirrorOBJ.GetComponent<MeshFilter>().mesh.bounds.size.z };
 
@@ -81,6 +87,13 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 
 		//インスペクタのスイッチで初期動作
 		MirrorSwitch(OnMirror);
+
+		//消失用テクスチャがあるか判別
+		if(MirrorMaterial.GetTexturePropertyNames().Any(a => a == "_VanishTex"))
+		{
+			//スクリーンサイズから消失用テクスチャのスケーリングを設定
+			MirrorMaterial.SetTextureScale("_VanishTex", new Vector2(Screen.width / MirrorMaterial.GetTexture("_VanishTex").width, Screen.height / MirrorMaterial.GetTexture("_VanishTex").height) * GameManagerScript.Instance.ScreenResolutionScale);
+		}
 	}
 
 	void Update()
@@ -89,7 +102,7 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 		if (OnMirror && !EnemyFaceMirrorFlag)
 		{
 			//レンダーテクスチャをシェーダーに送る
-			MirrorOBJ.GetComponent<Renderer>().material.SetTexture("_MainTex", MirrorTexture);
+			MirrorMaterial.SetTexture("_MainTex", MirrorTexture);
 
 			//カメラから鏡までのベクトル取得
 			LookAtVec = MirrorForwardOBJ.transform.position - MainCamera.transform.position;
@@ -120,7 +133,7 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 		else if(OnMirror && EnemyFaceMirrorFlag)
 		{
 			//レンダーテクスチャをシェーダーに送る
-			MirrorOBJ.GetComponent<Renderer>().material.SetTexture("_MainTex", MirrorTexture);
+			MirrorMaterial.SetTexture("_MainTex", MirrorTexture);
 
 			//カメラを敵の顔の前に移動
 			MirrorCamera.transform.position = EnemyFaceMirrorOBJ.transform.position + (EnemyFaceMirrorOBJ.transform.up * 0.2f);
@@ -173,7 +186,7 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 		if(b)
 		{
 			//シェーダーにフラグを送って処理実行
-			MirrorOBJ.GetComponent<Renderer>().material.SetInt("MirrorON", 1);
+			MirrorMaterial.SetInt("MirrorON", 1);
 
 			//カメラを点ける
 			MirrorCamera.enabled = true;
@@ -181,7 +194,7 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 		else
 		{
 			//シェーダーにフラグを送って処理を止める
-			MirrorOBJ.GetComponent<Renderer>().material.SetInt("MirrorON", 0);
+			MirrorMaterial.SetInt("MirrorON", 0);
 
 			//カメラを切る
 			MirrorCamera.enabled = false;
