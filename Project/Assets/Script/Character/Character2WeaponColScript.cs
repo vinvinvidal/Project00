@@ -223,7 +223,7 @@ public class Character2WeaponColScript : GlobalClass, Character2WeaponColInterfa
 				{
 					if (i.AudioName.Contains("_B"))
 					{
-						i.PlayRandomList();
+						i.PlaySoundEffect(0, -0.5f);
 					}
 				}
 

@@ -2835,10 +2835,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				}
 			}
 
-			//入力受付時間が過ぎたらとりあえず0を出す？どうしよう
+			//入力受付時間が過ぎたらタイムアウトモーション再生
 			if(CurrentState == "SpecialSuccess" && CurrentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > SpecialSelectTime)
 			{
-				SpecialInputIndex = 0;
+				SpecialInputIndex = 10;
 
 				goto SpecialLoopBreak;
 			}

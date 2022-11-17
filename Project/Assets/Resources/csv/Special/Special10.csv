@@ -1,0 +1,11 @@
+NameC,ガード
+NameH,がーど
+UseCharacter,0
+ArtsIndex,10
+DamageIndex,0
+Damage,0
+AnimName,Motion_0_Special10
+EffectPos,L_ElbowBone
+Trigger,0
+Info,敵の攻撃をガード
+UnLock,1

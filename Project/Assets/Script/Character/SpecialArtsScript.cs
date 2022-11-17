@@ -34,6 +34,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	bool SpecialAction021Flag = false;
 	bool SpecialAction022Flag = false;
 	bool SpecialAction023Flag = false;
+	bool SpecialAction0100Flag = false;
 
 	bool SpecialAction110Flag = false;
 
@@ -624,7 +625,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					}
 				);
 			}
-			//可穿
+			//冪穿
 			else if (i == 1)
 			{
 				re.Add
@@ -827,6 +828,53 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 						//特殊攻撃制御フラグを下す
 						SpecialAction023Flag = false;
+
+						//プレイヤーのフラグを下す
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+
+						//プレイヤーの移動ベクトル初期化
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
+					}
+				);
+			}
+			//ガード
+			else if (i == 10)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+						//特殊攻撃制御フラグを立てる
+						SpecialAction0100Flag = true;
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction0100(Player, Enemy));
+					}
+				);
+
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSpecialAction0100(GameObject Player, GameObject Enemy)
+				{
+					//フラグが降りるまでループ
+					while (SpecialAction0100Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 15f;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//特殊攻撃制御フラグを下す
+						SpecialAction0100Flag = false;
 
 						//プレイヤーのフラグを下す
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
