@@ -3641,6 +3641,11 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: -7295519857623516819, guid: 09109e0ac0b7de84cba1f5cb1e2402ca,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -5460954203208429989, guid: 09109e0ac0b7de84cba1f5cb1e2402ca,
         type: 3}
       propertyPath: m_AABB.m_Center.y

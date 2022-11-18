@@ -850,6 +850,16 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//特殊攻撃制御フラグを立てる
 						SpecialAction0100Flag = true;
 
+						//エフェクトインスタンス生成
+						GameObject TempEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SpecialTimeOutEffect").ToList()[0]);
+
+						//プレイヤーの子にする
+						TempEffect.transform.parent = Player.transform;
+
+						//PRS設定
+						TempEffect.transform.localPosition = new Vector3(0, 0.75f, 0);
+						TempEffect.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
+
 						//プレイヤー移動コルーチン呼び出し
 						StartCoroutine(PlayerSpecialAction0100(Player, Enemy));
 					}

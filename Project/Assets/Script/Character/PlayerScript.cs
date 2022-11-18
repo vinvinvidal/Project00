@@ -6128,7 +6128,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			foreach (Material ii in i.materials.Where(a => a != null))
 			{
 				//マテリアルの描画順を変更してアウトラインを消す
-				//ii.renderQueue = 3000;				
+				ii.renderQueue = 3000;				
 
 				//消滅用数値に値を入れる
 				ii.SetFloat("_VanishNum", 1);
@@ -6162,7 +6162,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			foreach (Material ii in i.sharedMaterials)
 			{
 				ii.SetFloat("_VanishNum", 0);
-				//ii.renderQueue = 2450;
+				ii.renderQueue = 2450;
 			}
 		}
 	}
@@ -6201,7 +6201,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 			{
 				//マテリアルの描画順を変更
-				//ii.renderQueue = 3000;
+				ii.renderQueue = 3000;
 			}
 		}
 
@@ -6253,7 +6253,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 			{
 				ii.SetFloat("_VanishNum", 0);
-				//ii.renderQueue = 2450;
+
+				ii.renderQueue = 2450;
 			}
 		}
 	}
