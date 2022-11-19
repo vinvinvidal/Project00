@@ -76914,6 +76914,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0.016666668
+    functionName: ChangeFace
+    data: Motion_1_Face06,0.1
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 0.05
     functionName: StartDamageMove
     data: -1.5,0
@@ -76924,6 +76931,13 @@ AnimationClip:
   - time: 0.083333336
     functionName: AttackAttachWeapon
     data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.25
+    functionName: ChangeFace
+    data: Motion_1_Face07,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

@@ -70,6 +70,9 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 	//視線を滑らかに変更するベロシティ
 	public float DirectEyeVelocity { get; set; } = 0;
 
+	//敵が背面にいる時に視線が左右に細かく切り替わるのを防ぐ変数
+	private float BackEnemyEyeTime = 0f;
+
 	void Start()
     {
 		//マテリアル取得、マルチの場合1番目のマテリアルを取得するので注意
@@ -128,8 +131,23 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 		}
 		else
 		{
-			//顔の方向と注視点からのベクトルの内積を求める
-			EyeOffset.x = Vector3.Dot(HeadAngle.right, EyeVec.normalized) * -0.15f;
+			//正面
+			if(Vector3.Dot(HeadAngle.forward, EyeVec.normalized) < 0)
+			{
+				//顔の方向と注視点からのベクトルの内積を求める
+				EyeOffset.x = Vector3.Dot(HeadAngle.right, EyeVec.normalized) * -0.15f;				
+			}
+			//背面、視線を変えてから一定時間経過している
+			else if(Time.time > BackEnemyEyeTime + 1)
+			{
+				//敵が背面に居る時は左右どちらかに振る
+				EyeOffset.x = Mathf.Sign(Vector3.Dot(HeadAngle.right, EyeVec.normalized)) * -0.15f;
+
+				//視線を変えた時間を記録
+				BackEnemyEyeTime = Time.time;
+			}
+
+			//上下移動
 			EyeOffset.y = Vector3.Dot(HeadAngle.up, EyeVec.normalized) * 0.12f;
 
 			//視線を動かす

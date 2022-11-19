@@ -89533,16 +89533,16 @@ AnimationClip:
     floatParameter: 0
     intParameter: 100
     messageOptions: 0
-  - time: 0.48333332
-    functionName: EndDamageMove
-    data: 
+  - time: 0.25
+    functionName: ChangeFace
+    data: Motion_2_Face07,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.5
-    functionName: ChangeFace
-    data: Motion_2_Face07,0.1
+  - time: 0.48333332
+    functionName: EndDamageMove
+    data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

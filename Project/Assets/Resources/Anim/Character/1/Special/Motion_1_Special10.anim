@@ -85512,7 +85512,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.016666668
     functionName: ChangeFace
-    data: Reset
+    data: Motion_1_Face07,0.1
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

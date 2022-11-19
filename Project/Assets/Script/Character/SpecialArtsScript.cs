@@ -40,6 +40,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 	bool SpecialAction1100Flag = false;
 
 	bool SpecialAction210Flag = false;
+	bool SpecialAction2100Flag = false;
 
 	//超必殺技制御フラグ
 	bool SuperAction000Flag = false;
@@ -1412,22 +1413,6 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 
 					//モーション速度を戻す
 					Player.GetComponent<Animator>().SetFloat("SpecialAttackSpeed", 1);
-
-					//移動ベクトルを設定
-					//Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
-					/*
-					while (SpecialAction210Flag)
-					{
-						//目的地まで移動
-						Player.GetComponent<PlayerScript>().SpecialMoveVector = transform.forward * (((Enemy.transform.position - (gameObject.transform.forward * 0.5f)) - gameObject.transform.position).magnitude) * 2.5f;
-	
-						//1フレーム待機
-						yield return null;
-					}
-					
-					//移動ベクトルを設定
-					Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
-					*/
 				}
 
 				re.Add
@@ -1477,7 +1462,7 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					}
 				);
 			}
-			//蔓燐糞
+			//尺取蔓
 			else if (i == 2)
 			{
 				re.Add
@@ -1597,6 +1582,66 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 					{
 						//プレイヤーのフラグを下す
 						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+					}
+				);
+			}
+			//線特殊攻撃失敗
+			else if (i == 10)
+			{
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//プレイヤーのフラグを立てる
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = true;
+
+						//特殊攻撃制御フラグを立てる
+						SpecialAction2100Flag = true;
+
+						//武器巻き戻し処理呼び出し
+						ExecuteEvents.Execute<Character2WeaponMoveInterface>(gameObject, null, (reciever, eventData) => reciever.MoveWire(2));
+
+						//エフェクトインスタンス生成
+						GameObject TempEffect = Instantiate(GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "SpecialTimeOutEffect").ToList()[0]);
+
+						//プレイヤーの子にする
+						TempEffect.transform.parent = Player.transform;
+
+						//PRS設定
+						TempEffect.transform.position = Enemy.transform.position + new Vector3(0, 1.25f, 0);
+						TempEffect.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
+
+						//プレイヤー移動コルーチン呼び出し
+						StartCoroutine(PlayerSpecialAction0100(Player, Enemy));
+					}
+				);
+
+				//プレイヤー行動コルーチン
+				IEnumerator PlayerSpecialAction0100(GameObject Player, GameObject Enemy)
+				{
+					//フラグが降りるまでループ
+					while (SpecialAction2100Flag)
+					{
+						//目的地まで移動
+						Player.GetComponent<PlayerScript>().SpecialMoveVector = -Player.transform.forward * 10f;
+
+						//1フレーム待機
+						yield return null;
+					}
+				}
+
+				re.Add
+				(
+					(GameObject Player, GameObject Enemy, GameObject Weapon, SpecialClass Arts) =>
+					{
+						//特殊攻撃制御フラグを下す
+						SpecialAction2100Flag = false;
+
+						//プレイヤーのフラグを下す
+						Player.GetComponent<PlayerScript>().SpecialAttackFlag = false;
+
+						//プレイヤーの移動ベクトル初期化
+						Player.GetComponent<PlayerScript>().SpecialMoveVector *= 0;
 					}
 				);
 			}

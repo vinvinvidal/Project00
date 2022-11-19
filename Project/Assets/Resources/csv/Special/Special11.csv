@@ -1,0 +1,11 @@
+NameC,線特殊攻撃失敗
+NameH,せんとくしゅこうげきしっぱい
+UseCharacter,2
+ArtsIndex,10
+DamageIndex,0
+Damage,0
+AnimName,Motion_2_Special10
+EffectPos,R_HandBone
+Trigger,10
+Info,敵の攻撃をガード
+UnLock,1

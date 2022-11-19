@@ -37,6 +37,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 	//ワイヤーオブジェクト
 	public GameObject WireOBJ { get; set; }
 
+	//ワイヤーレンダラー
+	public Renderer WireRend { get; set; }
+
 	//燐糞オブジェクト
 	public GameObject BombOBJ { get; set; }
 
@@ -358,6 +361,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//右手で武器を握る
 		if (n == 0)
 		{
+			//レンダラーを有効化
+			WireRend.enabled = true;
+
 			//フラグリセット
 			EnemyHitFlag = false;
 			WallHitFlag = false;
@@ -376,6 +382,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		{
 			//一旦収納位置に戻す
 			MoveWire(100);
+
+			//レンダラーを有効化
+			WireRend.enabled = true;
 
 			//ビルボードフラグを立てる
 			BillbordFlag = true;
@@ -406,6 +415,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			//ビルボードフラグを立てる
 			BillbordFlag = true;
 
+			//レンダラーを有効化
+			WireRend.enabled = true;
+
 			//コルーチン呼び出し
 			StartCoroutine(ReturnWireCoroutine());
 		}
@@ -414,6 +426,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		{
 			//ビルボードフラグを立てる
 			BillbordFlag = true;
+
+			//レンダラーを有効化
+			WireRend.enabled = true;
 
 			//親を右腕にする
 			BoneList[4].transform.parent = DeepFind(gameObject, "R_HandBone").transform;
@@ -434,6 +449,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		{
 			//一旦収納位置に戻す
 			MoveWire(100);
+
+			//レンダラーを有効化
+			WireRend.enabled = true;
 
 			//ビルボードフラグを立てる
 			BillbordFlag = true;
@@ -464,6 +482,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			//一旦収納位置に戻す
 			MoveWire(100);
 
+			//レンダラーを有効化
+			WireRend.enabled = true;
+
 			//ビルボードフラグを立てる
 			BillbordFlag = true;
 
@@ -483,6 +504,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		{
 			//一旦収納位置に戻す
 			MoveWire(100);
+
+			//レンダラーを有効化
+			WireRend.enabled = true;
 
 			//ビルボードフラグを立てる
 			BillbordFlag = true;
@@ -516,6 +540,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		{
 			//一旦収納位置に戻す
 			MoveWire(100);
+
+			//レンダラーを有効化
+			WireRend.enabled = true;
 
 			//フラグリセット
 			EnemyHitFlag = false;
@@ -584,6 +611,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			//ビルボードフラグを下す
 			BillbordFlag = false;
 
+			//レンダラーを無効化
+			WireRend.enabled = false;
+
 			for (int count = 5; count >= 1; count--)
 			{
 				//先端から一つずつ親を設定する
@@ -613,6 +643,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 
 		//収納位置に戻す
 		MoveWire(100);
+
+		//レンダラーを有効化
+		WireRend.enabled = true;
 
 		//敵の首にアタッチ
 		BoneList[5].transform.parent = DeepFind(LockEnemy, "NeckBone").transform;
@@ -659,6 +692,9 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		//収納位置に戻す
 		MoveWire(100);
 
+		//レンダラーを有効化
+		WireRend.enabled = true;
+
 		//親を自分の直下する
 		BoneList[5].transform.parent = gameObject.transform;
 
@@ -675,7 +711,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 		while (WireMoveFlag)
 		{
 			//ダメージを受けた
-			if(PScript.DamageFlag)
+			if(PScript.DamageFlag || PScript.H_Flag)
 			{
 				//コライダ無効化
 				ExecuteEvents.Execute<Character2WeaponColInterface>(BoneList[5], null, (reciever, eventData) => reciever.SwitchCol(false, false));
@@ -735,7 +771,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			yield return null;
 
 			//ダメージを受けた
-			if(PScript.DamageFlag)
+			if(PScript.DamageFlag || PScript.H_Flag)
 			{	
 				//ループを抜けて処理をスキップ
 				break;

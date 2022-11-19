@@ -121,6 +121,9 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						//ワイヤーオブジェクト
 						gameObject.GetComponent<Character2WeaponMoveScript>().WireOBJ = DeepFind(WeaponOBJ, "2_Weapon" + i.WeaponID + "_1_Mesh");
 
+						//ワイヤーのレンダラー
+						gameObject.GetComponent<Character2WeaponMoveScript>().WireRend = gameObject.GetComponent<Character2WeaponMoveScript>().WireOBJ.GetComponentInChildren<Renderer>();
+
 						//ワイヤーのボーン
 						for (int count = 0; count <= 5; count++)
 						{
