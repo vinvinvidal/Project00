@@ -1433,7 +1433,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			case 5:
 
 				//ダウン制御コルーチン呼び出し
-				StartCoroutine(DownCoroutine());
+				//StartCoroutine(DownCoroutine());
 
 				//重力をリセット
 				Gravity = 0;
@@ -1494,7 +1494,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		
 		//ノックバックフラグを入れる
 		KnockBackFlag = true;
-
 	}
 
 	//打ち上げてから少し待ってからフラグを立てる
@@ -1568,7 +1567,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		if (Arts.ColType[n] != 7 && Arts.ColType[n] != 8 && Arts.ColType[n] != 4 && Arts.ColType[n] != 5)
 		{
 			//プレイヤーキャラクターの正面ベクトルを基準にノックバックベクトルを求める
-			KnockBackVec = Quaternion.LookRotation(PlayerCharacter.transform.forward, transform.up) * tempVector;
+			KnockBackVec = Quaternion.LookRotation(PlayerCharacter.transform.forward, transform.up) * tempVector;			
 		}
 		//範囲攻撃
 		else
