@@ -5565,6 +5565,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ホールド状態を解除
 			HoldBreak();
 
+			//必中ターゲットを解除
+			TargetEnemy = null;
+
 			//ロックを解除
 			EnemyLock(null);
 		}
