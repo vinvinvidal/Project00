@@ -3576,6 +3576,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//クールダウンフラグを下す
 		CoolDownFlag = false;
+
+		//ホールド解除
+		if (HoldFlag)
+		{
+			HoldBreak();
+		}
 	}	
 
 	//攻撃移動開始処理、アニメーションクリップのイベントから呼ばれる
