@@ -1299,6 +1299,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//アニメーターのダウンフラグを下ろす
 				CurrentAnimator.SetBool("Down_Prone", false);
 
+				//ホールドダメージモーション中に再度ホールド攻撃を喰らったらモーションを最初から再生
+				if(CurrentState == "HoldDamage")
+				{
+					CurrentAnimator.Play("HoldDamage", 0, 0);
+				}
+
 				//ホールド持続コルーチン呼び出し
 				StartCoroutine(HoldWaitCoroutine(Arts.HoldPosList[n]));
 			}

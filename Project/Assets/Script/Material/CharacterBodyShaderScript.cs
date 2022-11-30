@@ -46,6 +46,9 @@ public class CharacterBodyShaderScript : GlobalClass
 		//ディレクショナルライトのトランスフォーム取得
 		LightTransform = GameObject.Find("OutDoorLight").transform;
 
+		//ディレクショナルライトの行列をシェーダーに渡す
+		BodyMaterial.SetMatrix("_LightMatrix", LightTransform.worldToLocalMatrix);
+
 		//使用するテクスチャを配列に入れる
 		Texture2D[] Textures = { _TexBase, _TexLine, _TexNormal, _TexHiLight, _HiLightMatCap };
 
@@ -85,12 +88,6 @@ public class CharacterBodyShaderScript : GlobalClass
 		{
 			BodyMaterial.SetTexture("_HiLightMatCap", _HiLightMatCap);
 		}		
-	}
-
-    void Update()
-    {
-		//ディレクショナルライトの行列をシェーダーに渡す
-		BodyMaterial.SetMatrix("_LightMatrix", LightTransform.worldToLocalMatrix);
 	}
 
 	//ブラー演出
