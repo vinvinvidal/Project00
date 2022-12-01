@@ -4152,7 +4152,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		if(T_OffFlag || B_OffFlag || P_OffFlag)
 		{
 			//オーバーライドコントローラにアニメーションクリップをセット
-			OverRideAnimator["BaseFace_void"] = H_FaceAnimList[4];
+			//OverRideAnimator["BaseFace_void"] = H_FaceAnimList[4];
 
 			//アニメーターを上書きしてアニメーションクリップを切り替える
 			CurrentAnimator.runtimeAnimatorController = OverRideAnimator;
