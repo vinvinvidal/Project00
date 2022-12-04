@@ -543,6 +543,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8119111697874531476, guid: c5efb6582cfb8e344a06046fbb8bcde6,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8119111697874531476, guid: c5efb6582cfb8e344a06046fbb8bcde6,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8119111697874531476, guid: c5efb6582cfb8e344a06046fbb8bcde6,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8119111697874531476, guid: c5efb6582cfb8e344a06046fbb8bcde6,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
     - target: {fileID: -7547065547521645906, guid: c5efb6582cfb8e344a06046fbb8bcde6,
         type: 3}
       propertyPath: m_LocalRotation.x
@@ -627,6 +647,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: -6504759479283324707, guid: c5efb6582cfb8e344a06046fbb8bcde6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: -6504759479283324707, guid: c5efb6582cfb8e344a06046fbb8bcde6,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: -6481638258582406834, guid: c5efb6582cfb8e344a06046fbb8bcde6,
         type: 3}
@@ -978,6 +1008,11 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 4294967295
       objectReference: {fileID: 0}
+    - target: {fileID: 5244099224921732846, guid: c5efb6582cfb8e344a06046fbb8bcde6,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f5c874a175805194db30d071be750b02, type: 2}
     - target: {fileID: 5269125321989405841, guid: c5efb6582cfb8e344a06046fbb8bcde6,
         type: 3}
       propertyPath: m_LocalPosition.y

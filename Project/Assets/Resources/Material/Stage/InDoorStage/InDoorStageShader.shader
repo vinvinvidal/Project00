@@ -80,6 +80,9 @@
 				// テクスチャ座標
 				float2 uv : TEXCOORD0;
 
+				//ワールド座標
+				float3 worldPos : TEXCOORD1;
+
 				//ドロップシャドウ
 				SHADOW_COORDS(2)
 
@@ -101,6 +104,9 @@
 
 				//法線をワールド座標系に変換
 				re.normal = UnityObjectToWorldNormal(v.normal);
+
+				//モデルをワールドに変換
+				re.worldPos = mul(unity_ObjectToWorld, v.pos);
 
 				//ドロップシャドウ
 				TRANSFER_SHADOW(re);
@@ -132,6 +138,9 @@
 
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);
+
+				//カメラから離れているほど暗くする
+				re *= InverseLerp(100, 0, length(_WorldSpaceCameraPos - i.worldPos));
 
 				//出力
 				return re;
