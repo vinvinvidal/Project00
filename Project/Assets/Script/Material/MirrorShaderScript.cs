@@ -68,7 +68,7 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 		MirrorForwardOBJ = DeepFind(transform.gameObject, "MirrorForward");
 
 		//ミラー用レンダーテクスチャを初期化
-		MirrorTexture = new RenderTexture(128, 128, 24, RenderTextureFormat.ARGB32);
+		MirrorTexture = new RenderTexture(64, 64, 24, RenderTextureFormat.ARGB32);
 
 		//カメラのターゲットテクスチャにレンダーテクスチャをセット
 		MirrorCamera.targetTexture = MirrorTexture;
@@ -94,16 +94,22 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 			//スクリーンサイズから消失用テクスチャのスケーリングを設定
 			MirrorMaterial.SetTextureScale("_VanishTex", new Vector2(Screen.width / MirrorMaterial.GetTexture("_VanishTex").width, Screen.height / MirrorMaterial.GetTexture("_VanishTex").height) * GameManagerScript.Instance.ScreenResolutionScale);
 		}
+
+		//レンダーテクスチャをシェーダーに送る
+		MirrorMaterial.SetTexture("_MainTex", MirrorTexture);
 	}
 
 	void Update()
 	{
-		//ミラーカメラオン
-		if (OnMirror && !EnemyFaceMirrorFlag)
+		//カメラと鏡が向き合っていたら鏡を有効化
+		if(MirrorCamera.enabled != Vector3.Dot(MainCamera.transform.forward, MirrorForwardOBJ.transform.forward) < 0)
 		{
-			//レンダーテクスチャをシェーダーに送る
-			MirrorMaterial.SetTexture("_MainTex", MirrorTexture);
+			MirrorCamera.enabled = Vector3.Dot(MainCamera.transform.forward, MirrorForwardOBJ.transform.forward) < 0;
+		}
 
+		//ミラーカメラオン
+		if (OnMirror && !EnemyFaceMirrorFlag && MirrorCamera.enabled)
+		{
 			//カメラから鏡までのベクトル取得
 			LookAtVec = MirrorForwardOBJ.transform.position - MainCamera.transform.position;
 
@@ -126,15 +132,11 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 			MirrorCamera.fieldOfView = 2 * Mathf.Atan(MirrorSize / (2 * MirrorDistance)) * Mathf.Rad2Deg;
 
 			//オブジェクトをカメラに向ける
-			MirrorOBJ.transform.LookAt(MainCamera.transform);
-
+			MirrorOBJ.transform.LookAt(MainCamera.transform);		
 		}
 		//敵顔ミラーオン
 		else if(OnMirror && EnemyFaceMirrorFlag)
 		{
-			//レンダーテクスチャをシェーダーに送る
-			MirrorMaterial.SetTexture("_MainTex", MirrorTexture);
-
 			//カメラを敵の顔の前に移動
 			MirrorCamera.transform.position = EnemyFaceMirrorOBJ.transform.position + (EnemyFaceMirrorOBJ.transform.up * 0.2f);
 
