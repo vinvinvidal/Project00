@@ -46,6 +46,9 @@ public class UserDataClass
 	//装備している衣装リスト
 	public List<int> EquipCostumeList;
 
+	//装備している下着リスト
+	public List<int> EquipUnderWearList;
+
 	//装備している武器リスト
 	public List<int> EquipWeaponList;
 }

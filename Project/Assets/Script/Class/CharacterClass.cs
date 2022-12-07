@@ -29,6 +29,9 @@ public class CharacterClass
 	//選択されている衣装ID
 	public int CostumeID;
 
+	//選択されている下着ID
+	public int UnderWearID;
+
 	//選択されている武器ID
 	public int WeaponID;
 
@@ -60,6 +63,7 @@ public class CharacterClass
 		string FNH,
 		int Hid,
 		int Cid,
+		int Uid,
 		int Wid,
 		string ON,
 		float pms,
@@ -77,6 +81,7 @@ public class CharacterClass
 		F_NameH = FNH;
 		HairID = Hid;
 		CostumeID = Cid;
+		UnderWearID = Uid;
 		WeaponID = Wid;
 		OBJname = ON;
 		PlayerMoveSpeed = pms;

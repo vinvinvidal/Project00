@@ -527,10 +527,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 				//装備中の髪型、衣装、武器のインデックス読み込む
 				int Hid = GameManagerScript.instance.UserData.EquipHairList[id];
 				int Cid = GameManagerScript.instance.UserData.EquipCostumeList[id];
+				int Uid = GameManagerScript.instance.UserData.EquipUnderWearList[id];
 				int Wid = GameManagerScript.instance.UserData.EquipWeaponList[id];
 
 				//ListにAdd
-				AllCharacterList.Add(new CharacterClass(id, LNC, LNH, FNC, FNH, Hid, Cid, Wid, ON, pms, pds, rs, jp, ts, ad));
+				AllCharacterList.Add(new CharacterClass(id, LNC, LNH, FNC, FNH, Hid, Cid, Uid, Wid, ON, pms, pds, rs, jp, ts, ad));
 			}
 
 			//読み込み完了フラグを立てる
@@ -2944,9 +2945,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		re.EquipCostumeList = new List<int>();
 
+		re.EquipUnderWearList = new List<int>();
+
 		re.EquipWeaponList = new List<int>();
 
-		//髪と衣装と武器に初期装備を入れる、適当に10人分、多分そんなに使わない
+		//髪と衣装と下着と武器に初期装備を入れる、適当に10人分、多分そんなに使わない
 		re.EquipHairList.Add(0);
 		re.EquipHairList.Add(0);
 		re.EquipHairList.Add(0);
@@ -2957,6 +2960,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		re.EquipHairList.Add(0);
 		re.EquipHairList.Add(0);
 		re.EquipHairList.Add(0);
+
 		re.EquipCostumeList.Add(0);
 		re.EquipCostumeList.Add(0);
 		re.EquipCostumeList.Add(0);
@@ -2967,6 +2971,18 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		re.EquipCostumeList.Add(0);
 		re.EquipCostumeList.Add(0);
 		re.EquipCostumeList.Add(0);
+
+		re.EquipUnderWearList.Add(0);
+		re.EquipUnderWearList.Add(0);
+		re.EquipUnderWearList.Add(0);
+		re.EquipUnderWearList.Add(0);
+		re.EquipUnderWearList.Add(0);
+		re.EquipUnderWearList.Add(0);
+		re.EquipUnderWearList.Add(0);
+		re.EquipUnderWearList.Add(0);
+		re.EquipUnderWearList.Add(0);
+		re.EquipUnderWearList.Add(0);
+		
 		re.EquipWeaponList.Add(0);
 		re.EquipWeaponList.Add(0);
 		re.EquipWeaponList.Add(0);
