@@ -50,10 +50,25 @@ public class Scene01_MainMenuScript : GlobalClass
 	//編集中のキャラクターID
 	private int CharacterID = 0;
 
+	//現在のメニューモード
+	private CurrentModeEnum CurrentMode;
+
+	//現在のメニューモードEnum
+	private enum CurrentModeEnum
+	{
+		MainMenu,           //メインメニュー
+		Customize,			//カスタマイズメニュー
+		Arts,				//技装備
+		Costume,			//衣装装備
+	}
+
 	void Start()
     {
 		//カメラルートオブジェクト取得
 		CameraRootOBJ = GameObject.Find("CameraRoot");
+
+		//現在のメニューモードをメインメニューにする
+		CurrentMode = CurrentModeEnum.MainMenu;
 
 		//UIのイベントを受け取るイベントシステム取得
 		EventSystemUI = GameObject.Find("EventSystem").GetComponent<EventSystem>();
@@ -132,14 +147,17 @@ public class Scene01_MainMenuScript : GlobalClass
 	{
 		if (InputReadyFlag)
 		{
+			//入力許可フラグを下ろす
+			InputReadyFlag = false;
+
+			//メニューモードをカスタマイズに
+			CurrentMode = CurrentModeEnum.Customize;
+
 			//アニメーターのフラグを立てる
 			UIAnim.SetBool("MainMenu_Show", false);
 			UIAnim.SetBool("MainMenu_Vanish", true);
 			UIAnim.SetBool("Customize_Show", true);
 			UIAnim.SetBool("Customize_Vanish", false);
-
-			//入力許可フラグを下ろす
-			InputReadyFlag = false;
 		}	
 	}
 
@@ -148,14 +166,17 @@ public class Scene01_MainMenuScript : GlobalClass
 	{
 		if (InputReadyFlag)
 		{
+			//入力許可フラグを下ろす
+			InputReadyFlag = false;
+
+			//メニューモードをメインメニューに
+			CurrentMode = CurrentModeEnum.MainMenu;
+
 			//アニメーターのフラグを立てる
 			UIAnim.SetBool("Customize_Vanish", true);
 			UIAnim.SetBool("Customize_Show", false);
 			UIAnim.SetBool("MainMenu_Show", true);
 			UIAnim.SetBool("MainMenu_Vanish", false);
-
-			//入力許可フラグを下ろす
-			InputReadyFlag = false;
 		}
 	}
 
@@ -164,14 +185,17 @@ public class Scene01_MainMenuScript : GlobalClass
 	{
 		if (InputReadyFlag)
 		{
+			//入力許可フラグを下ろす
+			InputReadyFlag = false;
+
+			//メニューモードを技装備に
+			CurrentMode = CurrentModeEnum.Arts;
+
 			//アニメーターのフラグを立てる
 			UIAnim.SetBool("Customize_Vanish", true);
 			UIAnim.SetBool("Customize_Show", false);
 			UIAnim.SetBool("ArtsEquip_Show", true);
 			UIAnim.SetBool("ArtsEquip_Vanish", false);
-
-			//入力許可フラグを下ろす
-			InputReadyFlag = false;
 
 			//装備技List生成
 			ArtsEquipListReset(CharacterID);
@@ -183,6 +207,12 @@ public class Scene01_MainMenuScript : GlobalClass
 	{
 		if (InputReadyFlag)
 		{
+			//入力許可フラグを下ろす
+			InputReadyFlag = false;
+
+			//メニューモードをカスタマイズに
+			CurrentMode = CurrentModeEnum.Customize;
+
 			//技装備更新
 			ArtsMatrixUpdate(CharacterID);		
 
@@ -194,9 +224,67 @@ public class Scene01_MainMenuScript : GlobalClass
 			UIAnim.SetBool("Customize_Show", true);
 			UIAnim.SetBool("ArtsEquip_Show", false);
 			UIAnim.SetBool("ArtsEquip_Vanish", true);
+		}
+	}
 
-			//入力許可フラグを下ろす
-			InputReadyFlag = false;
+	//汎用ボタンが押された時の処理
+	public void OnGeneral()
+	{
+		if (InputReadyFlag)
+		{
+			//装備技マトリクスが選択されている
+			if (ArtsMatrixButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+			{
+				//装備解除
+				EventSystemUI.currentSelectedGameObject.GetComponentInChildren<Text>().text = "";
+
+				//選択技解除
+				SelectedArtsOBJ = null;
+			}
+		}
+	}
+
+	//スティックが入力された時の処理、イベントシステムやナビゲーションでフォローできない処理を書く
+	public void OnNavigate(InputValue input)
+	{
+		//左が押された
+		if (input.Get<Vector2>().x < -0.75f)
+		{
+			//技マトリクスボタンを選択しているか判別
+			if (ArtsMatrixButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
+			{
+				//技マトリクスの左端の列で左が押されたら技リストに戻る
+				if (EventSystemUI.currentSelectedGameObject.GetComponent<Button>().navigation.selectOnLeft == null)
+				{
+					//リストに戻る処理
+					ArtsListBack();
+				}
+			}
+		}
+	}
+
+	//アクティブ切り替えボタンが押された時の処理
+	public void OnChangeActive(InputValue input)
+	{
+		if (InputReadyFlag && CurrentMode == CurrentModeEnum.Arts)
+		{
+			//切り替え前のキャラクターの技装備更新
+			ArtsMatrixUpdate(CharacterID);
+
+			//キャラクターID切り替え
+			CharacterID += Mathf.RoundToInt(input.Get<float>());
+
+			if (CharacterID == -1)
+			{
+				CharacterID = GameManagerScript.Instance.AllCharacterList.Count - 1;
+			}
+			else if (CharacterID == GameManagerScript.Instance.AllCharacterList.Count)
+			{
+				CharacterID = 0;
+			}
+
+			//技リストと技マトリクスを更新する関数呼び出し
+			ArtsEquipListReset(CharacterID);
 		}
 	}
 
@@ -567,65 +655,6 @@ public class Scene01_MainMenuScript : GlobalClass
 				ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = ButtonBottomPos / (ArtsSelectButtonContentSize - ArtsSelectScrollSize);
 			}
 		}
-	}
-
-	//汎用ボタンが押された時の処理
-	public void OnGeneral()
-	{
-		if (InputReadyFlag)
-		{
-			//装備技マトリクスが選択されている
-			if (ArtsMatrixButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
-			{
-				//装備解除
-				EventSystemUI.currentSelectedGameObject.GetComponentInChildren<Text>().text = "";
-
-				//選択技解除
-				SelectedArtsOBJ = null;
-			}
-		}
-	}
-
-	//スティックが入力された時の処理、イベントシステムやナビゲーションでフォローできない処理を書く
-	public void OnNavigate(InputValue input)
-	{
-		//左が押された
-		if (input.Get<Vector2>().x < -0.75f)
-		{
-			//技マトリクスボタンを選択しているか判別
-			if (ArtsMatrixButtonList.Any(a => a == EventSystemUI.currentSelectedGameObject))
-			{
-				//技マトリクスの左端の列で左が押されたら技リストに戻る
-				if (EventSystemUI.currentSelectedGameObject.GetComponent<Button>().navigation.selectOnLeft == null)
-				{
-					//リストに戻る処理
-					ArtsListBack();
-				}
-			}
-		}
-	}
-
-	//アクティブ切り替えボタンが押された時の処理
-	public void OnChangeActive(InputValue input)
-	{
-		if (InputReadyFlag)
-		{
-			//切り替え前のキャラクターの技装備更新
-			ArtsMatrixUpdate(CharacterID);
-
-			CharacterID += Mathf.RoundToInt(input.Get<float>());
-
-			if(CharacterID == -1)
-			{
-				CharacterID = GameManagerScript.Instance.AllCharacterList.Count - 1;
-			}
-			else if(CharacterID == GameManagerScript.Instance.AllCharacterList.Count)
-			{
-				CharacterID = 0;
-			}
-		}
-
-		ArtsEquipListReset(CharacterID);
 	}
 
 	//メインメニュー有効、アニメーションクリップから呼ばれる

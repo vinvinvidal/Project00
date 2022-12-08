@@ -251,7 +251,10 @@ public class MissionUIScript : GlobalClass
 	//技マトリクスに技をとスクリプトをセットする、プレイヤースクリプトの初期処理から呼ばれる
 	public void SetArtsClass(int c, ArtsClass Arts)
 	{
-		DeepFind(ArtsMatrixDic[c], "Arts" + Arts.MatrixPos).AddComponent<MissionUIArtsCoolDownScript>().Arts = Arts;
+		if(ArtsMatrixDic.ContainsKey(c))
+		{
+			DeepFind(ArtsMatrixDic[c], "Arts" + Arts.MatrixPos).AddComponent<MissionUIArtsCoolDownScript>().Arts = Arts;
+		}		
 	}
 
 	//キャラクターチェンジ処理
