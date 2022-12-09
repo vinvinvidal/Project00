@@ -3528,6 +3528,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//揺れ物バタバタを止める
 		EndClothShake();
 
+		//タメ以前に押されていた攻撃を消す
+		AttackInput = false;
+
+		CurrentAnimator.SetBool("Attack00", false);
+		CurrentAnimator.SetBool("Attack01", false);
+
 		//ジャンプかローリングが押されたら攻撃中断
 		if (JumpInput || RollingInput || DamageFlag)
 		{

@@ -44,6 +44,15 @@ public class Scene01_MainMenuScript : GlobalClass
 	//生成した技選択ボタンを格納するList
 	List<GameObject> ArtsSelectButtonList = new List<GameObject>();
 
+	//衣装選択用ボタン
+	private GameObject CostumeSelectButtonOBJ;
+
+	//衣装選択リストコンテンツルートオブジェクト
+	private GameObject CostumeSelectButtonContentOBJ;
+
+	//生成した衣装選択ボタンを格納するList
+	List<GameObject> CostumeSelectButtonList = new List<GameObject>();
+
 	//入力許可フラグ
 	private bool InputReadyFlag = false;
 
@@ -91,8 +100,14 @@ public class Scene01_MainMenuScript : GlobalClass
 		//技選択用ボタン取得
 		ArtsSelectButtonOBJ = GameObject.Find("SelectArtsButton");
 
+		//衣装選択用ボタン取得
+		CostumeSelectButtonOBJ = GameObject.Find("SelectCostumeButton");
+
 		//技選択リストコンテンツルートオブジェクト取得
 		ArtsSelectButtonContentOBJ = GameObject.Find("ArtsListContent");
+
+		//衣装選択リストコンテンツルートオブジェクト取得
+		CostumeSelectButtonContentOBJ = GameObject.Find("CostumeListContent");
 
 		//技選択リストスクロールバーオブジェクト取得
 		ArtsSelectScrollBarOBJ = DeepFind(ArtsEquipOBJ, "ArtsList");
@@ -226,6 +241,48 @@ public class Scene01_MainMenuScript : GlobalClass
 			UIAnim.SetBool("ArtsEquip_Vanish", true);
 		}
 	}
+
+	//衣装装備がSubmitされた時の処理
+	public void CostumeSubmit()
+	{
+		if (InputReadyFlag)
+		{
+			//入力許可フラグを下ろす
+			InputReadyFlag = false;
+
+			//メニューモードを技装備に
+			CurrentMode = CurrentModeEnum.Costume;
+
+			//アニメーターのフラグを立てる
+			UIAnim.SetBool("Customize_Vanish", true);
+			UIAnim.SetBool("Customize_Show", false);
+			UIAnim.SetBool("Costume_Show", true);
+			UIAnim.SetBool("Costume_Vanish", false);
+
+			//装備技List生成
+			CostumeListReset(CharacterID);
+		}
+	}
+
+	//衣装装備でCancelされた時の処理
+	public void CostumeCancel()
+	{
+		if (InputReadyFlag)
+		{
+			//入力許可フラグを下ろす
+			InputReadyFlag = false;
+
+			//メニューモードをカスタマイズに
+			CurrentMode = CurrentModeEnum.Customize;
+
+			//アニメーターのフラグを立てる
+			UIAnim.SetBool("Customize_Vanish", false);
+			UIAnim.SetBool("Customize_Show", true);
+			UIAnim.SetBool("Costume_Show", false);
+			UIAnim.SetBool("Costume_Vanish", true);
+		}
+	}
+
 
 	//汎用ボタンが押された時の処理
 	public void OnGeneral()
@@ -468,6 +525,87 @@ public class Scene01_MainMenuScript : GlobalClass
 		}
 
 		return re;
+	}
+
+	//衣装リストを更新する関数
+	private void CostumeListReset(int ID)
+	{
+		//ひな型ボタンのRect取得
+		RectTransform Temprect = CostumeSelectButtonOBJ.GetComponent<RectTransform>();
+
+		//ループカウント宣言
+		int count = 0;
+
+		//全ての衣装を回す
+		foreach (CostumeClass i in GameManagerScript.Instance.AllCostumeList)
+		{
+			//引数で仕様キャラクターを判別、アンロックされているかを判別
+			if (i.CharacterID == ID)
+			{
+				//ボタンのインスタンス生成
+				GameObject TempButton = Instantiate(CostumeSelectButtonOBJ);
+
+				//親を設定
+				TempButton.GetComponent<RectTransform>().SetParent(CostumeSelectButtonContentOBJ.transform, false);
+
+				//位置を設定
+				TempButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(Temprect.anchoredPosition.x, Temprect.anchoredPosition.y - (Temprect.rect.height * count));
+
+				//テキストに技名を入れる
+				TempButton.GetComponentInChildren<Text>().text = i.CostumeName;
+
+				//ボタンの名前を連番にする
+				TempButton.name = ID + CostumeSelectButtonOBJ.name + count;
+
+				//ListにAdd
+				CostumeSelectButtonList.Add(TempButton);
+
+				//ループカウントアップ
+				count++;
+			}
+		}
+
+		//ループカウントリセット
+		count = 0;
+
+		//技リストのボタンにナビゲータを仕込む
+		foreach (GameObject o in CostumeSelectButtonList)
+		{
+			//ナビゲーションのアクセサ取得
+			Navigation tempnavi = o.GetComponent<Button>().navigation;
+
+			//上を押した時の処理
+			if (count == 0)
+			{
+				tempnavi.selectOnUp = DeepFind(CostumeSelectButtonContentOBJ, ID + CostumeSelectButtonOBJ.name + (CostumeSelectButtonList.Count - 1)).GetComponent<Button>();
+			}
+			else
+			{
+				tempnavi.selectOnUp = DeepFind(CostumeSelectButtonContentOBJ, ID + CostumeSelectButtonOBJ.name + (count - 1)).GetComponent<Button>();
+			}
+
+			//下を押した時の選択先設定
+			if (count == CostumeSelectButtonList.Count - 1)
+			{
+				tempnavi.selectOnDown = DeepFind(CostumeSelectButtonContentOBJ, ID + CostumeSelectButtonOBJ.name + 0).GetComponent<Button>();
+			}
+			else
+			{
+				tempnavi.selectOnDown = DeepFind(CostumeSelectButtonContentOBJ, ID + CostumeSelectButtonOBJ.name + (count + 1)).GetComponent<Button>();
+			}
+
+			//アクセサを反映
+			o.GetComponent<Button>().navigation = tempnavi;
+
+			//ループカウントアップ
+			count++;
+		}
+
+		//選択ボタンを切り替え
+		EventSystemUI.SetSelectedGameObject(CostumeSelectButtonList[0]);
+
+		//スクロールの位置調整
+		ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = 1;
 	}
 
 	//技リストと技マトリクスを更新する関数
