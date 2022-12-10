@@ -175,6 +175,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//--- 状態フラグ ---//
 
+	//準備完了フラグ
+	public bool AllReadyFlag { get; set; } = false;
+
 	//接地フラグ
 	private bool OnGroundFlag = false;
 
@@ -267,9 +270,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//クールダウンフラグ
 	private bool CoolDownFlag = false;
-
-	//ボーン動かしフラグ
-	public bool BoneMoveSwitch { get; set; } = false;
 
 	//--- 移動値 ---//
 
@@ -547,8 +547,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//視線を向ける先のポジション
 	private Vector3 CharacterLookAtPos;
 
-	//視線変更許可フラグ
-	private bool LookAtPosFlag = true;
+	//視線を敵オブジェクト
+	private GameObject LookAtEnemy;
 
 	//瞬き禁止フラグ
 	private bool NoBlinkFlag = false;
@@ -703,6 +703,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 		//視線を向ける先のポジション初期化
 		CharacterLookAtPos = Vector3.zero;
+
+		//視線を向ける敵期化
+		LookAtEnemy = null;
 
 		//頬を赤らめるための顔マテリアル取得
 		FaceMaterial = transform.GetComponentsInChildren<Renderer>().Where(i => i.transform.name.Contains("Face")).ToArray()[0].material;
@@ -1054,12 +1057,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				}
 			}
 		}
+
+
+		//目線をカメラ目線にする
+		//gameObject.GetComponentInChildren<CharacterEyeShaderScript>().CameraEyeFlag = true;
 	}
 
 	void LateUpdate()
 	{
-		//位置合わせが必要な時は揺らさない
-		if(!CurrentState.Contains("Super") && BoneMoveSwitch)
+		//アイドリング中は各ボーンを微妙に揺らして自然な感じにする
+		if(CurrentState.Contains("Idling") && AllReadyFlag)
 		{
 			//ループカウント
 			int count = 0;
@@ -1112,7 +1119,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	void Update()
 	{
-		if (!PauseFlag)
+		if (!PauseFlag && AllReadyFlag)
 		{
 			//アニメーションステートを監視する関数呼び出し
 			StateMonitor();
@@ -4784,34 +4791,29 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		return re;
 	}
 
-	//視線を決定するコルーチン
-	IEnumerator SetCharacterLookAtPos()
+	//視線を決定する関数
+	private void SetCharacterLookAtPos()
 	{
-		//ロックしている敵がいたらそいつ、複数の敵が要る場合はランダムな相手、いなければ正面を見る
+		//ロックしている敵がいたらそいつを見る
 		if (LockEnemy != null && GameManagerScript.Instance.BattleFlag)
 		{
-			CharacterLookAtPos = LockEnemy.transform.position;
+			LookAtEnemy = LockEnemy;
 		}
-		else if (GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList().Count > 0 && GameManagerScript.Instance.BattleFlag)
+		//未ロックならランダムな敵を見る
+		else if (LookAtEnemy == null && GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList().Count > 0 && GameManagerScript.Instance.BattleFlag)
 		{
-			//視線変更許可フラグで制御
-			if (LookAtPosFlag)
-			{
-				//視線変更許可フラグを下ろす
-				LookAtPosFlag = false;
-
-				//敵リストからランダムに対象を選定、座標を送る
-				CharacterLookAtPos = GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).OrderBy(i => Guid.NewGuid()).ToArray()[0].transform.position;
-
-				//ランダムな秒数待機
-				yield return new WaitForSeconds(UnityEngine.Random.Range(1f, 5f));
-
-				//視線変更許可フラグを立てる
-				LookAtPosFlag = true;
-			}
+			//敵リストからランダムに対象を選定、座標を送る
+			LookAtEnemy = GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).OrderBy(i => Guid.NewGuid()).ToArray()[0];
 		}
+
+		//敵を見る
+		if(LookAtEnemy != null && GameManagerScript.Instance.BattleFlag)
+		{
+			CharacterLookAtPos = LookAtEnemy.transform.position;
+		}
+		//敵がいなければ正面を向く
 		else
-		{
+		{			
 			CharacterLookAtPos = gameObject.transform.position + gameObject.transform.forward;
 		}
 	}
@@ -4820,10 +4822,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private void AnimFunc()
 	{
 		//視線を決定するコルーチン呼び出し
-		StartCoroutine(SetCharacterLookAtPos());
+		SetCharacterLookAtPos();
 
 		//目シェーダーに視線ベクトルを送る
-		ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.GetLookPos(CharacterLookAtPos));
+		ExecuteEvents.Execute<CharacterEyeShaderScriptInterface>(EyeOBJ, null, (reciever, eventData) => reciever.SetLookPos(CharacterLookAtPos));
 
 		//移動入力がしきい値以上ならアニメーターのフラグを立てる
 		CurrentAnimator.SetBool("Move", Mathf.Abs(PlayerMoveInputVecter.x) + Mathf.Abs(PlayerMoveInputVecter.y) > 0.0f);

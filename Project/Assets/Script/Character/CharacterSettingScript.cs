@@ -158,10 +158,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 					HairOBJ.transform.parent = DeepFind(gameObject, "HeadBone").transform;
 
 					//ローカルtransformをゼロに
-					//HairOBJ.transform.localPosition *= 0;
-					//HairOBJ.transform.localRotation = Quaternion.Euler(Vector3.zero);
 					ResetTransform(HairOBJ);
-
 
 					//髪のダイナミックボーンに使うコライダを全て取得
 					foreach(DynamicBoneCollider ii in HairOBJ.GetComponentsInChildren<DynamicBoneCollider>())
@@ -185,8 +182,6 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						}
 
 						//相対位置と回転をゼロにする
-						//ii.transform.localPosition = new Vector3(0, 0, 0);
-						//ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
 						ResetTransform(ii.gameObject);
 					}
 
@@ -228,8 +223,6 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						}
 
 						//相対位置と回転をゼロにする
-						//ii.transform.localPosition = new Vector3(0, 0, 0);
-						//ii.transform.localRotation = Quaternion.Euler(0, 0, 0);
 						ResetTransform(ii.gameObject);
 					}
 
@@ -241,7 +234,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 				//衣装オブジェクト読み込み
 				StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Character/" + ID + "/Costume/", "Costume_" + ID + "_" + i.CostumeID, "prefab", (object O) =>
 				{
-					//衣装オブジェクト読み込み
+					//下着オブジェクト読み込み
 					StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Character/" + ID + "/UnderWear/", "UnderWear_" + ID + "_" + i.UnderWearID, "prefab", (object U) =>
 					{
 						//読み込んだ衣装オブジェクトをインスタンス化
@@ -659,8 +652,8 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 		//アニメーター有効化
 		gameObject.GetComponent<Animator>().enabled = true;
 
-		//骨揺らしフラグを入れる
-		gameObject.GetComponent<PlayerScript>().BoneMoveSwitch = true;
+		//準備完了フラグを入れる
+		gameObject.GetComponent<PlayerScript>().AllReadyFlag = true;
 
 		//自身を消しておく
 		gameObject.SetActive(false);

@@ -44,11 +44,17 @@ public class Scene01_MainMenuScript : GlobalClass
 	//生成した技選択ボタンを格納するList
 	List<GameObject> ArtsSelectButtonList = new List<GameObject>();
 
+	//衣装装備のオブジェクトルート
+	private GameObject CostumeOBJ;
+
 	//衣装選択用ボタン
 	private GameObject CostumeSelectButtonOBJ;
 
 	//衣装選択リストコンテンツルートオブジェクト
 	private GameObject CostumeSelectButtonContentOBJ;
+
+	//衣装選択リストスクロールバーオブジェクト
+	private GameObject CostumeSelectScrollBarOBJ;
 
 	//生成した衣装選択ボタンを格納するList
 	List<GameObject> CostumeSelectButtonList = new List<GameObject>();
@@ -58,6 +64,12 @@ public class Scene01_MainMenuScript : GlobalClass
 
 	//編集中のキャラクターID
 	private int CharacterID = 0;
+
+	//編集可能なキャラクターオブジェクトリスト
+	private List<GameObject> CharacterList = new List<GameObject>();
+
+	//編集可能な衣装リスト
+	private List<List<GameObject>> CostumeList = new List<List<GameObject>>(); 
 
 	//現在のメニューモード
 	private CurrentModeEnum CurrentMode;
@@ -97,6 +109,9 @@ public class Scene01_MainMenuScript : GlobalClass
 		//技装備のオブジェクトルート取得
 		ArtsEquipOBJ = GameObject.Find("ArtsEquip");
 
+		//衣装装備のオブジェクトルート取得
+		CostumeOBJ = GameObject.Find("CostumeEquip");
+
 		//技選択用ボタン取得
 		ArtsSelectButtonOBJ = GameObject.Find("SelectArtsButton");
 
@@ -111,6 +126,9 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		//技選択リストスクロールバーオブジェクト取得
 		ArtsSelectScrollBarOBJ = DeepFind(ArtsEquipOBJ, "ArtsList");
+
+		//衣装選択リストスクロールバーオブジェクト取得
+		CostumeSelectScrollBarOBJ = DeepFind(CostumeOBJ, "CostumeList");
 
 		//キャンバスにカメラを設定
 		GetComponent<Canvas>().worldCamera = GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<Camera>();
@@ -127,11 +145,271 @@ public class Scene01_MainMenuScript : GlobalClass
 		//カメラワーク再生
 		GameObject.Find("CameraWork").GetComponent<CinemachineCameraScript>().PlayCameraWork(0 , true);
 
-		//スクリーンエフェクトで白フェード
-		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) => { g.GetComponent<Renderer>().enabled = false; }));
+		//コルーチン呼び出し
+		StartCoroutine(MainMenuStartCoroutine());
 	}
 
-    void Update()
+	private IEnumerator MainMenuStartCoroutine()
+	{
+		//キャラクターリスト初期化
+		CharacterList = new List<GameObject>();
+
+		//とりあえず要素数を確保
+		CharacterList.Add(null);
+		CharacterList.Add(null);
+		CharacterList.Add(null);
+		CharacterList.Add(null);
+		CharacterList.Add(null);
+		CharacterList.Add(null);
+		CharacterList.Add(null);
+		CharacterList.Add(null);
+		CharacterList.Add(null);
+		CharacterList.Add(null);
+
+		//衣装リスト初期化
+		CostumeList = new List<List<GameObject>>();
+
+		//とりあえず要素数を確保
+		CostumeList.Add(new List<GameObject>());
+		CostumeList.Add(new List<GameObject>());
+		CostumeList.Add(new List<GameObject>());
+		CostumeList.Add(new List<GameObject>());
+		CostumeList.Add(new List<GameObject>());
+		CostumeList.Add(new List<GameObject>());
+		CostumeList.Add(new List<GameObject>());
+		CostumeList.Add(new List<GameObject>());
+		CostumeList.Add(new List<GameObject>());
+		CostumeList.Add(new List<GameObject>());
+
+		foreach (var CID in GameManagerScript.Instance.UserData.CharacterUnLock)
+		{
+			//キャラクター読み込み完了フラグ宣言
+			bool CharacterLoadFlag = false;
+
+			//髪型読み込み完了フラグ宣言
+			bool HairLoadFlag = false;
+
+			//衣装読み込み完了フラグ宣言
+			bool CostumeLoadFlag = false;
+
+			//キャラクターモデル読み込み
+			StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Character/" + CID + "/", GameManagerScript.Instance.AllCharacterList[CID].OBJname, "prefab", (object OBJ) =>
+			{
+				//インスタンス化してListに追加
+				CharacterList[CID] = Instantiate(OBJ as GameObject);
+
+				//入力を無効化
+				CharacterList[CID].GetComponent<PlayerInput>().enabled = false;
+
+				//キャラクターセッティングを無効化
+				CharacterList[CID].GetComponent<CharacterSettingScript>().enabled = false;
+
+				//レンダラー有効化
+				foreach (var ii in CharacterList[CID].GetComponentsInChildren<SkinnedMeshRenderer>())
+				{
+					ii.enabled = true;
+				}
+
+				//目線をカメラ目線にする
+				CharacterList[CID].GetComponentInChildren<CharacterEyeShaderScript>().CameraEyeFlag = true;
+
+				//アニメーター有効
+				CharacterList[CID].GetComponent<Animator>().enabled = true;
+
+				//編集中キャラクターをアクティブキャラクターに設定
+				if (CharacterID == CID)
+				{
+					GameManagerScript.Instance.SetPlayableCharacterOBJ(CharacterList[CID]);					
+				}
+				//編集中ではないキャラクターを非表示
+				else
+				{
+					CharacterList[CID].SetActive(false);
+				}
+
+				//全ての衣装オブジェクト読み込み
+				StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Character/" + CID + "/Costume/", "prefab", (List<object> list) =>
+				{
+					//とりあえず要素数を確保
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+					CostumeList[CID].Add(null);
+
+					//読み込んだオブジェクトを回す
+					foreach (var O in list)
+					{
+						//読み込んだ衣装オブジェクトをインスタンス化
+						GameObject CostumeOBJ = Instantiate(O as GameObject);
+
+						//名前からCloneを消す
+						CostumeOBJ.name = CostumeOBJ.name.Replace("(Clone)", "");
+
+						//読み込んだ衣装オブジェクトをListに入れる
+						CostumeList[CID][int.Parse(CostumeOBJ.name.Replace("Costume_" + CID + "_", ""))] = CostumeOBJ;
+
+						//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
+						SkinnedMeshRenderer CostumeRenderer = DeepFind(CharacterList[CID], "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
+
+						//ローカルトランスフォームをリセット
+						ResetTransform(CostumeOBJ);
+
+						//衣装を子にする
+						CostumeOBJ.transform.parent = CharacterList[CID].transform;
+
+						//ローカルトランスフォームをリセット
+						ResetTransform(CostumeOBJ);
+
+						//衣装プレハブ内のスキニングメッシュレンダラーを全て取得
+						foreach (SkinnedMeshRenderer ii in CostumeOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
+						{
+							//ボーン構成をコピーしてキャラクターのボーンと紐付ける
+							ii.bones = CostumeRenderer.bones;
+
+							//脱がされていない状態のモデルを表示
+							if(!ii.gameObject.name.Contains("Off_"))
+							{
+								ii.enabled = true;
+							}
+						}
+
+					   //一旦無効化しておく
+						CostumeOBJ.SetActive(false);
+					}
+
+					//装備中の衣装を有効化
+					CostumeList[CID][GameManagerScript.Instance.AllCharacterList[CID].CostumeID].SetActive(true);
+
+					//衣装読み込み完了フラグを立てる
+					CostumeLoadFlag = true;
+
+				}));
+
+				//全ての髪オブジェクト読み込み
+				StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Character/" + CID + "/Hair/", "prefab", (List<object> list) =>
+				{
+					//読み込んだオブジェクトを回す
+					foreach(var ii in list)
+					{
+						//読み込んだオブジェクトをインスタンス化
+						GameObject HairOBJ = Instantiate(ii as GameObject);
+
+						//頭ボーンの子にする
+						HairOBJ.transform.parent = DeepFind(CharacterList[CID], "HeadBone").transform;
+
+						//ローカルtransformをゼロに
+						ResetTransform(HairOBJ);
+
+						//髪のダイナミックボーンに使うコライダを全て取得
+						foreach (DynamicBoneCollider iii in HairOBJ.GetComponentsInChildren<DynamicBoneCollider>())
+						{
+							//名前で判別してキャラクターのボーンの子にする
+							if (iii.name.Contains("Neck"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "NeckBone").transform;
+							}
+							else if (iii.name.Contains("Spine02"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "SpineBone.002").transform;
+							}
+							else if (iii.name.Contains("L_") && iii.name.Contains("Shoulder"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "L_ShoulderBone").transform;
+							}
+							else if (iii.name.Contains("R_") && iii.name.Contains("Shoulder"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "R_ShoulderBone").transform;
+							}
+
+							//相対位置と回転をゼロにする
+							ResetTransform(iii.gameObject);
+						}
+
+						//髪のクロスに使うSphereColliderを全て取得
+						foreach (SphereCollider iii in HairOBJ.GetComponentsInChildren<SphereCollider>())
+						{
+							//名前で判別してキャラクターのボーンの子にする
+							if (iii.name.Contains("Spine02"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "SpineBone.002").transform;
+							}
+							else if (iii.name.Contains("Neck"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "NeckBone").transform;
+							}
+							else if (iii.name.Contains("L_") && iii.name.Contains("Shoulder"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "L_ShoulderBone").transform;
+							}
+							else if (iii.name.Contains("R_") && iii.name.Contains("Shoulder"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "R_ShoulderBone").transform;
+							}
+							else if (iii.name.Contains("L_") && iii.name.Contains("Breast"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "L_BreastBone").transform;
+							}
+							else if (iii.name.Contains("R_") && iii.name.Contains("Breast"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "R_BreastBone").transform;
+							}
+							else if (iii.name.Contains("L_") && iii.name.Contains("Nipple"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "L_NippleBone").transform;
+							}
+							else if (iii.name.Contains("R_") && iii.name.Contains("Nipple"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "R_NippleBone").transform;
+							}
+
+							//相対位置と回転をゼロにする
+							ResetTransform(iii.gameObject);
+						}
+					}
+
+					//髪型読み込み完了フラグを立てる
+					HairLoadFlag = true;
+
+				}));
+		
+				//キャラクター読み込み完了フラグを立てる
+				CharacterLoadFlag = true;
+
+			}));
+
+			//読み込みが終わるまで待って1キャラづつ読み込む、これをしないと重複ロードが起きてエラーになる
+			while (!CharacterLoadFlag || !HairLoadFlag || !CostumeLoadFlag)
+			{
+				yield return null;
+			}
+
+			//準備完了フラグを入れる
+			CharacterList[CID].GetComponent<PlayerScript>().AllReadyFlag = true;
+		}
+
+		//スクリーンエフェクトで白フェード
+		ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) => 
+		{
+			//自身を描画を切る
+			g.GetComponent<Renderer>().enabled = false;
+
+			//メニューモードをメインメニューに
+			CurrentMode = CurrentModeEnum.MainMenu;
+
+			//アニメーターのフラグを立てる
+			UIAnim.SetBool("MainMenu_Show", true);
+		}));
+	}
+
+
+	void Update()
     {
 
     }
@@ -282,8 +560,7 @@ public class Scene01_MainMenuScript : GlobalClass
 			UIAnim.SetBool("Costume_Vanish", true);
 		}
 	}
-
-
+	
 	//汎用ボタンが押された時の処理
 	public void OnGeneral()
 	{
@@ -530,6 +807,14 @@ public class Scene01_MainMenuScript : GlobalClass
 	//衣装リストを更新する関数
 	private void CostumeListReset(int ID)
 	{
+		//リストを初期化
+		foreach (var i in CostumeSelectButtonList)
+		{
+			Destroy(i);
+		}
+
+		CostumeSelectButtonList = new List<GameObject>();
+
 		//ひな型ボタンのRect取得
 		RectTransform Temprect = CostumeSelectButtonOBJ.GetComponent<RectTransform>();
 
@@ -605,7 +890,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		EventSystemUI.SetSelectedGameObject(CostumeSelectButtonList[0]);
 
 		//スクロールの位置調整
-		ArtsSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = 1;
+		CostumeSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = 1;
 	}
 
 	//技リストと技マトリクスを更新する関数
@@ -795,6 +1080,18 @@ public class Scene01_MainMenuScript : GlobalClass
 		}
 	}
 
+	//衣装リストで決定された時の処理
+	public void CostumeListSubmit()
+	{
+
+	}
+
+	//衣装リストで選択変更された時の処理
+	public void CostumeListMove()
+	{
+
+	}
+
 	//メインメニュー有効、アニメーションクリップから呼ばれる
 	public void MainMenuActive()
 	{
@@ -816,6 +1113,15 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		//技装備ボタンList初期化
 		ArtsSelectButtonList = new List<GameObject>();
+
+		//衣装装備ボタンオブジェクト破棄
+		foreach (GameObject i in CostumeSelectButtonList)
+		{
+			Destroy(i);
+		}
+
+		//衣装装備ボタンList初期化
+		CostumeSelectButtonList = new List<GameObject>();
 	}
 
 	//入力許可フラグを立てる、アニメーションクリップから呼ばれる

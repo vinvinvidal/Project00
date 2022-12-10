@@ -800,9 +800,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Direction: 1
-  m_Center: {x: 0, y: 0.03, z: 0.02}
+  m_Center: {x: 0, y: 0.01, z: 0.02}
   m_Bound: 0
-  m_Radius: 0.09
+  m_Radius: 0.095
   m_Height: 0
 --- !u!1 &5912867961894033488
 GameObject:

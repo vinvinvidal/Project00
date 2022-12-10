@@ -206,6 +206,9 @@ public class MissionSettingScript : GlobalClass, MissionSettingScriptInterface
 		//読み込み完了したら時間を進める
 		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.TimeScaleChange(0, 1, () => { }));
 
+		//ゲームマネージャーのミッション中フラグを立てる
+		GameManagerScript.Instance.MissionFlag = true;
+
 		//スクリーンエフェクトで白フェード
 		//ExecuteEvents.Execute<ScreenEffectScriptInterface>(DeepFind(GameManagerScript.Instance.gameObject, "ScreenEffect"), null, (reciever, eventData) => reciever.Fade(true, 2, new Color(1, 1, 1, 1), 1, (GameObject g) =>{ g.GetComponent<Renderer>().enabled = false; }));
 

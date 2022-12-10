@@ -573,6 +573,16 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 6150238025740757983, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_DefaultActionMap
+      value: dc2b78b2-564c-4d31-926c-172cbffe6925
+      objectReference: {fileID: 0}
+    - target: {fileID: 6150238025740757983, guid: b49d9c728d920134cb39e4ea74c6ef02,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6182705627613835388, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_Enabled
@@ -691,17 +701,17 @@ PrefabInstance:
     - target: {fileID: 8314543263117610428, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_Color.r
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8314543263117610428, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8314543263117610428, guid: b49d9c728d920134cb39e4ea74c6ef02,
         type: 3}
       propertyPath: m_Color.b
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
@@ -712,43 +722,6 @@ Camera:
     type: 3}
   m_PrefabInstance: {fileID: 1176143576}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1441834762 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6033379619502515415, guid: b49d9c728d920134cb39e4ea74c6ef02,
-    type: 3}
-  m_PrefabInstance: {fileID: 1176143576}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1441834766
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1441834762}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 475fcd1c479d34043bdfcb29607bbe96,
-    type: 3}
-  m_NotificationBehavior: 0
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Action
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!1 &1703980605 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1905513687396893290, guid: b49d9c728d920134cb39e4ea74c6ef02,

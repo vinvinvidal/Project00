@@ -8,7 +8,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Animations;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -190,6 +189,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	//イベント中フラグ
 	public bool EventFlag { get; set; } = false;
+
+	//ミッション中フラグ
+	public bool MissionFlag { get; set; } = false;
 
 	//敵生成中フラグ
 	public bool GenerateEnemyFlag { get; set; } = false;
@@ -2158,8 +2160,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//ポーズボタンを押した時
 	private void OnPause()
 	{
-		//全てのデータが読み込み終わっている
-		if(AllDetaLoadCompleteFlag)
+		//全てのデータが読み込み終わっている、ミッション中である、イベント中じゃない
+		if(AllDetaLoadCompleteFlag && MissionFlag && !EventFlag)
 		{
 			//フラグを反転
 			PauseFlag = !PauseFlag;
@@ -2194,8 +2196,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//デバッグキーを押した時
 	private void OnDebug(InputValue inputValue)
 	{
-		//開発フラグが立っていたら処理
-		if (DevSwicth)
+		//開発フラグが立っていてミッション中なら処理
+		if (DevSwicth && MissionFlag && !EventFlag)
 		{
 			//敵の攻撃を喰らった事にする
 			ExecuteEvents.Execute<PlayerScriptInterface>(PlayableCharacterOBJ, null, (reciever, eventData) => reciever.HitEnemyAttack(new EnemyAttackClass("", "", "", "", 0, 0, 0, 0, 0, new Color(0, 0, 0, 0), ""), gameObject, null));
@@ -2972,6 +2974,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		re.MissionResultList = new List<MissionResultClass>();
 
+		re.CharacterUnLock = new List<int>();
+
 		re.ArtsUnLock = new List<string>();
 
 		re.SpecialUnLock = new List<string>();
@@ -2991,6 +2995,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		re.EquipUnderWearList = new List<int>();
 
 		re.EquipWeaponList = new List<int>();
+
+		//キャラクターアンロックに初期値を入れる
+		re.CharacterUnLock.Add(0);
+		re.CharacterUnLock.Add(1);
+		re.CharacterUnLock.Add(2);
 
 		//髪と衣装と下着と武器に初期装備を入れる、適当に10人分、多分そんなに使わない
 		re.EquipHairList.Add(0);
@@ -3036,6 +3045,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		re.EquipWeaponList.Add(0);
 		re.EquipWeaponList.Add(0);
 		re.EquipWeaponList.Add(0);
+
 		re.ArtsMatrix.Add(null);
 		re.ArtsMatrix.Add(null);
 		re.ArtsMatrix.Add(null);
@@ -3046,6 +3056,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		re.ArtsMatrix.Add(null);
 		re.ArtsMatrix.Add(null);
 		re.ArtsMatrix.Add(null);
+
 		re.EquipSuperArts.Add(0);
 		re.EquipSuperArts.Add(0);
 		re.EquipSuperArts.Add(0);

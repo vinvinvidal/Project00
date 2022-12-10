@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 public interface CharacterEyeShaderScriptInterface : IEventSystemHandler
 {
 	//視線を向ける先の座標を受け取る関数
-	void GetLookPos(Vector3 vec);
+	void SetLookPos(Vector3 vec);
 
 	//ダイレクトモードを設定する関数
 	void SetDirectMode(bool b);
@@ -34,8 +34,14 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 	//頭の向き
 	Transform HeadAngle;
 
+	//目の高さになるオブジェクト
+	GameObject EyePosOBJ;
+
 	//ディレクショナルライト
 	GameObject DrcLight;
+
+	//メインカメラ
+	GameObject MainCamera;
 
 	//眼マテリアル
 	Material EyeMaterial;
@@ -60,6 +66,9 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 
 	//ダイレクトモードフラグ
 	public bool DirectFlag { get; set; } = false;
+
+	//カメラ目線フラグ
+	public bool CameraEyeFlag { get; set; } = false;
 
 	//ダイレクトモードに使うタイリング値
 	public Vector2 DirectEyeTiling { get; set; } = new Vector2(1, 1);
@@ -90,8 +99,14 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 		//顔のトランスフォーム取得
 		HeadAngle = DeepFind(transform.root.gameObject, "HeadAngle").transform;
 
+		//目の位置になるトランスフォーム取得
+		EyePosOBJ = DeepFind(transform.root.gameObject, "R_EyeCorner");
+
 		//ディレクショナルライト取得
 		DrcLight = GameObject.Find("OutDoorLight");
+
+		//メインカメラ取得
+		MainCamera = GameManagerScript.Instance.GetMainCameraOBJ();
 
 		//目線を向ける場所初期化
 		EyeVec = new Vector3();
@@ -112,6 +127,13 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 		//ハイライト回転用の値をシェーダーに渡す
 		EyeMaterial.SetFloat("Eye_HiLightRotationSin", Mathf.Sin(HilightAngle));
 		EyeMaterial.SetFloat("Eye_HiLightRotationCos", Mathf.Cos(HilightAngle));
+
+		//カメラ目線
+		if (CameraEyeFlag)
+		{
+			//目の位置からカメラ位置までのベクトルを直接代入
+			EyeVec = new Vector3(HeadAngle.transform.position.x, EyePosOBJ.transform.position.y, HeadAngle.transform.position.z) - MainCamera.transform.position;
+		}
 
 		//ダイレクトモード
 		if (DirectFlag)
@@ -135,20 +157,20 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 			if(Vector3.Dot(HeadAngle.forward, EyeVec.normalized) < 0)
 			{
 				//顔の方向と注視点からのベクトルの内積を求める
-				EyeOffset.x = Vector3.Dot(HeadAngle.right, EyeVec.normalized) * -0.15f;				
+				EyeOffset.x = Vector3.Dot(HeadAngle.right, EyeVec.normalized) * -0.2f;				
 			}
 			//背面、視線を変えてから一定時間経過している
 			else if(Time.time > BackEnemyEyeTime + 1)
 			{
 				//敵が背面に居る時は左右どちらかに振る
-				EyeOffset.x = Mathf.Sign(Vector3.Dot(HeadAngle.right, EyeVec.normalized)) * -0.15f;
+				EyeOffset.x = Mathf.Sign(Vector3.Dot(HeadAngle.right, EyeVec.normalized)) * -0.2f;
 
 				//視線を変えた時間を記録
 				BackEnemyEyeTime = Time.time;
 			}
 
 			//上下移動
-			EyeOffset.y = Vector3.Dot(HeadAngle.up, EyeVec.normalized) * 0.12f;
+			EyeOffset.y = Vector3.Dot(HeadAngle.up, EyeVec.normalized) * 0.15f;
 
 			//視線を動かす
 			EyeMaterial.SetTextureOffset("_EyeTex", EyeOffset);
@@ -156,10 +178,13 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 	}
 
 	//視線を向ける先の座標を受け取る関数、メッセージシステムから呼ばれる
-	public void GetLookPos(Vector3 vec)
+	public void SetLookPos(Vector3 vec)
 	{
-		//受け取ったポジションから頭までのベクトルを変数に代入
-		EyeVec = HeadAngle.transform.position - vec;		
+		if(!CameraEyeFlag && !DirectFlag)
+		{
+			//受け取ったポジションから頭までのベクトルを変数に代入
+			EyeVec = HeadAngle.transform.position - vec;
+		}
 	}
 
 	//ダイレクトモードを設定する関数

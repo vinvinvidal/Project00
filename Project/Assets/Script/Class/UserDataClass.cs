@@ -22,6 +22,9 @@ public class UserDataClass
 	//ミッション結果を格納するList
 	public List<MissionResultClass> MissionResultList;
 
+	//キャラクターのアンロック状況
+	public List<int> CharacterUnLock;
+
 	//技のアンロック状況
 	public List<string> ArtsUnLock;
 
