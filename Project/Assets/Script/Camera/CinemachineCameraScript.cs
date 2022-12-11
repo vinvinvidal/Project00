@@ -21,8 +21,14 @@ public class CinemachineCameraScript : GlobalClass
 	//トラッキングポジション
 	private CinemachineTrackedDolly PathPos;
 
+	//トラッキングポジションキャッシュ
+	private CinemachineTrackedDolly PathPosChash;
+
 	//カメラワーク持続フラグ
 	public bool KeepCameraFlag { get; set; } = true;
+
+	//カメラワーク強制終了フラグ
+	public bool ForceEndFlag { get; set; } = false;
 
 	//インデックス指定用
 	public int SpecifyIndex { get; set; }
@@ -89,6 +95,18 @@ public class CinemachineCameraScript : GlobalClass
 			VcamIndex = Random.Range(0, Vcam.Count);
 		}
 
+		//優先度カウントアップ
+		PriorityCount++;
+
+		//カメラ優先度を上げて切り替える
+		Vcam[VcamIndex].Priority += PriorityCount;
+
+		//前回使用したトラッキングポジションをキャッシュ
+		if (PathPos != null)
+		{
+			PathPosChash = PathPos;
+		}
+
 		//ヴァーチャルカメラのパストラッキング取得
 		PathPos = Vcam[VcamIndex].GetCinemachineComponent<CinemachineTrackedDolly>();
 
@@ -111,7 +129,6 @@ public class CinemachineCameraScript : GlobalClass
 		{
 			Vcam[VcamIndex].LookAt = CameraWorkList[Index].GetComponent<CameraWorkScript>().LookAtOBJ.transform;
 		}
-
 
 		//遷移モードを設定
 		switch (CameraWorkList[Index].GetComponent<CameraWorkScript>().TransrationMode)
@@ -162,13 +179,23 @@ public class CinemachineCameraScript : GlobalClass
 			StartCoroutine(TrackingMoveCoroutine(CameraWorkList[Index].GetComponent<CameraWorkScript>().CameraMode, Index));
 		}
 
-		//優先度カウントアップ
-		PriorityCount++;
-
-		//カメラ優先度を上げて切り替える
-		Vcam[VcamIndex].Priority += PriorityCount;
+		//パスキャッシュが存在したら
+		if(PathPosChash != null)
+		{
+			StartCoroutine(ResetPathPosCoroutine());
+		}
 	}
 
+	IEnumerator ResetPathPosCoroutine()
+	{
+		yield return null;
+
+		PathPosChash.m_PathPosition = 0;
+
+		PathPosChash = null;
+	}
+
+	
 	//トラッキング制御コルーチン呼び出し
 	IEnumerator TrackingMoveCoroutine(int i , int Index)
 	{
@@ -208,12 +235,6 @@ public class CinemachineCameraScript : GlobalClass
 
 		//使用したパストラッキングをキャッシュ
 		CinemachineTrackedDolly TempPathPos = PathPos;
-
-		//ちょっと待つ
-		yield return new WaitForSeconds(1);
-
-		//トラッキングポジションを初期位置に移動、これをしないとパスを再使用した時に終点から始まってしまう
-		TempPathPos.m_PathPosition = 0;
 	}
 
 	//トラッキングが終了するまで持続コルーチン
@@ -234,11 +255,20 @@ public class CinemachineCameraScript : GlobalClass
 		//トラッキングが終わるまで待機
 		while (PathPos.m_PathPosition <= EndPoint)
 		{
+			//強制終了
+			if(ForceEndFlag)
+			{
+				goto ForceEnd;
+			}
+
 			yield return null;			
 		}
 
 		//カメラワーク切り替え関数呼び出し
 		StartCoroutine(NextCameraWork(Index));
+
+		//強制終了
+		ForceEnd:;
 	}
 
 	//持続時間が経過するまで持続コルーチン
@@ -250,11 +280,20 @@ public class CinemachineCameraScript : GlobalClass
 		//終了時間まで待機
 		while (t > Time.time)
 		{
+			//強制終了
+			if (ForceEndFlag)
+			{
+				goto ForceEnd;
+			}
+
 			yield return null;
 		}
 
 		//カメラワーク切り替え関数呼び出し
 		StartCoroutine(NextCameraWork(Index));
+
+		//強制終了
+		ForceEnd:;
 	}
 
 	//外部からフラグ変更されるまで持続コルーチン
@@ -263,11 +302,40 @@ public class CinemachineCameraScript : GlobalClass
 		//フラグが降りるまで持続
 		while (KeepCameraFlag)
 		{
+			//強制終了
+			if (ForceEndFlag)
+			{
+				goto ForceEnd;
+			}
+
 			yield return null;
 		}
 
 		//カメラワーク切り替え関数呼び出し
 		StartCoroutine(NextCameraWork(Index));
+
+		//強制終了
+		ForceEnd:;
+	}
+
+	//強制的にカメラワークを再生する関数
+	public void ForceCameraWorkChange(int Index)
+	{
+		StartCoroutine(ForceCameraWorkChangeCoroutine(Index));		
+	}
+	IEnumerator ForceCameraWorkChangeCoroutine(int Index)
+	{
+		//強制終了フラグを立てる
+		ForceEndFlag = true;
+
+		//フラグを反映するため１フレ待機
+		yield return null;
+
+		//強制終了フラグを下ろす
+		ForceEndFlag = false;
+
+		//次のカメラワーク再生
+		PlayCameraWork(Index, false);
 	}
 
 	//カメラワーク切り替え関数
@@ -279,8 +347,8 @@ public class CinemachineCameraScript : GlobalClass
 		//インデックスを取得
 		int NextIndex = Index;
 		
-		//最後のカメラワークの場合
-		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode == 10)
+		//最後のカメラワークの場合、もしくは強制終了の場合
+		if (CameraWorkList[Index].GetComponent<CameraWorkScript>().NextCameraWorkMode == 10 || ForceEndFlag)
 		{
 			//カメラワーク終了関数呼び出し
 			EndCameraWork(Index);
