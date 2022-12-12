@@ -122,16 +122,18 @@
 			fixed4 frag(vertex_output i) : SV_Target
 			{
 				//出力用変数宣言、
-				fixed4 re = 1;
+				fixed4 re = tex2D(_TexPaint, i.uv);
 
 				//表面テクスチャを貼る、タイリング適応
-				re = tex2D(_TexSurface, i.uv * _TexSurface_ST.xy);
+				//re = tex2D(_TexSurface, i.uv * _TexSurface_ST.xy);
 
 				//タイリング数を変えたUVでブレンド、ミラータイリングの規則性をごまかす
-				re = lerp(re, tex2D(_TexSurface, i.uv * _TexSurface_ST.xy * 0.3), 0.5);
+				//re = lerp(re, tex2D(_TexSurface, i.uv * _TexSurface_ST.xy * 0.3), 0.5);
+				re *= tex2D(_TexSurface, i.uv * _TexSurface_ST.xy);
 
 				//ペイントテクスチャ合成
-				re = lerp(re, tex2D(_TexPaint, i.uv), tex2D(_TexPaint, i.uv).a);
+				//re = lerp(re, tex2D(_TexPaint, i.uv), tex2D(_TexPaint, i.uv).a);
+				//re *= tex2D(_TexPaint, i.uv);
 
 				//ドロップシャドウ乗算
 				re *= saturate(SHADOW_ATTENUATION(i) + 0.25);
@@ -143,7 +145,7 @@
 				re *= InverseLerp(100, 0, length(_WorldSpaceCameraPos - i.worldPos));
 
 				//光源と法線の内積を求めてハーフランパートを求める、ノーマルマップもここで展開する
-				re *= saturate(((dot(i.normal, _WorldSpaceLightPos0) + 1) * 0.5) + 0.5);
+				re *= saturate(((dot(i.normal, _WorldSpaceLightPos0) + 1) * 0.5) + 0.25);
 
 				//出力
 				return re;
