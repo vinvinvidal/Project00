@@ -145,6 +145,7 @@
 				re *= InverseLerp(100, 0, length(_WorldSpaceCameraPos - i.worldPos));
 
 				//光源と法線の内積を求めてハーフランパートを求める、ノーマルマップもここで展開する
+				//re *= saturate(((dot(i.normal + UnpackNormal(tex2D(_TexNormal, i.uv)), _WorldSpaceLightPos0) + 1) * 0.5) + 0.25);
 				re *= saturate(((dot(i.normal, _WorldSpaceLightPos0) + 1) * 0.5) + 0.25);
 
 				//出力
