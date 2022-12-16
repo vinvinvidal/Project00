@@ -32,6 +32,188 @@ public class GlobalClass : MonoBehaviour
 		Weapon,				//武器用
 	}
 
+	//衣装用コライダをボーンに仕込む関数
+	public void SetCostumeCol(GameObject Character, GameObject Costume)
+	{
+		//受け取った衣装が持っているDynamicBoneColliderを回す
+		foreach (DynamicBoneCollider ii in Costume.GetComponentsInChildren<DynamicBoneCollider>())
+		{
+			//名前で判別してキャラクターのボーンの子にする
+			if (ii.name.Contains("L_") && ii.name.Contains("Hip"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_HipBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Hip"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_HipBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Knee"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_KneeBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Knee"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_KneeBone").transform;
+			}
+			else if (ii.name.Contains("Spine02"))
+			{
+				ii.transform.parent = DeepFind(Character, "SpineBone.002").transform;
+			}
+			else if (ii.name.Contains("Spine01"))
+			{
+				ii.transform.parent = DeepFind(Character, "SpineBone.001").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("UpperLeg"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_UpperLegBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("UpperLeg"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_UpperLegBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Shoulder"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_ShoulderBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Shoulder"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_ShoulderBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("UpperArm"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_UpperArmBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("UpperArm"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_UpperArmBone").transform;
+			}
+			else if (ii.name.Contains("Pelvis"))
+			{
+				ii.transform.parent = DeepFind(Character, "PelvisBone").transform;
+			}
+			else if (ii.name.Contains("Neck"))
+			{
+				ii.transform.parent = DeepFind(Character, "NeckBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Shoulder"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_ShoulderBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Shoulder"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_ShoulderBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Breast"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_BreastBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Breast"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_BreastBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Nipple"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_NippleBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Nipple"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_NippleBone").transform;
+			}
+
+			//トランスフォームリセット
+			ResetTransform(ii.gameObject);
+		}
+
+		//受け取った衣装が持っているSphereColliderを回す
+		foreach (SphereCollider ii in Costume.GetComponentsInChildren<SphereCollider>())
+		{
+			//名前で判別してキャラクターのボーンの子にする
+			if (ii.name.Contains("L_") && ii.name.Contains("Hip"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_HipBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Hip"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_HipBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Knee"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_KneeBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Knee"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_KneeBone").transform;
+			}
+			else if (ii.name.Contains("Spine02"))
+			{
+				ii.transform.parent = DeepFind(Character, "SpineBone.002").transform;
+			}
+			else if (ii.name.Contains("Spine01"))
+			{
+				ii.transform.parent = DeepFind(Character, "SpineBone.001").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("UpperLeg"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_UpperLegBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("UpperLeg"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_UpperLegBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Shoulder"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_ShoulderBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Shoulder"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_ShoulderBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("UpperArm"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_UpperArmBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("UpperArm"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_UpperArmBone").transform;
+			}
+			else if (ii.name.Contains("Pelvis"))
+			{
+				ii.transform.parent = DeepFind(Character, "PelvisBone").transform;
+			}
+			else if (ii.name.Contains("Neck"))
+			{
+				ii.transform.parent = DeepFind(Character, "NeckBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Shoulder"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_ShoulderBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Shoulder"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_ShoulderBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Breast"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_BreastBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Breast"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_BreastBone").transform;
+			}
+			else if (ii.name.Contains("L_") && ii.name.Contains("Nipple"))
+			{
+				ii.transform.parent = DeepFind(Character, "L_NippleBone").transform;
+			}
+			else if (ii.name.Contains("R_") && ii.name.Contains("Nipple"))
+			{
+				ii.transform.parent = DeepFind(Character, "R_NippleBone").transform;
+			}
+
+			//トランスフォームリセット
+			ResetTransform(ii.gameObject);
+		}
+	}
+
 	//３D空間のポジションをUIの座標に変換する関数
 	public Vector3 UIPosition(CanvasScaler Scaler, RectTransform Rect, Vector3 Pos)
 	{

@@ -256,6 +256,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//↑の読み込み完了フラグ
 	private bool AllCostumeListCompleteFlag = false;
 
+	//全ての下着情報を持ったList
+	public List<UnderWearClass> AllUnderWearList { get; set; }
+	//↑の読み込み完了フラグ
+	private bool AllUnderWearListCompleteFlag = false;
+
 	//全ての敵情報を持ったList
 	public List<EnemyClass> AllEnemyList { get; set; }
 	//↑の読み込み完了フラグ
@@ -354,6 +359,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		(!(
 			AllCharacterListCompleteFlag &&
 			AllCostumeListCompleteFlag &&
+			AllUnderWearListCompleteFlag &&
 			AllEnemyListCompleteFlag &&
 			AllEnemyWaveListCompleteFlag &&
 			AllEnemyAttackAnimCompleteFlagDic.Any() &&
@@ -834,6 +840,43 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 			//読み込み完了フラグを立てる
 			AllCostumeListCompleteFlag = true;
+
+		}));
+
+		//下着CSV読み込み
+		StartCoroutine(AllFileLoadCoroutine("csv/UnderWear/", "csv", (List<object> list) =>
+		{
+			//全ての下着情報を持ったList初期化
+			AllUnderWearList = new List<UnderWearClass>();
+
+			//読み込んだCSVを回す
+			foreach (string i in list.Select(t => t as TextAsset).Select(t => t.text))
+			{
+				//コンストラクタ代入用変数宣言
+				int CharaID = 0;
+				int UnderID = 0;
+				string name = "";
+				string info = "";
+
+				//改行で分割して回す
+				foreach (string ii in i.Split('\n').ToList())
+				{
+					//カンマで分割した最初の要素で条件分岐、続く値を変数に代入
+					switch (ii.Split(',').ToList().First())
+					{
+						case "Name": name = ii.Split(',').ToList().ElementAt(1); break;
+						case "ID": UnderID = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "UseCharacter": CharaID = int.Parse(ii.Split(',').ToList().ElementAt(1)); break;
+						case "Info": info = ii.Split(',').ToList().ElementAt(1); break;
+					}
+				}
+
+				//ListにAdd
+				AllUnderWearList.Add(new UnderWearClass(CharaID, UnderID, name, info));
+			}
+
+			//読み込み完了フラグを立てる
+			AllUnderWearListCompleteFlag = true;
 
 		}));
 

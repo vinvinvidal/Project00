@@ -283,6 +283,11 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 								PantsOffOBJ = ii.gameObject;
 							}
 						}
+
+						//衣装用ボーンセッティング関数呼び出し
+						SetCostumeCol(gameObject, CostumeOBJ);
+
+						/*
 						//衣装のダイナミックボーンに使うコライダを全て取得して回す
 						foreach (DynamicBoneCollider ii in CostumeOBJ.GetComponentsInChildren<DynamicBoneCollider>())
 						{
@@ -460,7 +465,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 							//トランスフォームリセット
 							ResetTransform(ii.gameObject);
 						}
-						
+						*/
 						//読み込み完了フラグを立てる
 						CostumeLoadCompleteFlag = true;
 
