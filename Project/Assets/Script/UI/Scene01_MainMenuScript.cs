@@ -266,231 +266,213 @@ public class Scene01_MainMenuScript : GlobalClass
 					CharacterList[CID].SetActive(false);
 				}
 
+				//全ての髪オブジェクト読み込み
+				StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Character/" + CID + "/Hair/", "prefab", (List<object> list) =>
+				{
+					//読み込んだオブジェクトを回す
+					foreach (var ii in list)
+					{
+						//読み込んだオブジェクトをインスタンス化
+						GameObject TempHairOBJ = Instantiate(ii as GameObject);
+
+						//頭ボーンの子にする
+						TempHairOBJ.transform.parent = DeepFind(CharacterList[CID], "HeadBone").transform;
+
+						//ローカルtransformをゼロに
+						ResetTransform(TempHairOBJ);
+
+						//髪のダイナミックボーンに使うコライダを全て取得
+						foreach (DynamicBoneCollider iii in TempHairOBJ.GetComponentsInChildren<DynamicBoneCollider>())
+						{
+							//名前で判別してキャラクターのボーンの子にする
+							if (iii.name.Contains("Neck"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "NeckBone").transform;
+							}
+							else if (iii.name.Contains("Spine02"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "SpineBone.002").transform;
+							}
+							else if (iii.name.Contains("L_") && iii.name.Contains("Shoulder"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "L_ShoulderBone").transform;
+							}
+							else if (iii.name.Contains("R_") && iii.name.Contains("Shoulder"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "R_ShoulderBone").transform;
+							}
+
+							//相対位置と回転をゼロにする
+							ResetTransform(iii.gameObject);
+						}
+
+						//髪のクロスに使うSphereColliderを全て取得
+						foreach (SphereCollider iii in TempHairOBJ.GetComponentsInChildren<SphereCollider>())
+						{
+							//名前で判別してキャラクターのボーンの子にする
+							if (iii.name.Contains("Spine02"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "SpineBone.002").transform;
+							}
+							else if (iii.name.Contains("Neck"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "NeckBone").transform;
+							}
+							else if (iii.name.Contains("L_") && iii.name.Contains("Shoulder"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "L_ShoulderBone").transform;
+							}
+							else if (iii.name.Contains("R_") && iii.name.Contains("Shoulder"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "R_ShoulderBone").transform;
+							}
+							else if (iii.name.Contains("L_") && iii.name.Contains("Breast"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "L_BreastBone").transform;
+							}
+							else if (iii.name.Contains("R_") && iii.name.Contains("Breast"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "R_BreastBone").transform;
+							}
+							else if (iii.name.Contains("L_") && iii.name.Contains("Nipple"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "L_NippleBone").transform;
+							}
+							else if (iii.name.Contains("R_") && iii.name.Contains("Nipple"))
+							{
+								iii.transform.parent = DeepFind(CharacterList[CID], "R_NippleBone").transform;
+							}
+
+							//相対位置と回転をゼロにする
+							ResetTransform(iii.gameObject);
+						}
+					}
+
+					//髪型読み込み完了フラグを立てる
+					HairLoadFlag = true;
+
+				}));
+
+				//全ての衣装オブジェクト読み込み
+				StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Character/" + CID + "/Costume/", "prefab", (List<object> list) =>
+				{
+					//読み込んだオブジェクトを回す
+					foreach (var O in list)
+					{
+						//要素数を確保
+						CostumeList[CID].Add(null);
+
+						//読み込んだ衣装オブジェクトをインスタンス化
+						GameObject TempCostumeOBJ = Instantiate(O as GameObject);
+
+						//名前からCloneを消す
+						TempCostumeOBJ.name = TempCostumeOBJ.name.Replace("(Clone)", "");
+
+						//読み込んだ衣装オブジェクトをListに入れる
+						CostumeList[CID][int.Parse(TempCostumeOBJ.name.Replace("Costume_" + CID + "_", ""))] = TempCostumeOBJ;
+
+						//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
+						SkinnedMeshRenderer CostumeRenderer = DeepFind(CharacterList[CID], "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
+
+						//ローカルトランスフォームをリセット
+						ResetTransform(TempCostumeOBJ);
+
+						//衣装を子にする
+						TempCostumeOBJ.transform.parent = CharacterList[CID].transform;
+
+						//ローカルトランスフォームをリセット
+						ResetTransform(TempCostumeOBJ);
+
+						//衣装プレハブ内のスキニングメッシュレンダラーを全て取得
+						foreach (SkinnedMeshRenderer ii in TempCostumeOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
+						{
+							//ボーン構成をコピーしてキャラクターのボーンと紐付ける
+							ii.bones = CostumeRenderer.bones;
+
+							//脱がされていない状態のモデルを表示
+							if (!ii.gameObject.name.Contains("Off_"))
+							{
+								ii.enabled = true;
+							}
+						}
+
+						//衣装用ボーンセッティング関数呼び出し
+						SetCostumeCol(CharacterList[CID], TempCostumeOBJ);
+
+						//一旦無効化しておく
+						TempCostumeOBJ.SetActive(false);
+					}
+
+					//装備中の衣装を有効化
+					CostumeList[CID][GameManagerScript.Instance.AllCharacterList[CID].CostumeID].SetActive(true);
+
+					//衣装読み込み完了フラグを立てる
+					CostumeLoadFlag = true;
+
+				}));
+
+				//全ての下着オブジェクト読み込み
+				StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Character/" + CID + "/UnderWear/", "prefab", (List<object> list) =>
+				{
+					//読み込んだオブジェクトを回す
+					foreach (var O in list)
+					{
+						//要素数を確保
+						UnderWearList[CID].Add(null);
+
+						//読み込んだ下着オブジェクトをインスタンス化
+						GameObject TempUnderWearOBJ = Instantiate(O as GameObject);
+
+						//名前からCloneを消す
+						TempUnderWearOBJ.name = TempUnderWearOBJ.name.Replace("(Clone)", "");
+
+						//読み込んだ下着オブジェクトをListに入れる
+						UnderWearList[CID][int.Parse(TempUnderWearOBJ.name.Replace("UnderWear_" + CID + "_", ""))] = TempUnderWearOBJ;
+
+						//Bodyに仕込んであるUnderWearのSkinnedMeshRendererを取得する
+						SkinnedMeshRenderer UnderWearRenderer = DeepFind(CharacterList[CID], "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
+
+						//ローカルトランスフォームをリセット
+						ResetTransform(TempUnderWearOBJ);
+
+						//衣装を子にする
+						TempUnderWearOBJ.transform.parent = CharacterList[CID].transform;
+
+						//ローカルトランスフォームをリセット
+						ResetTransform(TempUnderWearOBJ);
+
+						//衣装プレハブ内のスキニングメッシュレンダラーを全て取得
+						foreach (SkinnedMeshRenderer ii in TempUnderWearOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
+						{
+							//ボーン構成をコピーしてキャラクターのボーンと紐付ける
+							ii.bones = UnderWearRenderer.bones;
+
+							//脱がされていない状態のモデルを表示
+							if (!ii.gameObject.name.Contains("Off_"))
+							{
+								ii.enabled = true;
+							}
+						}
+
+						//一旦無効化しておく
+						TempUnderWearOBJ.SetActive(false);
+					}
+
+					//装備中の衣装を有効化
+					UnderWearList[CID][GameManagerScript.Instance.AllCharacterList[CID].UnderWearID].SetActive(true);
+
+					//衣装読み込み完了フラグを立てる
+					UnderWearLoadFlag = true;
+
+				}));
+
 				//キャラクター読み込み完了フラグを立てる
 				CharacterLoadFlag = true;
 
 			}));
 
-			//キャラの読み込みが終わるまで待つ
-			while (!CharacterLoadFlag)
-			{
-				yield return null;
-			}
-
-			//全ての髪オブジェクト読み込み
-			StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Character/" + CID + "/Hair/", "prefab", (List<object> list) =>
-			{
-				//読み込んだオブジェクトを回す
-				foreach (var ii in list)
-				{
-					//読み込んだオブジェクトをインスタンス化
-					GameObject TempHairOBJ = Instantiate(ii as GameObject);
-
-					//頭ボーンの子にする
-					TempHairOBJ.transform.parent = DeepFind(CharacterList[CID], "HeadBone").transform;
-
-					//ローカルtransformをゼロに
-					ResetTransform(TempHairOBJ);
-
-					//髪のダイナミックボーンに使うコライダを全て取得
-					foreach (DynamicBoneCollider iii in TempHairOBJ.GetComponentsInChildren<DynamicBoneCollider>())
-					{
-						//名前で判別してキャラクターのボーンの子にする
-						if (iii.name.Contains("Neck"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "NeckBone").transform;
-						}
-						else if (iii.name.Contains("Spine02"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "SpineBone.002").transform;
-						}
-						else if (iii.name.Contains("L_") && iii.name.Contains("Shoulder"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "L_ShoulderBone").transform;
-						}
-						else if (iii.name.Contains("R_") && iii.name.Contains("Shoulder"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "R_ShoulderBone").transform;
-						}
-
-						//相対位置と回転をゼロにする
-						ResetTransform(iii.gameObject);
-					}
-
-					//髪のクロスに使うSphereColliderを全て取得
-					foreach (SphereCollider iii in TempHairOBJ.GetComponentsInChildren<SphereCollider>())
-					{
-						//名前で判別してキャラクターのボーンの子にする
-						if (iii.name.Contains("Spine02"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "SpineBone.002").transform;
-						}
-						else if (iii.name.Contains("Neck"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "NeckBone").transform;
-						}
-						else if (iii.name.Contains("L_") && iii.name.Contains("Shoulder"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "L_ShoulderBone").transform;
-						}
-						else if (iii.name.Contains("R_") && iii.name.Contains("Shoulder"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "R_ShoulderBone").transform;
-						}
-						else if (iii.name.Contains("L_") && iii.name.Contains("Breast"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "L_BreastBone").transform;
-						}
-						else if (iii.name.Contains("R_") && iii.name.Contains("Breast"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "R_BreastBone").transform;
-						}
-						else if (iii.name.Contains("L_") && iii.name.Contains("Nipple"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "L_NippleBone").transform;
-						}
-						else if (iii.name.Contains("R_") && iii.name.Contains("Nipple"))
-						{
-							iii.transform.parent = DeepFind(CharacterList[CID], "R_NippleBone").transform;
-						}
-
-						//相対位置と回転をゼロにする
-						ResetTransform(iii.gameObject);
-					}
-				}
-
-				//髪型読み込み完了フラグを立てる
-				HairLoadFlag = true;
-
-			}));
-
-			//髪の読み込みが終わるまで待つ
-			while (!HairLoadFlag)
-			{
-				yield return null;
-			}
-
-			//全ての衣装オブジェクト読み込み
-			StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Character/" + CID + "/Costume/", "prefab", (List<object> list) =>
-			{
-				//読み込んだオブジェクトを回す
-				foreach (var O in list)
-				{
-					//要素数を確保
-					CostumeList[CID].Add(null);
-
-					//読み込んだ衣装オブジェクトをインスタンス化
-					GameObject TempCostumeOBJ = Instantiate(O as GameObject);
-
-					//名前からCloneを消す
-					TempCostumeOBJ.name = TempCostumeOBJ.name.Replace("(Clone)", "");
-
-					//読み込んだ衣装オブジェクトをListに入れる
-					CostumeList[CID][int.Parse(TempCostumeOBJ.name.Replace("Costume_" + CID + "_", ""))] = TempCostumeOBJ;
-
-					//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
-					SkinnedMeshRenderer CostumeRenderer = DeepFind(CharacterList[CID], "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
-
-					//ローカルトランスフォームをリセット
-					ResetTransform(TempCostumeOBJ);
-
-					//衣装を子にする
-					TempCostumeOBJ.transform.parent = CharacterList[CID].transform;
-
-					//ローカルトランスフォームをリセット
-					ResetTransform(TempCostumeOBJ);
-
-					//衣装プレハブ内のスキニングメッシュレンダラーを全て取得
-					foreach (SkinnedMeshRenderer ii in TempCostumeOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-					{
-						//ボーン構成をコピーしてキャラクターのボーンと紐付ける
-						ii.bones = CostumeRenderer.bones;
-
-						//脱がされていない状態のモデルを表示
-						if (!ii.gameObject.name.Contains("Off_"))
-						{
-							ii.enabled = true;
-						}
-					}
-
-					//衣装用ボーンセッティング関数呼び出し
-					SetCostumeCol(CharacterList[CID], TempCostumeOBJ);
-
-					//一旦無効化しておく
-					TempCostumeOBJ.SetActive(false);
-				}
-
-				//装備中の衣装を有効化
-				CostumeList[CID][GameManagerScript.Instance.AllCharacterList[CID].CostumeID].SetActive(true);
-
-				//衣装読み込み完了フラグを立てる
-				CostumeLoadFlag = true;
-
-			}));
-
-			//衣装の読み込みが終わるまで待つ
-			while (!CostumeLoadFlag)
-			{
-				yield return null;
-			}
-
-			//全ての下着オブジェクト読み込み
-			StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Character/" + CID + "/UnderWear/", "prefab", (List<object> list) =>
-			{
-				//読み込んだオブジェクトを回す
-				foreach (var O in list)
-				{
-					//要素数を確保
-					UnderWearList[CID].Add(null);
-
-					//読み込んだ下着オブジェクトをインスタンス化
-					GameObject TempUnderWearOBJ = Instantiate(O as GameObject);
-
-					//名前からCloneを消す
-					TempUnderWearOBJ.name = TempUnderWearOBJ.name.Replace("(Clone)", "");
-
-					//読み込んだ下着オブジェクトをListに入れる
-					UnderWearList[CID][int.Parse(TempUnderWearOBJ.name.Replace("UnderWear_" + CID + "_", ""))] = TempUnderWearOBJ;
-
-					//Bodyに仕込んであるUnderWearのSkinnedMeshRendererを取得する
-					SkinnedMeshRenderer UnderWearRenderer = DeepFind(CharacterList[CID], "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
-
-					//ローカルトランスフォームをリセット
-					ResetTransform(TempUnderWearOBJ);
-
-					//衣装を子にする
-					TempUnderWearOBJ.transform.parent = CharacterList[CID].transform;
-
-					//ローカルトランスフォームをリセット
-					ResetTransform(TempUnderWearOBJ);
-
-					//衣装プレハブ内のスキニングメッシュレンダラーを全て取得
-					foreach (SkinnedMeshRenderer ii in TempUnderWearOBJ.GetComponentsInChildren<SkinnedMeshRenderer>())
-					{
-						//ボーン構成をコピーしてキャラクターのボーンと紐付ける
-						ii.bones = UnderWearRenderer.bones;
-
-						//脱がされていない状態のモデルを表示
-						if (!ii.gameObject.name.Contains("Off_"))
-						{
-							ii.enabled = true;
-						}
-					}
-
-					//一旦無効化しておく
-					TempUnderWearOBJ.SetActive(false);
-				}
-
-				//装備中の衣装を有効化
-				UnderWearList[CID][GameManagerScript.Instance.AllCharacterList[CID].UnderWearID].SetActive(true);
-
-				//衣装読み込み完了フラグを立てる
-				UnderWearLoadFlag = true;
-
-			}));
-
 			//下着の読み込みが終わるまで待つ
-			while (!UnderWearLoadFlag)
+			while (!CharacterLoadFlag && !HairLoadFlag && !CostumeLoadFlag && !UnderWearLoadFlag)
 			{
 				yield return null;
 			}
