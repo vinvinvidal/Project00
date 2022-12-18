@@ -109,7 +109,7 @@
 				i.GrabPos.xy *= _VanishTex_ST.xy;
 
 				//テクスチャと変数から透明度を算出
-				re.a -= (tex2Dproj(_VanishTex, i.GrabPos).a * _VanishNum * 10);
+				re.a -= tex2Dproj(_VanishTex, i.GrabPos).a;
 
 				//透明部分をクリップ、消滅用の乱数精製
 				clip(re.a - 0.01);

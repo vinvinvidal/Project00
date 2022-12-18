@@ -91,6 +91,9 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 		//消失用テクスチャがあるか判別
 		if(MirrorMaterial.GetTexturePropertyNames().Any(a => a == "_VanishTex"))
 		{
+			//テクスチャをセット
+			MirrorMaterial.SetTexture("_VanishTex", GameManagerScript.Instance.VanishTextureList[0]);
+
 			//スクリーンサイズから消失用テクスチャのスケーリングを設定
 			MirrorMaterial.SetTextureScale("_VanishTex", new Vector2(Screen.width / MirrorMaterial.GetTexture("_VanishTex").width, Screen.height / MirrorMaterial.GetTexture("_VanishTex").height) * GameManagerScript.Instance.ScreenResolutionScale);
 		}

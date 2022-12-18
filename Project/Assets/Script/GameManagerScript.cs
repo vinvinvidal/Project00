@@ -243,8 +243,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//public List<SoundEffectScript> WeaponSEList { get; set; }
 
 
-
-
+	//消失用テクスチャList
+	public List<Texture> VanishTextureList { get; set; }
+	//↑の読み込み完了フラグ
+	private bool VanishTextureCompleteFlag = false;
 
 	//全てのキャラクター情報を持ったList
 	public List<CharacterClass> AllCharacterList { get; set; }
@@ -389,7 +391,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			AllH_CaressAnimCompleteFlagDic.All(a => a.Value == true) &&
 			AllH_BreakAnimCompleteFlagDic.Any() &&
 			AllH_BreakAnimCompleteFlagDic.All(a => a.Value == true) &&
-			UserDataReadyFlag
+			UserDataReadyFlag &&
+			VanishTextureCompleteFlag
 		))
 		{
 			yield return null;
@@ -491,6 +494,23 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//1フレーム待機
 			yield return null;
 		}
+
+		//消失用テクスチャ読み込み
+		StartCoroutine(AllFileLoadCoroutine("Texture/VanishTexture/", "tga", (List<object> list) =>
+		{
+			//List初期化
+			VanishTextureList = new List<Texture>();
+
+			//読み込んだtgaを回してListにAdd
+			foreach (var i in list)
+			{
+				VanishTextureList.Add(i as Texture);
+			}
+
+			//読み込み完了フラグを立てる
+			VanishTextureCompleteFlag = true;
+
+		}));
 
 		//キャラクターCSV読み込み
 		StartCoroutine(AllFileLoadCoroutine("csv/Character/", "csv", (List<object> list) =>

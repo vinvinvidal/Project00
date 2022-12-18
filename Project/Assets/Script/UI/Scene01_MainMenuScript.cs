@@ -71,6 +71,20 @@ public class Scene01_MainMenuScript : GlobalClass
 	//生成した下着選択ボタンを格納するList
 	List<GameObject> UnderWearSelectButtonList = new List<GameObject>();
 
+	//武器選択用ボタン
+	private GameObject WeaponSelectButtonOBJ;
+
+	//武器選択リストコンテンツルートオブジェクト
+	private GameObject WeaponSelectButtonContentOBJ;
+
+	//武器選択リストスクロールバーオブジェクト
+	private GameObject WeaponSelectScrollBarOBJ;
+
+	//武器した衣装選択ボタンを格納するList
+	List<GameObject> WeaponSelectButtonList = new List<GameObject>();
+
+
+
 	//入力許可フラグ
 	private bool InputReadyFlag = false;
 
@@ -85,6 +99,9 @@ public class Scene01_MainMenuScript : GlobalClass
 
 	//編集可能な下着リスト
 	private List<List<GameObject>> UnderWearList = new List<List<GameObject>>();
+
+	//編集可能な武器リスト
+	private List<List<GameObject>> WeaponList = new List<List<GameObject>>();
 
 	//現在のメニューモード
 	private CurrentModeEnum CurrentMode;
@@ -136,6 +153,11 @@ public class Scene01_MainMenuScript : GlobalClass
 		//下着選択用ボタン取得
 		UnderWearSelectButtonOBJ = GameObject.Find("SelectUnderWearButton");
 
+		//武器選択用ボタン取得
+		WeaponSelectButtonOBJ = GameObject.Find("SelectWeaponButton");
+
+
+
 		//技選択リストコンテンツルートオブジェクト取得
 		ArtsSelectButtonContentOBJ = GameObject.Find("ArtsListContent");
 
@@ -145,6 +167,11 @@ public class Scene01_MainMenuScript : GlobalClass
 		//下着選択リストコンテンツルートオブジェクト取得
 		UnderWearSelectButtonContentOBJ = GameObject.Find("UnderWearListContent");
 
+		//武器選択リストコンテンツルートオブジェクト取得
+		WeaponSelectButtonContentOBJ = GameObject.Find("WeaponListContent");
+
+		
+
 		//技選択リストスクロールバーオブジェクト取得
 		ArtsSelectScrollBarOBJ = DeepFind(ArtsEquipOBJ, "ArtsList");
 
@@ -153,6 +180,11 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		//下着選択リストスクロールバーオブジェクト取得
 		UnderWearSelectScrollBarOBJ = DeepFind(GameObject.Find("CostumeEquip"), "UnderWearList");
+
+		//武器選択リストスクロールバーオブジェクト取得
+		WeaponSelectScrollBarOBJ = DeepFind(GameObject.Find("CostumeEquip"), "WeaponList");
+
+
 
 		//キャンバスにカメラを設定
 		GetComponent<Canvas>().worldCamera = GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<Camera>();
@@ -217,6 +249,23 @@ public class Scene01_MainMenuScript : GlobalClass
 		UnderWearList.Add(new List<GameObject>());
 		UnderWearList.Add(new List<GameObject>());
 
+		//武器リスト初期化
+		WeaponList = new List<List<GameObject>>();
+
+		//とりあえず要素数を確保
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+		WeaponList.Add(new List<GameObject>());
+
 		foreach (var CID in GameManagerScript.Instance.UserData.CharacterUnLock)
 		{
 			//キャラクター読み込み完了フラグ宣言
@@ -230,6 +279,9 @@ public class Scene01_MainMenuScript : GlobalClass
 
 			//下着読み込み完了フラグ宣言
 			bool UnderWearLoadFlag = false;
+
+			//武器読み込み完了フラグ宣言
+			bool WeaponLoadFlag = false;
 
 			//キャラクターモデル読み込み
 			StartCoroutine(GameManagerScript.Instance.LoadOBJ("Object/Character/" + CID + "/", GameManagerScript.Instance.AllCharacterList[CID].OBJname, "prefab", (object OBJ) =>
@@ -369,7 +421,8 @@ public class Scene01_MainMenuScript : GlobalClass
 						TempCostumeOBJ.name = TempCostumeOBJ.name.Replace("(Clone)", "");
 
 						//読み込んだ衣装オブジェクトをListに入れる
-						CostumeList[CID][int.Parse(TempCostumeOBJ.name.Replace("Costume_" + CID + "_", ""))] = TempCostumeOBJ;
+						//CostumeList[CID][int.Parse(TempCostumeOBJ.name.Replace("Costume_" + CID + "_", ""))] = TempCostumeOBJ;
+						CostumeList[CID][CostumeList[CID].Count - 1] = TempCostumeOBJ;
 
 						//Bodyに仕込んであるCostumeのSkinnedMeshRendererを取得する
 						SkinnedMeshRenderer CostumeRenderer = DeepFind(CharacterList[CID], "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
@@ -427,7 +480,8 @@ public class Scene01_MainMenuScript : GlobalClass
 						TempUnderWearOBJ.name = TempUnderWearOBJ.name.Replace("(Clone)", "");
 
 						//読み込んだ下着オブジェクトをListに入れる
-						UnderWearList[CID][int.Parse(TempUnderWearOBJ.name.Replace("UnderWear_" + CID + "_", ""))] = TempUnderWearOBJ;
+						//UnderWearList[CID][int.Parse(TempUnderWearOBJ.name.Replace("UnderWear_" + CID + "_", ""))] = TempUnderWearOBJ;
+						UnderWearList[CID][UnderWearList[CID].Count - 1] = TempUnderWearOBJ;
 
 						//Bodyに仕込んであるUnderWearのSkinnedMeshRendererを取得する
 						SkinnedMeshRenderer UnderWearRenderer = DeepFind(CharacterList[CID], "CostumeSample_Mesh").GetComponent<SkinnedMeshRenderer>();
@@ -466,13 +520,47 @@ public class Scene01_MainMenuScript : GlobalClass
 
 				}));
 
+
+				//全ての武器オブジェクト読み込み
+				StartCoroutine(GameManagerScript.Instance.AllFileLoadCoroutine("Object/Character/" + CID + "/Weapon/", "prefab", (List<object> list) =>
+				{
+					//読み込んだオブジェクトを回す
+					foreach (var O in list)
+					{
+						//要素数を確保
+						WeaponList[CID].Add(null);
+
+						//読み込んだ武器オブジェクトをインスタンス化
+						GameObject TempWeaponOBJ = Instantiate(O as GameObject);
+
+						//読み込んだ武器オブジェクトをListに入れる
+						WeaponList[CID][WeaponList[CID].Count - 1] = TempWeaponOBJ;
+
+						//キャラクターオブジェクトの子にする
+						TempWeaponOBJ.transform.parent = CharacterList[CID].transform;
+
+						//ローカルトランスフォームをリセット
+						ResetTransform(TempWeaponOBJ);
+
+						//一旦無効化しておく
+						TempWeaponOBJ.SetActive(false);
+					}
+
+					//装備中の武器を有効化
+					WeaponList[CID][GameManagerScript.Instance.AllCharacterList[CID].WeaponID].SetActive(true);
+
+					//武器読み込み完了フラグを立てる
+					WeaponLoadFlag = true;
+
+				}));
+
 				//キャラクター読み込み完了フラグを立てる
 				CharacterLoadFlag = true;
 
 			}));
 
-			//下着の読み込みが終わるまで待つ
-			while (!CharacterLoadFlag && !HairLoadFlag && !CostumeLoadFlag && !UnderWearLoadFlag)
+			//読み込みが終わるまで待つ
+			while (!CharacterLoadFlag && !HairLoadFlag && !CostumeLoadFlag && !UnderWearLoadFlag && !WeaponLoadFlag)
 			{
 				yield return null;
 			}
@@ -727,6 +815,40 @@ public class Scene01_MainMenuScript : GlobalClass
 		}
 	}
 
+	//武器装備でSelectされた時の処理
+	public void WeaponSelect()
+	{
+		if (InputReadyFlag)
+		{
+			//装備中の武器非表示
+			WeaponList[CharacterID][GameManagerScript.Instance.UserData.EquipWeaponList[CharacterID]].SetActive(false);
+
+			//選択された武器をユーザーデータに反映
+			GameManagerScript.Instance.UserData.EquipWeaponList[CharacterID] = WeaponSelectButtonList.IndexOf(EventSystemUI.currentSelectedGameObject);
+			GameManagerScript.Instance.AllCharacterList[CharacterID].WeaponID = WeaponSelectButtonList.IndexOf(EventSystemUI.currentSelectedGameObject);
+
+			//選択された武器を表示
+			WeaponList[CharacterID][WeaponSelectButtonList.IndexOf(EventSystemUI.currentSelectedGameObject)].SetActive(true);
+
+			//選択されている衣装を表示
+			CostumeList[CharacterID][GameManagerScript.Instance.UserData.EquipCostumeList[CharacterID]].SetActive(true);
+
+			//下着リストのボタンにナビゲータを仕込む
+			foreach (GameObject o in UnderWearSelectButtonList)
+			{
+				//ナビゲーションのアクセサ取得
+				Navigation tempnavi = o.GetComponent<Button>().navigation;
+
+				//右を押した時の処理
+				tempnavi.selectOnRight = WeaponSelectButtonList[GameManagerScript.Instance.UserData.EquipWeaponList[CharacterID]].GetComponent<Button>();
+
+				//アクセサを反映
+				o.GetComponent<Button>().navigation = tempnavi;
+			}
+		}
+	}
+
+
 	//汎用ボタンが押された時の処理
 	public void OnGeneral()
 	{
@@ -785,6 +907,9 @@ public class Scene01_MainMenuScript : GlobalClass
 
 			//装備中の下着表示
 			UnderWearList[CharacterID][GameManagerScript.Instance.UserData.EquipUnderWearList[CharacterID]].SetActive(true);
+
+			//装備中の武器表示
+			WeaponList[CharacterID][GameManagerScript.Instance.UserData.EquipWeaponList[CharacterID]].SetActive(true);
 
 			//表示キャラクター非表示
 			CharacterList[CharacterID].SetActive(false);
@@ -1013,11 +1138,20 @@ public class Scene01_MainMenuScript : GlobalClass
 			Destroy(i);
 		}
 
+		//武器リストを初期化
+		foreach (var i in WeaponSelectButtonList)
+		{
+			Destroy(i);
+		}
+
 		//衣装ボタンリスト初期化
 		CostumeSelectButtonList = new List<GameObject>();
 
 		//下着ボタンリスト初期化
 		UnderWearSelectButtonList = new List<GameObject>();
+
+		//武器ボタンリスト初期化
+		WeaponSelectButtonList = new List<GameObject>();
 
 		//ひな型ボタンのRect取得
 		RectTransform Temprect = CostumeSelectButtonOBJ.GetComponent<RectTransform>();
@@ -1083,6 +1217,41 @@ public class Scene01_MainMenuScript : GlobalClass
 
 				//ListにAdd
 				UnderWearSelectButtonList.Add(TempButton);
+
+				//ループカウントアップ
+				count++;
+			}
+		}
+
+		//ループカウントリセット
+		count = 0;
+
+		//ひな型ボタンのRect取得
+		Temprect = WeaponSelectButtonOBJ.GetComponent<RectTransform>();
+
+		//全ての武器を回す
+		foreach (WeaponClass i in GameManagerScript.Instance.AllWeaponList)
+		{
+			//引数で仕様キャラクターを判別、アンロックされているかを判別
+			if (i.CharacterID == ID)
+			{
+				//ボタンのインスタンス生成
+				GameObject TempButton = Instantiate(WeaponSelectButtonOBJ);
+
+				//親を設定
+				TempButton.GetComponent<RectTransform>().SetParent(WeaponSelectButtonContentOBJ.transform, false);
+
+				//位置を設定
+				TempButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(Temprect.anchoredPosition.x, Temprect.anchoredPosition.y - (Temprect.rect.height * count));
+
+				//テキストに技名を入れる
+				TempButton.GetComponentInChildren<Text>().text = i.WeaponName;
+
+				//ボタンの名前を連番にする
+				TempButton.name = ID + WeaponSelectButtonOBJ.name + count;
+
+				//ListにAdd
+				WeaponSelectButtonList.Add(TempButton);
 
 				//ループカウントアップ
 				count++;
@@ -1160,6 +1329,49 @@ public class Scene01_MainMenuScript : GlobalClass
 			//左を押した時の処理
 			tempnavi.selectOnLeft = CostumeSelectButtonList[GameManagerScript.Instance.UserData.EquipCostumeList[CharacterID]].GetComponent<Button>();
 
+			//右を押した時の処理
+			tempnavi.selectOnRight = WeaponSelectButtonList[GameManagerScript.Instance.UserData.EquipWeaponList[CharacterID]].GetComponent<Button>();
+
+
+			//アクセサを反映
+			o.GetComponent<Button>().navigation = tempnavi;
+
+			//ループカウントアップ
+			count++;
+		}
+
+		//ループカウントリセット
+		count = 0;
+
+		//武器リストのボタンにナビゲータを仕込む
+		foreach (GameObject o in WeaponSelectButtonList)
+		{
+			//ナビゲーションのアクセサ取得
+			Navigation tempnavi = o.GetComponent<Button>().navigation;
+
+			//上を押した時の処理
+			if (count == 0)
+			{
+				tempnavi.selectOnUp = DeepFind(WeaponSelectButtonContentOBJ, ID + WeaponSelectButtonOBJ.name + (WeaponSelectButtonList.Count - 1)).GetComponent<Button>();
+			}
+			else
+			{
+				tempnavi.selectOnUp = DeepFind(WeaponSelectButtonContentOBJ, ID + WeaponSelectButtonOBJ.name + (count - 1)).GetComponent<Button>();
+			}
+
+			//下を押した時の選択先設定
+			if (count == WeaponSelectButtonList.Count - 1)
+			{
+				tempnavi.selectOnDown = DeepFind(WeaponSelectButtonContentOBJ, ID + WeaponSelectButtonOBJ.name + 0).GetComponent<Button>();
+			}
+			else
+			{
+				tempnavi.selectOnDown = DeepFind(WeaponSelectButtonContentOBJ, ID + WeaponSelectButtonOBJ.name + (count + 1)).GetComponent<Button>();
+			}
+
+			//左を押した時の処理
+			tempnavi.selectOnLeft = UnderWearSelectButtonList[GameManagerScript.Instance.UserData.EquipUnderWearList[CharacterID]].GetComponent<Button>();
+
 			//アクセサを反映
 			o.GetComponent<Button>().navigation = tempnavi;
 
@@ -1173,6 +1385,7 @@ public class Scene01_MainMenuScript : GlobalClass
 		//スクロールの位置調整
 		CostumeSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = 1;
 		UnderWearSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = 1;
+		WeaponSelectScrollBarOBJ.GetComponent<ScrollRect>().verticalNormalizedPosition = 1;
 	}
 
 	//技リストと技マトリクスを更新する関数
@@ -1393,6 +1606,12 @@ public class Scene01_MainMenuScript : GlobalClass
 			Destroy(i);
 		}
 
+		//武器リストを初期化
+		foreach (var i in WeaponSelectButtonList)
+		{
+			Destroy(i);
+		}
+
 		//技装備ボタンList初期化
 		ArtsSelectButtonList = new List<GameObject>();
 
@@ -1401,6 +1620,9 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		//下着ボタンリスト初期化
 		UnderWearSelectButtonList = new List<GameObject>();
+
+		//武器ボタンリスト初期化
+		WeaponSelectButtonList = new List<GameObject>();
 	}
 
 	//入力許可フラグを立てる、アニメーションクリップから呼ばれる

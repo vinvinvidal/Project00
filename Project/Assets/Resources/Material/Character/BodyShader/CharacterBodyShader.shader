@@ -31,9 +31,6 @@
 		//_TexNormal("_TexNormal", 2D) = "bump" {}						//ノーマルマップ
 		//_TexHiLight("_TexHiLight", 2D) = "white" {}					//ハイライトのテクスチャ
 		_HiLightMatCap("_HiLightMatCap", 2D) = "black" {}				//ハイライトのmatcap
-
-		_VanishNum("_VanishNum",float) = 0								//消滅用係数
-
 		_VanishTex("_VanishTex", 2D) = "white" {}						//消滅用テクスチャ
 	}
 
@@ -128,7 +125,7 @@
 
 			float4x4 _LightMatrix;			//スクリプトから受け取るディレクショナルライトのマトリクス、ハイライトのmatcapに使用
 
-			float _VanishNum;				//消滅用係数
+			float2 _VanishUV;
 
 			sampler2D _VanishTex;			//消滅用テクスチャ
 
@@ -258,27 +255,46 @@
 				//re.rgb += lerp(0, tex2D(_TexAtlas, i.uv * _TexHiLightRectSize + _TexHiLightRectPos), tex2D(_TexAtlas, i.hilightuv* _TexMatCapRectSize + _TexMatCapRectPos)) * saturate(dot(i.normal, _WorldSpaceLightPos0));
 				re.rgb += lerp(0, tex2D(_TexAtlas, i.uv * _TexHiLightRectSize + _TexHiLightRectPos), tex2D(_HiLightMatCap, i.hilightuv)) * saturate(dot(i.normal, _WorldSpaceLightPos0));
 
-
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);
 
 				//裏面を暗くする
 				re.rgb *= clamp(facing, 0.5f, 1);
 
-				//プロジェクションで_Grabを貼り、透明度で消したりする
-				//re.rgb = lerp(re, tex2Dproj(_ScreenTex, i.GrabPos), _VanishNum);
-
 				//消失用テクスチャのタイリング設定
 				i.GrabPos.xy *= _VanishTex_ST.xy;
 
 				//テクスチャと変数から透明度を算出
-				re.a -= (tex2Dproj(_VanishTex, i.GrabPos).a * _VanishNum * 10);
+				re.a -= tex2Dproj(_VanishTex, i.GrabPos).a;
 				
 				//透明部分をクリップ
 				clip(re.a - 0.01);
-
-				//出力				
+				
+				//出力	
 				return re;
+
+				/*
+
+								_VanishUV = i.GrabPos.xy;
+
+				_VanishUV /=  i.GrabPos.w;
+
+				_VanishUV *=_ScreenParams;
+
+				return floor((i.GrabPos.x % _VanishNum) * (i.GrabPos.y % _VanishNum));
+
+				return (floor(i.GrabPos.x % 2) * floor(i.GrabPos.y % 2)) + saturate(floor((i.GrabPos.x) % _VanishNum) + floor((i.GrabPos.y) % _VanishNum)) * sign(_VanishNum);
+			
+				return floor((i.GrabPos.x) % pow(2 ,_VanishNum)) + floor((i.GrabPos.y) % pow(2 ,_VanishNum));
+
+				fixed4 Vanish = floor(_VanishUV.x % (_VanishNum0 * 2)) + floor(_VanishUV.y % (_VanishNum0 * 2));
+
+				Vanish -= floor((_VanishUV.x+1) % (_VanishNum1 * 2)) + floor((_VanishUV.y+1) % (_VanishNum1 * 2));
+
+				Vanish += _VanishNum;
+
+				return Vanish;
+				*/
 			}
 
 			//プログラム終了

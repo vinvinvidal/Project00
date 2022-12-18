@@ -91,6 +91,7 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 		EyeMaterial.SetTexture("_EyeTex", _EyeTex);
 		EyeMaterial.SetTexture("_EyeHiLight", _EyeHiLight);
 		EyeMaterial.SetTexture("_EyeShadow", _EyeShadow);
+		EyeMaterial.SetTexture("_VanishTex", GameManagerScript.Instance.VanishTextureList[0]);
 		EyeMaterial.SetColor("_EyeShadowColor", _EyeShadowColor);
 
 		//スクリーンサイズから消失用テクスチャのスケーリングを設定

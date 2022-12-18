@@ -149,6 +149,9 @@ public class CharacterFaceShaderScript : GlobalClass, CharacterFaceShaderScriptI
 		TextureSetDic.Add(new Vector3(1, 1, -1), TextureSetLeftBackTop);
 		TextureSetDic.Add(new Vector3(-1, 1, -1), TextureSetRightBackTop);
 
+		//消失用テクスチャを渡す
+		FaceMaterial.SetTexture("_VanishTex", GameManagerScript.Instance.VanishTextureList[0]);		
+
 		//スクリーンサイズから消失用テクスチャのスケーリングを設定
 		FaceMaterial.SetTextureScale("_VanishTex", new Vector2(Screen.width / FaceMaterial.GetTexture("_VanishTex").width, Screen.height / FaceMaterial.GetTexture("_VanishTex").height) * GameManagerScript.Instance.ScreenResolutionScale);
 
