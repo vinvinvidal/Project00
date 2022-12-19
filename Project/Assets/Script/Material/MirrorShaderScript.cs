@@ -88,16 +88,6 @@ public class MirrorShaderScript : GlobalClass, MirrorShaderScriptInterface
 		//インスペクタのスイッチで初期動作
 		MirrorSwitch(OnMirror);
 
-		//消失用テクスチャがあるか判別
-		if(MirrorMaterial.GetTexturePropertyNames().Any(a => a == "_VanishTex"))
-		{
-			//テクスチャをセット
-			MirrorMaterial.SetTexture("_VanishTex", GameManagerScript.Instance.VanishTextureList[0]);
-
-			//スクリーンサイズから消失用テクスチャのスケーリングを設定
-			MirrorMaterial.SetTextureScale("_VanishTex", new Vector2(Screen.width / MirrorMaterial.GetTexture("_VanishTex").width, Screen.height / MirrorMaterial.GetTexture("_VanishTex").height) * GameManagerScript.Instance.ScreenResolutionScale);
-		}
-
 		//レンダーテクスチャをシェーダーに送る
 		MirrorMaterial.SetTexture("_MainTex", MirrorTexture);
 	}

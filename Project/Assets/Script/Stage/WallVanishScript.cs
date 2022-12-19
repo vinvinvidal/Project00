@@ -7,19 +7,16 @@ public class WallVanishScript : GlobalClass
 	//マテリアル
 	private Material mat;
 
-	//消滅用数値
+	//経過時間
 	private float VanishCount = 0;
+
+	//消滅までの時間
+	private float VanishTime = 2;
 
 	void Start()
     {
-		//消滅用数値の初期値をランダムに設定
-		//VanishCount = Random.Range(-10, 0);
-
 		//マテリアル取得
 		mat = GetComponentInChildren<Renderer>().material;
-
-		//描画順を変更
-		//mat.renderQueue = 3000;
 
 		//レンダラーのシャドウを切る
 		GetComponentInChildren<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -27,19 +24,22 @@ public class WallVanishScript : GlobalClass
 
 		GetComponentInChildren<Renderer>().gameObject.layer = LayerMask.NameToLayer("OutDoor");
 
-		mat.SetTextureScale("_VanishTex", new Vector2(Screen.width / mat.GetTexture("_VanishTex").width, Screen.height / mat.GetTexture("_VanishTex").height) * GameManagerScript.Instance.ScreenResolutionScale);
+		mat.SetTexture("_VanishTexture", GameManagerScript.Instance.VanishTextureList[0]);
+
+		mat.SetTextureScale("_VanishTexture", new Vector2(Screen.width / GameManagerScript.Instance.VanishTextureList[0].width, Screen.height / GameManagerScript.Instance.VanishTextureList[0].height) * GameManagerScript.Instance.ScreenResolutionScale);
+
+		mat.renderQueue = 3000;
 	}
 
     void Update()
     {
-		//シェーダーに消滅用数値を渡す
-		mat.SetFloat("_VanishNum", VanishCount / 1.5f);
-
 		//消滅用数値カウントアップ
 		VanishCount += Time.deltaTime;
 
+		mat.SetTexture("_VanishTexture", GameManagerScript.Instance.VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(0, GameManagerScript.Instance.VanishTextureList.Count - 1, VanishCount / VanishTime))]);
+
 		//消えたら自身を削除
-		if(VanishCount > 2)
+		if (VanishCount > VanishTime)
 		{
 			Destroy(gameObject);
 		}

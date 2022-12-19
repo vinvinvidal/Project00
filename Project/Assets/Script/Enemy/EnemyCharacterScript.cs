@@ -2816,7 +2816,8 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		yield return new WaitForSeconds(w);
 
 		//Enemyレイヤーのレンダラー取得
-		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Enemy")).ToList());
+		//List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Enemy")).ToList());
+		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Enemy")).Where(b => b.material.GetTexturePropertyNames().Any(c => c == "_VanishTexture")).ToList());
 
 		//消滅用カウント
 		float VanishCount = 0;
@@ -2825,7 +2826,10 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		foreach (var i in RendList)
 		{
 			//アウトラインを切る為にレイヤーを変更
-			//i.gameObject.layer = LayerMask.NameToLayer("InDoor");
+			i.gameObject.layer = LayerMask.NameToLayer("Effect");
+
+			//スクリーンサイズから消失用テクスチャのスケーリングを設定
+			i.material.SetTextureScale("_VanishTexture", new Vector2(Screen.width / GameManagerScript.Instance.VanishTextureList[0].width, Screen.height / GameManagerScript.Instance.VanishTextureList[0].height) * GameManagerScript.Instance.ScreenResolutionScale);
 
 			//レンダラーのシャドウを切る
 			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -2839,10 +2843,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//マテリアルを回して消滅用数値を入れる
 			foreach (var i in RendList)
 			{
-				foreach (var ii in i.materials)
-				{
-					ii.SetFloat("_VanishNum", VanishCount / t);
-				}
+				i.material.SetTexture("_VanishTexture", GameManagerScript.Instance.VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(0, GameManagerScript.Instance.VanishTextureList.Count - 1, VanishCount / t))]);
 			}
 
 			//消滅用カウントアップ

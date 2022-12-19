@@ -9,7 +9,7 @@
 
 		_VanishNum("_VanishNum",float) = 0							//消滅用係数
 
-		_VanishTex("_VanishTex", 2D) = "white" {}						//消滅用テクスチャ
+		_VanishTexture("_VanishTexture", 2D) = "white" {}						//消滅用テクスチャ
     }
 
     SubShader
@@ -59,9 +59,9 @@
 
 			float _VanishNum;					//消滅用係数
 
-			sampler2D _VanishTex;			//消滅用テクスチャ
+			sampler2D _VanishTexture;			//消滅用テクスチャ
 
-			float4 _VanishTex_ST;			//消滅用テクスチャスケールタイリング
+			float4 _VanishTexture_ST;			//消滅用テクスチャスケールタイリング
 
 			//オブジェクトから頂点シェーダーに情報を渡す構造体を宣言
 			struct vertex_input
@@ -146,10 +146,10 @@
 				re *= lerp(1, _LightColor0, _LightColor0.a);
 
 				//消失用テクスチャのタイリング設定
-				i.GrabPos.xy *= _VanishTex_ST.xy;
+				i.GrabPos.xy *= _VanishTexture_ST.xy;
 
 				//テクスチャと変数から透明度を算出
-				re.a -= tex2Dproj(_VanishTex, i.GrabPos).a;
+				re.a -= tex2Dproj(_VanishTexture, i.GrabPos).a;
 
 				//透明部分をクリップ
 				clip(re.a - 0.01);

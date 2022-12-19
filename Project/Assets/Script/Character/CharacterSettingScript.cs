@@ -490,7 +490,7 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 						}
 
 						//スクリプトにデータを渡す
-						ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllFaceDic[ID], GameManagerScript.Instance.AllH_FaceDic[ID], GameManagerScript.Instance.AllDamageDic[ID], GameManagerScript.Instance.AllChangeDic[ID], GameManagerScript.Instance.AllH_HitDic[ID], GameManagerScript.Instance.AllH_DamageDic[ID], GameManagerScript.Instance.AllH_CaressDic[ID], GameManagerScript.Instance.AllH_BreakDic[ID], CostumeOBJ, MosaicOBJ, PantsOffOBJ));
+						ExecuteEvents.Execute<PlayerScriptInterface>(gameObject, null, (reciever, eventData) => reciever.SetCharacterData(i, GameManagerScript.Instance.AllFaceDic[ID], GameManagerScript.Instance.AllH_FaceDic[ID], GameManagerScript.Instance.AllDamageDic[ID], GameManagerScript.Instance.AllChangeDic[ID], GameManagerScript.Instance.AllH_HitDic[ID], GameManagerScript.Instance.AllH_DamageDic[ID], GameManagerScript.Instance.AllH_CaressDic[ID], GameManagerScript.Instance.AllH_BreakDic[ID], MosaicOBJ, PantsOffOBJ));
 
 					}));
 				}));
@@ -652,6 +652,23 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 		while (!(CombineBaseFinishFlag && CombineTopsOffFinishFlag && CombineBraOffFinishFlag && CombinePantsOffFinishFlag))
 		{
 			yield return null;
+		}
+
+		gameObject.GetComponent<PlayerScript>().VanishTextureList = new List<Texture>(GameManagerScript.Instance.VanishTextureList);
+
+		gameObject.GetComponent<PlayerScript>().VanishRendererList = new List<Renderer>();
+
+		foreach (var i in gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Player")).ToList())
+		{
+			if (i.material.GetTexturePropertyNames().Any(a => a == "_VanishTexture"))
+			{
+				gameObject.GetComponent<PlayerScript>().VanishRendererList.Add(i);
+
+				i.material.SetTexture("_VanishTexture", gameObject.GetComponent<PlayerScript>().VanishTextureList[0]);
+
+				//スクリーンサイズから消失用テクスチャのスケーリングを設定
+				i.material.SetTextureScale("_VanishTexture", new Vector2(Screen.width / gameObject.GetComponent<PlayerScript>().VanishTextureList[0].width, Screen.height / gameObject.GetComponent<PlayerScript>().VanishTextureList[0].height) * GameManagerScript.Instance.ScreenResolutionScale);
+			}
 		}
 
 		//アニメーター有効化

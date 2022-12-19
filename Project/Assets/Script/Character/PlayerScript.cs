@@ -52,7 +52,7 @@ public interface PlayerScriptInterface : IEventSystemHandler
 	bool GetOnCameraBool();
 
 	//キャラクターのデータセットする
-	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HCL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO);
+	void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HCL, List<AnimationClip> HBL, GameObject MSA, GameObject POO);
 
 	//当たった攻撃が有効か返す
 	bool AttackEnable(bool H);
@@ -97,9 +97,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 	//スケベ攻撃をしてきた敵オブジェクト
 	private GameObject H_Enemy;
-
-	//コスチュームルートオブジェクト
-	private GameObject CostumeRootOBJ;
 
 	//武器SEコンポーネント
 	private WeaponSoundEffectScript WeaponSEScript;
@@ -675,6 +672,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 
 
+	public List<Texture> VanishTextureList { get; set; }
+
+	public List<Renderer> VanishRendererList { get; set; }
+
+
+
 	void Start()
 	{
 		//自身をGameManagerのリストに追加、インデックスを受け取る
@@ -1057,10 +1060,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				}
 			}
 		}
-
-
-		//目線をカメラ目線にする
-		//gameObject.GetComponentInChildren<CharacterEyeShaderScript>().CameraEyeFlag = true;
 	}
 
 	void LateUpdate()
@@ -5920,7 +5919,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	}
 
 	//キャラクターのデータをセットする、キャラクターセッティングから呼ばれる
-	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HCL, List<AnimationClip> HBL, GameObject CRO, GameObject MSA, GameObject POO)
+	public void SetCharacterData(CharacterClass CC, List<AnimationClip> FAL, List<AnimationClip> HFL, List<AnimationClip> DAL, List<AnimationClip> CAL, List<AnimationClip> HHL, List<AnimationClip> HDL, List<AnimationClip> HCL, List<AnimationClip> HBL, GameObject MSA, GameObject POO)
 	{
 		//表情アニメーションList
 		FaceAnimList = new List<AnimationClip>(FAL);
@@ -5975,9 +5974,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//超必殺技処理を代入
 			SuperArts.SuperActList = new List<Action<GameObject, GameObject>>(TempSuperAct);
 		}
-
-		//コスチュームルートオブジェクト
-		CostumeRootOBJ = CRO;
 
 		//モザイクオブジェクト
 		MosaicOBJ = MSA;
@@ -6134,21 +6130,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//経過時間
 		float AppearTime = 0;
 
-		//レンダラー取得
-		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Player")).ToList());
-
 		//レンダラーを回す
-		foreach (Renderer i in RendList)
+		foreach (Renderer i in VanishRendererList)
 		{
 			i.gameObject.layer = LayerMask.NameToLayer("Effect");
+
+			i.material.SetTexture("_VanishTexture", VanishTextureList[VanishTextureList.Count - 1]);
 
 			foreach (Material ii in i.materials.Where(a => a != null))
 			{
 				//マテリアルの描画順を変更してアウトラインを消す
-				ii.renderQueue = 3000;				
+				ii.renderQueue = 3000;
 
 				//消滅用数値に値を入れる
-				ii.SetFloat("_VanishNum", 1);
+				//ii.SetFloat("_VanishNum", 1);
+				//ii.SetTexture("_VanishTexture", VanishTextureList[VanishTextureList.Count - 1]);
+
 			}
 		}
 
@@ -6156,12 +6153,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		while (AppearTime < t)
 		{
 			//マテリアルを回して消滅用数値を入れる
-			foreach (Renderer i in RendList)
+			foreach (Renderer i in VanishRendererList)
 			{
-				foreach (Material ii in i.sharedMaterials)
-				{
-					ii.SetFloat("_VanishNum", 1 - AppearTime / t);
-				}
+				i.material.SetTexture("_VanishTexture", VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(VanishTextureList.Count - 1, 0, AppearTime / t))]);
 			}
 
 			//出現用カウントアップ
@@ -6172,13 +6166,17 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//レンダラーを回して描画順と透明度を戻す
-		foreach (Renderer i in RendList)
+		foreach (Renderer i in VanishRendererList)
 		{
 			i.gameObject.layer = LayerMask.NameToLayer("Player");
 
+			i.material.SetTexture("_VanishTexture", VanishTextureList[0]);
+
 			foreach (Material ii in i.sharedMaterials)
 			{
-				ii.SetFloat("_VanishNum", 0);
+				//ii.SetFloat("_VanishNum", 0);
+				//ii.SetTexture("_VanishTexture", VanishTextureList[0]);
+
 				ii.renderQueue = 2450;
 			}
 		}
@@ -6204,11 +6202,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//経過時間
 		float VanishTime = 0;
 
-		//レンダラー取得
-		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Player")).ToList());
-
 		//レンダラーを回す
-		foreach (Renderer i in RendList)
+		foreach (Renderer i in VanishRendererList)
 		{
 			//レンダラーのシャドウを切る
 			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -6226,12 +6221,20 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		while (VanishTime < t)
 		{
 			//マテリアルを回して消滅用数値を入れる
-			foreach (Renderer i in RendList)
+			foreach (Renderer i in VanishRendererList)
 			{
+				/*
 				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 				{
 					ii.SetFloat("_VanishNum", VanishTime / t);
 				}
+				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
+				{
+					print(ii.name);
+					ii.SetTexture("_VanishTexture", VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(0, VanishTextureList.Count - 1, VanishTime / t))]);
+				}*/
+
+				i.material.SetTexture("_VanishTexture", VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(0, VanishTextureList.Count - 1, VanishTime / t))]);
 			}
 
 			//消滅用カウントアップ
@@ -6242,13 +6245,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//マテリアルを回して完全に消す
-		foreach (Renderer i in RendList)
+		foreach (Renderer i in VanishRendererList)
 		{
-			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
-			{
-				ii.SetFloat("_VanishNum", 1);
-			}
+			i.material.SetTexture("_VanishTexture", VanishTextureList[VanishTextureList.Count - 1]);
 		}
+
+		
+
+
 
 		//復活の場合は操作可能なキャラクターリストに自身を加える
 		if (CurrentState.Contains("Revival"))
@@ -6260,20 +6264,22 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		gameObject.SetActive(false);
 
 		//レンダラーを回して描画順と透明度を戻す
-		foreach (Renderer i in RendList)
+		foreach (Renderer i in VanishRendererList)
 		{
 			//レンダラーのシャドウを入れる
 			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
 
 			i.gameObject.layer = LayerMask.NameToLayer("Player");
 
+			i.material.SetTexture("_VanishTexture", VanishTextureList[0]);
+
 			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 			{
-				ii.SetFloat("_VanishNum", 0);
-
 				ii.renderQueue = 2450;
 			}
 		}
+
+
 	}
 
 	//ポーズ処理、ゲームマネージャーから呼び出されるインターフェイス

@@ -812,6 +812,19 @@ public class Scene01_MainMenuScript : GlobalClass
 				//アクセサを反映
 				o.GetComponent<Button>().navigation = tempnavi;
 			}
+
+			//武器リストのボタンにナビゲータを仕込む
+			foreach (GameObject o in WeaponSelectButtonList)
+			{
+				//ナビゲーションのアクセサ取得
+				Navigation tempnavi = o.GetComponent<Button>().navigation;
+
+				//左を押した時の処理
+				tempnavi.selectOnLeft = UnderWearSelectButtonList[GameManagerScript.Instance.UserData.EquipUnderWearList[CharacterID]].GetComponent<Button>();
+
+				//アクセサを反映
+				o.GetComponent<Button>().navigation = tempnavi;
+			}
 		}
 	}
 

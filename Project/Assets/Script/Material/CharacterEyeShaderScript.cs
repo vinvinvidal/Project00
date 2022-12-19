@@ -91,11 +91,7 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 		EyeMaterial.SetTexture("_EyeTex", _EyeTex);
 		EyeMaterial.SetTexture("_EyeHiLight", _EyeHiLight);
 		EyeMaterial.SetTexture("_EyeShadow", _EyeShadow);
-		EyeMaterial.SetTexture("_VanishTex", GameManagerScript.Instance.VanishTextureList[0]);
 		EyeMaterial.SetColor("_EyeShadowColor", _EyeShadowColor);
-
-		//スクリーンサイズから消失用テクスチャのスケーリングを設定
-		EyeMaterial.SetTextureScale("_VanishTex", new Vector2(Screen.width / EyeMaterial.GetTexture("_VanishTex").width, Screen.height / EyeMaterial.GetTexture("_VanishTex").height) * GameManagerScript.Instance.ScreenResolutionScale);
 
 		//顔のトランスフォーム取得
 		HeadAngle = DeepFind(transform.root.gameObject, "HeadAngle").transform;

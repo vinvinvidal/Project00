@@ -6,7 +6,7 @@
 		_SunnyS("_SunnyS", Range(-1.0, 1.0)) = 0.0						//日向の彩度
 		_SunnyV("_SunnyV", Range(-1.0, 1.0)) = 0.0						//日向の輝度
 
-		_VanishTex("_VanishTex", 2D) = "white" {}						//消滅用テクスチャ
+		_VanishTexture("_VanishTexture", 2D) = "white" {}						//消滅用テクスチャ
 	}
 
 	SubShader
@@ -99,9 +99,9 @@
 			float _BlushNum;				//赤面用係数
 			float _VanishNum;				//消滅用係数
 
-			sampler2D _VanishTex;			//消滅用テクスチャ
+			sampler2D _VanishTexture;			//消滅用テクスチャ
 
-			float4 _VanishTex_ST;			//消滅用テクスチャスケールタイリング
+			float4 _VanishTexture_ST;			//消滅用テクスチャスケールタイリング
 
 			fixed4 _LightColor0;			//ライトカラー
 
@@ -220,10 +220,10 @@
 				re *= lerp(1, _LightColor0, _LightColor0.a);		
 
 				//消失用テクスチャのタイリング設定
-				i.GrabPos.xy *= _VanishTex_ST.xy;
+				i.GrabPos.xy *= _VanishTexture_ST.xy;
 
 				//テクスチャと変数から透明度を算出
-				re.a -= tex2Dproj(_VanishTex, i.GrabPos).a;
+				re.a -= tex2Dproj(_VanishTexture, i.GrabPos).a;
 
 				//透明部分をクリップ
 				clip(re.a - 0.01);
