@@ -1,18 +1,45 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class WallVanishScript : GlobalClass
 {
-	//マテリアル
-	private Material mat;
+	void Start()
+	{
+		//消失用関数呼び出し
+		ObjectVanish(gameObject, 2, 0,
 
-	//経過時間
-	private float VanishCount = 0;
+		//事前処理
+		(List<Renderer> R) =>
+		{
+			//レンダラーを回す
+			foreach (Renderer i in R)
+			{
+				//レンダラーのシャドウを切る
+				i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+				i.receiveShadows = false;
 
-	//消滅までの時間
-	private float VanishTime = 2;
+				//レイヤーを変えてアウトラインを切る
+				i.gameObject.layer = LayerMask.NameToLayer("OutDoor");
 
+				//描画順を変えて後ろオブジェクトの影とかをちゃんと見えるようにする
+				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
+				{
+					//マテリアルの描画順を変更
+					ii.renderQueue = 3000;
+				}
+			}
+		},
+		//事後処理
+		(List<Renderer> R) =>
+		{
+			//消えたら自身を削除
+			Destroy(gameObject);
+		});
+	}
+
+	/*
 	void Start()
     {
 		//マテリアル取得
@@ -43,5 +70,5 @@ public class WallVanishScript : GlobalClass
 		{
 			Destroy(gameObject);
 		}
-	}
+	}*/
 }

@@ -1144,9 +1144,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		//オブジェクト消失処理呼び出し
 		EnemyScript.AbductionVanis(1, 0.75f);
 
-		//キャラクター消失処理呼び出し
-		TargetCharacter.GetComponent<PlayerScript>().ChangeVanish("1,0.75");
-
 		//ループを抜ける先
 		AbductionBreak:;
 
@@ -1166,7 +1163,13 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		EnemyScript.Abduction_Flag = false;
 
 		//待機
-		yield return null;	
+		yield return new WaitForSeconds(1);
+
+		//キャラクター消失処理呼び出し
+		TargetCharacter.GetComponent<PlayerScript>().ChangeVanish(0.75f);
+
+		//待機
+		yield return null;
 	}
 
 	//プレイヤーキャラクターを更新する

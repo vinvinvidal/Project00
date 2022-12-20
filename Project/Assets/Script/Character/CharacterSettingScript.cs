@@ -654,23 +654,6 @@ public class CharacterSettingScript : GlobalClass, CharacterSettingScriptInterfa
 			yield return null;
 		}
 
-		gameObject.GetComponent<PlayerScript>().VanishTextureList = new List<Texture>(GameManagerScript.Instance.VanishTextureList);
-
-		gameObject.GetComponent<PlayerScript>().VanishRendererList = new List<Renderer>();
-
-		foreach (var i in gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Player")).ToList())
-		{
-			if (i.material.GetTexturePropertyNames().Any(a => a == "_VanishTexture"))
-			{
-				gameObject.GetComponent<PlayerScript>().VanishRendererList.Add(i);
-
-				i.material.SetTexture("_VanishTexture", gameObject.GetComponent<PlayerScript>().VanishTextureList[0]);
-
-				//スクリーンサイズから消失用テクスチャのスケーリングを設定
-				i.material.SetTextureScale("_VanishTexture", new Vector2(Screen.width / gameObject.GetComponent<PlayerScript>().VanishTextureList[0].width, Screen.height / gameObject.GetComponent<PlayerScript>().VanishTextureList[0].height) * GameManagerScript.Instance.ScreenResolutionScale);
-			}
-		}
-
 		//アニメーター有効化
 		gameObject.GetComponent<Animator>().enabled = true;
 

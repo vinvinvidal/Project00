@@ -671,13 +671,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	private List<Vector3> AnimNoiseSeedList = new List<Vector3>();
 
 
-
-	public List<Texture> VanishTextureList { get; set; }
-
-	public List<Renderer> VanishRendererList { get; set; }
-
-
-
 	void Start()
 	{
 		//自身をGameManagerのリストに追加、インデックスを受け取る
@@ -6122,164 +6115,101 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//モーションを再生
 		CurrentAnimator.Play("ChangeAfter", 0, 0);
 
-		//コルーチン呼び出し
-		StartCoroutine(ChangeAppearCoroutine(t));
-	}
-	private IEnumerator ChangeAppearCoroutine(float t)
-	{
-		//経過時間
-		float AppearTime = 0;
+		//出現用関数呼び出し
+		ObjectVanish(gameObject, t, 1,
 
-		//レンダラーを回す
-		foreach (Renderer i in VanishRendererList)
+		//事前処理
+		(List<Renderer> R) =>
 		{
-			i.gameObject.layer = LayerMask.NameToLayer("Effect");
-
-			i.material.SetTexture("_VanishTexture", VanishTextureList[VanishTextureList.Count - 1]);
-
-			foreach (Material ii in i.materials.Where(a => a != null))
+			//レンダラーを回す
+			foreach (Renderer i in R)
 			{
-				//マテリアルの描画順を変更してアウトラインを消す
-				ii.renderQueue = 3000;
+				//レイヤーを変えてアウトラインを切る
+				i.gameObject.layer = LayerMask.NameToLayer("Effect");
 
-				//消滅用数値に値を入れる
-				//ii.SetFloat("_VanishNum", 1);
-				//ii.SetTexture("_VanishTexture", VanishTextureList[VanishTextureList.Count - 1]);
-
+				//描画順を変えて後ろオブジェクトの影とかをちゃんと見えるようにする
+				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
+				{
+					//マテリアルの描画順を変更
+					ii.renderQueue = 3000;
+				}
 			}
-		}
-
-		//経過時間まで回す
-		while (AppearTime < t)
+		},
+		//事後処理
+		(List<Renderer> R) =>
 		{
-			//マテリアルを回して消滅用数値を入れる
-			foreach (Renderer i in VanishRendererList)
+			//レンダラーを回して描画順と透明度を戻す
+			foreach (Renderer i in R)
 			{
-				i.material.SetTexture("_VanishTexture", VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(VanishTextureList.Count - 1, 0, AppearTime / t))]);
+				//レンダラーのシャドウを入れる
+				i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+
+				//レイヤーをプレイヤーに戻す
+				i.gameObject.layer = LayerMask.NameToLayer("Player");
+
+				//描画順を戻す
+				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
+				{
+					ii.renderQueue = 2450;
+				}
 			}
-
-			//出現用カウントアップ
-			AppearTime += Time.deltaTime;
-
-			//１フレーム待機
-			yield return null;
-		}
-
-		//レンダラーを回して描画順と透明度を戻す
-		foreach (Renderer i in VanishRendererList)
-		{
-			i.gameObject.layer = LayerMask.NameToLayer("Player");
-
-			i.material.SetTexture("_VanishTexture", VanishTextureList[0]);
-
-			foreach (Material ii in i.sharedMaterials)
-			{
-				//ii.SetFloat("_VanishNum", 0);
-				//ii.SetTexture("_VanishTexture", VanishTextureList[0]);
-
-				ii.renderQueue = 2450;
-			}
-		}
+		});
 	}
 
 	//キャラ交代時にキャラを消す関数
-	public void ChangeVanish(string Time)
+	public void ChangeVanish(float t)
 	{
-		//待機時間
-		float w = float.Parse(Time.Split(',').ToList().ElementAt(0));
+		//消失用関数呼び出し
+		ObjectVanish(gameObject, t, 0,
 
-		//消失時間
-		float t = float.Parse(Time.Split(',').ToList().ElementAt(1));
-
-		//コルーチン呼び出し
-		StartCoroutine(ChangeVanishCoroutine(w, t));
-	}
-	private IEnumerator ChangeVanishCoroutine(float w, float t)
-	{
-		//チョイ待機
-		yield return new WaitForSeconds(w);
-
-		//経過時間
-		float VanishTime = 0;
-
-		//レンダラーを回す
-		foreach (Renderer i in VanishRendererList)
+		//事前処理
+		(List<Renderer> R) =>
 		{
-			//レンダラーのシャドウを切る
-			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-
-			i.gameObject.layer = LayerMask.NameToLayer("Effect");
-
-			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
+			//レンダラーを回す
+			foreach (Renderer i in R)
 			{
-				//マテリアルの描画順を変更
-				ii.renderQueue = 3000;
-			}
-		}
+				//レンダラーのシャドウを切る
+				i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
-		//経過時間まで回す
-		while (VanishTime < t)
-		{
-			//マテリアルを回して消滅用数値を入れる
-			foreach (Renderer i in VanishRendererList)
-			{
-				/*
+				//レイヤーを変えてアウトラインを切る
+				i.gameObject.layer = LayerMask.NameToLayer("Effect");
+
+				//描画順を変えて後ろオブジェクトの影とかをちゃんと見えるようにする
 				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 				{
-					ii.SetFloat("_VanishNum", VanishTime / t);
+					//マテリアルの描画順を変更
+					ii.renderQueue = 3000;
 				}
+			}
+		},
+		//事後処理
+		(List<Renderer> R) => 
+		{
+			//復活の場合は操作可能なキャラクターリストに自身を加える
+			if (CurrentState.Contains("Revival"))
+			{
+				GameManagerScript.Instance.AllActiveCharacterList[AllActiveCharacterListIndex] = gameObject;
+			}
+
+			//オブジェクトを無効化
+			gameObject.SetActive(false);
+
+			//レンダラーを回して描画順と透明度を戻す
+			foreach (Renderer i in R)
+			{
+				//レンダラーのシャドウを入れる
+				i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+
+				//レイヤーをプレイヤーに戻す
+				i.gameObject.layer = LayerMask.NameToLayer("Player");
+
+				//描画順を戻す
 				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 				{
-					print(ii.name);
-					ii.SetTexture("_VanishTexture", VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(0, VanishTextureList.Count - 1, VanishTime / t))]);
-				}*/
-
-				i.material.SetTexture("_VanishTexture", VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(0, VanishTextureList.Count - 1, VanishTime / t))]);
+					ii.renderQueue = 2450;
+				}
 			}
-
-			//消滅用カウントアップ
-			VanishTime += Time.deltaTime;
-
-			//１フレーム待機
-			yield return null;
-		}
-
-		//マテリアルを回して完全に消す
-		foreach (Renderer i in VanishRendererList)
-		{
-			i.material.SetTexture("_VanishTexture", VanishTextureList[VanishTextureList.Count - 1]);
-		}
-
-		
-
-
-
-		//復活の場合は操作可能なキャラクターリストに自身を加える
-		if (CurrentState.Contains("Revival"))
-		{
-			GameManagerScript.Instance.AllActiveCharacterList[AllActiveCharacterListIndex] = gameObject;
-		}
-
-		//オブジェクトを無効化
-		gameObject.SetActive(false);
-
-		//レンダラーを回して描画順と透明度を戻す
-		foreach (Renderer i in VanishRendererList)
-		{
-			//レンダラーのシャドウを入れる
-			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
-
-			i.gameObject.layer = LayerMask.NameToLayer("Player");
-
-			i.material.SetTexture("_VanishTexture", VanishTextureList[0]);
-
-			foreach (Material ii in i.sharedMaterials.Where(a => a != null))
-			{
-				ii.renderQueue = 2450;
-			}
-		}
-
-
+		});
 	}
 
 	//ポーズ処理、ゲームマネージャーから呼び出されるインターフェイス

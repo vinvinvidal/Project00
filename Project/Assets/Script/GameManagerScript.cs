@@ -2068,7 +2068,7 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		}
 
 		//キャラクターの出現関数呼び出し
-		NextCharacter.GetComponent<PlayerScript>().ChangeAppear(0.25f, g);
+		NextCharacter.GetComponent<PlayerScript>().ChangeAppear(0.5f, g);
 
 		//状況を引き継ぐ
 		ExecuteEvents.Execute<PlayerScriptInterface>(NextCharacter, null, (reciever, eventData) => reciever.ContinueSituation(e, g, t, a, f, d));

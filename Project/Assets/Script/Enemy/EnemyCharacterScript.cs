@@ -2803,7 +2803,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 	}
 
-	//拉致成功時に呼ばれるオブジェクト削除コルーチン
+	//拉致成功時に呼ばれるオブジェクト削除関数
 	public void AbductionVanis(float w, float t)
 	{
 		StartCoroutine(VanishCoroutine(w, t));
@@ -2815,55 +2815,36 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		//チョイ待機
 		yield return new WaitForSeconds(w);
 
-		//Enemyレイヤーのレンダラー取得
-		//List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Enemy")).ToList());
-		List<Renderer> RendList = new List<Renderer>(gameObject.GetComponentsInChildren<Renderer>().Where(a => a.gameObject.layer == LayerMask.NameToLayer("Enemy")).Where(b => b.material.GetTexturePropertyNames().Any(c => c == "_VanishTexture")).ToList());
+		//消失用関数呼び出し
+		ObjectVanish(gameObject, t, 0,
 
-		//消滅用カウント
-		float VanishCount = 0;
-
-		//レンダラーを回す
-		foreach (var i in RendList)
+		//事前処理
+		(List<Renderer> R) =>
 		{
-			//アウトラインを切る為にレイヤーを変更
-			i.gameObject.layer = LayerMask.NameToLayer("Effect");
-
-			//スクリーンサイズから消失用テクスチャのスケーリングを設定
-			i.material.SetTextureScale("_VanishTexture", new Vector2(Screen.width / GameManagerScript.Instance.VanishTextureList[0].width, Screen.height / GameManagerScript.Instance.VanishTextureList[0].height) * GameManagerScript.Instance.ScreenResolutionScale);
-
-			//レンダラーのシャドウを切る
-			i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-
-			//描画順を変更
-			i.material.renderQueue = 3000;
-		}
-
-		while (VanishCount < t)
-		{
-			//マテリアルを回して消滅用数値を入れる
-			foreach (var i in RendList)
+			//レンダラーを回す
+			foreach (Renderer i in R)
 			{
-				i.material.SetTexture("_VanishTexture", GameManagerScript.Instance.VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(0, GameManagerScript.Instance.VanishTextureList.Count - 1, VanishCount / t))]);
+				//レンダラーのシャドウを切る
+				i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+				//レイヤーを変えてアウトラインを切る
+				i.gameObject.layer = LayerMask.NameToLayer("Effect");
+
+				//描画順を変えて後ろオブジェクトの影とかをちゃんと見えるようにする
+				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
+				{
+					//マテリアルの描画順を変更
+					ii.renderQueue = 3000;
+				}
 			}
-
-			//消滅用カウントアップ
-			VanishCount += Time.deltaTime;
-
-			//１フレーム待機
-			yield return null;
-		}
-
-		//マテリアルを回して消滅用数値を入れて完全に消す
-		foreach (var i in RendList)
+		},
+		//事後処理
+		(List<Renderer> R) =>
 		{
-			foreach (var ii in i.materials)
-			{
-				ii.SetFloat("_VanishNum", 1);
-			}
-		}
+			//自身を削除
+			Destroy(gameObject);
 
-		//自身を削除
-		Destroy(gameObject);
+		});
 	}
 
 	//プレイヤーキャラクターをセットする、キャラ交代した時にMissionManagerから呼ばれる

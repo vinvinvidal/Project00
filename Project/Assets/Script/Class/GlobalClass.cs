@@ -32,6 +32,117 @@ public class GlobalClass : MonoBehaviour
 		Weapon,				//武器用
 	}
 
+
+	/*
+	//セーブデータロード実行関数
+	public async void UserDataLoadAsync(string path, Action<UserDataClass> Act)
+	{
+		//retrun用変数宣言
+		UserDataClass re = null;
+
+		//非同期処理でセーブデータ読み込み、結果をreturn用変数に格納
+		re = await Task.Run(() =>
+		{
+			//Task内return用変数
+			UserDataClass LoadData = new UserDataClass();
+
+			//セーブファイルの存在確認
+			if (File.Exists(path))
+			{
+				// バイナリ形式でデシリアライズ
+				BinaryFormatter bf = new BinaryFormatter();
+
+				// 指定したパスのファイルストリームを開く
+				FileStream file = File.Open(path, FileMode.Open);
+
+				//例外処理をしてロード
+				try
+				{
+					// 指定したファイルストリームをオブジェクトにデシリアライズ。
+					LoadData = (UserDataClass)bf.Deserialize(file);
+				}
+				finally
+				{
+					//明示的破棄
+					if (file != null)
+					{
+						file.Close();
+					}
+				}
+			}
+
+			//出力
+			return LoadData;
+		});
+		*/
+
+
+	//消失用関数
+	public void ObjectVanish(GameObject OBJ, float T, int V, Action<List<Renderer>> BA, Action<List<Renderer>> AA)
+	{
+		//受け取ったオブジェクトの下にある消失テクスチャを持っているレンダラーを全て取得
+		List<Renderer> R = new List<Renderer>(OBJ.GetComponentsInChildren<Renderer>().Where(a => a.materials.Any(b => b.GetTexturePropertyNames().Any(c => c == "_VanishTexture"))).ToList());
+
+		//スクリーンサイズから消失用テクスチャのスケーリングを設定
+		foreach (var i in R)
+		{
+			i.material.SetTextureScale("_VanishTexture", new Vector2(Screen.width / GameManagerScript.Instance.VanishTextureList[0].width, Screen.height / GameManagerScript.Instance.VanishTextureList[0].height) * GameManagerScript.Instance.ScreenResolutionScale);
+		}
+
+		//事前処理用の匿名関数実行
+		BA(R);
+
+		//コルーチン呼び出し
+		StartCoroutine(ObjectVanishCoroutine(R, T, V, AA));
+	}
+	private IEnumerator ObjectVanishCoroutine(List<Renderer> R, float T, int V, Action<List<Renderer>> AA)
+	{
+		//経過時間宣言
+		float VanishTime = 0;
+
+		//開始番号
+		int StartNum = 0;
+
+		//終了番号
+		int EndNum = 0;
+
+		//消失
+		if (V == 0)
+		{
+			EndNum = GameManagerScript.Instance.VanishTextureList.Count - 1;			
+		}
+		//出現
+		else if (V == 1)
+		{
+			StartNum = GameManagerScript.Instance.VanishTextureList.Count - 1;
+		}
+
+		//経過時間まで回す
+		while (VanishTime < T)
+		{
+			//レンダラーを回して消失用テクスチャを入れる
+			foreach (Renderer i in R)
+			{
+				i.material.SetTexture("_VanishTexture", GameManagerScript.Instance.VanishTextureList[(int)Mathf.Ceil(Mathf.Lerp(StartNum, EndNum, VanishTime / T))]);
+			}
+
+			//消滅用カウントアップ
+			VanishTime += Time.deltaTime;
+
+			//１フレーム待機
+			yield return null;
+		}
+
+		//マテリアルを回して最終的なテクスチャを入れる
+		foreach (Renderer i in R)
+		{
+			i.material.SetTexture("_VanishTexture", GameManagerScript.Instance.VanishTextureList[EndNum]);
+		}
+
+		//事後処理用の匿名関数実行
+		AA(R);
+	}
+
 	//衣装用コライダをボーンに仕込む関数
 	public void SetCostumeCol(GameObject Character, GameObject Costume)
 	{

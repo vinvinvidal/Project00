@@ -77752,8 +77752,8 @@ AnimationClip:
   m_Events:
   - time: 0.5
     functionName: ChangeVanish
-    data: 0,0.25
+    data: 
     objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
+    floatParameter: 0.5
     intParameter: 0
     messageOptions: 0
