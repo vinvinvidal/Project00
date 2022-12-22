@@ -167,7 +167,7 @@ public class CharacterEyeShaderScript : GlobalClass , CharacterEyeShaderScriptIn
 			}
 
 			//上下移動
-			EyeOffset.y = Vector3.Dot(HeadAngle.up, EyeVec.normalized) * 0.15f;
+			EyeOffset.y = Vector3.Dot(HeadAngle.up, EyeVec.normalized) * 0.125f;
 
 			//視線を動かす
 			EyeMaterial.SetTextureOffset("_EyeTex", EyeOffset);

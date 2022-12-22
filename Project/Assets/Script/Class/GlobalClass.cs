@@ -127,7 +127,7 @@ public class GlobalClass : MonoBehaviour
 			}
 
 			//消滅用カウントアップ
-			VanishTime += Time.deltaTime;
+			VanishTime += Time.deltaTime;		
 
 			//１フレーム待機
 			yield return null;

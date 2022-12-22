@@ -982,17 +982,26 @@ public class SpecialArtsScript : GlobalClass, SpecialArtsScriptInterface
 						//飛び道具のRigidBody有効化
 						Weapon.GetComponent<Rigidbody>().isKinematic = false;
 
-						//飛び道具の関数を呼び出してこちらの攻撃にする
-						Weapon.GetComponent<ThrowWeaponScript>().PlyaerAttack();
+						//敵がちゃんといるかチェック
+						if (Enemy != null)
+						{
+							//飛び道具の関数を呼び出してこちらの攻撃にする
+							Weapon.GetComponent<ThrowWeaponScript>().PlyaerAttack();
 
-						//飛び道具にヒットエフェクトを渡す
-						Weapon.GetComponent<ThrowWeaponScript>().HitEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0];
+							//飛び道具にヒットエフェクトを渡す
+							Weapon.GetComponent<ThrowWeaponScript>().HitEffect = GameManagerScript.Instance.AllParticleEffectList.Where(a => a.name == "HitEffect12").ToArray()[0];
 
-						//飛び道具を敵に飛ばす
-						Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + (Vector3.up * 0.75f)) - Weapon.transform.position).normalized * 30, ForceMode.Impulse);
+							//飛び道具を敵に飛ばす
+							Weapon.GetComponent<Rigidbody>().AddForce(((Enemy.transform.position + (Vector3.up * 0.75f)) - Weapon.transform.position).normalized * 30, ForceMode.Impulse);
 
-						//飛び道具を回転させる
-						Weapon.GetComponent<Rigidbody>().AddTorque(Player.transform.right, ForceMode.Impulse);
+							//飛び道具を回転させる
+							Weapon.GetComponent<Rigidbody>().AddTorque(Player.transform.right, ForceMode.Impulse);
+						}
+						else
+						{
+							//飛び道具の関数を呼び出して消失させる
+							Weapon.GetComponent<ThrowWeaponScript>().BrokenWeapon();
+						}
 					}
 				);
 
