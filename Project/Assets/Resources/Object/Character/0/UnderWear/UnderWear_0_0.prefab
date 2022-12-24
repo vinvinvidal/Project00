@@ -632,7 +632,7 @@ MonoBehaviour:
   _TexHiLight: {fileID: 2800000, guid: 4bba8c49d1fbde04ba87ef28fce13317, type: 3}
   _TexLine: {fileID: 2800000, guid: af7ff1f7be451e048a53bf779173c858, type: 3}
   _HiLightMatCap: {fileID: 2800000, guid: b6c2cca6dc584dc4bb470e46b23c3729, type: 3}
-  CombineBaseFlag: 1
+  CombineBaseFlag: 0
   CombineTopsOffFlag: 1
   CombineBraOffFlag: 0
   CombinePantsOffFlag: 0

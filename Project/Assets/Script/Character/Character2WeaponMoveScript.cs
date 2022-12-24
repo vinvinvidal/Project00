@@ -400,7 +400,7 @@ public class Character2WeaponMoveScript : GlobalClass, Character2WeaponMoveInter
 			else
 			{
 				//前方座標取得
-				Vector3 ForwardPos = gameObject.transform.position + gameObject.transform.forward;
+				Vector3 ForwardPos = gameObject.transform.root.position + (gameObject.transform.root.forward * 10);
 
 				//高さをワイヤーの位置に合わせる
 				ForwardPos.y = BoneList[0].transform.position.y;

@@ -48,7 +48,7 @@
 
 			fixed4 _LightColor0;				//ライトカラー
 
-			vector VartexVector;
+			vector VartexVector;				//波打ちアニメーション用ベクトル
 
 			float WaveNum = 0;
 
@@ -91,13 +91,14 @@
 				vertex_output re;
 
 				//UVを格納
-				re.uv = v.uv;
+				re.uv = v.uv;				
 
 				//頂点をワールド座標に変換
 				v.pos = mul(unity_ObjectToWorld, v.pos);
 
 				//波打ちアニメーション
-				v.pos.y += (sin(round(v.vertColor.r * 10) + (-_Time.z * 10)) * 0.9) * v.vertColor.g * WaveNum;
+				v.pos.y += (sin(round(v.vertColor.r * 10) + (-_Time.z * 10)) * 0.9) * v.vertColor.g * WaveNum;				
+				v.pos.xz += VartexVector.xz * (sin(round(v.vertColor.r * 10) + ((-_Time.z + 0.5) * 10)) * 0.9) * v.vertColor.g * WaveNum;
 
 				//頂点をオブジェクト座標に戻す
 				v.pos = mul(unity_WorldToObject, v.pos);

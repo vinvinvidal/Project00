@@ -45,6 +45,9 @@ public class WireShaderScript : GlobalClass, WireShaderScriptInterface
 		//初期値、nが0なら1、1なら0になる
 		float i = 1 - n;
 
+		//シェーダーに波打ちベクトルを渡す
+		WireMaterial.SetVector("VartexVector", transform.right);
+
 		while (n * 10 != Mathf.Round(i * 10))
 		{
 			//波打ち制御変数に代入
