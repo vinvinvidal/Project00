@@ -113,7 +113,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//画面解像度
 	public int ScreenResolution;
 
+	//画面解像度候補
 	public List<Vector2> ScreenResolutionList;
+
+	//現在のモニター解像度
+	public Resolution CurrentScreenResolution;
 
 	//画面解像度倍率
 	public float ScreenResolutionScale;
@@ -407,19 +411,20 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	void Awake()
 	{
-		//マウスカーソル非表示
-		//Cursor.visible = false;
-
-		//起動時にスクリーンサイズを決定
-		//Screen.SetResolution(Screen.width, Screen.height, FullScreenMode.FullScreenWindow);
-
 		//フレームレートを設定
 		Application.targetFrameRate = FrameRate;
 
+		//モニター解像度をキャッシュ
+		CurrentScreenResolution = Screen.currentResolution;
+
+		//解像度候補をAdd
 		ScreenResolutionList = new List<Vector2>();
 
 		ScreenResolutionList.Add(new Vector2(1920, 1080));
+		//ScreenResolutionList.Add(new Vector2(1536, 864));
 		ScreenResolutionList.Add(new Vector2(1280, 720));
+		//ScreenResolutionList.Add(new Vector2(1152, 648));
+		ScreenResolutionList.Add(new Vector2(896, 504));
 		ScreenResolutionList.Add(new Vector2(640, 360));
 
 		//エディターモードじゃなければデベロップスイッチを切る
