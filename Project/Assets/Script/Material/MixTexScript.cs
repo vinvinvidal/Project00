@@ -24,37 +24,19 @@ public class MixTexScript : GlobalClass
 	//ポストエフェクトに使用するテクスチャをレンダリングするサブカメラ
 	private Camera PostEffectCamera;
 
-	//画面最大解像度
-	private Vector2 MaxRes;
-
 	//レンダーテクスチャ
 	private RenderTexture RendTex;
 
 	void Start()
 	{
-		//画面最大解像度取得
-		MaxRes = new Vector2(Screen.width, Screen.height);
-
-		//レンダーテクスチャーを作成
-		RendTex = new RenderTexture((int)(MaxRes.x * GameManagerScript.Instance.ScreenResolutionScale), (int)(MaxRes.y * GameManagerScript.Instance.ScreenResolutionScale), 0, RenderTextureFormat.ARGB32);
-
 		//自身のカメラ取得
 		MainCamera = GetComponent<Camera>();
 
 		//ディスプレイに描画するルートカメラ取得
 		RootCamera = transform.parent.GetComponent<Camera>();
 
-		//コマンドバッファ宣言
-		CommandBuffer CmdBuffer = new CommandBuffer();
-
-		//メッシュのレンダリング結果とUIカメラのレンダリング結果をブレンド
-		CmdBuffer.Blit((RenderTargetIdentifier)RendTex, BuiltinRenderTextureType.CameraTarget);
-
-		//メインカメラにコマンドバッファをAdd
-		RootCamera.AddCommandBuffer(CameraEvent.AfterEverything, CmdBuffer);
-
-		//レンダーテクスチャ設定
-		MainCamera.targetTexture = RendTex;
+		//レンダーテクスチャ更新
+		TextureRefresh();
 
 		//ポストエフェクトに使用するテクスチャをレンダリングするサブカメラを取得
 		PostEffectCamera = GameObject.Find("PostEffectCamera").GetComponent<Camera>();
@@ -63,13 +45,37 @@ public class MixTexScript : GlobalClass
 	//レンダリングが完了すると呼ばれる
 	void OnRenderImage(RenderTexture src, RenderTexture dest)
 	{
-		//スクリーンバッファ取得
-		//Graphics.Blit(src, GameManagerScript.Instance.ScreenTexture);
-
 		//テクスチャ合成シェーダーにポストエフェクト用レンダーテクスチャを渡す
 		MixTexMaterial.SetTexture("_EffectTex", PostEffectCamera.targetTexture);
 
 		//シェーダー呼び出しテクスチャを合成して画面に描画
 		Graphics.Blit(src, dest, MixTexMaterial);
+	}
+
+	//テクスチャフォーマット更新関数
+	public void TextureRefresh()
+	{
+		//コルーチン呼び出し
+		StartCoroutine(TextureRefreshCoroutine());
+	}
+	private IEnumerator TextureRefreshCoroutine()
+	{
+		//１フレーム待機
+		yield return null;
+
+		//画面サイズからテクスチャを生成
+		RendTex = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32);
+
+		//レンダーテクスチャ設定
+		MainCamera.targetTexture = RendTex;
+
+		//コマンドバッファ宣言
+		CommandBuffer CmdBuffer = new CommandBuffer();
+
+		//メッシュのレンダリング結果とUIカメラのレンダリング結果をブレンド
+		CmdBuffer.Blit((RenderTargetIdentifier)RendTex, BuiltinRenderTextureType.CameraTarget);
+
+		//最終出力カメラにコマンドバッファをAdd
+		RootCamera.AddCommandBuffer(CameraEvent.AfterEverything, CmdBuffer);
 	}
 }

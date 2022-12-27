@@ -110,7 +110,8 @@ public class Scene01_MainMenuScript : GlobalClass
 	private enum CurrentModeEnum
 	{
 		MainMenu,           //メインメニュー
-		Customize,			//カスタマイズメニュー
+		Customize,          //カスタマイズメニュー
+		Option,		       //オプションメニュー
 		Arts,				//技装備
 		Costume,			//衣装装備
 	}
@@ -611,6 +612,73 @@ public class Scene01_MainMenuScript : GlobalClass
 					NextScene("Scene10_Mission");
 				}));
 			});
+		}
+	}
+
+	//オプションがSubmitされた時の処理
+	public void OptionSubmit()
+	{
+		if (InputReadyFlag)
+		{
+			//入力許可フラグを下ろす
+			InputReadyFlag = false;
+
+			//メニューモードをオプションに
+			CurrentMode = CurrentModeEnum.Option;
+
+			//アニメーターのフラグを立てる
+			UIAnim.SetBool("MainMenu_Show", false);
+			UIAnim.SetBool("MainMenu_Vanish", true);
+			UIAnim.SetBool("Option_Show", true);
+			UIAnim.SetBool("Option_Vanish", false);
+
+			//カメラワーク再生
+			CameraWorkOBJ.GetComponent<CinemachineCameraScript>().ForceCameraWorkChange(3);
+		}
+	}
+
+	//フルスクリーンモードがSubmitされた時の処理
+	public void FullScreenSubmit()
+	{
+		ChangeResolution(true, GameManagerScript.Instance.UserData.Reso);
+	}
+
+	//ウィンドウモードがSubmitされた時の処理
+	public void WindowSubmit()
+	{
+		ChangeResolution(false, GameManagerScript.Instance.UserData.Reso);
+	}
+
+	//各解像度がSubmitされた時の処理
+	public void HiResSubmit()
+	{
+		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 0);
+	}
+	public void MidResSubmit()
+	{
+		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 1);
+	}
+	public void LowResSubmit()
+	{
+		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 2);
+	}
+
+	//オプションでCancelされた時の処理
+	public void OptionCancel()
+	{
+		if (InputReadyFlag)
+		{
+			//入力許可フラグを下ろす
+			InputReadyFlag = false;
+
+			//メニューモードをメインメニューに
+			CurrentMode = CurrentModeEnum.MainMenu;
+
+			//アニメーターのフラグを立てる
+			UIAnim.SetBool("Option_Vanish", true);
+			UIAnim.SetBool("Option_Show", false);
+			UIAnim.SetBool("MainMenu_Show", true);
+			UIAnim.SetBool("MainMenu_Vanish", false);
 		}
 	}
 
@@ -1636,6 +1704,13 @@ public class Scene01_MainMenuScript : GlobalClass
 
 		//武器ボタンリスト初期化
 		WeaponSelectButtonList = new List<GameObject>();
+	}
+
+	//オプション有効、アニメーションクリップから呼ばれる
+	public void OptionActive()
+	{
+		//選択状態のボタンを切り替え
+		EventSystemUI.SetSelectedGameObject(GameObject.Find("FullScreenButton"));
 	}
 
 	//入力許可フラグを立てる、アニメーションクリップから呼ばれる

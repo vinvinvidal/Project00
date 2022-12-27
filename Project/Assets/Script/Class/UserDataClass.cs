@@ -10,6 +10,12 @@ public class UserDataClass
 	//初回起動フラグ
 	public bool FirstPlay;
 
+	//フルスクリーンモード
+	public bool FullScreen;
+
+	//解像度設定
+	public int Reso;
+
 	//スコア
 	public int Score;
 

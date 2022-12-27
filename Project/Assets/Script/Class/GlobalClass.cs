@@ -76,6 +76,27 @@ public class GlobalClass : MonoBehaviour
 		});
 		*/
 
+	//画面解像度変更
+	public void ChangeResolution(bool full, int Reso)
+	{
+		//スクリーンモードによってマウスカーソルの表示切り替え
+		Cursor.visible = !full;
+
+		//解像度変更
+		Screen.SetResolution((int)GameManagerScript.Instance.ScreenResolutionList[Reso].x, (int)GameManagerScript.Instance.ScreenResolutionList[Reso].y, full);
+
+		//セーブデータのフルスクリーンモード変更
+		GameManagerScript.Instance.UserData.FullScreen = full;
+
+		//セーブデータの解像度値変更
+		GameManagerScript.Instance.UserData.Reso = Reso;
+
+		//アウトライン用テクスチャ更新
+		GameManagerScript.Instance.GetMainCameraOBJ().GetComponentInChildren<OutLineScript>().TextureRefresh();
+
+		//最終出力用テクスチャ更新
+		GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<MixTexScript>().TextureRefresh();
+	}
 
 	//消失用関数
 	public void ObjectVanish(GameObject OBJ, float T, int V, Action<List<Renderer>> BA, Action<List<Renderer>> AA)

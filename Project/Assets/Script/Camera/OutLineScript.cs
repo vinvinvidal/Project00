@@ -41,7 +41,7 @@ public class OutLineScript : GlobalClass
 	{
 		//アウトラインをレンダリングするテクスチャ作成
 		//OutLineTexture = new RenderTexture(Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.x), Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.y), 8, RenderTextureFormat.ARGB32);
-		OutLineTexture = new RenderTexture((int)(Screen.width * GameManagerScript.Instance.ScreenResolutionScale), (int)(Screen.height * GameManagerScript.Instance.ScreenResolutionScale), 8, RenderTextureFormat.ARGB32);
+		//OutLineTexture = new RenderTexture((int)GameManagerScript.Instance.ScreenResolutionList[GameManagerScript.Instance.UserData.Reso].x, (int)GameManagerScript.Instance.ScreenResolutionList[GameManagerScript.Instance.UserData.Reso].y, 8, RenderTextureFormat.ARGB32);
 
 		//マスキングをレンダリングするテクスチャ作成
 		//MaskingTexture = new RenderTexture(Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.x * 0.05f) , Mathf.RoundToInt(GameManagerScript.Instance.ScreenResolution * GameManagerScript.Instance.ScreenAspect.y * 0.05f), 24, RenderTextureFormat.ARGB32);
@@ -51,6 +51,9 @@ public class OutLineScript : GlobalClass
 
 		//ポストエフェクトカメラ取得
 		PostEffectCamera = GetComponent<Camera>();
+
+		//アウトラインをレンダリングするテクスチャ作成
+		TextureRefresh();
 
 		//最も離れているキャラクターとの距離初期化
 		Distance = 0.0f;
@@ -62,7 +65,7 @@ public class OutLineScript : GlobalClass
 		PostEffectCamera.backgroundColor = new Color(0, 0, 0, 0);
 
 		//レンダリングテクスチャをセット
-		PostEffectCamera.targetTexture = OutLineTexture;
+		//PostEffectCamera.targetTexture = OutLineTexture;
 
 		//カメラをデプスバッファと法線バッファをレンダリングするモードにする
 		PostEffectCamera.depthTextureMode |= DepthTextureMode.DepthNormals;
@@ -186,5 +189,26 @@ public class OutLineScript : GlobalClass
 			//シェーダー呼び出しレンダーテクスチャに保存
 			Graphics.Blit(src, dest, OutLineMaterial);
 		}*/
+	}
+
+	//テクスチャフォーマット更新関数
+	public void TextureRefresh()
+	{
+		//画面サイズからテクスチャを生成
+		//OutLineTexture = new RenderTexture((int)GameManagerScript.Instance.ScreenResolutionList[GameManagerScript.Instance.UserData.Reso].x, (int)GameManagerScript.Instance.ScreenResolutionList[GameManagerScript.Instance.UserData.Reso].y, 8, RenderTextureFormat.ARGB32);
+
+		//コルーチン呼び出し
+		StartCoroutine(TextureRefreshCoroutine());
+	}
+	private IEnumerator TextureRefreshCoroutine()
+	{
+		//１フレーム待機
+		yield return null;
+
+		//画面サイズからテクスチャを生成
+		OutLineTexture = new RenderTexture(Screen.width, Screen.height, 8, RenderTextureFormat.ARGB32);
+
+		//レンダリングテクスチャをセット
+		PostEffectCamera.targetTexture = OutLineTexture;
 	}
 }

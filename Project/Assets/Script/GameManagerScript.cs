@@ -113,6 +113,8 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//画面解像度
 	public int ScreenResolution;
 
+	public List<Vector2> ScreenResolutionList;
+
 	//画面解像度倍率
 	public float ScreenResolutionScale;
 
@@ -208,8 +210,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//使用中のスカイボックス
 	private Material SkyBoxMaterial;
 
-	//スクリーンバッファ用レンダーテクスチャ
-	public RenderTexture ScreenTexture { get; set; }
 
 
 
@@ -408,13 +408,25 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	void Awake()
 	{
 		//マウスカーソル非表示
-		Cursor.visible = false;
+		//Cursor.visible = false;
 
 		//起動時にスクリーンサイズを決定
-		Screen.SetResolution(Screen.width, Screen.height, FullScreenMode.FullScreenWindow);		
+		//Screen.SetResolution(Screen.width, Screen.height, FullScreenMode.FullScreenWindow);
 
 		//フレームレートを設定
 		Application.targetFrameRate = FrameRate;
+
+		ScreenResolutionList = new List<Vector2>();
+
+		ScreenResolutionList.Add(new Vector2(1920, 1080));
+		ScreenResolutionList.Add(new Vector2(1280, 720));
+		ScreenResolutionList.Add(new Vector2(640, 360));
+
+		//エディターモードじゃなければデベロップスイッチを切る
+		if (!Application.isEditor)
+		{
+			DevSwicth = false;
+		}
 
 		//シーン遷移してもユニーク性を保つようにする関数呼び出し
 		Singleton();
@@ -430,9 +442,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 		//バーチャルカメラ取得
 		VCamera = DeepFind(gameObject , "MasterVcam").GetComponent<CinemachineVirtualCamera>();
-
-		//スクリーンバッファ用レンダーテクスチャ初期化
-		ScreenTexture = new RenderTexture((int)(Screen.width * GameManagerScript.Instance.ScreenResolutionScale), (int)(Screen.height * GameManagerScript.Instance.ScreenResolutionScale), 0, RenderTextureFormat.ARGB32);
 
 		//ミッションUIスクリプト取得
 		MissionUI = DeepFind(gameObject, "MissionUI").GetComponent<MissionUIScript>();
@@ -460,7 +469,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		FrameCount = 0;
 		PrevTime = 0.0f;
 		NextTime = 0.0f;
-
 
 		//ゲームデータ読み込みコルーチン呼び出し
 		StartCoroutine(LoadGameData());
@@ -494,6 +502,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//1フレーム待機
 			yield return null;
 		}
+
+		//スクリーンサイズを決定
+		ChangeResolution(UserData.FullScreen, UserData.Reso);
 
 		//消失用テクスチャ読み込み
 		StartCoroutine(AllFileLoadCoroutine("Texture/VanishTexture/", "tga", (List<object> list) =>
@@ -3025,6 +3036,10 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		UserDataClass re = new UserDataClass();
 
 		re.FirstPlay = true;
+
+		re.FullScreen = true;
+
+		re.Reso = 0;
 
 		re.Score = 0;
 
