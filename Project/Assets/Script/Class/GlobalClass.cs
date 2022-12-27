@@ -79,6 +79,10 @@ public class GlobalClass : MonoBehaviour
 	//画面解像度変更
 	public void ChangeResolution(bool full, int Reso)
 	{
+		StartCoroutine(ChangeResolutionCoroutin(full,Reso));		
+	}
+	private IEnumerator ChangeResolutionCoroutin(bool full, int Reso)
+	{
 		//スクリーンモードによってマウスカーソルの表示切り替え
 		Cursor.visible = !full;
 
@@ -96,7 +100,16 @@ public class GlobalClass : MonoBehaviour
 
 		//最終出力用テクスチャ更新
 		GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<MixTexScript>().TextureRefresh();
+
+		//1フレーム待機
+		yield return null;
+
+		if(Screen.currentResolution.width < GameManagerScript.Instance.ScreenResolutionList[Reso].x)
+		{
+			ChangeResolution(full, Reso + 1);
+		}
 	}
+
 
 	//消失用関数
 	public void ObjectVanish(GameObject OBJ, float T, int V, Action<List<Renderer>> BA, Action<List<Renderer>> AA)
@@ -350,7 +363,8 @@ public class GlobalClass : MonoBehaviour
 	public Vector3 UIPosition(CanvasScaler Scaler, RectTransform Rect, Vector3 Pos)
 	{
 		//UI座標に3D用レンダーテクスチャとUIキャンバスサイズ比率を掛けて出力
-		return GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<Camera>().WorldToScreenPoint(Pos) * (Scaler.referenceResolution.x * Rect.localScale.x) / (Screen.width * GameManagerScript.Instance.ScreenResolutionScale);
+		//return GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<Camera>().WorldToScreenPoint(Pos) * (Scaler.referenceResolution.x * Rect.localScale.x) / (Screen.width * GameManagerScript.Instance.ScreenResolutionScale);
+		return GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<Camera>().WorldToScreenPoint(Pos);
 	}
 
 	//受け取ったボディシェーダー使用のスキンメッシュを統合する関数、これをやる時は元のキャラクターがワールド原点にいて、モーション再生されていないTスタンス状態で処理すること
