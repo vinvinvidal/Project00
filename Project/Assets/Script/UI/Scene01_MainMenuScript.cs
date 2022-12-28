@@ -656,15 +656,15 @@ public class Scene01_MainMenuScript : GlobalClass
 	}
 	public void MidResSubmit()
 	{
-		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 1);
+		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 2);
 	}
 	public void LowResSubmit()
 	{
-		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 2);
+		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 4);
 	}
 	public void VeryLowResSubmit()
 	{
-		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 3);
+		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 6);
 	}
 	//オプションでCancelされた時の処理
 	public void OptionCancel()

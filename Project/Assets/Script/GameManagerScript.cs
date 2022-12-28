@@ -116,9 +116,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//画面解像度候補
 	public List<Vector2> ScreenResolutionList;
 
-	//現在のモニター解像度
-	public Resolution CurrentScreenResolution;
-
 	//画面解像度倍率
 	public float ScreenResolutionScale;
 
@@ -414,18 +411,19 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//フレームレートを設定
 		Application.targetFrameRate = FrameRate;
 
-		//モニター解像度をキャッシュ
-		CurrentScreenResolution = Screen.currentResolution;
-
 		//解像度候補をAdd
 		ScreenResolutionList = new List<Vector2>();
 
 		ScreenResolutionList.Add(new Vector2(1920, 1080));
-		//ScreenResolutionList.Add(new Vector2(1536, 864));
+		ScreenResolutionList.Add(new Vector2(1536, 864));
 		ScreenResolutionList.Add(new Vector2(1280, 720));
-		//ScreenResolutionList.Add(new Vector2(1152, 648));
+		ScreenResolutionList.Add(new Vector2(1152, 648));
+		ScreenResolutionList.Add(new Vector2(1024, 576));
 		ScreenResolutionList.Add(new Vector2(896, 504));
+		ScreenResolutionList.Add(new Vector2(768, 432));
 		ScreenResolutionList.Add(new Vector2(640, 360));
+		ScreenResolutionList.Add(new Vector2(512, 288));
+		ScreenResolutionList.Add(new Vector2(256, 144));
 
 		//エディターモードじゃなければデベロップスイッチを切る
 		if (!Application.isEditor)
@@ -507,9 +505,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//1フレーム待機
 			yield return null;
 		}
-
-		//スクリーンサイズを決定
-		ChangeResolution(UserData.FullScreen, UserData.Reso);
 
 		//消失用テクスチャ読み込み
 		StartCoroutine(AllFileLoadCoroutine("Texture/VanishTexture/", "tga", (List<object> list) =>

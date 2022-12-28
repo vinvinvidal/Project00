@@ -86,8 +86,46 @@ public class GlobalClass : MonoBehaviour
 		//スクリーンモードによってマウスカーソルの表示切り替え
 		Cursor.visible = !full;
 
-		//解像度変更
-		Screen.SetResolution((int)GameManagerScript.Instance.ScreenResolutionList[Reso].x, (int)GameManagerScript.Instance.ScreenResolutionList[Reso].y, full);
+		//一旦ウィンドウモードにする
+		Screen.SetResolution(0, 0, false);
+
+		//1フレーム待機して反映を待つ
+		yield return null;
+
+		//モニター解像度取得
+		int TempWidth = Screen.currentResolution.width;
+
+		//ループカウント
+		int count = 0;
+
+		//一番大きい解像度候補を選出
+		foreach(var i in GameManagerScript.Instance.ScreenResolutionList)
+		{
+			if(TempWidth >= i.x)
+			{
+				//見付かったらブレーク
+				break;
+			}
+
+			//カウントアップ
+			count++;
+		}
+
+		//指定された解像度があるか確認
+		if (GameManagerScript.Instance.ScreenResolutionList.Count > Reso + count)
+		{
+			//解像度変更
+			Screen.SetResolution((int)GameManagerScript.Instance.ScreenResolutionList[Reso + count].x, (int)GameManagerScript.Instance.ScreenResolutionList[Reso + count].y, full);
+
+			//Reso += count;
+		}
+		//無ければ最低解像度
+		else
+		{
+			Screen.SetResolution((int)GameManagerScript.Instance.ScreenResolutionList[GameManagerScript.Instance.ScreenResolutionList.Count - 1].x, (int)GameManagerScript.Instance.ScreenResolutionList[GameManagerScript.Instance.ScreenResolutionList.Count - 1].y, full);
+
+			//Reso = GameManagerScript.Instance.ScreenResolutionList.Count - 1;
+		}
 
 		//セーブデータのフルスクリーンモード変更
 		GameManagerScript.Instance.UserData.FullScreen = full;
@@ -100,14 +138,6 @@ public class GlobalClass : MonoBehaviour
 
 		//最終出力用テクスチャ更新
 		GameManagerScript.Instance.GetMainCameraOBJ().GetComponent<MixTexScript>().TextureRefresh();
-
-		//1フレーム待機
-		yield return null;
-
-		if(Screen.currentResolution.width < GameManagerScript.Instance.ScreenResolutionList[Reso].x)
-		{
-			ChangeResolution(full, Reso + 1);
-		}
 	}
 
 
