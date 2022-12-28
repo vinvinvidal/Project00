@@ -2,14 +2,14 @@ NameC,蟻殲
 NameH,ありつくし
 UseCharacter,2
 Anim,Motion_2_GroundAttack07
-MoveVec,0*0*2*1|0*0*1*1|0*9*0*1
+MoveVec,0*0*2*1|0*0*1*1|0*8*0*1
 Damage,0
 Stun,1
 Deadly,1
 ColVec,0*0.25*0.25*1
 KnockBackVec,0*7*0*0.1
 Introduction,足元で爆発を起こし自身も上昇する。打ち上げ。
-UnLock,100|100|100
+UnLock,0|1|2
 Chain,0
 MoveType,0|0|2
 AttackType,11
@@ -23,5 +23,5 @@ HitStop,0
 Charge,0
 HoldPos,0*0*0
 LocationFlag,0
-HitSE,_H
+HitSE,_M
 CoolDownTime,10

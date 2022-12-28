@@ -9,7 +9,7 @@ Deadly,1
 ColVec,0*1.25*1*1
 KnockBackVec,0*2*2*0.1
 Introduction,空中で爆発を発生させ高速の手刀で突進する
-UnLock,100|100|100
+UnLock,1|1|0
 Chain,0
 MoveType,1|7|0|0
 AttackType,20

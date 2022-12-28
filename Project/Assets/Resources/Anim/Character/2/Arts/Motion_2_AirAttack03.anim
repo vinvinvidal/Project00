@@ -135972,25 +135972,11 @@ AnimationClip:
     floatParameter: 0
     intParameter: 100
     messageOptions: 0
-  - time: 0.15
-    functionName: BombThrow
-    data: S,0,0,0,1,-0.5,0
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
   - time: 0.16666667
     functionName: StartAttackTrail
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.18333334
-    functionName: FootSmoke
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0.5
     intParameter: 0
     messageOptions: 0
   - time: 0.23333333
