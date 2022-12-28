@@ -650,21 +650,25 @@ public class Scene01_MainMenuScript : GlobalClass
 	}
 
 	//各解像度がSubmitされた時の処理
-	public void HiResSubmit()
+	public void VeryHiResSubmit()
 	{
 		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 0);
 	}
-	public void MidResSubmit()
+	public void HiResSubmit()
 	{
 		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 2);
 	}
-	public void LowResSubmit()
+	public void MidResSubmit()
 	{
 		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 4);
 	}
-	public void VeryLowResSubmit()
+	public void LowResSubmit()
 	{
 		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 6);
+	}
+	public void VeryLowResSubmit()
+	{
+		ChangeResolution(GameManagerScript.Instance.UserData.FullScreen, 8);
 	}
 	//オプションでCancelされた時の処理
 	public void OptionCancel()
