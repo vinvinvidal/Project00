@@ -1017,6 +1017,9 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 				//アニメーターのフラグを下ろす
 				CurrentAnimator.SetBool("Walk", false);
 
+				//行動中フラグを下ろす
+				EnemyScript.BehaviorFlag = false;
+
 				goto AbductionBreak;
 			}
 
@@ -1045,8 +1048,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//行動不能になったらブレイク
 			if (PlayerHorizontalDistance < 3 || !EnemyScript.BehaviorFlag || !GameManagerScript.Instance.DownCharacterList.Any(a => a == TargetCharacter))
 			{
-				//アニメーターのフラグを下ろす
-				CurrentAnimator.SetBool("Run", false);
+				//行動中フラグを下ろす
+				EnemyScript.BehaviorFlag = false;
 
 				goto AbductionBreak;
 			}
@@ -1076,8 +1079,8 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//行動不能になったらブレイク
 			if (!EnemyScript.BehaviorFlag || !GameManagerScript.Instance.DownCharacterList.Any(a => a == TargetCharacter))
 			{
-				//アニメーターのフラグを下ろす
-				CurrentAnimator.SetBool("Walk", false);
+				//行動中フラグを下ろす
+				EnemyScript.BehaviorFlag = false;
 
 				goto AbductionBreak;
 			}
@@ -1098,22 +1101,23 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			//アニメーターフラグを立てる
 			CurrentAnimator.SetBool("Abduction", true);
 		}
+		//残って無かったらブレーク
 		else
 		{
-			//アニメーターのフラグを下ろす
-			CurrentAnimator.SetBool("Abduction", false);
+			//行動中フラグを下ろす
+			EnemyScript.BehaviorFlag = false;
 
 			goto AbductionBreak;
 		}
 
-		//拉致成功までループ
-		while(!EnemyScript.AbductionSuccess_Flag)
+		//拉致抱えまでループ
+		while (!EnemyScript.AbductionTry_Flag)
 		{
 			//行動不能になったらブレイク
 			if (!EnemyScript.BehaviorFlag)
 			{
-				//アニメーターのフラグを下ろす
-				CurrentAnimator.SetBool("Abduction", false);
+				//行動中フラグを下ろす
+				EnemyScript.BehaviorFlag = false;
 
 				goto AbductionBreak;
 			}
@@ -1122,6 +1126,126 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 			yield return null;
 		}
 
+		//プレイヤーキャラクターの拉致られ処理呼び出し
+		TargetCharacter.GetComponent<PlayerScript>().PlayerAbduction(gameObject);
+
+		//拉致成功までループ
+		while (!EnemyScript.AbductionSuccess_Flag)
+		{
+			//行動不能になったらブレイク
+			if (!EnemyScript.BehaviorFlag)
+			{
+				//プレイヤーを解放
+				TargetCharacter.GetComponent<Animator>().SetBool("Abduction", false);
+				TargetCharacter.GetComponent<Animator>().SetBool("Down", true);
+
+				//行動中フラグを下ろす
+				EnemyScript.BehaviorFlag = false;
+
+				goto AbductionBreak;
+			}
+
+			//1フレーム待機
+			yield return null;
+		}
+
+		//敵消失用関数呼び出し
+		ObjectVanish(gameObject, 0.5f, 0,
+		//事前処理
+		(List<Renderer> R) =>
+		{
+			//現在ロックしている敵受け取り変数
+			GameObject tempOBJ = null;
+
+			//現在ロックしている敵を取得
+			ExecuteEvents.Execute<PlayerScriptInterface>(PlayerCharacter, null, (reciever, eventData) => tempOBJ = reciever.GetLockEnemy());
+
+			//自分がロックされていたらロックオンマーカーを消す
+			if (tempOBJ == gameObject)
+			{
+				//ロックオンマーカーを消す
+				GameManagerScript.Instance.LockOnMarker.LockOff();
+			}
+
+			//ゲームマネージャーのListから自身を削除
+			ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(EnemyScript.ListIndex));
+
+			//ダウンしているキャラクターリストからターゲットを削除
+			GameManagerScript.Instance.DownCharacterList.Remove(TargetCharacter);
+
+			//レンダラーを回す
+			foreach (Renderer i in R)
+			{
+				//レンダラーのシャドウを切る
+				i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+				//レイヤーを変えてアウトラインを切る
+				i.gameObject.layer = LayerMask.NameToLayer("Effect");
+
+				//描画順を変えて後ろオブジェクトの影とかをちゃんと見えるようにする
+				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
+				{
+					//マテリアルの描画順を変更
+					ii.renderQueue = 3000;
+				}
+			}
+		},
+		//事後処理
+		(List<Renderer> R) =>
+		{
+			//自身を削除
+			Destroy(gameObject);
+		});
+
+		//プレイヤーキャラクター消失用関数呼び出し
+		ObjectVanish(TargetCharacter, 0.5f, 0,
+		//事前処理
+		(List<Renderer> R) =>
+		{
+			//レンダラーを回す
+			foreach (Renderer i in R)
+			{
+				//レンダラーのシャドウを切る
+				i.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+				//レイヤーを変えてアウトラインを切る
+				i.gameObject.layer = LayerMask.NameToLayer("Effect");
+
+				//描画順を変えて後ろオブジェクトの影とかをちゃんと見えるようにする
+				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
+				{
+					//マテリアルの描画順を変更
+					ii.renderQueue = 3000;
+				}
+			}
+		},
+		//事後処理
+		(List<Renderer> R) =>
+		{
+			//自身を無効化
+			TargetCharacter.SetActive(false);
+		});
+
+		//ループを抜ける先、拉致失敗したらここにくる
+		AbductionBreak:;
+
+		//アニメーターのフラグを下す
+		CurrentAnimator.SetBool("Walk", false);
+
+		//アニメーターのフラグを下す
+		CurrentAnimator.SetBool("Run", false);
+
+		//アニメーターのフラグを下ろす
+		CurrentAnimator.SetBool("Abduction", false);
+
+		//拉致抱えフラグを下ろす
+		EnemyScript.AbductionTry_Flag = false;
+
+		//拉致フラグを下す
+		EnemyScript.Abduction_Flag = false;
+
+
+		/*
 		//現在ロックしている敵受け取り変数
 		GameObject tempOBJ = null;
 
@@ -1143,9 +1267,6 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//オブジェクト消失処理呼び出し
 		EnemyScript.AbductionVanis(1, 0.75f);
-
-		//ループを抜ける先
-		AbductionBreak:;
 
 		//アニメーターのフラグを下す
 		CurrentAnimator.SetBool("Walk", false);
@@ -1170,6 +1291,7 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 
 		//待機
 		yield return null;
+		*/
 	}
 
 	//プレイヤーキャラクターを更新する

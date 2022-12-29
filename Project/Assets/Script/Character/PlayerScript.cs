@@ -2765,10 +2765,10 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			yield return null;
 		}
 
-		//敵が消えるまでループ
-		while (AbductionPosOBJ != null)
+		//拉致られてる間は継続
+		while (CurrentState == "Abduction")
 		{
-			//1フレーム待機、これを下にすると多分Missingが起きる、削除直後では完全なNullにならないっぽい
+			//1フレーム待機
 			yield return null;
 
 			if(AbductionPosOBJ != null)
@@ -5496,21 +5496,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			ExecuteEvents.Execute<SpecialArtsScriptInterface>(gameObject, null, (reciever, eventData) => reciever.DropStockWeapon());
 
 		}
-		//Downになった瞬間の処理
-		else if (s.Contains("-> Down"))
-		{
-			//アニメーターの遷移フラグを下す
-			CurrentAnimator.SetBool("Down", false);
-		}
-		//Revivalになった瞬間の処理
-		else if (s.Contains("-> Revival"))
-		{
-			//アニメーターの遷移フラグを下す
-			CurrentAnimator.SetBool("Down", false);
-
-			//アニメーターの遷移フラグを下す
-			CurrentAnimator.SetBool("Revival", false);
-		}		
 		//SpecialTryになった瞬間の処理
 		else if (s.Contains("-> SpecialTry"))
 		{
@@ -5616,6 +5601,21 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//超必殺技モーション同期コルーチン呼び出し
 			StartCoroutine(SuperArtsSyncCoroutine()); 			
+		}
+		//Downになった瞬間の処理
+		else if (s.Contains("-> Down"))
+		{
+			//アニメーターの遷移フラグを下す
+			CurrentAnimator.SetBool("Down", false);
+		}
+		//Revivalになった瞬間の処理
+		else if (s.Contains("-> Revival"))
+		{
+			//アニメーターの遷移フラグを下す
+			CurrentAnimator.SetBool("Down", false);
+
+			//アニメーターの遷移フラグを下す
+			CurrentAnimator.SetBool("Revival", false);
 		}
 
 		//スケベブレイクから遷移した瞬間の処理
@@ -6308,14 +6308,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		ExecuteEvents.Execute<MainCameraScriptInterface>(MainCameraTransform.parent.gameObject, null, (reciever, eventData) => reciever.SetLockEnemy(LockEnemy));
 	}
 
-
-
 	//ノックダウン処理
 	private void KnockDown()
 	{
-		//ゲームマネージャーのダウンしているキャラクターに自身を加える
-		GameManagerScript.Instance.DownCharacterList.Add(gameObject);
-
 		//ゲームマネージャーの操作可能キャラクターから自分を外す
 		GameManagerScript.Instance.RemoveAllActiveCharacterList(AllActiveCharacterListIndex);
 
@@ -6332,21 +6327,28 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//攻撃コライダを無効化
 			EndAttackCol();
 
-			//キャラ交代処理を呼び出す
-			GameManagerScript.Instance.ChangePlayableCharacter
-			(
-				true,
-				//CharacterID,
-				AllActiveCharacterListIndex,
-				1,
-				LockEnemy,
-				//BattleFlag, 
-				true,
-				ChangeTime,
-				CurrentAnimator.GetBool("Combo"),
-				CurrentAnimator.GetBool("Fall"),
-				GroundDistance
-			);
+			//拉致救出とかの場合はすでにダウン状態なので処理を飛ばす
+			if (!GameManagerScript.Instance.DownCharacterList.Any(a => a == gameObject))
+			{
+				//ゲームマネージャーのダウンしているキャラクターに自身を加える
+				GameManagerScript.Instance.DownCharacterList.Add(gameObject);
+
+				//キャラ交代処理を呼び出す
+				GameManagerScript.Instance.ChangePlayableCharacter
+				(
+					true,
+					//CharacterID,
+					AllActiveCharacterListIndex,
+					1,
+					LockEnemy,
+					//BattleFlag, 
+					true,
+					ChangeTime,
+					CurrentAnimator.GetBool("Combo"),
+					CurrentAnimator.GetBool("Fall"),
+					GroundDistance
+				);
+			}
 
 			//復活コルーチン呼び出し
 			StartCoroutine(RevivalCoroutine());
@@ -6381,14 +6383,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//アニメーターの遷移フラグを立てる
 		CurrentAnimator.SetBool("Revival", true);
 
+		//ダウンしているキャラクターリストから自身を削除
+		GameManagerScript.Instance.DownCharacterList.Remove(gameObject);
+
 		//ブレーク先
 		Abduction:;
 
 		//復活時間をリセット
 		RevivalTime = T;
-		
-		//ダウンしているキャラクターリストから自身を削除
-		GameManagerScript.Instance.DownCharacterList.Remove(gameObject);
 	}
 
 	//スケベフラグを戻す処理、とりあえずなので後で消す

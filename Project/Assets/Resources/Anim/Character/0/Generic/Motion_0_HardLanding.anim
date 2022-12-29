@@ -81541,9 +81541,9 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0
-    functionName: FootImpact
-    data: -90,0,0,0,0,0
+    functionName: PlayGenericSE
+    data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 0
+    intParameter: 1
     messageOptions: 0

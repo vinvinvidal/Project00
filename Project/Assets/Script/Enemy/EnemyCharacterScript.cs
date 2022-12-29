@@ -272,6 +272,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 	//拉致フラグ
 	public bool Abduction_Flag { get; set; }
 
+	//拉致抱えフラグ
+	public bool AbductionTry_Flag { get; set; }
+
 	//拉致成功フラグ
 	public bool AbductionSuccess_Flag { get; set; }
 
@@ -366,6 +369,9 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 
 		//拉致フラグ初期化
 		Abduction_Flag = false;
+
+		//拉致抱えフラグ初期化
+		AbductionTry_Flag = false;
 
 		//拉致成功フラグ初期化
 		AbductionSuccess_Flag = false;
@@ -1032,7 +1038,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//死んでる
 			DestroyFlag
 			||
-			//拉致が成功ている
+			//拉致が成功している
 			AbductionSuccess_Flag
 			||
 			//ダウン中にダウンに当たらない攻撃が当たった
@@ -1046,6 +1052,11 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		)
 		{
 			re = false;
+		}
+		else
+		{
+			//拉致モーションの再生速度をゼロにしてイベント発生を回避する
+			CurrentAnimator.SetFloat("AbductionTimeScale", 0);
 		}
 
 		//出力
@@ -1111,7 +1122,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				}				
 
 				//ゲームマネージャーのListから自身を削除
-				ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
+				//ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
 
 				//ロック解除
 				PlayerCharacter.GetComponent<PlayerScript>().EnemyLock(null);
@@ -1781,6 +1792,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				//移動ベクトルを初期化
 				SuperMoveVec *= 0;
 			}
+			//拉致になった瞬間の処理
+			else if (CurrentState.Contains("-> Abduction"))
+			{
+				//再生速度を確保
+				CurrentAnimator.SetFloat("AbductionTimeScale", 1);		
+			}
 
 			//スケベ解除から遷移する瞬間の処理
 			if (CurrentState.Contains("H_Break ->"))
@@ -1796,7 +1813,13 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			{
 				//超必殺技フラグを下す
 				SuperFlag = false;
-			}/*
+			}
+
+
+
+
+
+			/*
 			//ダウン状態から抜けた瞬間の処理
 			else if (CurrentState.Contains("Down_Prone ->"))
 			{
@@ -2792,7 +2815,18 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 	}
 
-	//拉致成功処理
+	//拉致抱え処理
+	public void AbductionTry()
+	{
+		//ダメージの遷移途中とかだとマズいのでステートチェック
+		if (CurrentState == "Abduction")
+		{
+			//フラグを立てる
+			AbductionTry_Flag = true;
+		}
+	}
+
+	//拉致成功処理、アニメーターから呼ぶ
 	public void AbductionSuccess()
 	{
 		//ダメージの遷移途中とかだとマズいのでステートチェック
@@ -2803,15 +2837,12 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		}
 	}
 
-	//拉致成功時に呼ばれるオブジェクト削除関数
-	public void AbductionVanis(float w, float t)
-	{
-		StartCoroutine(VanishCoroutine(w, t));
-	}
-
 	//オブジェクト削除コルーチン
 	private IEnumerator VanishCoroutine(float w,float t)
 	{
+		//ゲームマネージャーのListから自身を削除
+		ExecuteEvents.Execute<GameManagerScriptInterface>(GameManagerScript.Instance.gameObject, null, (reciever, eventData) => reciever.RemoveAllActiveEnemyList(ListIndex));
+
 		//チョイ待機
 		yield return new WaitForSeconds(w);
 
@@ -2843,7 +2874,6 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		{
 			//自身を削除
 			Destroy(gameObject);
-
 		});
 	}
 
