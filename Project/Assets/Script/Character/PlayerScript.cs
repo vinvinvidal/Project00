@@ -2213,7 +2213,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//敵接触判定処理
-		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8 && CurrentState != "Down" && CurrentState != "Revival" && CurrentState != "Idling")
+		if (!HoldFlag && !SpecialAttackFlag && !H_Flag && !SuperFlag && AttackMoveType != 3 && AttackMoveType != 6 && AttackMoveType != 7 && AttackMoveType != 8 && CurrentState != "Down" && CurrentState != "Revival" && CurrentState != "Idling" && !CurrentState.Contains("Abduction"))
 		{			
 			//全てのアクティブな敵を回す
 			foreach (GameObject i in GameManagerScript.Instance.AllActiveEnemyList.Where(e => e != null).ToList())
@@ -5617,6 +5617,18 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//アニメーターの遷移フラグを下す
 			CurrentAnimator.SetBool("Revival", false);
 		}
+		//HardLandingになった瞬間の処理
+		else if (s.Contains("HardLanding"))
+		{
+			//一定以上の加速度なら衝撃エフェクト表示
+			if (MoveVector.y < -0.75f)
+			{
+				//足元衝撃エフェクト表示
+				FootImpact("-90,0,0,0,0,0");
+			}
+		}
+
+
 
 		//スケベブレイクから遷移した瞬間の処理
 		if (s.Contains("H_Break ->"))
@@ -5665,6 +5677,12 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 			//表情を戻す
 			ChangeFace("Reset");
+		}
+		//アブダクションから遷移する瞬間の処理
+		else if (s.Contains("Abduction ->"))
+		{
+			//下方向に加速度を加える
+			VerticalAcceleration = -50;
 		}
 	}
 	private IEnumerator SuperArtsSyncCoroutine()
