@@ -223,6 +223,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//超必殺技中フラグ
 	public bool SuperFlag { get; set; } = false;
 
+	//拉致られフラグ
+	public bool AbductionFlag { get; set; } = false;
+
 	//スケベフラグ
 	public bool H_Flag { get; set; }
 
@@ -1123,7 +1126,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			AnimFunc();
 
 			//キャラ交代中はしない処理
-			if (!ChangeFlag && !CurrentState.Contains("Abduction"))
+			if (!ChangeFlag && !AbductionFlag)
 			{
 				//接地判定用のRayを飛ばす関数呼び出し
 				GroundRayCast();
@@ -2750,6 +2753,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//アニメーション遷移フラグを立てる
 		CurrentAnimator.SetBool("Abduction", true);
 
+		//拉致られフラグを立てる
+		AbductionFlag = true;
+
 		//敵のルートボーン取得
 		GameObject EnemyRootBoneOBJ = DeepFind(Enemy, "RootBone");
 
@@ -2766,7 +2772,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		}
 
 		//拉致られてる間は継続
-		while (CurrentState == "Abduction")
+		while (AbductionFlag)
 		{
 			//1フレーム待機
 			yield return null;
@@ -5681,8 +5687,11 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//アブダクションから遷移する瞬間の処理
 		else if (s.Contains("Abduction ->"))
 		{
-			//下方向に加速度を加える
-			VerticalAcceleration = -50;
+			//重力加速度をリセット
+			GravityAcceleration = Physics.gravity.y * 2 * Time.deltaTime;
+
+			//拉致られフラグを下す
+			AbductionFlag = false;
 		}
 	}
 	private IEnumerator SuperArtsSyncCoroutine()
@@ -6389,7 +6398,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			}
 
 			//拉致られたら処理を飛ばしてブレーク
-			if(CurrentState.Contains("Abduction"))
+			if(AbductionFlag)
 			{
 				goto Abduction;
 			}
