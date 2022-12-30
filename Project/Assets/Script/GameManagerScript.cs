@@ -205,6 +205,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//全滅フラグ
 	public bool GameOverFlag { get; set; } = false;
 
+	//セーブ中フラグ
+	public bool SaveDataFlag { get; set; } = false;
+
 	//ロック対象になる敵を入れるList
 	private List<GameObject> LockEnemyList;
 
@@ -411,6 +414,13 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 	void Awake()
 	{
+		//アプリ終了処理
+		Application.wantsToQuit += () => 
+		{			
+			//セーブ中は終了させないようにする
+			return !SaveDataFlag;
+		};
+
 		//フレームレートを設定
 		Application.targetFrameRate = FrameRate;
 
@@ -2511,6 +2521,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		//セーブデータ準備完了フラグを下す
 		UserDataReadyFlag = false;
 
+		//セーブ中フラグを立てる
+		SaveDataFlag = true;
+
 		//セーブフォルダチェックフラグ宣言
 		bool SaveFolderCheckCompleteFlag = false;
 
@@ -2582,6 +2595,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 			//セーブデータ準備完了フラグを立てる
 			UserDataReadyFlag = true;
 		}
+
+		//セーブ中フラグを下す
+		SaveDataFlag = false;
 	}
 
 	//セーブデータセーブ実行関数
@@ -2751,6 +2767,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//オートセーブ実行関数
 	public void AutoSave(Action Act)
 	{
+		//セーブ中フラグを立てる
+		SaveDataFlag = true;
+
 		StartCoroutine(AutoSaveCoroutine(Act));
 	}
 	IEnumerator AutoSaveCoroutine(Action Act)
@@ -2786,6 +2805,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		{
 			yield return null;
 		}
+
+		//セーブ中フラグを下す
+		SaveDataFlag = false;
 
 		//処理が終わったら匿名関数実行
 		Act();
@@ -2946,79 +2968,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 
 				//UserDataに代入
 				UserData.ArtsMatrix[i.CharacterID] = tempArtsMatrix;
-
-				/*
-				//とりあえずnullを入れたカラのArtsMatrixを作る
-				List<string> tempArtsMatrix00 = new List<string>();
-				List<string> tempArtsMatrix01 = new List<string>();
-				List<string> tempArtsMatrix02 = new List<string>();
-				List<string> tempArtsMatrix03 = new List<string>();
-				List<string> tempArtsMatrix04 = new List<string>();
-				List<string> tempArtsMatrix05 = new List<string>();
-
-				tempArtsMatrix00.Add(null);
-				tempArtsMatrix00.Add(null);
-				tempArtsMatrix00.Add(null);
-
-				tempArtsMatrix01.Add(null);
-				tempArtsMatrix01.Add(null);
-				tempArtsMatrix01.Add(null);
-
-				tempArtsMatrix02.Add(null);
-				tempArtsMatrix02.Add(null);
-				tempArtsMatrix02.Add(null);
-
-				tempArtsMatrix03.Add(null);
-				tempArtsMatrix03.Add(null);
-				tempArtsMatrix03.Add(null);
-
-				tempArtsMatrix04.Add(null);
-				tempArtsMatrix04.Add(null);
-				tempArtsMatrix04.Add(null);
-
-				tempArtsMatrix05.Add(null);
-				tempArtsMatrix05.Add(null);
-				tempArtsMatrix05.Add(null);
-
-				List<List<string>> tempArtsMatrix06 = new List<List<string>>();
-				List<List<string>> tempArtsMatrix07 = new List<List<string>>();
-				List<List<string>> tempArtsMatrix08 = new List<List<string>>();
-
-				tempArtsMatrix06.Add(tempArtsMatrix00);
-				tempArtsMatrix06.Add(tempArtsMatrix01);
-
-				tempArtsMatrix07.Add(tempArtsMatrix02);
-				tempArtsMatrix07.Add(tempArtsMatrix03);
-
-				tempArtsMatrix08.Add(tempArtsMatrix04);
-				tempArtsMatrix08.Add(tempArtsMatrix05);
-
-				List<List<List<string>>> tempArtsMatrix = new List<List<List<string>>>();
-
-				tempArtsMatrix.Add(tempArtsMatrix06);
-				tempArtsMatrix.Add(tempArtsMatrix07);
-				tempArtsMatrix.Add(tempArtsMatrix08);
-
-				//技リストから初期装備技を検出してリストに入れる
-				foreach (ArtsClass ii in AllArtsList)
-				{
-					if(ii.UseCharacter == i.CharacterID)
-					{
-						//10以下ってことは初期装備技
-						if (ii.UnLock[0] < 10)
-						{
-							//マトリクスに装備
-							tempArtsMatrix[ii.UnLock[0]][ii.UnLock[1]][ii.UnLock[2]] = ii.NameC;
-
-							//技アンロックリストに名前を入れる
-							UserData.ArtsUnLock.Add(ii.NameC);
-						}
-					}
-				}
-
-				//UserDataに代入
-				UserData.ArtsMatrix[i.CharacterID] = tempArtsMatrix;
-				*/
 			}
 
 			//全ての技を回す
@@ -3153,56 +3102,6 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		re.EquipSuperArts.Add(0);
 		re.EquipSuperArts.Add(0);
 
-
-		/*
-		//キャラクターの数を求める為のfileinfo配列
-		FileInfo[] tempfileinfolist;
-
-		//キャラクター数
-		int Num = 0;
-		//開発用
-		if (DevSwicth)
-		{
-			tempfileinfolist = new DirectoryInfo(DataPath + "/Resources/csv/Character/").GetFiles();
-		}
-		//本番用
-		else
-		{
-			tempfileinfolist = new DirectoryInfo(Application.streamingAssetsPath + GenerateBundlePath("/csv/Character/")).GetFiles();
-		}
-		 
-		//キャラクターCSVの数を数える
-		foreach(var i in tempfileinfolist)
-		{
-			//余計なファイルを除外
-			if (!Regex.IsMatch(i.Name, "meta|manifest"))
-			{
-				//キャラクター数カウントアップ
-				Num++;
-			}
-		}
-		
-		//キャラクターの数だけ回す
-		for (int i = 0; i <= Num - 1; i++)
-		{
-			//髪と衣装と武器に初期装備を入れる、適当に10人分、多分そんなに使わない
-			re.EquipHairList.Add(0);
-			re.EquipCostumeList.Add(0);
-			re.EquipWeaponList.Add(0);
-
-			//装備中の技マトリクスに要素追加
-			re.ArtsMatrix.Add(null);
-
-			//レバー入れ攻撃アンロック状況を追加
-			re.ArrowKeyInputAttackUnLock.Add(false);
-
-			//装備中の超必殺技を追加、最初は何も装備していないので適当な数字を入れておく
-			//re.EquipSuperArts.Add(100);
-
-			//超必殺技デバッグ用
-			re.EquipSuperArts.Add(0);
-		}
-		*/
 		//出力
 		return re;	
 	}
