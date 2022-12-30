@@ -1090,10 +1090,10 @@ public class Enemy00BehaviorScript : GlobalClass, EnemyBehaviorInterface
 		}
 
 		//時間が残っているかチェック
-		if(TargetCharacter.GetComponent<PlayerScript>().RevivalTime > 0)
+		if(TargetCharacter.GetComponent<PlayerScript>().RevivalCountDown > 0)
 		{
 			//残っていたら延長して起き上がりを防ぐ
-			TargetCharacter.GetComponent<PlayerScript>().RevivalTime += 1;
+			TargetCharacter.GetComponent<PlayerScript>().RevivalCountDown += 1;
 
 			//アニメーターのフラグを下す
 			CurrentAnimator.SetBool("Walk", false);

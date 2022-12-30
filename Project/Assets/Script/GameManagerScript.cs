@@ -202,6 +202,9 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 	//戦闘中フラグ
 	public bool BattleFlag { get; set; } = false;
 
+	//全滅フラグ
+	public bool GameOverFlag { get; set; } = false;
+
 	//ロック対象になる敵を入れるList
 	private List<GameObject> LockEnemyList;
 
@@ -2069,7 +2072,11 @@ public class GameManagerScript : GlobalClass , GameManagerScriptInterface
 		{
 			//ダウンでの交代ならバトルフィールドの初期位置に移動
 			NextCharacter.transform.position = DeepFind(BattleFieldOBJ, "PlayerPosOBJ").transform.position;
-			NextCharacter.transform.rotation = Quaternion.LookRotation(HorizontalVector(PlayableCharacterOBJ, NextCharacter));
+
+			if (PlayableCharacterOBJ != NextCharacter)
+			{
+				NextCharacter.transform.rotation = Quaternion.LookRotation(HorizontalVector(PlayableCharacterOBJ, NextCharacter));
+			}			
 		}
 		else
 		{

@@ -133,6 +133,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 	//復活にかかる時間
 	public float RevivalTime;
 
+	//復活経過時間
+	public float RevivalCountDown { get; set; }
+
 	//--- 変動パラメータ ---//
 
 	//ライフゲージ
@@ -5619,7 +5622,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		{
 			//アニメーターの遷移フラグを下す
 			CurrentAnimator.SetBool("Down", false);
-
+	
 			//アニメーターの遷移フラグを下す
 			CurrentAnimator.SetBool("Revival", false);
 		}
@@ -5633,8 +5636,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				FootImpact("-90,0,0,0,0,0");
 			}
 		}
-
-
 
 		//スケベブレイクから遷移した瞬間の処理
 		if (s.Contains("H_Break ->"))
@@ -6212,12 +6213,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//事後処理
 		(List<Renderer> R) => 
 		{
-			//復活の場合は操作可能なキャラクターリストに自身を加える
-			if (CurrentState.Contains("Revival"))
-			{
-				GameManagerScript.Instance.AllActiveCharacterList[AllActiveCharacterListIndex] = gameObject;
-			}
-
 			//オブジェクトを無効化
 			gameObject.SetActive(false);
 
@@ -6234,6 +6229,35 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				foreach (Material ii in i.sharedMaterials.Where(a => a != null))
 				{
 					ii.renderQueue = 2450;
+				}
+			}
+
+			//復活の場合は操作可能なキャラクターリストに自身を加える
+			if (CurrentState.Contains("Revival"))
+			{
+				GameManagerScript.Instance.AllActiveCharacterList[AllActiveCharacterListIndex] = gameObject;
+
+				//全滅してたらすぐに出る
+				if (GameManagerScript.Instance.GameOverFlag)
+				{
+					//全滅フラグを下ろす
+					GameManagerScript.Instance.GameOverFlag = false;
+
+					//キャラ交代処理を呼び出すインデックスをズラして渡す事で自身を呼び出す
+					GameManagerScript.Instance.ChangePlayableCharacter
+					(
+						true,
+						//CharacterID,
+						AllActiveCharacterListIndex -1,
+						1,
+						LockEnemy,
+						//BattleFlag, 
+						true,
+						ChangeTime,
+						CurrentAnimator.GetBool("Combo"),
+						CurrentAnimator.GetBool("Fall"),
+						GroundDistance
+					);
 				}
 			}
 		});
@@ -6344,7 +6368,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		//全員やられた
 		if(GameManagerScript.Instance.AllActiveCharacterList.All(a => a ==null))
 		{
-			//ゲームオーバー処理呼び出し
+			//ゲームオーバーフラグを立てる
+			GameManagerScript.Instance.GameOverFlag = true;
 		}
 		else
 		{
@@ -6376,25 +6401,25 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					GroundDistance
 				);
 			}
-
-			//復活コルーチン呼び出し
-			StartCoroutine(RevivalCoroutine());
 		}
+
+		//復活コルーチン呼び出し
+		StartCoroutine(RevivalCoroutine());
 	}
 
 	//復活処理コルーチン
 	private IEnumerator RevivalCoroutine()
 	{
 		//復活時間キャッシュ
-		float T = RevivalTime;
+		RevivalCountDown = RevivalTime;
 
-		while(RevivalTime > 0)
+		while(RevivalCountDown > 0)
 		{
-			//ポーズ処理
-			if (!PauseFlag)
+			//ポーズと全滅は寝たまま
+			if (!PauseFlag && !GameManagerScript.Instance.GameOverFlag)
 			{
 				//復活時間カウントダウン
-				RevivalTime -= Time.deltaTime;
+				RevivalCountDown -= Time.deltaTime;
 			}
 
 			//拉致られたら処理を飛ばしてブレーク
@@ -6407,17 +6432,14 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			yield return null;
 		}
 
-		//アニメーターの遷移フラグを立てる
-		CurrentAnimator.SetBool("Revival", true);
-
 		//ダウンしているキャラクターリストから自身を削除
 		GameManagerScript.Instance.DownCharacterList.Remove(gameObject);
 
+		//アニメーターの遷移フラグを立てる
+		CurrentAnimator.SetBool("Revival", true);
+
 		//ブレーク先
 		Abduction:;
-
-		//復活時間をリセット
-		RevivalTime = T;
 	}
 
 	//スケベフラグを戻す処理、とりあえずなので後で消す
