@@ -3932,15 +3932,28 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 					//1フレーム待機
 					yield return null;
+
+					//もし上昇していたらヤバいので処理
+					if (MoveVector.y > 0)
+					{
+						//落下モーション再生
+						CurrentAnimator.Play("Fall");
+
+						//攻撃を強制終了
+						EndAttack();
+
+						//着地モーションを避けて抜ける
+						goto StompingLoopBreak;
+					}
 				}
 
 				//攻撃を強制終了
 				EndAttack();
 
-				//HardLanding遷移フラグを下す
+				//HardLanding遷移フラグを立てる
 				CurrentAnimator.SetBool("HardLanding", true);
 
-				//ローリングを避けて抜ける先
+				//着地モーションを避けて抜ける先
 				StompingLoopBreak:;
 
 				//踏みつけフラグを下す
