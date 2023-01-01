@@ -2,7 +2,7 @@ NameC,鱶跨ぎ
 NameH,ふかまたぎ
 UseCharacter,1
 Anim,Motion_1_AirAttack02
-MoveVec,0*1.5*2*1|0*-12*0*1|0*10*0*1
+MoveVec,0*1.5*2*1|0*-7.5*0*1|0*10*0*1
 Damage,1
 Stun,1
 Deadly,1

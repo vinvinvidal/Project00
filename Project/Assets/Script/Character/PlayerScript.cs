@@ -2314,8 +2314,16 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//空中攻撃移動制御
 			if (AttackMoveType == 1 || AttackMoveType == 2 || AttackMoveType == 3 || AttackMoveType == 5 || AttackMoveType == 7)
 			{
-				//垂直方向の加速度で重力を打ち消して攻撃加速度を入れる
-				VerticalAcceleration = AttackMoveVector.y - GravityAcceleration;
+				//踏みつけ中は重力加速度を反映する
+				if(StompingFlag)
+				{
+					VerticalAcceleration = AttackMoveVector.y;
+				}
+				else
+				{
+					//垂直方向の加速度で重力を打ち消して攻撃加速度を入れる
+					VerticalAcceleration = AttackMoveVector.y - GravityAcceleration;
+				}
 			}
 			else if(GroundDistance < 0.1f)
 			{
@@ -3917,6 +3925,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 				//踏みつけフラグを立てる
 				StompingFlag = true;
 
+				//重力加速度をリセット
+				GravityAcceleration *= 0;
+
 				//現在のステートのモーション再生時間を変更、完全停止
 				CurrentAnimator.SetFloat("AttackSpeed0" + (ComboState + 1) % 2, 0.0f);
 
@@ -3932,19 +3943,6 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 					//1フレーム待機
 					yield return null;
-
-					//もし上昇していたらヤバいので処理
-					if (MoveVector.y > 0)
-					{
-						//落下モーション再生
-						CurrentAnimator.Play("Fall");
-
-						//攻撃を強制終了
-						EndAttack();
-
-						//着地モーションを避けて抜ける
-						goto StompingLoopBreak;
-					}
 				}
 
 				//攻撃を強制終了
@@ -4098,6 +4096,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 
 				//重力加速度をリセット
 				GravityAcceleration *= 0;
+
+				//攻撃移動ベクトルをリセット
+				AttackMoveVector *= 0;
 
 				//垂直方向の加速度をリセット
 				VerticalAcceleration *= 0;

@@ -9,7 +9,7 @@ Deadly,1
 ColVec,0*0.25*0.75*1.25
 KnockBackVec,0*9*0*0.1
 Introduction,相手の懐に潜り込み、両手で頭上にカチ上げる。
-UnLock,0|2|2
+UnLock,100|100|100
 Chain,0
 MoveType,0|0|0
 AttackType,11
