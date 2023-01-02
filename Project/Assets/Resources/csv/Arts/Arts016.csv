@@ -2,7 +2,7 @@ NameC,幟
 NameH,のぼせ
 UseCharacter,0
 Anim,Motion_0_GroundAttack10
-MoveVec,0*0*1*1|0*0*5*1|0*0*2*1
+MoveVec,0*0*1*1|0*0*10*1|0*0*1*1
 Damage,1
 Stun,1
 Deadly,1
