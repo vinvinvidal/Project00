@@ -201,7 +201,7 @@ public class PlayerAttackCollScript : GlobalClass, PlayerAttackCollInterface
 		AttackCol.size = new Vector3(0.5f, c.a, c.a);
 
 		//固定位置
-		if (t == 0 || t == 1 || t == 6 || t == 10)
+		if (t == 0 || t == 1 || t == 6 || t == 9 || t == 10)
 		{
 			//コライダを出現位置に移動
 			AttackCol.center = ColVec;
