@@ -1,4 +1,8 @@
-﻿Shader "Custom/StageShader_Concrete"
+﻿// Upgrade NOTE: commented out 'float4 unity_LightmapST', a built-in variable
+// Upgrade NOTE: commented out 'sampler2D unity_Lightmap', a built-in variable
+// Upgrade NOTE: replaced tex2D unity_Lightmap with UNITY_SAMPLE_TEX2D
+
+Shader "Custom/StageShader_Concrete"
 {
 	Properties
 	{
@@ -36,6 +40,7 @@
 			#include "UnityCG.cginc"									//一般的に使用されるヘルパー関数
 			#include "AutoLight.cginc"									//ライティングやシャドウ機能
 			#include "Assets/Global/ShaderFunction.cginc"				//自前で作った関数
+			//#include "UnityPBSLighting.cginc"							//ライトマップ
 
 			#pragma target 5.0					//Shaderモデル指定、テッセレーションなどを使いたい場合は5.0
 			#pragma vertex vert					//各頂点について実行される頂点シェーダ、フラグメントシェーダに出力される			
@@ -85,9 +90,22 @@
 
 				//頂点カラー
 				float4 vertColor : COLOR;
+
+				//ライトマップUV
+				//float2 Lmap_UV : TEXCOORD2;
 			};
 
+			/*ライトマップ用構造体
+			struct appdata_lightmap 
+			{
+				float4 vertex : POSITION;
+				float2 texcoord : TEXCOORD0;
+				float2 texcoord1 : TEXCOORD1;
+			};
+			*/
+
 			//頂点シェーダ
+			//vertex_output vert(vertex_input v, appdata_lightmap i)
 			vertex_output vert(vertex_input v)
 			{
 				//return用output構造体宣言
@@ -107,6 +125,9 @@
 
 				//頂点カラー
 				re.vertColor = v.vertColor;
+
+				//ライトマップ
+				//re.Lmap_UV.xy = i.texcoord1.xy * unity_LightmapST.xy + unity_LightmapST.zw;
 
 				//出力　
 				return re;
@@ -135,6 +156,9 @@
 
 				//ライトカラーをブレンド
 				re *= lerp(1, _LightColor0, _LightColor0.a);
+
+				//ライトマップ
+				//re.rgb *= DecodeLightmap(UNITY_SAMPLE_TEX2D(unity_Lightmap, i.Lmap_UV));
 
 				//出力
 				return re;

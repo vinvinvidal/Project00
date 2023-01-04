@@ -304,10 +304,17 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 		//拉致で終わったら演出カット
 		if(LastEnemy != null)
-		{
+		{			
 			//演出カメラ位置基準オブジェクトを取得
 			GameObject PosOBJ = LastEnemy != null ? LastEnemy : PlayerCharacter;
 
+			//演出カメラ位置
+			Vector3 CameraPos;
+
+			//顔の向きを計る
+			float HeadAngle = Mathf.Sign(Vector3.Dot(DeepFind(PlayerCharacter, "HeadAngle").transform.forward, PlayerCharacter.transform.right));
+			/*
+			
 			//相手が下にいる
 			if (PlayerCharacter.transform.position.y - PosOBJ.transform.position.y > 1.5f)
 			{
@@ -325,19 +332,16 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 			}
 			else
 			{
-				//演出カメラを演出位置に移動
-				BattleVictoryVcam.gameObject.transform.position = PosOBJ.transform.position + (PlayerCharacter.transform.forward * 1.5f) + (PlayerCharacter.transform.right * -0.75f) + new Vector3(0, 0.25f, 0);
-
-				//注視点をプレイヤーキャラクターにする
-				PosOBJ = PlayerCharacter;
+				//演出カメラ演出位置に移動
+				BattleVictoryVcam.gameObject.transform.position = PlayerCharacter.transform.position + (PlayerCharacter.transform.forward * 0.5f) + (PlayerCharacter.transform.right * HeadAngle) + new Vector3(0, 0.25f, 0);
 
 				//演出カメラを注視点に向ける
-				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "NeckBone").transform.position);
+				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PlayerCharacter, "NeckBone").transform.position + (PlayerCharacter.transform.forward * 0.25f));
 
 				//Z軸に傾ける
-				BattleVictoryVcam.gameObject.transform.localRotation *= Quaternion.Euler(0, 0, 40);
+				BattleVictoryVcam.gameObject.transform.localRotation *= Quaternion.Euler(0, 0, 40 * HeadAngle);
 			}
-
+			*/
 			//バーチャルカメラ再生
 			BattleVictoryVcam.PlayCameraWork(0, true);
 
@@ -353,6 +357,22 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				//カメラワーク終了
 				BattleVictoryVcam.KeepCameraFlag = false;
 			});
+
+			while(BattleVictoryVcam.KeepCameraFlag)
+			{
+				HeadAngle = Vector3.Dot(DeepFind(PlayerCharacter, "HeadAngle").transform.forward, PlayerCharacter.transform.right) * 2;
+
+				//演出カメラ演出位置に移動
+				BattleVictoryVcam.gameObject.transform.position = PlayerCharacter.transform.position + PlayerCharacter.transform.forward + (PlayerCharacter.transform.right * HeadAngle) + new Vector3(0, 0.25f, 0);
+
+				//演出カメラを注視点に向ける
+				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PlayerCharacter, "NeckBone").transform.position + (PlayerCharacter.transform.forward * 0.1f));
+
+				//Z軸に傾ける
+				BattleVictoryVcam.gameObject.transform.localRotation *= Quaternion.Euler(0, 0, 30 * HeadAngle);
+
+				yield return null;
+			}
 		}
 
 		//壁オブジェクトが全部消えるまでループ
