@@ -497,6 +497,7 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 		NotDownAttackList.Add(0);
 		NotDownAttackList.Add(3);
 		NotDownAttackList.Add(9);
+		NotDownAttackList.Add(20);
 
 
 

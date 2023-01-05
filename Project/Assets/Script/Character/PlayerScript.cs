@@ -2300,7 +2300,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			//ロックしている敵に向ける
 			if (LockEnemy != null && !NoRotateFlag && (CurrentState.Contains("-> Attack") || ChainRotateTime != 0))
 			{
-				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * 2 * Time.deltaTime);
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(HorizontalVector(LockEnemy, gameObject)), TurnSpeed * 5 * Time.deltaTime);
 			}
 
 			//敵に接触している時は前方に動かさない
@@ -6429,7 +6429,7 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 		while(RevivalCountDown > 0)
 		{
 			//ポーズと全滅は寝たまま
-			if (!PauseFlag && !GameManagerScript.Instance.GameOverFlag)
+			if (!GameManagerScript.Instance.PauseFlag && !GameManagerScript.Instance.GameOverFlag)
 			{
 				//復活時間カウントダウン
 				RevivalCountDown -= Time.deltaTime;
