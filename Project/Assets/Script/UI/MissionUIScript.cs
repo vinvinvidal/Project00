@@ -82,6 +82,9 @@ public class MissionUIScript : GlobalClass
 		//オノマトペのインスタンス生成
 		GameObject TempOnomatope = Instantiate(OnomatopeOBJ);
 
+		//名前変更
+		TempOnomatope.name = "AttackOnomatope";
+
 		//テクスチャ宣言
 		Texture2D TempTexture = null;
 

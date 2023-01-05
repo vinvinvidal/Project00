@@ -346,7 +346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6fe77711b8f1d546a53dd9922db9379, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EnemyWaveList: 01000000
+  EnemyWaveList: 0000000001000000
   WallOBJPickPosList:
   - {fileID: 1979632813887577373}
   - {fileID: 8530927565559961510}

@@ -956,20 +956,20 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 				{
 					HitEnemy = null;
 				}
-				//上にいる時に動かす
-				else if (gameObject.transform.position.y > HitEnemy.gameObject.transform.position.y)
+				//空中にいる奴だけ動かす
+				else if (!OnGround)
 				{
+					//相手と自分までのベクトルで強制移動
 					ForceMoveVector = HorizontalVector(gameObject, HitEnemy).normalized;
-
-					CharaControllerReset("Rise");
 				}
 			}
+
 			//プレイヤーを避ける処理
 			if (!HoldFlag && !SpecialFlag && !DownFlag)
 			{
 				if (HorizontalVector(gameObject, PlayerCharacter).sqrMagnitude < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y < 1f && gameObject.transform.position.y - PlayerCharacter.transform.position.y > -0.1f)
 				{
-					//敵と自分までのベクトルで強制移動
+					//相手と自分までのベクトルで強制移動
 					ForceMoveVector += HorizontalVector(transform.gameObject, PlayerCharacter).normalized;
 				}
 			}
@@ -2157,9 +2157,14 @@ public class EnemyCharacterScript : GlobalClass, EnemyCharacterInterface
 			//壁当たりモーション再生
 			DamageMotionFunc(null, 0);
 		}
-		else if (LayerMask.LayerToName(hit.gameObject.layer) == "Enemy" && gameObject.transform.position.y > hit.gameObject.transform.position.y)
+	}
+
+	//他の敵キャラクターとの接触を取るコライダヒット
+	private void OnTriggerEnter(Collider Hit)
+	{
+		if (LayerMask.LayerToName(Hit.gameObject.layer) == "EnemyDamageCol" && Hit.transform.root.gameObject != gameObject)
 		{
-			HitEnemy = hit.gameObject;
+			HitEnemy = Hit.transform.root.gameObject;
 		}
 	}
 

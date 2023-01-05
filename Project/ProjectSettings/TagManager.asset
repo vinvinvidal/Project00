@@ -27,8 +27,8 @@ TagManager:
   - MainCamera
   - CameraPos
   - EventArea
-  - EnemyForceMove
-  - PlayerForceMove
+  - 
+  - 
   - Effect
   - OutDoor
   - InDoor

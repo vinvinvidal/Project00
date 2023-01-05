@@ -2,7 +2,7 @@ NameC,瓢岬
 NameH,ひさごみさき
 UseCharacter,2
 Anim,Motion_2_GroundAttack08
-MoveVec,0*0*3*1|0*10*5*1|0*1*4*1|0*0.5*3*1|0*3*2*1|0*0.5*1*1|0*7*0*1
+MoveVec,0*0*5*1|0*8*5*1|0*1*5*1|0*0.5*3*1|0*3*2*1|0*0.5*1*1|0*7*0*1
 Damage,1|1
 Stun,1|1
 Deadly,1|0

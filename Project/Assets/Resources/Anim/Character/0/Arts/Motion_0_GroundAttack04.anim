@@ -90395,6 +90395,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0.15
+    functionName: StartAttackTrail
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 1
+    messageOptions: 0
   - time: 0.16666667
     functionName: FootSmoke
     data: 
@@ -90404,7 +90411,7 @@ AnimationClip:
     messageOptions: 0
   - time: 0.18333334
     functionName: BlurEffect
-    data: 0.05,2,f
+    data: 0.05,1,f
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -90412,13 +90419,6 @@ AnimationClip:
   - time: 0.2
     functionName: StartAttackMove
     data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.21666667
-    functionName: FootImpact
-    data: 0,0,0,0,0,0
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

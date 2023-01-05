@@ -2231,7 +2231,8 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 					EnemyContactFlag = true;
 
 					//敵と自分までのベクトルで強制移動
-					ForceMoveVector += Controller.transform.position - new Vector3(i.transform.position.x, transform.position.y, i.transform.position.z);
+					ForceMoveVector += HorizontalVector(gameObject, i);
+					//ForceMoveVector += Controller.transform.position - new Vector3(i.transform.position.x, transform.position.y, i.transform.position.z);
 				}
 			}
 		}
@@ -5259,11 +5260,9 @@ public class PlayerScript : GlobalClass, PlayerScriptInterface
 			GameManagerScript.Instance.ChangePlayableCharacter
 			(
 				false,
-				//CharacterID,
 				AllActiveCharacterListIndex,
 				ChangeInputNum, 
 				LockEnemy, 
-				//BattleFlag, 
 				OnGroundFlag, 
 				ChangeTime, 
 				CurrentAnimator.GetBool("Combo"), 

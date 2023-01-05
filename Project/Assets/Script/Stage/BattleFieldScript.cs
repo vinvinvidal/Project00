@@ -305,43 +305,24 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 		//拉致で終わったら演出カット
 		if(LastEnemy != null)
 		{			
-			//演出カメラ位置基準オブジェクトを取得
-			GameObject PosOBJ = LastEnemy != null ? LastEnemy : PlayerCharacter;
+			//顔の向きオブジェクト取得
+			GameObject HeadAngleOBJ = DeepFind(PlayerCharacter, "HeadAngle");
 
-			//演出カメラ位置
-			Vector3 CameraPos;
+			//首のボーンオブジェクト取得
+			GameObject NeckOBJ = DeepFind(PlayerCharacter, "NeckBone");
 
-			//顔の向きを計る
-			float HeadAngle = Mathf.Sign(Vector3.Dot(DeepFind(PlayerCharacter, "HeadAngle").transform.forward, PlayerCharacter.transform.right));
-			/*
-			
-			//相手が下にいる
-			if (PlayerCharacter.transform.position.y - PosOBJ.transform.position.y > 1.5f)
-			{
-				//演出カメラを演出位置に移動
-				BattleVictoryVcam.gameObject.transform.position = DeepFind(PlayerCharacter, "PelvisBone").transform.position + ((DeepFind(PlayerCharacter, "PelvisBone").transform.position - PosOBJ.transform.position).normalized * 2.5f);
+			//顔の向き変数
+			float HeadAngle = Mathf.Sign(Vector3.Dot(HeadAngleOBJ.transform.forward, PlayerCharacter.transform.right));
 
-				//演出カメラを注視点に向ける
-				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "PelvisBone").transform.position + PlayerCharacter.transform.right);
+			//カメラ横移動係数
+			float count = 0.75f;
 
-				//演出カメラを演出位置に移動
-				BattleVictoryVcam.gameObject.transform.position += (BattleVictoryVcam.gameObject.transform.right * -1.25f);
+			//オノマトペ削除
+			Destroy(DeepFind(GameManagerScript.Instance.gameObject, "AttackOnomatope"));
 
-				//演出カメラを注視点に向ける
-				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PosOBJ, "PelvisBone").transform.position + PlayerCharacter.transform.right);
-			}
-			else
-			{
-				//演出カメラ演出位置に移動
-				BattleVictoryVcam.gameObject.transform.position = PlayerCharacter.transform.position + (PlayerCharacter.transform.forward * 0.5f) + (PlayerCharacter.transform.right * HeadAngle) + new Vector3(0, 0.25f, 0);
+			//敵が下にいるフラグ
+			bool EnemyPosFlag = PlayerCharacter.transform.position.y - LastEnemy.transform.position.y > 0.25f;
 
-				//演出カメラを注視点に向ける
-				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PlayerCharacter, "NeckBone").transform.position + (PlayerCharacter.transform.forward * 0.25f));
-
-				//Z軸に傾ける
-				BattleVictoryVcam.gameObject.transform.localRotation *= Quaternion.Euler(0, 0, 40 * HeadAngle);
-			}
-			*/
 			//バーチャルカメラ再生
 			BattleVictoryVcam.PlayCameraWork(0, true);
 
@@ -358,19 +339,39 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 				BattleVictoryVcam.KeepCameraFlag = false;
 			});
 
-			while(BattleVictoryVcam.KeepCameraFlag)
+			//カメラ演出が終わるまでループ
+			while (BattleVictoryVcam.KeepCameraFlag)
 			{
-				HeadAngle = Vector3.Dot(DeepFind(PlayerCharacter, "HeadAngle").transform.forward, PlayerCharacter.transform.right) * 2;
+				//顔の向き算出
+				//HeadAngle = Vector3.Dot(HeadAngleOBJ.transform.forward, PlayerCharacter.transform.right);
 
-				//演出カメラ演出位置に移動
-				BattleVictoryVcam.gameObject.transform.position = PlayerCharacter.transform.position + PlayerCharacter.transform.forward + (PlayerCharacter.transform.right * HeadAngle) + new Vector3(0, 0.25f, 0);
+				//空中
+				if (EnemyPosFlag)				
+				{
+					//演出カメラ演出位置に移動
+					BattleVictoryVcam.gameObject.transform.position = PlayerCharacter.transform.position + ((PlayerCharacter.transform.position - LastEnemy.transform.position).normalized * 2.5f) + (PlayerCharacter.transform.right * HeadAngle * count) + new Vector3(0, 0.5f, 0);
 
-				//演出カメラを注視点に向ける
-				BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PlayerCharacter, "NeckBone").transform.position + (PlayerCharacter.transform.forward * 0.1f));
+					//演出カメラを注視点に向ける
+					//BattleVictoryVcam.gameObject.transform.LookAt((PlayerCharacter.transform.position + LastEnemy.transform.position) * 0.5f);
+					BattleVictoryVcam.gameObject.transform.LookAt(NeckOBJ.transform.position);
+				}
+				//地上
+				else
+				{
+					//演出カメラ演出位置に移動
+					BattleVictoryVcam.gameObject.transform.position = PlayerCharacter.transform.position + PlayerCharacter.transform.forward + (PlayerCharacter.transform.right * HeadAngle * count) + new Vector3(0, 0.25f, 0);
 
-				//Z軸に傾ける
+					//演出カメラを注視点に向ける
+					//BattleVictoryVcam.gameObject.transform.LookAt(DeepFind(PlayerCharacter, "NeckBone").transform.position + (PlayerCharacter.transform.forward * 0.1f));
+					BattleVictoryVcam.gameObject.transform.LookAt(NeckOBJ.transform.position + (PlayerCharacter.transform.forward * ((LastEnemy.transform.position - PlayerCharacter.transform.position).magnitude * 0.1f)));
+				}
+
+				//カメラを傾ける
 				BattleVictoryVcam.gameObject.transform.localRotation *= Quaternion.Euler(0, 0, 30 * HeadAngle);
 
+				count += 0.01f;
+
+				//１フレーム待機
 				yield return null;
 			}
 		}
@@ -428,6 +429,9 @@ public class BattleFieldScript : GlobalClass, BattleFieldScriptInterface
 
 				//プレイヤーキャラクターの戦闘継続処理実行
 				PlayerCharacter.GetComponent<PlayerScript>().BattleContinue();
+
+				//敵全滅チェック開始
+				EnemyCheckFlag = true;
 
 			}));
 		}));
