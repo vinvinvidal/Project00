@@ -128,97 +128,90 @@
 				//現在レンダリングされているピクセルの色を抽出
 				SampleNormal_C = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv));
 
-				//何もない所は処理しない
-				if(SampleDepth_C + SampleNormal_C.x + SampleNormal_C.y + SampleNormal_C.z != 0)
-				{
-					//深度バッファから色を抽出する場所をずらすための値			
-					SampleUV_X = _CameraDepthTexture_TexelSize.x * _DepthLineWidth;
-					SampleUV_Y = _CameraDepthTexture_TexelSize.y * _DepthLineWidth;
+				//深度バッファから色を抽出する場所をずらすための値			
+				SampleUV_X = _CameraDepthTexture_TexelSize.x * _DepthLineWidth;
+				SampleUV_Y = _CameraDepthTexture_TexelSize.y * _DepthLineWidth;
 
-					//現在レンダリングされているピクセルの周囲のピクセルの色を抽出
-					/*
-					SampleDepth_R = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(SampleUV_X, 0)));
-					SampleDepth_L = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(-SampleUV_X, 0)));
-					SampleDepth_U = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(0, SampleUV_Y)));
-					SampleDepth_B = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(0, -SampleUV_Y)));
-					*/
-					SampleDepth_UR = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(SampleUV_X, SampleUV_Y)));
-					SampleDepth_BR = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(SampleUV_X, -SampleUV_Y)));
-					SampleDepth_UL = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(-SampleUV_X, SampleUV_Y)));
-					SampleDepth_BL = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(-SampleUV_X, -SampleUV_Y)));
+				//現在レンダリングされているピクセルの周囲のピクセルの色を抽出
+				/*
+				SampleDepth_R = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(SampleUV_X, 0)));
+				SampleDepth_L = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(-SampleUV_X, 0)));
+				SampleDepth_U = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(0, SampleUV_Y)));
+				SampleDepth_B = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(0, -SampleUV_Y)));
+				*/
+				SampleDepth_UR = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(SampleUV_X, SampleUV_Y)));
+				SampleDepth_BR = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(SampleUV_X, -SampleUV_Y)));
+				SampleDepth_UL = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(-SampleUV_X, SampleUV_Y)));
+				SampleDepth_BL = Linear01Depth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv + half2(-SampleUV_X, -SampleUV_Y)));
+			
+				//サンプルされた周囲の色から一番差が大きいピクセルを抜き出す
+				/*
+				CompareDepth = max((SampleDepth_C - SampleDepth_R), (SampleDepth_C - SampleDepth_L));
+				CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_U));
+				CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_B));
+				*/
+				CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_UL));
+				CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_UR));
+				CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_BR));
+				CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_BL));
+			
+				//残った最大差のピクセルとしきい値を比較
+				CompareDepth = max(CompareDepth, _DepthLineBorder);
+
+				//そこからしきい値を引くと不合格ピクセルはゼロになる
+				CompareDepth -= _DepthLineBorder;
+
+				//出た値を透明度に取る
+				re.a += lerp(0, 1, InverseLerp(0, _DepthLineBorder * 10 , CompareDepth));				
+
+				//--------法線バッファからアウトラインを作る----------//
+				//法線バッファから抽出する場所をずらすための値
+				SampleUV_X = _CameraDepthTexture_TexelSize.x * _NormalLineWidth;
+				SampleUV_Y = _CameraDepthTexture_TexelSize.y * _NormalLineWidth;
+				/*
+				SampleNormal_R = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(SampleUV_X, 0)));
+				SampleNormal_L = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(-SampleUV_X, 0)));
+				SampleNormal_U = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(0, SampleUV_Y)));
+				SampleNormal_B = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(0, -SampleUV_Y)));
+				*/
+				SampleNormal_UR = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(SampleUV_X, SampleUV_Y)));
+				SampleNormal_UL = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(-SampleUV_X, SampleUV_Y)));
+				SampleNormal_BR = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(SampleUV_X, -SampleUV_Y)));
+				SampleNormal_BL = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(-SampleUV_X, -SampleUV_Y)));
 				
-					//サンプルされた周囲の色から一番差が大きいピクセルを抜き出す
-					/*
-					CompareDepth = max((SampleDepth_C - SampleDepth_R), (SampleDepth_C - SampleDepth_L));
-					CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_U));
-					CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_B));
-					*/
-					CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_UL));
-					CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_UR));
-					CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_BR));
-					CompareDepth = max(CompareDepth, (SampleDepth_C - SampleDepth_BL));
-				
-					//残った最大差のピクセルとしきい値を比較
-					CompareDepth = max(CompareDepth, _DepthLineBorder);
+				//サンプルされた周囲の色から一番差が大きいピクセルを抜き出す
+				/*
+				CompareNormal = max(distance(SampleNormal_C, SampleNormal_R), distance(SampleNormal_C, SampleNormal_L));
+				CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_U));
+				CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_B));
+				*/
+				CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_UR));
+				CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_UL));
+				CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_BR));
+				CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_BL));					
 
-					//そこからしきい値を引くと不合格ピクセルはゼロになる
-					CompareDepth -= _DepthLineBorder;
+				//残った最大差のピクセルとしきい値を比較
+				CompareNormal = max(CompareNormal, _NormalLineBorder);
 
-					//出た値を透明度に取る
-					re.a += lerp(0, 1, InverseLerp(0, _DepthLineBorder * 10 , CompareDepth));				
+				//そこからしきい値を引くと不合格ピクセルはゼロになる
+				CompareNormal -= _NormalLineBorder;
 
-					//--------法線バッファからアウトラインを作る----------//
-					//法線バッファから抽出する場所をずらすための値
-					SampleUV_X = _CameraDepthTexture_TexelSize.x * _NormalLineWidth;
-					SampleUV_Y = _CameraDepthTexture_TexelSize.y * _NormalLineWidth;
-					/*
-					SampleNormal_R = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(SampleUV_X, 0)));
-					SampleNormal_L = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(-SampleUV_X, 0)));
-					SampleNormal_U = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(0, SampleUV_Y)));
-					SampleNormal_B = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(0, -SampleUV_Y)));
-					*/
-					SampleNormal_UR = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(SampleUV_X, SampleUV_Y)));
-					SampleNormal_UL = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(-SampleUV_X, SampleUV_Y)));
-					SampleNormal_BR = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(SampleUV_X, -SampleUV_Y)));
-					SampleNormal_BL = DecodeViewNormalStereo(tex2D(_CameraDepthNormalsTexture, i.uv + half2(-SampleUV_X, -SampleUV_Y)));
-					
-					//サンプルされた周囲の色から一番差が大きいピクセルを抜き出す
-					/*
-					CompareNormal = max(distance(SampleNormal_C, SampleNormal_R), distance(SampleNormal_C, SampleNormal_L));
-					CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_U));
-					CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_B));
-					*/
-					CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_UR));
-					CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_UL));
-					CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_BR));
-					CompareNormal = max(CompareNormal, distance(SampleNormal_C, SampleNormal_BL));					
+				//出た値を透明度に取る
+				re.a += lerp(0, 1, InverseLerp(0, _NormalLineBorder * 10, CompareNormal));				
 
-					//残った最大差のピクセルとしきい値を比較
-					CompareNormal = max(CompareNormal, _NormalLineBorder);
+				//--------カラーバッファからアウトラインの色を作る----------//
+				//カラーバッファをHSVに変換
+				LineColorHSV = RGB2HSV(tex2D(_MainTex, i.uv).rgb);
 
-					//そこからしきい値を引くと不合格ピクセルはゼロになる
-					CompareNormal -= _NormalLineBorder;
+				//彩度を上げ明度を落とし濃くする
+				LineColorHSV.g += _LineConcentration;
+				LineColorHSV.b -= _LineConcentration;
 
-					//出た値を透明度に取る
-					re.a += lerp(0, 1, InverseLerp(0, _NormalLineBorder * 10, CompareNormal));				
+				//HSVをRGBに戻して線の色として使う
+				re.rgb = HSV2RGB(LineColorHSV);
 
-					//--------カラーバッファからアウトラインの色を作る----------//
-					//カラーバッファをHSVに変換
-					LineColorHSV = RGB2HSV(tex2D(_MainTex, i.uv).rgb);
-
-					//彩度を上げ明度を落とし濃くする
-					LineColorHSV.g += _LineConcentration;
-					LineColorHSV.b -= _LineConcentration;
-
-					//HSVをRGBに戻して線の色として使う
-					re.rgb = HSV2RGB(LineColorHSV);
-
-					//アルファを正規化
-					re.a = saturate(re.a);
-
-					//エフェクト部分をマスキングする
-					//re.a *= -1 * (tex2D(_MaskTex, i.uv).a -1);
-				}
+				//アルファを正規化
+				re.a = saturate(re.a);			
 
 				//出力
 				return re;
